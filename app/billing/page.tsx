@@ -5,6 +5,7 @@ import { Progress } from "@/components/ui/progress"
 import { CreditCard } from 'lucide-react'
 import { useUserStats } from "@/hooks/useUserStats"
 import { useRouter } from 'next/navigation'
+import { getCookie } from 'cookies-next'
 
 export default function BillingPage() {
   const { 
