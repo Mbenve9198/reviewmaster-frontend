@@ -17,12 +17,32 @@ export default function BillingPage() {
   } = useUserStats()
   const router = useRouter()
 
+  const handleOpenCustomerPortal = async () => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/create-portal-session`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${getCookie('token')}`,
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include'
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create portal session');
+      }
+
+      const { url } = await response.json();
+      window.location.href = url;
+    } catch (error) {
+      console.error('Error opening customer portal:', error);
+    }
+  };
+
   const handleManagePlan = () => {
     if (subscriptionPlan === 'trial') {
-      // Se l'utente è in trial, reindirizza alla pagina dei piani
       router.push('/billing/plans');
     } else {
-      // Altrimenti apri il portale di gestione dell'abbonamento
       handleOpenCustomerPortal();
     }
   };
