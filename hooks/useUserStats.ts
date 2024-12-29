@@ -26,7 +26,7 @@ export function useUserStats() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/api/users/stats`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/stats`, {
           credentials: 'include',
           headers: {
             'Authorization': `Bearer ${getCookie('token')}`,
