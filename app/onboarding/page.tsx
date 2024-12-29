@@ -170,7 +170,7 @@ export default function OnboardingPage() {
 
           {step === 2 && (
             <div className="grid grid-cols-1 gap-4">
-              {steps[1].options.map((type) => (
+              {steps[1]?.options?.map((type) => (
                 <button
                   key={type.value}
                   className={`flex items-center gap-6 p-6 text-left text-xl border-2 rounded-3xl transition-colors ${
