@@ -1,15 +1,15 @@
 import { useState, useEffect } from 'react'
-import { getCookie } from '@/lib/utils'
-import { API_BASE_URL } from '@/lib/api-config'
+import { getCookie } from 'cookies-next'
 
-interface UserStats {
+export interface UserStats {
   responsesUsed: number
   responsesLimit: number
   hotelsCount: number
   hotelsLimit: number
+  responseCredits: number
   subscriptionPlan: string
-  isLoading: boolean
-  error: string | null
+  isLoading?: boolean
+  error?: any
 }
 
 export function useUserStats() {
@@ -18,6 +18,7 @@ export function useUserStats() {
     responsesLimit: 0,
     hotelsCount: 0,
     hotelsLimit: 0,
+    responseCredits: 0,
     subscriptionPlan: '',
     isLoading: true,
     error: null
@@ -44,6 +45,7 @@ export function useUserStats() {
           responsesLimit: data.subscription.responsesLimit,
           hotelsCount: data.hotelsCount,
           hotelsLimit: data.subscription.hotelsLimit,
+          responseCredits: data.subscription.responseCredits,
           subscriptionPlan: data.subscription.plan,
           isLoading: false,
           error: null
