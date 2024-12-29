@@ -26,6 +26,7 @@ import { Progress } from "@/components/ui/progress"
 import { Input } from "@/components/ui/input"
 import { ResponseModal } from "@/components/response-modal"
 import { getCookie } from "@/lib/utils"
+import { API_BASE_URL } from '@/lib/api-config'
 
 interface Hotel {
   _id: string
@@ -60,7 +61,7 @@ export default function HomePage() {
   useEffect(() => {
     const fetchHotels = async () => {
       try {
-        const response = await fetch('http://localhost:3000/api/hotels', {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/hotels`, {
           credentials: 'include',
           headers: {
             'Authorization': `Bearer ${getCookie('token')}`,
@@ -106,7 +107,7 @@ export default function HomePage() {
         throw new Error('No authentication token found');
       }
 
-      const response = await fetch('http://localhost:3000/api/reviews/generate', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reviews/generate`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -136,7 +137,7 @@ export default function HomePage() {
       setIsResponseModalOpen(true);
 
       // Aggiorna i crediti usati
-      const statsResponse = await fetch('http://localhost:3000/api/users/stats', {
+      const statsResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/stats`, {
         headers: {
           'Authorization': `Bearer ${getCookie('token')}`,
           'Content-Type': 'application/json'

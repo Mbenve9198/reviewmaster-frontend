@@ -31,7 +31,7 @@ export default function HotelSettingsPage() {
   useEffect(() => {
     const fetchHotels = async () => {
       try {
-        const response = await fetch('http://localhost:3000/api/hotels', {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/hotels`, {
           headers: {
             'Authorization': `Bearer ${getCookie('token')}`,
             'Content-Type': 'application/json'
@@ -87,7 +87,7 @@ export default function HotelSettingsPage() {
 
   const handleSave = async () => {
     try {
-      const response = await fetch(`http://localhost:3000/api/hotels/${selectedHotel}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/hotels/${selectedHotel}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -113,7 +113,7 @@ export default function HotelSettingsPage() {
       }
 
       // Aggiorna la lista degli hotel dopo il salvataggio
-      const updatedHotelsResponse = await fetch('http://localhost:3000/api/hotels', {
+      const updatedHotelsResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/hotels`, {
         headers: {
           'Authorization': `Bearer ${getCookie('token')}`
         },

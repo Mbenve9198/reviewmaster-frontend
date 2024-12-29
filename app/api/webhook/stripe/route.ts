@@ -70,7 +70,7 @@ async function updateUserSubscription(session: Stripe.Checkout.Session) {
   const plan = planMap[priceId as keyof typeof planMap] || 'trial'
 
   // Aggiorna il database
-  await fetch('http://localhost:3000/api/users/subscription', {
+  await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/subscription`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json'
@@ -87,7 +87,7 @@ async function handleSubscriptionUpdate(subscription: Stripe.Subscription) {
   const customerId = subscription.customer as string
   const status = subscription.status
 
-  await fetch('http://localhost:3000/api/users/subscription', {
+  await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/subscription`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json'
@@ -102,7 +102,7 @@ async function handleSubscriptionUpdate(subscription: Stripe.Subscription) {
 async function handleSubscriptionCancellation(subscription: Stripe.Subscription) {
   const customerId = subscription.customer as string
 
-  await fetch('http://localhost:3000/api/users/subscription', {
+  await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/subscription`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json'

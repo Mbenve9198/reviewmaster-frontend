@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: reviewmaster-frontend
+    env: node
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NEXT_PUBLIC_API_URL
+        value: https://reviewmaster-api.onrender.com # Sostituisci con l'URL del tuo backend
+      - key: NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+        sync: false 

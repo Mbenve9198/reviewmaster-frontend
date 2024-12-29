@@ -43,7 +43,7 @@ export function AddHotelModal({ isOpen, onClose, onHotelAdded }: AddHotelModalPr
         }
 
         // Prima verifichiamo quanti hotel ha l'utente
-        const hotelsResponse = await fetch('http://localhost:3000/api/hotels', {
+        const hotelsResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/hotels`, {
           headers: {
             'Authorization': `Bearer ${token}`
           },
@@ -57,7 +57,7 @@ export function AddHotelModal({ isOpen, onClose, onHotelAdded }: AddHotelModalPr
         }
 
         // Se può aggiungere un hotel, procediamo
-        const response = await fetch('http://localhost:3000/api/hotels', {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/hotels`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
