@@ -17,6 +17,15 @@ import { useRouter } from 'next/navigation'
 import { motion } from "framer-motion"
 import { getCookie } from "@/lib/utils"
 
+// Aggiungiamo l'interfaccia per il tipo Hotel
+interface Hotel {
+  _id: string;
+  name: string;
+  type: string;
+  description: string;
+  signature: string;
+}
+
 export default function HotelSettingsPage() {
   const router = useRouter()
   const [selectedHotel, setSelectedHotel] = useState("")
@@ -26,7 +35,7 @@ export default function HotelSettingsPage() {
     description: "",
     managerSignature: ""
   })
-  const [hotels, setHotels] = useState([])
+  const [hotels, setHotels] = useState<Hotel[]>([])
 
   useEffect(() => {
     const fetchHotels = async () => {
@@ -43,14 +52,14 @@ export default function HotelSettingsPage() {
           throw new Error('Failed to fetch hotels')
         }
 
-        const data = await response.json()
+        const data: Hotel[] = await response.json()
         setHotels(data)
         
         // Se c'è un hotel selezionato nella home page, selezionalo qui
         const selectedHotelFromHome = localStorage.getItem('selectedHotel')
         if (selectedHotelFromHome) {
           setSelectedHotel(selectedHotelFromHome)
-          const hotel = data.find(h => h._id === selectedHotelFromHome)
+          const hotel = data.find((h: Hotel) => h._id === selectedHotelFromHome)
           if (hotel) {
             setHotelData({
               name: hotel.name,
