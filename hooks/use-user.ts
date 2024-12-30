@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '../contexts/AuthContext';
+import { getCookie } from 'cookies-next';
 
 type User = {
   id: string;
@@ -20,12 +20,11 @@ export const useUser = () => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
-  const auth = useAuth();
 
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const token = auth.token;
+        const token = getCookie('token');
         
         if (!token) {
           setLoading(false);
@@ -37,12 +36,13 @@ export const useUser = () => {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
-          }
+          },
+          credentials: 'include'
         });
 
         if (!response.ok) {
           if (response.status === 401) {
-            auth.clearAuth();
+            document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
             router.push('/login');
             return;
           }
@@ -53,14 +53,14 @@ export const useUser = () => {
         setUser(userData);
       } catch (error) {
         console.error('Error fetching user:', error);
-        auth.clearAuth();
+        document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
       } finally {
         setLoading(false);
       }
     };
 
     fetchUser();
-  }, [router, auth]);
+  }, [router]);
 
   return { user, loading };
 };
