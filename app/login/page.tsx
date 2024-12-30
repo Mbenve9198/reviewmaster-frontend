@@ -20,8 +20,13 @@ export default function LoginPage() {
     e.preventDefault()
     setIsLoading(true)
     setError(null)
+    
+    const loadingToast = toast.loading('Logging in...')
 
     try {
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 30000)
+
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`, {
         method: 'POST',
         headers: {
@@ -29,23 +34,27 @@ export default function LoginPage() {
         },
         credentials: 'include',
         body: JSON.stringify({ email, password }),
+        signal: controller.signal
       })
 
+      clearTimeout(timeoutId)
       const data = await response.json()
-      console.log('Login response:', data)
 
       if (response.ok) {
-        document.cookie = `token=${data.token}; path=/; max-age=2592000`
-        toast.success('Login successful!')
+        document.cookie = `token=${data.token}; path=/; max-age=2592000; SameSite=Strict`
+        toast.success('Login successful!', { id: loadingToast })
         router.push('/')
       } else {
-        toast.error(data.message || 'Login failed')
+        toast.error(data.message || 'Login failed', { id: loadingToast })
         setError(data.message || 'Login failed')
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Login error:', error)
-      toast.error('Something went wrong')
-      setError('Something went wrong')
+      const errorMessage = error.name === 'AbortError' 
+        ? 'Request timed out. Please try again.'
+        : 'Something went wrong'
+      toast.error(errorMessage, { id: loadingToast })
+      setError(errorMessage)
     } finally {
       setIsLoading(false)
     }
@@ -63,6 +72,7 @@ export default function LoginPage() {
             alt="ReviewMaster Mascot"
             layout="fill"
             objectFit="contain"
+            priority
           />
         </div>
       </div>
@@ -84,6 +94,7 @@ export default function LoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="p-4 text-lg rounded-xl border-2 border-gray-200 focus:border-primary focus:ring-primary"
+                  disabled={isLoading}
                 />
               </div>
             </div>
@@ -102,6 +113,7 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="p-4 text-lg rounded-xl border-2 border-gray-200 focus:border-primary focus:ring-primary"
+                  disabled={isLoading}
                 />
               </div>
             </div>
@@ -166,4 +178,3 @@ export default function LoginPage() {
     </div>
   )
 }
-
