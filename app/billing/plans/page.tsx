@@ -83,7 +83,16 @@ export default function PlansPage() {
 
     const url = new URL(baseUrl);
     url.searchParams.append('prefilled_email', user.email);
-    url.searchParams.append('client_reference_id', user.email);
+    url.searchParams.append('client_reference_id', user.id);
+    url.searchParams.append('customer_email', user.email);
+    
+    const metadata = {
+      user_id: user.id,
+      user_name: user.name,
+      current_plan: user.subscription?.plan
+    };
+    url.searchParams.append('metadata', JSON.stringify(metadata));
+
     window.location.href = url.toString();
   }
 
