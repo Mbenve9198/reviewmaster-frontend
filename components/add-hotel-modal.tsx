@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import Image from "next/image"
+import { getCookie } from '@/lib/utils'
 
 interface AddHotelModalProps {
   isOpen: boolean
@@ -30,19 +31,36 @@ export function AddHotelModal({ isOpen, onClose, onHotelAdded }: AddHotelModalPr
     description: "",
     managerSignature: ""
   })
+  const [error, setError] = useState<string | null>(null)
 
   const handleContinue = async () => {
     if (step < totalSteps) {
       setStep(step + 1)
     } else {
       try {
-        const token = localStorage.getItem('token')
+        setError(null)
+        const token = getCookie('token')
+        
+        const payload = {
+          name: formData.name,
+          type: formData.type.toLowerCase(),
+          description: formData.description,
+          managerSignature: formData.managerSignature,
+          responseSettings: {
+            style: 'professional',
+            length: 'medium'
+          }
+        }
+        console.log('Complete payload being sent:', payload)
         
         if (!token) {
           throw new Error('No authentication token found')
         }
 
-        // Prima verifichiamo quanti hotel ha l'utente
+        if (!formData.description) {
+          throw new Error('Description is required')
+        }
+
         const hotelsResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/hotels`, {
           headers: {
             'Authorization': `Bearer ${token}`
@@ -50,36 +68,30 @@ export function AddHotelModal({ isOpen, onClose, onHotelAdded }: AddHotelModalPr
           credentials: 'include'
         })
 
+        console.log('GET /hotels response status:', hotelsResponse.status)
         const userHotels = await hotelsResponse.json()
-        
-        if (userHotels.length >= 1) { // Se l'utente ha già un hotel nel piano trial
+        console.log('GET /hotels response data:', userHotels)
+
+        if (userHotels.length >= 1) {
+          console.log('Blocking hotel creation - existing hotels:', userHotels.length)
           throw new Error('Trial plan allows only one hotel')
         }
 
-        // Se può aggiungere un hotel, procediamo
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/hotels`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
           },
-          body: JSON.stringify({
-            name: formData.name,
-            type: formData.type.toLowerCase(),
-            description: formData.description,
-            managerName: formData.managerSignature.split(',')[0].trim(),
-            signature: formData.managerSignature,
-            responseSettings: {
-              style: 'professional',
-              length: 'medium'
-            }
-          }),
+          body: JSON.stringify(payload),
           credentials: 'include'
         })
 
+        const data = await response.json()
+        console.log('Server response:', data)
+
         if (!response.ok) {
-          const errorData = await response.json()
-          throw new Error(errorData.message || 'Failed to add hotel')
+          throw new Error(data.message || 'Error creating hotel')
         }
 
         await onHotelAdded()
@@ -89,10 +101,13 @@ export function AddHotelModal({ isOpen, onClose, onHotelAdded }: AddHotelModalPr
 
       } catch (error) {
         console.error('Error adding hotel:', error)
-        // Qui potresti mostrare un messaggio all'utente
-        if (error instanceof Error && error.message === 'Trial plan allows only one hotel') {
-          // Mostra un messaggio specifico per il limite del piano trial
-          alert('Your trial plan allows only one hotel. Please upgrade to add more hotels.')
+        if (error instanceof Error) {
+          setError(error.message)
+          if (error.message === 'Trial plan allows only one hotel') {
+            alert('Your trial plan allows only one hotel. Please upgrade to add more hotels.')
+          } else {
+            alert('An error occurred while creating the hotel: ' + error.message)
+          }
         }
       }
     }
@@ -162,6 +177,7 @@ export function AddHotelModal({ isOpen, onClose, onHotelAdded }: AddHotelModalPr
                         onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                         className="p-6 text-xl rounded-2xl border-2 border-gray-200 focus:border-[#58CC02] focus:ring-[#58CC02] min-h-[200px]"
                         placeholder="Describe your property..."
+                        required
                       />
                     </div>
                   </div>
@@ -181,6 +197,12 @@ export function AddHotelModal({ isOpen, onClose, onHotelAdded }: AddHotelModalPr
                         This signature will appear at the end of your review responses
                       </p>
                     </div>
+                  </div>
+                )}
+
+                {error && (
+                  <div className="text-red-500 text-sm mt-2">
+                    {error}
                   </div>
                 )}
 
@@ -213,4 +235,4 @@ export function AddHotelModal({ isOpen, onClose, onHotelAdded }: AddHotelModalPr
       </DialogContent>
     </Dialog>
   )
-} 
+}
