@@ -107,6 +107,15 @@ export default function HomePage() {
         throw new Error('No authentication token found');
       }
 
+      console.log('Sending request with:', {
+        hotelId: selectedHotel,
+        review: review,
+        responseSettings: {
+          style: responseStyle,
+          length: responseLength
+        }
+      });
+
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reviews/generate`, {
         method: 'POST',
         headers: {
@@ -116,9 +125,6 @@ export default function HomePage() {
         body: JSON.stringify({
           hotelId: selectedHotel,
           review: review,
-          rating: 5,
-          reviewerName: "Guest",
-          platform: "booking",
           responseSettings: {
             style: responseStyle,
             length: responseLength
