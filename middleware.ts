@@ -4,15 +4,16 @@ import type { NextRequest } from 'next/server'
 export function middleware(request: NextRequest) {
   const token = request.cookies.get('token')?.value
   const isLoginPage = request.nextUrl.pathname === '/login'
-  const isRegisterPage = request.nextUrl.pathname === '/register'
+  const isRegisterPage = request.nextUrl.pathname === '/signup'
+  const isPublicPage = isLoginPage || isRegisterPage
 
   // Se l'utente non è autenticato e sta cercando di accedere a una pagina protetta
-  if (!token && !isLoginPage && !isRegisterPage) {
+  if (!token && !isPublicPage) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
   // Se l'utente è autenticato e sta cercando di accedere a login/register
-  if (token && (isLoginPage || isRegisterPage)) {
+  if (token && isPublicPage) {
     return NextResponse.redirect(new URL('/', request.url))
   }
 
