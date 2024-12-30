@@ -97,7 +97,7 @@ export default function HomePage() {
           type: newHotelType,
           description: description,
           managerName: managerSignature,
-          signature: signature
+          signature: managerSignature
         }),
         credentials: 'include'
       });
