@@ -92,12 +92,18 @@ export default function HomePage() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${getCookie('token')}`
         },
-        body: JSON.stringify(hotelData),
+        body: JSON.stringify({
+          name: newHotelName,
+          type: newHotelType,
+          description: description,
+          managerName: managerSignature,
+          signature: signature
+        }),
         credentials: 'include'
       });
 
       const data = await response.json();
-      console.log('Server response:', data);  // Aggiungiamo questo log
+      console.log('Server response:', data);
 
       if (!response.ok) {
         throw new Error(data.message);
@@ -105,7 +111,7 @@ export default function HomePage() {
 
       // ... resto del codice ...
     } catch (error) {
-      console.error('Full error details:', error);  // Modifichiamo questo log per più dettagli
+      console.error('Full error details:', error);
       setError(error instanceof Error ? error.message : 'Error adding hotel');
     }
   };
