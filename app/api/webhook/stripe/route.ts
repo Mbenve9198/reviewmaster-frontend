@@ -3,7 +3,7 @@ import Stripe from 'stripe'
 import { headers } from 'next/headers'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-12-18.acacia'
+  apiVersion: '2022-11-15'
 })
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!
@@ -58,7 +58,10 @@ export async function POST(req: Request) {
 
 async function updateUserSubscription(session: Stripe.Checkout.Session) {
   const customerId = session.customer as string
-  const priceId = session.line_items?.data[0]?.price?.id
+  
+  // Recupera i dettagli dell'abbonamento
+  const subscription = await stripe.subscriptions.retrieve(session.subscription as string)
+  const priceId = subscription.items.data[0].price.id
 
   // Mappa gli ID dei prezzi Stripe ai piani
   const planMap = {
