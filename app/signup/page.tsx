@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from 'next/navigation'
+import { setCookie } from 'cookies-next'
 
 export default function SignUpPage() {
   const [email, setEmail] = useState("")
@@ -36,18 +37,15 @@ export default function SignUpPage() {
 
       const data = await response.json()
 
-      if (!response.ok) {
-        throw new Error(data.message || 'Errore durante la registrazione')
+      if (response.ok) {
+        // Salviamo il token nei cookie come nel login
+        setCookie('token', data.token)
+        router.push('/')  // Redirect alla home
+      } else {
+        setError(data.message || 'Errore durante la registrazione')
       }
-
-      // Salviamo il token e i dati utente
-      localStorage.setItem('token', data.token)
-      localStorage.setItem('user', JSON.stringify(data.user))
-
-      // Redirect alla home
-      router.push('/')
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Si è verificato un errore inaspettato")
+    } catch (error) {
+      setError('Errore durante la registrazione')
     } finally {
       setIsLoading(false)
     }
