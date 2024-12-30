@@ -84,9 +84,31 @@ export default function HomePage() {
     fetchHotels();
   }, []); // Esegui solo al mount del componente
 
-  const handleAddHotel = () => {
-    setIsAddHotelModalOpen(true)
-  }
+  const handleAddHotel = async () => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/hotels`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${getCookie('token')}`
+        },
+        body: JSON.stringify(hotelData),
+        credentials: 'include'
+      });
+
+      const data = await response.json();
+      console.log('Server response:', data);  // Aggiungiamo questo log
+
+      if (!response.ok) {
+        throw new Error(data.message);
+      }
+
+      // ... resto del codice ...
+    } catch (error) {
+      console.error('Full error details:', error);  // Modifichiamo questo log per più dettagli
+      setError(error instanceof Error ? error.message : 'Error adding hotel');
+    }
+  };
 
   const handleSettingsClick = () => {
     if (selectedHotel) {
