@@ -9,7 +9,7 @@ import { useUser } from "@/hooks/use-user" // Assicurati di avere questo hook
 
 export default function PlansPage() {
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null)
-  const { user } = useUser()
+  const { user, loading } = useUser()
 
   const plans = [
     {
@@ -76,8 +76,15 @@ export default function PlansPage() {
   }
 
   const handleSelectPlan = (baseUrl: string) => {
+    if (loading) {
+      console.log('Caricamento utente in corso...');
+      return;
+    }
+
     if (!user?.email) {
-      console.error('User email not found');
+      console.error('Utente non autenticato');
+      // Opzionale: reindirizza alla pagina di login
+      window.location.href = '/login';
       return;
     }
 
@@ -94,6 +101,11 @@ export default function PlansPage() {
     url.searchParams.append('metadata', JSON.stringify(metadata));
 
     window.location.href = url.toString();
+  }
+
+  // Opzionale: mostra un loader mentre l'utente viene caricato
+  if (loading) {
+    return <div>Caricamento...</div>
   }
 
   return (
