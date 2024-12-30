@@ -26,7 +26,6 @@ import { Progress } from "@/components/ui/progress"
 import { Input } from "@/components/ui/input"
 import { ResponseModal } from "@/components/response-modal"
 import { getCookie } from "@/lib/utils"
-import { API_BASE_URL } from '@/lib/api-config'
 
 interface Hotel {
   _id: string
@@ -74,7 +73,7 @@ export default function HomePage() {
         }
 
         const data = await response.json();
-        console.log('Hotels fetched:', data); // Per debug
+        console.log('Hotels fetched:', data);
         setHotels(data);
       } catch (error) {
         console.error('Error fetching hotels:', error);
@@ -82,46 +81,7 @@ export default function HomePage() {
     };
 
     fetchHotels();
-  }, []); // Esegui solo al mount del componente
-
-  const handleAddHotel = async () => {
-    try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/hotels`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${getCookie('token')}`
-        },
-        body: JSON.stringify({
-          name: newHotelName,
-          type: newHotelType,
-          description: description,
-          managerName: managerSignature,
-          signature: managerSignature
-        }),
-        credentials: 'include'
-      });
-
-      const data = await response.json();
-      console.log('Server response:', data);
-
-      if (!response.ok) {
-        throw new Error(data.message);
-      }
-
-      // ... resto del codice ...
-    } catch (error) {
-      console.error('Full error details:', error);
-      setError(error instanceof Error ? error.message : 'Error adding hotel');
-    }
-  };
-
-  const handleSettingsClick = () => {
-    if (selectedHotel) {
-      localStorage.setItem('selectedHotel', selectedHotel)
-      router.push('/hotel-settings')
-    }
-  }
+  }, []);
 
   const handleGenerateResponse = async () => {
     if (!selectedHotel || !review.trim()) return;
@@ -135,14 +95,16 @@ export default function HomePage() {
         throw new Error('No authentication token found');
       }
 
-      console.log('Sending request with:', {
+      const payload = {
         hotelId: selectedHotel,
         review: review,
         responseSettings: {
           style: responseStyle,
           length: responseLength
         }
-      });
+      };
+
+      console.log('Sending request with:', payload);
 
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reviews/generate`, {
         method: 'POST',
@@ -150,18 +112,12 @@ export default function HomePage() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({
-          hotelId: selectedHotel,
-          review: review,
-          responseSettings: {
-            style: responseStyle,
-            length: responseLength
-          }
-        }),
+        body: JSON.stringify(payload),
         credentials: 'include'
       });
 
       const data = await response.json();
+      console.log('Response received:', data);
       
       if (!response.ok) {
         throw new Error(data.message || `HTTP error! status: ${response.status}`);
@@ -173,7 +129,7 @@ export default function HomePage() {
       // Aggiorna i crediti usati
       const statsResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/stats`, {
         headers: {
-          'Authorization': `Bearer ${getCookie('token')}`,
+          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
         credentials: 'include'
@@ -193,7 +149,57 @@ export default function HomePage() {
     }
   };
 
-  const buttonClasses = "relative bg-primary hover:bg-primary/90 text-primary-foreground font-bold transition-all active:top-[2px] active:shadow-[0_0_0_0_#2563eb] disabled:opacity-50 disabled:hover:bg-primary disabled:active:top-0 disabled:active:shadow-[0_4px_0_0_#2563eb]"
+  const handleSettingsClick = () => {
+    if (selectedHotel) {
+      localStorage.setItem('selectedHotel', selectedHotel)
+      router.push('/hotel-settings')
+    }
+  }
+
+  const handleAddHotel = async () => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/hotels`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${getCookie('token')}`
+        },
+        body: JSON.stringify({
+          name: newHotelName,
+          type: newHotelType,
+          description: description,
+          managerSignature: managerSignature,
+          responseSettings: {
+            style: 'professional',
+            length: 'medium'
+          }
+        }),
+        credentials: 'include'
+      });
+
+      const data = await response.json();
+      console.log('Server response:', data);
+
+      if (!response.ok) {
+        throw new Error(data.message);
+      }
+
+      setDialogOpen(false);
+      const updatedResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/hotels`, {
+        headers: {
+          'Authorization': `Bearer ${getCookie('token')}`,
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include'
+      });
+      const updatedHotels = await updatedResponse.json();
+      setHotels(updatedHotels);
+
+    } catch (error) {
+      console.error('Full error details:', error);
+      setError(error instanceof Error ? error.message : 'Error adding hotel');
+    }
+  };
 
   const isStepValid = () => {
     switch (step) {
@@ -208,34 +214,28 @@ export default function HomePage() {
     }
   }
 
-  const handleSubmit = async () => {
-    // La logica esistente per salvare l'hotel, ma con tutti i campi
-    // ... 
-  }
-
   const handleHotelAdded = async () => {
-    // Ricarica la lista degli hotel
-    const token = localStorage.getItem('token')
-    const response = await fetch('http://localhost:3000/api/hotels', {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/hotels`, {
       headers: {
-        'Authorization': `Bearer ${token}`
+        'Authorization': `Bearer ${getCookie('token')}`,
+        'Content-Type': 'application/json'
       },
       credentials: 'include'
-    })
-    const updatedHotels = await response.json()
-    setHotels(updatedHotels)
+    });
+    const updatedHotels = await response.json();
+    setHotels(updatedHotels);
   }
+
+  const buttonClasses = "relative bg-primary hover:bg-primary/90 text-primary-foreground font-bold transition-all active:top-[2px] active:shadow-[0_0_0_0_#2563eb] disabled:opacity-50 disabled:hover:bg-primary disabled:active:top-0 disabled:active:shadow-[0_4px_0_0_#2563eb]"
 
   return (
     <div className="min-h-screen bg-white py-12">
-      {/* Header Section */}
       <div className="text-center mb-12">
         <h1 className="text-4xl font-bold text-gray-800 mb-4">Manual Responses</h1>
         <p className="text-xl text-gray-600">Create personalized responses to your guest reviews with AI assistance</p>
       </div>
 
       <div className="max-w-4xl mx-auto px-6">
-        {/* Controls */}
         <div className="flex items-center justify-center gap-4 mb-12">
           <Select value={selectedHotel} onValueChange={setSelectedHotel}>
             <SelectTrigger className="w-[200px] text-xl border-2">
@@ -266,7 +266,6 @@ export default function HomePage() {
           </Button>
         </div>
 
-        {/* Review Input Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -287,7 +286,6 @@ export default function HomePage() {
               <div className="space-y-4">
                 <h2 className="text-2xl font-bold">Enter Guest Review</h2>
                 
-                {/* Response Options */}
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <p className="text-sm text-gray-500 font-medium">Tone of voice</p>
@@ -393,11 +391,13 @@ export default function HomePage() {
           isError={!!error}
         />
       </div>
+      
       <AddHotelModal
         isOpen={isAddHotelModalOpen}
         onClose={() => setIsAddHotelModalOpen(false)}
         onHotelAdded={handleHotelAdded}
       />
+
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="bg-white max-w-4xl h-[80vh] overflow-y-auto">
           <DialogHeader>
@@ -409,10 +409,8 @@ export default function HomePage() {
 
           <div className="mt-8">
             <div className="max-w-3xl mx-auto">
-              {/* Progress bar come nell'onboarding */}
               <Progress value={(step / totalSteps) * 100} className="h-3 mb-8" />
 
-              {/* Step 1: Hotel Name & Type */}
               {step === 1 && (
                 <div className="space-y-6">
                   <div className="space-y-2">
@@ -441,7 +439,6 @@ export default function HomePage() {
                 </div>
               )}
 
-              {/* Step 2: Description */}
               {step === 2 && (
                 <div className="space-y-6">
                   <div className="space-y-2">
@@ -456,7 +453,6 @@ export default function HomePage() {
                 </div>
               )}
 
-              {/* Step 3: Manager Details */}
               {step === 3 && (
                 <div className="space-y-6">
                   <div className="space-y-2">
@@ -471,7 +467,6 @@ export default function HomePage() {
                 </div>
               )}
 
-              {/* Navigation Buttons */}
               <div className="flex justify-end mt-8 gap-4">
                 {step > 1 && (
                   <Button onClick={() => setStep(step - 1)} variant="outline" className="text-xl py-6 px-8">
@@ -479,7 +474,7 @@ export default function HomePage() {
                   </Button>
                 )}
                 <Button
-                  onClick={step === totalSteps ? handleSubmit : () => setStep(step + 1)}
+                  onClick={step === totalSteps ? handleAddHotel : () => setStep(step + 1)}
                   className="text-xl py-6 px-8"
                   disabled={!isStepValid()}
                 >
@@ -493,4 +488,3 @@ export default function HomePage() {
     </div>
   )
 }
-
