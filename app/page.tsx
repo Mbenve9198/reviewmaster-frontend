@@ -258,7 +258,7 @@ export default function HomePage() {
             <Settings className="w-6 h-6" />
           </Button>
           <Button
-            onClick={handleAddHotel}
+            onClick={() => setIsAddHotelModalOpen(true)}
             className={`${buttonClasses} text-xl py-6 px-8 rounded-2xl shadow-[0_4px_0_0_#2563eb] flex items-center gap-2`}
           >
             <PlusCircle className="w-6 h-6" />
