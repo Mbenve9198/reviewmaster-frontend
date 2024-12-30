@@ -5,48 +5,50 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Check } from 'lucide-react'
 import { motion } from "framer-motion"
-
-const plans = [
-  {
-    name: "Host",
-    price: "9.99",
-    features: [
-      "Gestisci una struttura",
-      "20 risposte automatiche al mese",
-      "Tono personalizzabile",
-      "Risposte professionali ed efficienti"
-    ],
-    popular: false,
-    stripeUrl: "https://buy.stripe.com/6oEeYw9g4cbffqE003"
-  },
-  {
-    name: "Manager",
-    price: "24.99",
-    features: [
-      "Gestisci fino a 5 strutture",
-      "80 risposte automatiche al mese",
-      "Risposte fino a 4000 token",
-      "Supporto prioritario",
-      "Opzioni di risposta automatica"
-    ],
-    popular: true,
-    stripeUrl: "https://buy.stripe.com/8wMbMkeAo1wBbaoeUY"
-  },
-  {
-    name: "Director",
-    price: "49.99",
-    features: [
-      "Gestisci fino a 15 strutture",
-      "500 risposte mensili",
-      "Tutte le funzionalità del piano Manager"
-    ],
-    popular: false,
-    stripeUrl: "https://buy.stripe.com/bIY8A8fEsb7b2DSeUZ"
-  }
-]
+import { useUser } from "@/hooks/use-user" // Assicurati di avere questo hook
 
 export default function PlansPage() {
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null)
+  const { user } = useUser()
+
+  const plans = [
+    {
+      name: "Host",
+      price: "9.99",
+      features: [
+        "Gestisci una struttura",
+        "20 risposte automatiche al mese",
+        "Tono personalizzabile",
+        "Risposte professionali ed efficienti"
+      ],
+      popular: false,
+      baseStripeUrl: "https://buy.stripe.com/6oEeYw9g4cbffqE003"
+    },
+    {
+      name: "Manager",
+      price: "24.99",
+      features: [
+        "Gestisci fino a 5 strutture",
+        "80 risposte automatiche al mese",
+        "Risposte fino a 4000 token",
+        "Supporto prioritario",
+        "Opzioni di risposta automatica"
+      ],
+      popular: true,
+      baseStripeUrl: "https://buy.stripe.com/8wMbMkeAo1wBbaoeUY"
+    },
+    {
+      name: "Director",
+      price: "49.99",
+      features: [
+        "Gestisci fino a 15 strutture",
+        "500 risposte mensili",
+        "Tutte le funzionalità del piano Manager"
+      ],
+      popular: false,
+      baseStripeUrl: "https://buy.stripe.com/bIY8A8fEsb7b2DSeUZ"
+    }
+  ]
 
   const getFloatingAnimation = (index: number) => {
     // Piano popolare (Manager) ha movimento più accentuato
@@ -73,8 +75,16 @@ export default function PlansPage() {
     }
   }
 
-  const handleSelectPlan = (url: string) => {
-    window.location.href = url;
+  const handleSelectPlan = (baseUrl: string) => {
+    if (!user?.email) {
+      console.error('User email not found');
+      return;
+    }
+
+    const url = new URL(baseUrl);
+    url.searchParams.append('prefilled_email', user.email);
+    url.searchParams.append('client_reference_id', user.email);
+    window.location.href = url.toString();
   }
 
   return (
@@ -132,7 +142,7 @@ export default function PlansPage() {
                   </CardContent>
                   <CardFooter>
                     <Button
-                      onClick={() => handleSelectPlan(plan.stripeUrl)}
+                      onClick={() => handleSelectPlan(plan.baseStripeUrl)}
                       className={`w-full text-lg py-6 rounded-xl ${
                         plan.popular
                           ? 'bg-primary hover:bg-primary/90 text-primary-foreground'
@@ -151,4 +161,3 @@ export default function PlansPage() {
     </div>
   )
 }
-
