@@ -8,6 +8,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from 'next/navigation'
 import { setCookie } from 'cookies-next'
+import { toast } from "react-hot-toast"
 
 export default function SignUpPage() {
   const [email, setEmail] = useState("")
@@ -19,10 +20,20 @@ export default function SignUpPage() {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    if (password !== confirmPassword) {
+      setError("Passwords don't match")
+      return
+    }
+    
     setError(null)
     setIsLoading(true)
+    const loadingToast = toast.loading('Creating your account...')
 
     try {
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 30000)
+
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/register`, {
         method: 'POST',
         headers: {
@@ -31,21 +42,33 @@ export default function SignUpPage() {
         body: JSON.stringify({ 
           email, 
           password,
-          name: email.split('@')[0] // Usiamo la parte prima della @ come nome provvisorio
+          name: email.split('@')[0]
         }),
+        signal: controller.signal
       })
 
+      clearTimeout(timeoutId)
       const data = await response.json()
 
       if (response.ok) {
-        // Salviamo il token nei cookie come nel login
-        setCookie('token', data.token)
-        router.push('/')  // Redirect alla home
+        setCookie('token', data.token, { 
+          maxAge: 60 * 60 * 24 * 30,
+          path: '/',
+          sameSite: 'strict'
+        })
+        toast.success('Account created successfully!', { id: loadingToast })
+        router.push('/')
       } else {
-        setError(data.message || 'Errore durante la registrazione')
+        toast.error(data.message || 'Registration failed', { id: loadingToast })
+        setError(data.message || 'Registration failed')
       }
-    } catch (error) {
-      setError('Errore durante la registrazione')
+    } catch (error: any) {
+      console.error('Registration error:', error)
+      const errorMessage = error.name === 'AbortError' 
+        ? 'Request timed out. Please try again.'
+        : 'Registration failed'
+      toast.error(errorMessage, { id: loadingToast })
+      setError(errorMessage)
     } finally {
       setIsLoading(false)
     }
@@ -63,6 +86,7 @@ export default function SignUpPage() {
             alt="ReviewMaster Mascot"
             layout="fill"
             objectFit="contain"
+            priority
           />
         </div>
       </div>
@@ -84,6 +108,7 @@ export default function SignUpPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="p-4 text-lg rounded-xl border-2 border-gray-200 focus:border-[#3b82f6] focus:ring-[#3b82f6]"
+                  disabled={isLoading}
                 />
               </div>
             </div>
@@ -102,6 +127,7 @@ export default function SignUpPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="p-4 text-lg rounded-xl border-2 border-gray-200 focus:border-[#3b82f6] focus:ring-[#3b82f6]"
+                  disabled={isLoading}
                 />
               </div>
             </div>
@@ -120,6 +146,7 @@ export default function SignUpPage() {
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   className="p-4 text-lg rounded-xl border-2 border-gray-200 focus:border-[#3b82f6] focus:ring-[#3b82f6]"
+                  disabled={isLoading}
                 />
               </div>
             </div>
@@ -184,4 +211,3 @@ export default function SignUpPage() {
     </div>
   )
 }
-
