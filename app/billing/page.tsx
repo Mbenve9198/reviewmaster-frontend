@@ -141,7 +141,7 @@ export default function BillingPage() {
               </span>
             </div>
             <Progress 
-              value={isLoading ? 0 : ((responsesLimit - responsesUsed) / responsesLimit) * 100} 
+              value={isLoading ? 0 : (responsesUsed / responsesLimit) * 100} 
               className="h-3 bg-primary/20"
             />
           </div>
