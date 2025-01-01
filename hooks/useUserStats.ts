@@ -40,12 +40,16 @@ export function useUserStats() {
         }
 
         const data = await response.json()
+        
+        // Calcola responses used come la differenza tra il limite e i crediti rimanenti
+        const responsesUsed = data.subscription.responsesLimit - data.subscription.responseCredits
+
         setStats({
-          responsesUsed: data.subscription.responseCredits,
+          responsesUsed: responsesUsed,  // ✅ CORRETTO: crediti usati
           responsesLimit: data.subscription.responsesLimit,
           hotelsCount: data.hotelsCount,
           hotelsLimit: data.subscription.hotelsLimit,
-          responseCredits: data.subscription.responseCredits,
+          responseCredits: data.subscription.responseCredits,  // crediti rimanenti
           subscriptionPlan: data.subscription.plan,
           isLoading: false,
           error: null
@@ -60,4 +64,4 @@ export function useUserStats() {
   }, [])
 
   return stats
-} 
+}
