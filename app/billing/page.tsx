@@ -40,7 +40,7 @@ export default function BillingPage() {
 
         console.log('Token found, making request...');
 
-        const response = await fetch('/api/users/create-portal-session', {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/create-portal-session`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`,
