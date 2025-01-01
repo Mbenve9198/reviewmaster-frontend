@@ -41,19 +41,21 @@ export function useUserStats() {
 
         const data = await response.json()
         
+        const responsesUsed = data.subscription.responsesLimit - data.subscription.responseCredits
+
         setStats({
-          responsesUsed: data.responsesUsed || 0,
-          responsesLimit: data.responseCredits || 0,
-          hotelsCount: data.hotelsCount || 0,
-          hotelsLimit: data.hotelsLimit || 0,
-          responseCredits: data.responseCredits || 0,
-          subscriptionPlan: data.subscriptionPlan || 'trial',
+          responsesUsed: responsesUsed,
+          responsesLimit: data.subscription.responsesLimit,
+          hotelsCount: data.hotelsCount,
+          hotelsLimit: data.subscription.hotelsLimit,
+          responseCredits: data.subscription.responseCredits,
+          subscriptionPlan: data.subscription.plan,
           isLoading: false,
           error: null
         })
       } catch (error) {
         console.error('Error fetching stats:', error)
-        throw error
+        setStats(prev => ({ ...prev, isLoading: false, error }))
       }
     }
 
