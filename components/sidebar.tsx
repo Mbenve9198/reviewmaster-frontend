@@ -99,7 +99,7 @@ export function Sidebar() {
           <div className="flex justify-between text-sm font-medium">
             <span className="text-gray-600">Responses generated</span>
             <span className="text-primary">
-              {isLoading ? "..." : `${responsesLimit - responsesUsed}/${responsesLimit}`}
+              {isLoading ? "..." : `${responsesUsed}/${responsesLimit}`}
             </span>
           </div>
           <Progress 
@@ -134,4 +134,3 @@ export function Sidebar() {
     </div>
   )
 }
-
