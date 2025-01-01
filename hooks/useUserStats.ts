@@ -40,11 +40,11 @@ export function useUserStats() {
         }
 
         const data = await response.json()
-        
-        const responsesUsed = data.subscription.responsesLimit - data.subscription.responseCredits
+
+        const responsesUsed = data.subscription.responsesUsed || 0
 
         setStats({
-          responsesUsed: responsesUsed,
+          responsesUsed,
           responsesLimit: data.subscription.responsesLimit,
           hotelsCount: data.hotelsCount,
           hotelsLimit: data.subscription.hotelsLimit,
