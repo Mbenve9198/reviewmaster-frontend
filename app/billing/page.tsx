@@ -74,8 +74,8 @@ export default function BillingPage() {
         window.location.href = data.url;
       } catch (error) {
         console.error('Detailed error:', {
-          message: error.message,
-          stack: error.stack
+          message: error instanceof Error ? error.message : 'Unknown error',
+          stack: error instanceof Error ? error.stack : undefined
         });
         toast.error('Failed to open customer portal. Please try again later.');
       }
