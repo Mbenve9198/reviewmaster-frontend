@@ -16,10 +16,25 @@ export default function BillingPage() {
     hotelsCount, 
     hotelsLimit,
     subscriptionPlan,
+    nextResetDate,
     isLoading 
   } = useUserStats()
   const router = useRouter()
   const { user } = useUser()
+
+  const formatDate = (dateString: string) => {
+    if (!dateString) return "...";
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('it-IT', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      });
+    } catch {
+      return "Data non disponibile";
+    }
+  }
 
   const handleManagePlan = async () => {
     if (subscriptionPlan === 'trial') {
@@ -105,6 +120,12 @@ export default function BillingPage() {
             </div>
             <span className="text-3xl font-bold text-primary capitalize">
               {isLoading ? "..." : subscriptionPlan}
+            </span>
+          </div>
+          <div className="flex items-center justify-between mb-6">
+            <span className="text-gray-600">Next reset date</span>
+            <span className="text-primary font-medium">
+              {isLoading ? "..." : formatDate(nextResetDate)}
             </span>
           </div>
           <p className="text-gray-600 mb-6">
