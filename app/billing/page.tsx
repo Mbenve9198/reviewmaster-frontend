@@ -7,6 +7,7 @@ import { useUserStats } from "@/hooks/useUserStats"
 import { useRouter } from 'next/navigation'
 import { useUser } from "@/hooks/use-user"
 import { toast } from "sonner"
+import { getCookie } from "@/lib/utils"
 
 export default function BillingPage() {
   const { 
@@ -30,19 +31,22 @@ export default function BillingPage() {
           user: user?.email
         });
 
-        // Prendi il token da localStorage
-        const token = localStorage.getItem('token');
+        const token = getCookie('token');
         if (!token) {
-          toast.error('Authentication token not found');
+          toast.error('Authentication token not found. Please log in again.');
+          router.push('/login');
           return;
         }
+
+        console.log('Token found, making request...');
 
         const response = await fetch('/api/users/create-portal-session', {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
-          }
+          },
+          credentials: 'include'
         });
         
         console.log('Response status:', response.status);
@@ -50,6 +54,13 @@ export default function BillingPage() {
         if (!response.ok) {
           const errorData = await response.text();
           console.error('Error response:', errorData);
+          
+          if (response.status === 403) {
+            toast.error('Authentication failed. Please log in again.');
+            router.push('/login');
+            return;
+          }
+          
           throw new Error(`Failed to create portal session: ${errorData}`);
         }
         
