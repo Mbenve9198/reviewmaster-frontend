@@ -61,22 +61,35 @@ export function AddHotelModal({ isOpen, onClose, onHotelAdded }: AddHotelModalPr
           throw new Error('Description is required')
         }
 
+        // Get user stats first to check limits
+        const statsResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/stats`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          },
+          credentials: 'include'
+        });
+
+        const statsData = await statsResponse.json();
+        console.log('User stats:', statsData);
+
+        // Then get current hotels
         const hotelsResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/hotels`, {
           headers: {
             'Authorization': `Bearer ${token}`
           },
           credentials: 'include'
-        })
+        });
 
-        console.log('GET /hotels response status:', hotelsResponse.status)
-        const userHotels = await hotelsResponse.json()
-        console.log('GET /hotels response data:', userHotels)
+        console.log('GET /hotels response status:', hotelsResponse.status);
+        const userHotels = await hotelsResponse.json();
+        console.log('GET /hotels response data:', userHotels);
 
-        if (userHotels.length >= 1) {
-          console.log('Blocking hotel creation - existing hotels:', userHotels.length)
-          throw new Error('Trial plan allows only one hotel')
+        if (userHotels.length >= statsData.subscription.hotelsLimit) {
+          console.log('Blocking hotel creation - existing hotels:', userHotels.length, 'limit:', statsData.subscription.hotelsLimit);
+          throw new Error(`Your ${statsData.subscription.plan} plan allows only ${statsData.subscription.hotelsLimit} hotels`);
         }
 
+        // If validation passes, create the hotel
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/hotels`, {
           method: 'POST',
           headers: {
@@ -103,8 +116,8 @@ export function AddHotelModal({ isOpen, onClose, onHotelAdded }: AddHotelModalPr
         console.error('Error adding hotel:', error)
         if (error instanceof Error) {
           setError(error.message)
-          if (error.message === 'Trial plan allows only one hotel') {
-            alert('Your trial plan allows only one hotel. Please upgrade to add more hotels.')
+          if (error.message.includes('plan allows only')) {
+            alert(error.message + '. Please upgrade to add more hotels.')
           } else {
             alert('An error occurred while creating the hotel: ' + error.message)
           }
