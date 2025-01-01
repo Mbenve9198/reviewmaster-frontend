@@ -6,6 +6,7 @@ import { CreditCard } from 'lucide-react'
 import { useUserStats } from "@/hooks/useUserStats"
 import { useRouter } from 'next/navigation'
 import { useUser } from "@/hooks/use-user"
+import { toast } from "sonner"
 
 export default function BillingPage() {
   const { 
@@ -24,22 +25,48 @@ export default function BillingPage() {
       router.push('/billing/plans');
     } else {
       try {
+        console.log('Creating portal session...', {
+          subscriptionPlan,
+          user: user?.email
+        });
+
+        // Prendi il token da localStorage
+        const token = localStorage.getItem('token');
+        if (!token) {
+          toast.error('Authentication token not found');
+          return;
+        }
+
         const response = await fetch('/api/users/create-portal-session', {
           method: 'POST',
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
           }
         });
         
+        console.log('Response status:', response.status);
+        
         if (!response.ok) {
-          throw new Error('Failed to create portal session');
+          const errorData = await response.text();
+          console.error('Error response:', errorData);
+          throw new Error(`Failed to create portal session: ${errorData}`);
         }
         
-        const { url } = await response.json();
-        window.location.href = url;
+        const data = await response.json();
+        console.log('Portal session created:', data);
+        
+        if (!data.url) {
+          throw new Error('No URL returned from portal session');
+        }
+
+        window.location.href = data.url;
       } catch (error) {
-        console.error('Error opening customer portal:', error);
+        console.error('Detailed error:', {
+          message: error.message,
+          stack: error.stack
+        });
+        toast.error('Failed to open customer portal. Please try again later.');
       }
     }
   };
