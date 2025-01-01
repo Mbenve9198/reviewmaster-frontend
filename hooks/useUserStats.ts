@@ -46,8 +46,10 @@ export function useUserStats() {
           responsesLimit: data.responseCredits || 0,
           hotelsCount: data.hotelsCount || 0,
           hotelsLimit: data.hotelsLimit || 0,
+          responseCredits: data.responseCredits || 0,
           subscriptionPlan: data.subscriptionPlan || 'trial',
-          isLoading: false
+          isLoading: false,
+          error: null
         })
       } catch (error) {
         console.error('Error fetching stats:', error)
