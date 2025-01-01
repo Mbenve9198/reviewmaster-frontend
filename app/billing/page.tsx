@@ -5,7 +5,7 @@ import { Progress } from "@/components/ui/progress"
 import { CreditCard } from 'lucide-react'
 import { useUserStats } from "@/hooks/useUserStats"
 import { useRouter } from 'next/navigation'
-import { getCookie } from 'cookies-next'
+import { useUser } from "@/hooks/use-user"
 
 export default function BillingPage() {
   const { 
@@ -17,36 +17,37 @@ export default function BillingPage() {
     isLoading 
   } = useUserStats()
   const router = useRouter()
+  const { user } = useUser()
 
-  const handleOpenCustomerPortal = async () => {
-    try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/create-portal-session`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${getCookie('token')}`,
-          'Content-Type': 'application/json'
-        },
-        credentials: 'include'
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to create portal session');
-      }
-
-      const { url } = await response.json();
-      window.location.href = url;
-    } catch (error) {
-      console.error('Error opening customer portal:', error);
-    }
-  };
-
-  const handleManagePlan = () => {
+  const handleManagePlan = async () => {
     if (subscriptionPlan === 'trial') {
       router.push('/billing/plans');
     } else {
-      handleOpenCustomerPortal();
+      try {
+        const response = await fetch('/api/users/create-portal-session', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to create portal session');
+        }
+        
+        const { url } = await response.json();
+        window.location.href = url;
+      } catch (error) {
+        console.error('Error opening customer portal:', error);
+      }
     }
   };
+
+  const getButtonText = () => {
+    if (isLoading) return "...";
+    return subscriptionPlan === 'trial' ? 'Upgrade Your Plan' : 'Manage Plan';
+  }
 
   return (
     <div className="min-h-screen bg-white py-12">
@@ -70,13 +71,19 @@ export default function BillingPage() {
           </div>
           <p className="text-gray-600 mb-6">
             You are currently on the {isLoading ? "..." : subscriptionPlan} plan. 
-            Manage your subscription and billing information.
+            {subscriptionPlan === 'trial' 
+              ? ' Upgrade now to access more features and benefits.'
+              : ' Manage your subscription and billing information.'}
           </p>
           <Button
             onClick={handleManagePlan}
-            className="w-full bg-primary hover:bg-primary/90 text-white font-bold text-xl py-6 rounded-xl transition-all shadow-[0_4px_0_0_#1d4ed8]"
+            className={`w-full ${
+              subscriptionPlan === 'trial' 
+                ? 'bg-green-600 hover:bg-green-700' 
+                : 'bg-primary hover:bg-primary/90'
+            } text-white font-bold text-xl py-6 rounded-xl transition-all shadow-[0_4px_0_0_#1d4ed8]`}
           >
-            Manage Plan
+            {getButtonText()}
           </Button>
         </div>
 
@@ -145,4 +152,3 @@ export default function BillingPage() {
     </div>
   )
 }
-
