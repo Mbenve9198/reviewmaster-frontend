@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils"
 import { Progress } from "@/components/ui/progress"
 import { Button } from "@/components/ui/button"
 import { useUserStats } from "@/hooks/useUserStats"
+import { useEffect } from "react"
 
 const navigation = [
   { 
@@ -60,8 +61,27 @@ export function Sidebar() {
     hotelsCount, 
     hotelsLimit,
     responseCredits,
-    isLoading 
+    subscriptionPlan,
+    nextResetDate,
+    isLoading,
+    refetch
   } = useUserStats()
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      refetch()
+    }, 5000) // Aggiorna ogni 5 secondi
+
+    return () => clearInterval(interval)
+  }, [refetch])
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('it-IT', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    })
+  }
 
   const handleLogout = () => {
     // Rimuovi il token dai cookies
@@ -71,7 +91,7 @@ export function Sidebar() {
 
   return (
     <div className="flex flex-col w-[280px] bg-white border-r min-h-screen">
-      <div className="p-8 border-b">
+      <div className="p-6">
         <h1 className="text-2xl font-bold text-primary">ReviewMaster</h1>
       </div>
       <nav className="flex-1 px-2 py-4">
@@ -119,11 +139,27 @@ export function Sidebar() {
             className="h-3 bg-primary/20"
           />
         </div>
+
+        <div className="pt-4 border-t space-y-3">
+          <div className="flex justify-between text-sm">
+            <span className="text-gray-600">Current plan</span>
+            <span className="text-primary font-medium capitalize">
+              {isLoading ? "..." : subscriptionPlan}
+            </span>
+          </div>
+          <div className="flex justify-between text-sm">
+            <span className="text-gray-600">Next reset</span>
+            <span className="text-primary font-medium">
+              {isLoading ? "..." : formatDate(nextResetDate)}
+            </span>
+          </div>
+        </div>
+
         <div className="flex justify-center">
           <Button
             variant="default"
             size="default"
-            className={`w-full max-w-[150px] text-base py-3 rounded-xl shadow-[0_4px_0_0_#2563eb] flex items-center justify-center gap-2`}
+            className="w-full max-w-[150px] text-base py-3 rounded-xl shadow-[0_4px_0_0_#2563eb] flex items-center justify-center gap-2"
             onClick={handleLogout}
           >
             <LogOut className="w-4 h-4" />
