@@ -79,7 +79,7 @@ export default function HomePage() {
         // Recupera l'hotel selezionato dal localStorage
         const lastSelectedHotel = localStorage.getItem('lastSelectedHotel');
         
-        if (lastSelectedHotel && data.some(hotel => hotel._id === lastSelectedHotel)) {
+        if (lastSelectedHotel && data.some((hotel: Hotel) => hotel._id === lastSelectedHotel)) {
           // Se l'hotel salvato esiste ancora nella lista, selezionalo
           setSelectedHotel(lastSelectedHotel);
         } else if (data.length > 0) {
