@@ -75,6 +75,18 @@ export default function HomePage() {
         const data = await response.json();
         console.log('Hotels fetched:', data);
         setHotels(data);
+
+        // Recupera l'hotel selezionato dal localStorage
+        const lastSelectedHotel = localStorage.getItem('lastSelectedHotel');
+        
+        if (lastSelectedHotel && data.some(hotel => hotel._id === lastSelectedHotel)) {
+          // Se l'hotel salvato esiste ancora nella lista, selezionalo
+          setSelectedHotel(lastSelectedHotel);
+        } else if (data.length > 0) {
+          // Altrimenti, se ci sono hotel disponibili, seleziona il primo
+          setSelectedHotel(data[0]._id);
+          localStorage.setItem('lastSelectedHotel', data[0]._id);
+        }
       } catch (error) {
         console.error('Error fetching hotels:', error);
       }
@@ -82,6 +94,12 @@ export default function HomePage() {
 
     fetchHotels();
   }, []);
+
+  // Aggiorna il localStorage quando l'utente cambia hotel
+  const handleHotelChange = (hotelId: string) => {
+    setSelectedHotel(hotelId);
+    localStorage.setItem('lastSelectedHotel', hotelId);
+  };
 
   const handleGenerateResponse = async () => {
     if (!selectedHotel || !review.trim()) return;
@@ -237,13 +255,13 @@ export default function HomePage() {
 
       <div className="max-w-4xl mx-auto px-6">
         <div className="flex items-center justify-center gap-4 mb-12">
-          <Select value={selectedHotel} onValueChange={setSelectedHotel}>
-            <SelectTrigger className="w-[200px] text-xl border-2">
-              <SelectValue placeholder="Select hotel" />
+          <Select value={selectedHotel} onValueChange={handleHotelChange}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select a hotel" />
             </SelectTrigger>
             <SelectContent>
               {hotels.map((hotel) => (
-                <SelectItem key={hotel._id} value={hotel._id} className="text-lg">
+                <SelectItem key={hotel._id} value={hotel._id}>
                   {hotel.name}
                 </SelectItem>
               ))}

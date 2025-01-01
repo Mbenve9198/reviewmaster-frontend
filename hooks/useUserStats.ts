@@ -41,18 +41,13 @@ export function useUserStats() {
 
         const data = await response.json()
         
-        // Calcola responses used come la differenza tra il limite e i crediti rimanenti
-        const responsesUsed = data.subscription.responsesLimit - data.subscription.responseCredits
-
         setStats({
-          responsesUsed: responsesUsed,  // ✅ CORRETTO: crediti usati
-          responsesLimit: data.subscription.responsesLimit,
-          hotelsCount: data.hotelsCount,
-          hotelsLimit: data.subscription.hotelsLimit,
-          responseCredits: data.subscription.responseCredits,  // crediti rimanenti
-          subscriptionPlan: data.subscription.plan,
-          isLoading: false,
-          error: null
+          responsesUsed: data.responsesUsed || 0,
+          responsesLimit: data.responseCredits || 0,
+          hotelsCount: data.hotelsCount || 0,
+          hotelsLimit: data.hotelsLimit || 0,
+          subscriptionPlan: data.subscriptionPlan || 'trial',
+          isLoading: false
         })
       } catch (error) {
         console.error('Error fetching stats:', error)
