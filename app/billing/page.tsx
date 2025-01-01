@@ -137,7 +137,7 @@ export default function BillingPage() {
                 <span className="text-lg font-medium text-gray-700">Responses Generated</span>
               </div>
               <span className="text-lg font-medium text-primary">
-                {isLoading ? "..." : `${responsesLimit - responsesUsed}/${responsesLimit}`}
+                {isLoading ? "..." : `${responsesUsed}/${responsesLimit}`}
               </span>
             </div>
             <Progress 
