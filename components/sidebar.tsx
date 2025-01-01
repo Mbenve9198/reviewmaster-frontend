@@ -70,17 +70,23 @@ export function Sidebar() {
   useEffect(() => {
     const interval = setInterval(() => {
       refetch()
-    }, 5000) // Aggiorna ogni 5 secondi
+    }, 5000)
 
     return () => clearInterval(interval)
   }, [refetch])
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('it-IT', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric'
-    })
+    if (!dateString) return "..."
+    try {
+      const date = new Date(dateString)
+      return new Intl.DateTimeFormat('it-IT', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      }).format(date)
+    } catch {
+      return "Data non disponibile"
+    }
   }
 
   const handleLogout = () => {
