@@ -65,7 +65,7 @@ export default function BillingPage() {
               <CreditCard className="w-8 h-8 text-primary mr-4" />
               <h2 className="text-2xl font-bold text-gray-800">Current Plan</h2>
             </div>
-            <span className="text-3xl font-bold text-primary">
+            <span className="text-3xl font-bold text-primary capitalize">
               {isLoading ? "..." : subscriptionPlan}
             </span>
           </div>
