@@ -5,7 +5,8 @@ export function middleware(request: NextRequest) {
   const token = request.cookies.get('token')?.value
   const isLoginPage = request.nextUrl.pathname === '/login'
   const isRegisterPage = request.nextUrl.pathname === '/signup'
-  const isPublicPage = isLoginPage || isRegisterPage
+  const isVerifyEmailPage = request.nextUrl.pathname === '/verify-email'
+  const isPublicPage = isLoginPage || isRegisterPage || isVerifyEmailPage
 
   // Se l'utente non è autenticato e sta cercando di accedere a una pagina protetta
   if (!token && !isPublicPage) {
@@ -13,7 +14,7 @@ export function middleware(request: NextRequest) {
   }
 
   // Se l'utente è autenticato e sta cercando di accedere a login/register
-  if (token && isPublicPage) {
+  if (token && isPublicPage && !isVerifyEmailPage) {
     return NextResponse.redirect(new URL('/', request.url))
   }
 
