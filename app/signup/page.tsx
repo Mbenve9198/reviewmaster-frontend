@@ -51,13 +51,11 @@ export default function SignUpPage() {
       const data = await response.json()
 
       if (response.ok) {
-        setCookie('token', data.token, { 
-          maxAge: 60 * 60 * 24 * 30,
-          path: '/',
-          sameSite: 'strict'
+        toast.success('Account created! Please check your email to verify your account.', { 
+          id: loadingToast,
+          duration: 5000
         })
-        toast.success('Account created successfully!', { id: loadingToast })
-        router.push('/')
+        router.push('/verify-email-notice')
       } else {
         toast.error(data.message || 'Registration failed', { id: loadingToast })
         setError(data.message || 'Registration failed')
