@@ -42,7 +42,7 @@ export default function HomePage() {
   const [hotels, setHotels] = useState<Hotel[]>([])
   const [review, setReview] = useState("")
   const [aiResponse, setAiResponse] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
   const [isAddHotelModalOpen, setIsAddHotelModalOpen] = useState(false)
@@ -58,42 +58,67 @@ export default function HomePage() {
   const [responseLength, setResponseLength] = useState<ResponseLength>('medium')
 
   useEffect(() => {
-    const fetchHotels = async () => {
+    const checkAuthAndFetchData = async () => {
+      const token = getCookie('token')
+      
+      if (!token) {
+        console.log('No token found, redirecting to login...')
+        router.push('/login')
+        return
+      }
+
       try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/hotels`, {
           credentials: 'include',
           headers: {
-            'Authorization': `Bearer ${getCookie('token')}`,
+            'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
           },
-        });
+        })
 
         if (!response.ok) {
-          throw new Error('Failed to fetch hotels');
+          if (response.status === 401) {
+            console.log('Token invalid, redirecting to login...')
+            router.push('/login')
+            return
+          }
+          throw new Error('Failed to fetch hotels')
         }
 
-        const data = await response.json();
-        console.log('Hotels fetched:', data);
-        setHotels(data);
+        const data = await response.json()
+        console.log('Hotels fetched:', data)
+        setHotels(data)
 
         // Recupera l'hotel selezionato dal localStorage
-        const lastSelectedHotel = localStorage.getItem('lastSelectedHotel');
+        const lastSelectedHotel = localStorage.getItem('lastSelectedHotel')
         
         if (lastSelectedHotel && data.some((hotel: Hotel) => hotel._id === lastSelectedHotel)) {
-          // Se l'hotel salvato esiste ancora nella lista, selezionalo
-          setSelectedHotel(lastSelectedHotel);
+          setSelectedHotel(lastSelectedHotel)
         } else if (data.length > 0) {
-          // Altrimenti, se ci sono hotel disponibili, seleziona il primo
-          setSelectedHotel(data[0]._id);
-          localStorage.setItem('lastSelectedHotel', data[0]._id);
+          setSelectedHotel(data[0]._id)
+          localStorage.setItem('lastSelectedHotel', data[0]._id)
         }
       } catch (error) {
-        console.error('Error fetching hotels:', error);
+        console.error('Error fetching hotels:', error)
+        if (error instanceof Error && error.message.includes('401')) {
+          router.push('/login')
+        }
+      } finally {
+        setIsLoading(false)
       }
-    };
+    }
 
-    fetchHotels();
-  }, []);
+    checkAuthAndFetchData()
+  }, [router])
+
+  // Mostra un loader mentre verifichiamo l'autenticazione
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    )
+  }
 
   // Aggiorna il localStorage quando l'utente cambia hotel
   const handleHotelChange = (hotelId: string) => {
