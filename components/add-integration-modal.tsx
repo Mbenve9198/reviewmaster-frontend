@@ -56,13 +56,15 @@ const languages = [
   { value: 'de', label: 'German' }
 ]
 
+type SyncFrequency = 'daily' | 'weekly' | 'monthly'
+
 export function AddIntegrationModal({ isOpen, onClose, hotelId, onIntegrationAdded }: AddIntegrationModalProps) {
   const [step, setStep] = useState(1)
   const totalSteps = 3
   const [selectedPlatform, setSelectedPlatform] = useState('')
   const [url, setUrl] = useState('')
   const [syncType, setSyncType] = useState<'manual' | 'automatic'>('manual')
-  const [frequency, setFrequency] = useState<'daily' | 'weekly' | 'monthly'>('weekly')
+  const [frequency, setFrequency] = useState<SyncFrequency>('weekly')
   const [language, setLanguage] = useState('en')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
@@ -281,7 +283,10 @@ export function AddIntegrationModal({ isOpen, onClose, hotelId, onIntegrationAdd
               {syncType === 'automatic' && (
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Sync Frequency</label>
-                  <Select value={frequency} onValueChange={setFrequency}>
+                  <Select 
+                    value={frequency} 
+                    onValueChange={(value: SyncFrequency) => setFrequency(value)}
+                  >
                     <SelectTrigger className="text-base p-4">
                       <SelectValue placeholder="Select frequency" />
                     </SelectTrigger>
