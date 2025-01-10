@@ -127,7 +127,7 @@ export function AddIntegrationModal({ isOpen, onClose, hotelId, onIntegrationAdd
     try {
       const token = getCookie('token');
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/integrations/${hotelId}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/integrations/hotel/${hotelId}`,
         {
           method: 'POST',
           headers: {
