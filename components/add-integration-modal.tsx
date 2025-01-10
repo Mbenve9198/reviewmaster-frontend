@@ -69,6 +69,7 @@ export function AddIntegrationModal({ isOpen, onClose, hotelId, onIntegrationAdd
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const [isVerifying, setIsVerifying] = useState(false)
+  const [placeId, setPlaceId] = useState('');
 
   const resetForm = () => {
     setStep(1)
@@ -109,6 +110,8 @@ export function AddIntegrationModal({ isOpen, onClose, hotelId, onIntegrationAdd
         throw new Error('Invalid URL. Please check the format and try again.')
       }
 
+      const data = await response.json()
+      setPlaceId(data.placeId)
       setStep(2)
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Failed to verify URL')
@@ -123,14 +126,8 @@ export function AddIntegrationModal({ isOpen, onClose, hotelId, onIntegrationAdd
 
     try {
       const token = getCookie('token')
-      const apifyConfig = {
-        maxReviews: maxReviews === 'all' ? null : parseInt(maxReviews),
-        personalData: true,
-        startUrls: [{ url, method: 'GET' }]
-      }
-
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/integrations/${hotelId}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/integrations/hotel/${hotelId}`,
         {
           method: 'POST',
           headers: {
@@ -140,11 +137,11 @@ export function AddIntegrationModal({ isOpen, onClose, hotelId, onIntegrationAdd
           body: JSON.stringify({
             platform: selectedPlatform,
             url,
+            placeId,
             syncConfig: {
               type: syncType,
               frequency,
-              maxReviews,
-              apifySettings: apifyConfig
+              maxReviews
             }
           })
         }
