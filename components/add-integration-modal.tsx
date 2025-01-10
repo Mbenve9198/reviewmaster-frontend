@@ -17,6 +17,9 @@ import Image from "next/image"
 import { Loader2, AlertCircle } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 
+type MaxReviews = '100' | '500' | '1000' | 'all';
+type SyncFrequency = 'daily' | 'weekly' | 'monthly';
+
 interface AddIntegrationModalProps {
   isOpen: boolean
   onClose: () => void
@@ -48,15 +51,12 @@ const platforms = [
   }
 ]
 
-const languages = [
-  { value: 'en', label: 'English' },
-  { value: 'it', label: 'Italian' },
-  { value: 'es', label: 'Spanish' },
-  { value: 'fr', label: 'French' },
-  { value: 'de', label: 'German' }
-]
-
-type SyncFrequency = 'daily' | 'weekly' | 'monthly'
+const maxReviewsOptions = [
+  { value: '100', label: 'Last 100 reviews' },
+  { value: '500', label: 'Last 500 reviews' },
+  { value: '1000', label: 'Last 1000 reviews' },
+  { value: 'all', label: 'All reviews' }
+];
 
 export function AddIntegrationModal({ isOpen, onClose, hotelId, onIntegrationAdded }: AddIntegrationModalProps) {
   const [step, setStep] = useState(1)
@@ -65,7 +65,7 @@ export function AddIntegrationModal({ isOpen, onClose, hotelId, onIntegrationAdd
   const [url, setUrl] = useState('')
   const [syncType, setSyncType] = useState<'manual' | 'automatic'>('manual')
   const [frequency, setFrequency] = useState<SyncFrequency>('weekly')
-  const [language, setLanguage] = useState('en')
+  const [maxReviews, setMaxReviews] = useState<MaxReviews>('100')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const [isVerifying, setIsVerifying] = useState(false)
@@ -76,7 +76,7 @@ export function AddIntegrationModal({ isOpen, onClose, hotelId, onIntegrationAdd
     setUrl('')
     setSyncType('manual')
     setFrequency('weekly')
-    setLanguage('en')
+    setMaxReviews('100')
     setError('')
     setIsLoading(false)
     setIsVerifying(false)
@@ -124,8 +124,7 @@ export function AddIntegrationModal({ isOpen, onClose, hotelId, onIntegrationAdd
     try {
       const token = getCookie('token')
       const apifyConfig = {
-        language,
-        maxReviews: 100,
+        maxReviews: maxReviews === 'all' ? null : parseInt(maxReviews),
         personalData: true,
         startUrls: [{ url, method: 'GET' }]
       }
@@ -144,7 +143,7 @@ export function AddIntegrationModal({ isOpen, onClose, hotelId, onIntegrationAdd
             syncConfig: {
               type: syncType,
               frequency,
-              language,
+              maxReviews,
               apifySettings: apifyConfig
             }
           })
@@ -172,7 +171,7 @@ export function AddIntegrationModal({ isOpen, onClose, hotelId, onIntegrationAdd
       case 2:
         return syncType && (syncType === 'manual' || frequency)
       case 3:
-        return language
+        return maxReviews
       default:
         return false
     }
@@ -304,21 +303,21 @@ export function AddIntegrationModal({ isOpen, onClose, hotelId, onIntegrationAdd
           {step === 3 && (
             <div className="space-y-6">
               <div className="space-y-2">
-                <label className="text-sm font-medium">Review Language</label>
-                <Select value={language} onValueChange={setLanguage}>
+                <label className="text-sm font-medium">Reviews to Sync</label>
+                <Select value={maxReviews} onValueChange={(value: MaxReviews) => setMaxReviews(value)}>
                   <SelectTrigger className="text-base p-4">
-                    <SelectValue placeholder="Select language" />
+                    <SelectValue placeholder="Select number of reviews" />
                   </SelectTrigger>
                   <SelectContent>
-                    {languages.map((lang) => (
-                      <SelectItem key={lang.value} value={lang.value}>
-                        {lang.label}
+                    {maxReviewsOptions.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
                 <p className="text-xs text-gray-500">
-                  Select the language of the reviews you want to sync
+                  Select how many reviews you want to sync initially
                 </p>
               </div>
             </div>
