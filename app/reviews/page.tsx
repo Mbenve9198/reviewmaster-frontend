@@ -17,6 +17,11 @@ import { Send, Star, Search, X, RotateCw, Filter, Settings } from "lucide-react"
 import { getCookie } from "@/lib/utils"
 import { ResponseModal } from "@/components/response-modal"
 
+interface Hotel {
+  _id: string
+  name: string
+}
+
 interface Review {
   _id: string
   platform: 'google' | 'booking' | 'tripadvisor' | 'manual'
@@ -54,7 +59,7 @@ const PLATFORMS = {
 export default function ReviewsPage() {
   const router = useRouter()
   const [selectedHotel, setSelectedHotel] = useState("")
-  const [hotels, setHotels] = useState([])
+  const [hotels, setHotels] = useState<Hotel[]>([])
   const [reviews, setReviews] = useState<Review[]>([])
   const [filteredReviews, setFilteredReviews] = useState<Review[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -82,11 +87,11 @@ export default function ReviewsPage() {
         
         if (!response.ok) throw new Error('Failed to fetch hotels')
         
-        const data = await response.json()
+        const data: Hotel[] = await response.json()
         setHotels(data)
         
         const lastSelected = localStorage.getItem('lastSelectedHotel')
-        if (lastSelected && data.some(h => h._id === lastSelected)) {
+        if (lastSelected && data.some((hotel: Hotel) => hotel._id === lastSelected)) {
           setSelectedHotel(lastSelected)
         } else if (data.length > 0) {
           setSelectedHotel(data[0]._id)
@@ -226,7 +231,7 @@ export default function ReviewsPage() {
                 <SelectValue placeholder="Select hotel" />
               </SelectTrigger>
               <SelectContent>
-                {hotels.map((hotel: any) => (
+                {hotels.map((hotel: Hotel) => (
                   <SelectItem key={hotel._id} value={hotel._id}>
                     {hotel.name}
                   </SelectItem>
