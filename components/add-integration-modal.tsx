@@ -126,11 +126,11 @@ export function AddIntegrationModal({ isOpen, onClose, hotelId, onIntegrationAdd
 
     try {
       const token = getCookie('token');
-      const url = `${process.env.NEXT_PUBLIC_API_URL}/api/integrations/hotel/${hotelId}`;
-      console.log('Calling API:', url);
+      const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/integrations/hotel/${hotelId}`;
+      console.log('Calling API:', apiUrl);
       console.log('Payload:', {
         platform: selectedPlatform,
-        url,
+        url: url,
         placeId,
         syncConfig: {
           type: syncType,
@@ -139,7 +139,7 @@ export function AddIntegrationModal({ isOpen, onClose, hotelId, onIntegrationAdd
         }
       });
 
-      const response = await fetch(url, {
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -147,7 +147,7 @@ export function AddIntegrationModal({ isOpen, onClose, hotelId, onIntegrationAdd
         },
         body: JSON.stringify({
           platform: selectedPlatform,
-          url,
+          url: url,
           placeId,
           syncConfig: {
             type: syncType,
@@ -165,8 +165,7 @@ export function AddIntegrationModal({ isOpen, onClose, hotelId, onIntegrationAdd
         throw new Error(data.message || 'Failed to create integration');
       }
 
-      const integration = await response.json();
-      onIntegrationAdded(integration);
+      onIntegrationAdded(data);
       handleClose();
     } catch (error) {
       console.error('Error details:', error);
