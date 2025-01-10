@@ -126,35 +126,50 @@ export function AddIntegrationModal({ isOpen, onClose, hotelId, onIntegrationAdd
 
     try {
       const token = getCookie('token');
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/integrations/hotel/${hotelId}`,
-        {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            platform: selectedPlatform,
-            url,
-            placeId,
-            syncConfig: {
-              type: syncType,
-              frequency,
-              maxReviews
-            }
-          })
+      const url = `${process.env.NEXT_PUBLIC_API_URL}/api/integrations/hotel/${hotelId}`;
+      console.log('Calling API:', url);
+      console.log('Payload:', {
+        platform: selectedPlatform,
+        url,
+        placeId,
+        syncConfig: {
+          type: syncType,
+          frequency,
+          maxReviews
         }
-      );
+      });
+
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          platform: selectedPlatform,
+          url,
+          placeId,
+          syncConfig: {
+            type: syncType,
+            frequency,
+            maxReviews
+          }
+        })
+      });
+
+      console.log('Response status:', response.status);
+      const data = await response.json();
+      console.log('Response data:', data);
 
       if (!response.ok) {
-        throw new Error('Failed to create integration');
+        throw new Error(data.message || 'Failed to create integration');
       }
 
       const integration = await response.json();
       onIntegrationAdded(integration);
       handleClose();
     } catch (error) {
+      console.error('Error details:', error);
       setError(error instanceof Error ? error.message : 'Failed to create integration');
     } finally {
       setIsLoading(false);
