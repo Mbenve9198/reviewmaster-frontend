@@ -22,6 +22,12 @@ interface Integration {
   placeId: string
   url: string
   status: 'active' | 'error' | 'disconnected' | 'pending'
+  logo?: string
+  stats: {
+    totalReviews: number
+    syncedReviews: number
+    lastSyncedReviewDate: Date | null
+  }
   syncConfig: {
     type: 'manual' | 'automatic'
     frequency: 'daily' | 'weekly' | 'monthly'
@@ -33,11 +39,6 @@ interface Integration {
       code: string
       timestamp: Date
     }
-  }
-  stats: {
-    totalReviews: number
-    syncedReviews: number
-    lastSyncedReviewDate: Date | null
   }
 }
 
@@ -233,8 +234,7 @@ export default function IntegrationsPage() {
                 key={integration._id} 
                 integration={{
                   ...integration,
-                  logo: platformLogos[integration.platform],
-                  isConnected: integration.status === 'active'
+                  logo: platformLogos[integration.platform]
                 }}
                 onSync={async () => {
                   const token = getCookie('token')
