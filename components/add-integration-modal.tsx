@@ -126,9 +126,10 @@ export function AddIntegrationModal({ isOpen, onClose, hotelId, onIntegrationAdd
 
     try {
       const token = getCookie('token');
-      const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/integrations/${hotelId}`;
+      const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/integrations/hotel/${hotelId}`;
       console.log('Calling API:', apiUrl);
       console.log('Payload:', {
+        hotelId,
         platform: selectedPlatform,
         url: url,
         placeId,
@@ -146,6 +147,7 @@ export function AddIntegrationModal({ isOpen, onClose, hotelId, onIntegrationAdd
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          hotelId,
           platform: selectedPlatform,
           url: url,
           placeId,
