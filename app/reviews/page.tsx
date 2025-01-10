@@ -41,7 +41,12 @@ interface Review {
   }
 }
 
-const PLATFORMS = {
+const PLATFORMS: {
+  [key in Review['platform']]: {
+    name: string;
+    logo: string;
+  }
+} = {
   google: {
     name: "Google",
     logo: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/google-my-bussines-logo-png_seeklogo-329002-OvZ3IZAlUXbrND3lwaiejZMlWivOUq.png"
@@ -53,6 +58,10 @@ const PLATFORMS = {
   tripadvisor: {
     name: "TripAdvisor",
     logo: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Tripadvisor_logoset_solid_green-KkpUOomr3cNSTrXGcYHehXnIDlKdbg.svg"
+  },
+  manual: {
+    name: "Manual",
+    logo: "/manual-icon.png"
   }
 }
 
