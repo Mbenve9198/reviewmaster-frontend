@@ -121,11 +121,11 @@ export function AddIntegrationModal({ isOpen, onClose, hotelId, onIntegrationAdd
   }
 
   const handleSubmit = async () => {
-    setIsLoading(true)
-    setError('')
+    setIsLoading(true);
+    setError('');
 
     try {
-      const token = getCookie('token')
+      const token = getCookie('token');
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/integrations/${hotelId}`,
         {
@@ -145,21 +145,21 @@ export function AddIntegrationModal({ isOpen, onClose, hotelId, onIntegrationAdd
             }
           })
         }
-      )
+      );
 
       if (!response.ok) {
-        throw new Error('Failed to create integration')
+        throw new Error('Failed to create integration');
       }
 
-      const integration = await response.json()
-      onIntegrationAdded(integration)
-      handleClose()
+      const integration = await response.json();
+      onIntegrationAdded(integration);
+      handleClose();
     } catch (error) {
-      setError(error instanceof Error ? error.message : 'Failed to create integration')
+      setError(error instanceof Error ? error.message : 'Failed to create integration');
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const isStepValid = () => {
     switch (step) {
