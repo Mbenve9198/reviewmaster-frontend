@@ -38,17 +38,26 @@ const PLATFORMS = [
 interface Integration {
   _id: string;
   hotelId: string;
-  platform: string;
+  platform: 'google' | 'booking' | 'tripadvisor';
   url: string;
   placeId: string;
-  status: string;
+  status: 'active' | 'error' | 'disconnected' | 'pending';
   stats: {
-    lastSync?: Date;
-    totalReviews?: number;
+    totalReviews: number;
+    syncedReviews: number;
+    lastSyncedReviewDate: Date | null;
   };
   syncConfig: {
-    frequency: string;
-    lastSync?: Date;
+    type: 'manual' | 'automatic';
+    frequency: 'daily' | 'weekly' | 'monthly';
+    language: string;
+    lastSync: Date | null;
+    nextScheduledSync: Date | null;
+    error?: {
+      message: string;
+      code: string;
+      timestamp: Date;
+    };
   };
 }
 
@@ -58,19 +67,19 @@ export function AddIntegrationModal({
   hotelId,
   onSuccess
 }: {
-  isOpen: boolean
-  onClose: () => void
-  hotelId: string
-  onSuccess: (integration: Integration) => Promise<void>
+  isOpen: boolean;
+  onClose: () => void;
+  hotelId: string;
+  onSuccess: (integration: Integration) => Promise<void>;
 }) {
-  const [selectedPlatform, setSelectedPlatform] = useState("")
+  const [selectedPlatform, setSelectedPlatform] = useState<Integration['platform']>('google')
   const [url, setUrl] = useState("")
   const [isLoading, setIsLoading] = useState(false)
 
   const handleSubmit = async () => {
     try {
       setIsLoading(true)
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/integrations`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/integrations/hotel/${hotelId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -79,7 +88,12 @@ export function AddIntegrationModal({
         body: JSON.stringify({
           hotelId,
           platform: selectedPlatform,
-          url: url.trim()
+          url: url.trim(),
+          syncConfig: {
+            type: 'manual',
+            frequency: 'weekly',
+            maxReviews: '100'
+          }
         })
       })
 
@@ -91,7 +105,7 @@ export function AddIntegrationModal({
       const integration = await response.json()
       
       toast.success("Integration added successfully")
-      onSuccess(integration)
+      await onSuccess(integration)
       onClose()
     } catch (error) {
       toast.error(error.message)
