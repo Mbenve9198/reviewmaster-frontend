@@ -259,11 +259,11 @@ export default function IntegrationsPage() {
         )}
       </div>
 
-      <AddIntegrationModal 
-        isOpen={isAddIntegrationModalOpen} 
+      <AddIntegrationModal
+        isOpen={isAddIntegrationModalOpen}
         onClose={() => setIsAddIntegrationModalOpen(false)}
         hotelId={selectedHotel || ''}
-        onIntegrationAdded={handleIntegrationAdded}
+        onSuccess={handleIntegrationAdded}
       />
     </div>
   )
