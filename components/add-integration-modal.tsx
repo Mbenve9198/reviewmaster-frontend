@@ -40,7 +40,16 @@ interface Integration {
   hotelId: string;
   platform: string;
   url: string;
-  // ... altri campi se necessari
+  placeId: string;
+  status: string;
+  stats: {
+    lastSync?: Date;
+    totalReviews?: number;
+  };
+  syncConfig: {
+    frequency: string;
+    lastSync?: Date;
+  };
 }
 
 export function AddIntegrationModal({
@@ -52,7 +61,7 @@ export function AddIntegrationModal({
   isOpen: boolean
   onClose: () => void
   hotelId: string
-  onSuccess: (integration: Integration) => void
+  onSuccess: (integration: Integration) => Promise<void>
 }) {
   const [selectedPlatform, setSelectedPlatform] = useState("")
   const [url, setUrl] = useState("")
