@@ -512,7 +512,9 @@ export default function ReviewsPage() {
                           ))}
                         </div>
                         <span className="text-sm text-gray-500">
-                          {new Date(review.metadata.originalCreatedAt).toLocaleDateString()}
+                          {review.metadata?.originalCreatedAt 
+                            ? new Date(review.metadata.originalCreatedAt).toLocaleDateString()
+                            : 'Data non disponibile'}
                         </span>
                       </div>
                     </div>
