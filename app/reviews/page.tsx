@@ -76,6 +76,10 @@ const DATE_RANGES = {
   'all': 'All Time'
 }
 
+// Aggiungiamo alcuni stili comuni
+const buttonBaseStyles = "transition-all shadow-[0_4px_0_0_#2563eb] active:shadow-[0_0_0_0_#2563eb] active:translate-y-1"
+const inputBaseStyles = "border-2 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+
 export default function ReviewsPage() {
   const router = useRouter()
   const [selectedHotel, setSelectedHotel] = useState("")
@@ -347,20 +351,20 @@ export default function ReviewsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white py-12">
+    <div className="min-h-screen bg-gradient-to-b from-white to-gray-50/50 py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-800 mb-4">Review Management</h1>
+          <h1 className="text-4xl font-bold text-gray-800 mb-4 tracking-tight">Review Management</h1>
           <p className="text-xl text-gray-600">
             Monitor and respond to your reviews across all platforms
           </p>
         </div>
 
-        {/* Controls Section */}
-        <div className="mb-8">
-          <div className="flex items-center gap-4 mb-6">
+        {/* Controls Section con stile aggiornato */}
+        <div className="mb-8 space-y-6">
+          <div className="flex items-center gap-4">
             <Select value={selectedHotel} onValueChange={setSelectedHotel}>
-              <SelectTrigger className="w-[250px]">
+              <SelectTrigger className={`w-[250px] ${inputBaseStyles}`}>
                 <SelectValue placeholder="Select hotel" />
               </SelectTrigger>
               <SelectContent>
@@ -375,7 +379,8 @@ export default function ReviewsPage() {
             <Button
               onClick={handleSettingsClick}
               disabled={!selectedHotel}
-              className="p-4 rounded-full"
+              className={`p-4 rounded-xl hover:bg-gray-100 ${buttonBaseStyles}`}
+              variant="outline"
               aria-label="Hotel Settings"
             >
               <Settings className="w-6 h-6" />
@@ -383,18 +388,18 @@ export default function ReviewsPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-            <div className="relative">
+            <div className="relative col-span-2">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
               <Input
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
+                className={`pl-10 h-12 rounded-xl ${inputBaseStyles}`}
                 placeholder="Search reviews..."
               />
             </div>
 
             <Select value={platformFilter} onValueChange={setPlatformFilter}>
-              <SelectTrigger>
+              <SelectTrigger className={inputBaseStyles}>
                 <SelectValue placeholder="Platform" />
               </SelectTrigger>
               <SelectContent>
@@ -406,7 +411,7 @@ export default function ReviewsPage() {
             </Select>
 
             <Select value={ratingFilter} onValueChange={setRatingFilter}>
-              <SelectTrigger>
+              <SelectTrigger className={inputBaseStyles}>
                 <SelectValue placeholder="Rating" />
               </SelectTrigger>
               <SelectContent>
@@ -420,7 +425,7 @@ export default function ReviewsPage() {
             </Select>
 
             <Select value={responseFilter} onValueChange={setResponseFilter}>
-              <SelectTrigger>
+              <SelectTrigger className={inputBaseStyles}>
                 <SelectValue placeholder="Response Status" />
               </SelectTrigger>
               <SelectContent>
@@ -431,7 +436,7 @@ export default function ReviewsPage() {
             </Select>
 
             <Select value={dateFilter} onValueChange={setDateFilter}>
-              <SelectTrigger>
+              <SelectTrigger className={inputBaseStyles}>
                 <SelectValue placeholder="Date Range" />
               </SelectTrigger>
               <SelectContent>
@@ -445,30 +450,31 @@ export default function ReviewsPage() {
           </div>
         </div>
 
-        {/* Bulk Actions */}
+        {/* Bulk Actions con stile aggiornato */}
         {selectedReviews.size > 0 && (
-          <div className="bg-gray-50 border rounded-lg p-4 mb-6 flex items-center justify-between">
-            <div className="flex items-center gap-2">
+          <div className="bg-white border-2 rounded-xl p-6 mb-6 flex items-center justify-between shadow-sm">
+            <div className="flex items-center gap-3">
               <Checkbox
                 checked={selectedReviews.size === filteredReviews.length}
                 onClick={toggleSelectAll}
+                className="h-5 w-5"
               />
-              <span className="text-sm text-gray-600">
+              <span className="text-sm font-medium text-gray-600">
                 {selectedReviews.size} reviews selected
               </span>
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-3">
               <Button
                 variant="outline"
                 onClick={() => handleBulkAction('mark_not_responded')}
-                className="gap-2"
+                className={`gap-2 rounded-xl ${buttonBaseStyles}`}
               >
                 <X className="w-4 h-4" />
                 Mark as Not Responded
               </Button>
               <Button
                 onClick={() => handleBulkAction('mark_responded')}
-                className="gap-2"
+                className={`gap-2 rounded-xl bg-primary text-white ${buttonBaseStyles}`}
               >
                 <Check className="w-4 h-4" />
                 Mark as Responded
@@ -477,11 +483,11 @@ export default function ReviewsPage() {
           </div>
         )}
 
-        {/* Reviews List */}
+        {/* Reviews List con stile aggiornato */}
         <div className="space-y-6">
           {filteredReviews.map((review) => (
-            <Card key={review._id} className="w-full overflow-hidden">
-              <CardHeader className="bg-gray-50 border-b">
+            <Card key={review._id} className="w-full overflow-hidden rounded-xl border-2 transition-all hover:border-primary/10">
+              <CardHeader className="bg-gray-50/50 border-b">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
                     <Checkbox
@@ -535,17 +541,17 @@ export default function ReviewsPage() {
                 </div>
               </CardHeader>
               <CardContent className="p-6">
-                <p className="text-gray-700 mb-6">{review.content.text}</p>
+                <p className="text-gray-700 mb-6 leading-relaxed">{review.content.text}</p>
                 
                 {review.response?.text ? (
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <div className="flex items-center justify-between mb-2">
-                      <p className="font-medium">Your Response:</p>
+                  <div className="bg-gray-50/50 p-6 rounded-xl border-2">
+                    <div className="flex items-center justify-between mb-3">
+                      <p className="font-medium text-gray-800">Your Response:</p>
                       <Button
                         variant={review.response.synced ? "outline" : "default"}
                         size="sm"
                         onClick={() => handleMarkAsResponded(review._id)}
-                        className="gap-2"
+                        className={`gap-2 rounded-xl ${buttonBaseStyles}`}
                       >
                         {review.response.synced ? (
                           <>
@@ -560,24 +566,22 @@ export default function ReviewsPage() {
                         )}
                       </Button>
                     </div>
-                    <p className="text-gray-600">{review.response.text}</p>
+                    <p className="text-gray-600 leading-relaxed">{review.response.text}</p>
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    <div className="flex gap-4">
-                      <Button
-                        onClick={() => handleGenerateResponse(review._id)}
-                        disabled={isGeneratingResponse && currentReviewId === review._id}
-                        className="gap-2"
-                      >
-                        {isGeneratingResponse && currentReviewId === review._id ? (
-                          <RotateCw className="w-4 h-4 animate-spin" />
-                        ) : (
-                          <Send className="w-4 h-4" />
-                        )}
-                        Generate AI Response
-                      </Button>
-                    </div>
+                    <Button
+                      onClick={() => handleGenerateResponse(review._id)}
+                      disabled={isGeneratingResponse && currentReviewId === review._id}
+                      className={`gap-2 rounded-xl bg-primary text-white ${buttonBaseStyles}`}
+                    >
+                      {isGeneratingResponse && currentReviewId === review._id ? (
+                        <RotateCw className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <Send className="w-4 h-4" />
+                      )}
+                      Generate AI Response
+                    </Button>
                   </div>
                 )}
               </CardContent>
