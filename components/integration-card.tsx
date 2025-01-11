@@ -267,24 +267,26 @@ export function IntegrationCard({ integration, onSync, onDelete }: IntegrationCa
 
       {/* Settings Dialog */}
       <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
-        <DialogContent className="bg-white sm:max-w-[425px] rounded-2xl">
-          <DialogHeader>
-            <DialogTitle>Integration Settings</DialogTitle>
-            <DialogDescription>
+        <DialogContent className="bg-white sm:max-w-[425px] p-6 rounded-3xl border-0">
+          <DialogHeader className="space-y-3">
+            <DialogTitle className="text-2xl font-bold text-gray-800">
+              Integration Settings
+            </DialogTitle>
+            <DialogDescription className="text-base text-gray-600">
               Configure sync settings for {integration.platform}
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-6 py-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Sync Type</label>
+          <div className="space-y-6 py-6">
+            <div className="space-y-3">
+              <label className="text-sm font-medium text-gray-700">Sync Type</label>
               <Select 
                 value={integration.syncConfig.type}
                 onValueChange={(value: 'manual' | 'automatic') => 
                   updateIntegrationSettings({ type: value })
                 }
               >
-                <SelectTrigger className={inputBaseStyles}>
+                <SelectTrigger className="h-12 rounded-xl border-2 focus:ring-2 focus:ring-primary/20 focus:border-primary">
                   <SelectValue placeholder="Select sync type" />
                 </SelectTrigger>
                 <SelectContent>
@@ -295,15 +297,15 @@ export function IntegrationCard({ integration, onSync, onDelete }: IntegrationCa
             </div>
 
             {integration.syncConfig.type === 'automatic' && (
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Sync Frequency</label>
+              <div className="space-y-3">
+                <label className="text-sm font-medium text-gray-700">Sync Frequency</label>
                 <Select
                   value={integration.syncConfig.frequency}
                   onValueChange={(value: 'daily' | 'weekly' | 'monthly') =>
                     updateIntegrationSettings({ frequency: value })
                   }
                 >
-                  <SelectTrigger className={inputBaseStyles}>
+                  <SelectTrigger className="h-12 rounded-xl border-2 focus:ring-2 focus:ring-primary/20 focus:border-primary">
                     <SelectValue placeholder="Select frequency" />
                   </SelectTrigger>
                   <SelectContent>
@@ -315,11 +317,11 @@ export function IntegrationCard({ integration, onSync, onDelete }: IntegrationCa
               </div>
             )}
 
-            <div className="pt-4 border-t">
+            <div className="pt-6 border-t">
               <Button
                 variant="destructive"
                 onClick={() => setIsDeleteDialogOpen(true)}
-                className="w-full rounded-xl"
+                className="w-full h-12 rounded-xl font-medium"
               >
                 Delete Integration
               </Button>
@@ -330,19 +332,21 @@ export function IntegrationCard({ integration, onSync, onDelete }: IntegrationCa
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <DialogContent className="bg-white sm:max-w-[425px] rounded-2xl">
-          <DialogHeader>
-            <DialogTitle>Delete Integration</DialogTitle>
-            <DialogDescription>
+        <DialogContent className="bg-white sm:max-w-[425px] p-6 rounded-3xl border-0">
+          <DialogHeader className="space-y-3">
+            <DialogTitle className="text-2xl font-bold text-gray-800">
+              Delete Integration
+            </DialogTitle>
+            <DialogDescription className="text-base text-gray-600">
               Are you sure you want to delete this integration? This action will also delete all associated reviews and cannot be undone.
             </DialogDescription>
           </DialogHeader>
 
-          <DialogFooter className="flex gap-2 sm:gap-0">
+          <div className="flex gap-3 pt-6">
             <Button
               variant="outline"
               onClick={() => setIsDeleteDialogOpen(false)}
-              className="rounded-xl flex-1 sm:flex-none"
+              className="flex-1 h-12 rounded-xl border-2 hover:bg-gray-50"
             >
               Cancel
             </Button>
@@ -350,7 +354,7 @@ export function IntegrationCard({ integration, onSync, onDelete }: IntegrationCa
               variant="destructive"
               onClick={handleDelete}
               disabled={isDeleting}
-              className="rounded-xl flex-1 sm:flex-none"
+              className="flex-1 h-12 rounded-xl font-medium"
             >
               {isDeleting ? (
                 <>
@@ -361,7 +365,7 @@ export function IntegrationCard({ integration, onSync, onDelete }: IntegrationCa
                 'Delete Integration'
               )}
             </Button>
-          </DialogFooter>
+          </div>
         </DialogContent>
       </Dialog>
     </>
