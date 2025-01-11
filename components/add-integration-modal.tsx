@@ -69,6 +69,12 @@ interface Integration {
   };
 }
 
+interface SyncConfig {
+  type: 'manual' | 'automatic';
+  frequency: 'daily' | 'weekly' | 'monthly';
+  maxReviews: string;
+}
+
 export function AddIntegrationModal({
   isOpen,
   onClose,
@@ -84,9 +90,9 @@ export function AddIntegrationModal({
   const [url, setUrl] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [step, setStep] = useState(1)
-  const [syncConfig, setSyncConfig] = useState({
-    type: 'automatic' as const,
-    frequency: 'daily' as const,
+  const [syncConfig, setSyncConfig] = useState<SyncConfig>({
+    type: 'automatic',
+    frequency: 'daily',
     maxReviews: '100'
   })
 
@@ -222,7 +228,7 @@ export function AddIntegrationModal({
                 <label className="text-sm font-medium">Sync Type</label>
                 <Select
                   value={syncConfig.type}
-                  onValueChange={(value: 'manual' | 'automatic') => 
+                  onValueChange={(value: SyncConfig['type']) => 
                     setSyncConfig(prev => ({ ...prev, type: value }))
                   }
                 >
@@ -240,7 +246,7 @@ export function AddIntegrationModal({
                 <label className="text-sm font-medium">Sync Frequency</label>
                 <Select
                   value={syncConfig.frequency}
-                  onValueChange={(value: 'daily' | 'weekly' | 'monthly') => 
+                  onValueChange={(value: SyncConfig['frequency']) => 
                     setSyncConfig(prev => ({ ...prev, frequency: value }))
                   }
                 >
