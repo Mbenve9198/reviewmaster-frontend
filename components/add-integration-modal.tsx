@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
 import { Loader2 } from "lucide-react"
 import Image from "next/image"
+import { useAuth } from '@/hooks/useAuth'
 
 const buttonBaseStyles = "transition-all shadow-[0_4px_0_0_#2563eb] active:shadow-[0_0_0_0_#2563eb] active:translate-y-1"
 const inputBaseStyles = "border-2 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
@@ -78,6 +79,7 @@ export function AddIntegrationModal({
   hotelId: string;
   onSuccess: (integration: Integration) => Promise<void>;
 }) {
+  const { token, isAuthenticated } = useAuth()
   const [selectedPlatform, setSelectedPlatform] = useState<Integration['platform']>('google')
   const [url, setUrl] = useState("")
   const [isLoading, setIsLoading] = useState(false)
@@ -87,11 +89,9 @@ export function AddIntegrationModal({
       console.log('Starting submission...', { hotelId, platform: selectedPlatform, url })
       setIsLoading(true)
       
-      const token = localStorage.getItem('token')
-      console.log('Token found:', !!token)
-      
-      if (!token) {
-        throw new Error('Authentication token not found')
+      if (!isAuthenticated || !token) {
+        console.error('Auth check failed:', { isAuthenticated, hasToken: !!token })
+        throw new Error('Please log in to add an integration')
       }
 
       const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/integrations/hotel/${hotelId}`
