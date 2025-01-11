@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
 import { Loader2 } from "lucide-react"
 import Image from "next/image"
-import { useAuth } from '@/hooks/useAuth'
+import { getCookie } from "cookies-next"
 
 const buttonBaseStyles = "transition-all shadow-[0_4px_0_0_#2563eb] active:shadow-[0_0_0_0_#2563eb] active:translate-y-1"
 const inputBaseStyles = "border-2 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
@@ -79,7 +79,6 @@ export function AddIntegrationModal({
   hotelId: string;
   onSuccess: (integration: Integration) => Promise<void>;
 }) {
-  const { token, isAuthenticated } = useAuth()
   const [selectedPlatform, setSelectedPlatform] = useState<Integration['platform']>('google')
   const [url, setUrl] = useState("")
   const [isLoading, setIsLoading] = useState(false)
@@ -89,44 +88,35 @@ export function AddIntegrationModal({
       console.log('Starting submission...', { hotelId, platform: selectedPlatform, url })
       setIsLoading(true)
       
-      if (!isAuthenticated || !token) {
-        console.error('Auth check failed:', { isAuthenticated, hasToken: !!token })
+      const token = getCookie('token')
+      console.log('Token found:', !!token)
+      
+      if (!token) {
         throw new Error('Please log in to add an integration')
       }
 
-      const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/integrations/hotel/${hotelId}`
-      console.log('Calling API:', apiUrl)
-
-      const payload = {
-        hotelId,
-        platform: selectedPlatform,
-        url: url.trim(),
-        syncConfig: {
-          type: 'manual',
-          frequency: 'weekly',
-          maxReviews: '100'
-        }
-      }
-      console.log('Request payload:', payload)
-
-      const response = await fetch(apiUrl, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/integrations/hotel/${hotelId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
+          'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify(payload)
+        credentials: 'include',
+        body: JSON.stringify({
+          hotelId,
+          platform: selectedPlatform,
+          url: url.trim(),
+          syncConfig: {
+            type: 'manual',
+            frequency: 'weekly',
+            maxReviews: '100'
+          }
+        })
       })
 
-      console.log('Response status:', response.status)
-
       if (!response.ok) {
-        const errorData = await response.json()
-        console.error('API error:', errorData)
-        if (response.status === 403) {
-          throw new Error('Not authorized. Please try logging in again.')
-        }
-        throw new Error(errorData.message || 'Failed to add integration')
+        const error = await response.json()
+        throw new Error(error.message || 'Failed to add integration')
       }
 
       const integration = await response.json()
