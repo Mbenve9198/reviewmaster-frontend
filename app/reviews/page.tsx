@@ -281,29 +281,42 @@ export default function ReviewsPage() {
   const handleBulkAction = async (action: 'mark_responded' | 'mark_not_responded') => {
     try {
       const token = getCookie('token')
-      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reviews/bulk-update`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          reviewIds: Array.from(selectedReviews),
-          action
-        })
-      })
+      const reviewIds = Array.from(selectedReviews)
+      
+      await Promise.all(
+        reviewIds.map(reviewId =>
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reviews/${reviewId}/mark-responded`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ synced: action === 'mark_responded' })
+          })
+        )
+      )
 
       // Update local state
-      setReviews(prev => prev.map(review => 
-        selectedReviews.has(review._id)
-          ? { ...review, response: { ...review.response, synced: action === 'mark_responded' } }
-          : review
-      ))
+      setReviews(prev => prev.map(review => {
+        if (selectedReviews.has(review._id)) {
+          return {
+            ...review,
+            response: review.response ? {
+              ...review.response,
+              synced: action === 'mark_responded'
+            } : {
+              text: null,
+              createdAt: null,
+              synced: action === 'mark_responded'
+            }
+          } as Review
+        }
+        return review
+      }))
 
-      // Clear selection
       setSelectedReviews(new Set())
     } catch (error) {
-      console.error('Error performing bulk action:', error)
+      console.error('Error:', error)
     }
   }
 
