@@ -43,6 +43,17 @@ interface Review {
   }
 }
 
+// Definire prima il tipo
+type Platform = 'google' | 'tripadvisor' | 'booking' | 'manual' | 'all';
+
+// Definire MAX_RATING come Record
+const MAX_RATING: Record<Exclude<Platform, 'all'>, number> = {
+  google: 5,
+  tripadvisor: 5,
+  booking: 10,
+  manual: 5
+};
+
 const PLATFORMS: {
   [key in Review['platform']]: {
     name: string;
@@ -80,13 +91,6 @@ const DATE_RANGES = {
 const buttonBaseStyles = "transition-all shadow-[0_4px_0_0_#2563eb] active:shadow-[0_0_0_0_#2563eb] active:translate-y-1"
 const inputBaseStyles = "border-2 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
 
-const MAX_RATING = {
-  google: 5,
-  tripadvisor: 5,
-  booking: 10,
-  manual: 5
-} as const;
-
 export default function ReviewsPage() {
   const router = useRouter()
   const [selectedHotel, setSelectedHotel] = useState("")
@@ -95,7 +99,7 @@ export default function ReviewsPage() {
   const [filteredReviews, setFilteredReviews] = useState<Review[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")
-  const [platformFilter, setPlatformFilter] = useState<string>("all")
+  const [platformFilter, setPlatformFilter] = useState<Platform>('all')
   const [ratingFilter, setRatingFilter] = useState<string>("all")
   const [responseFilter, setResponseFilter] = useState<string>("not_responded")
   const [dateFilter, setDateFilter] = useState<string>("this_month")
@@ -405,7 +409,7 @@ export default function ReviewsPage() {
               />
             </div>
 
-            <Select value={platformFilter} onValueChange={setPlatformFilter}>
+            <Select value={platformFilter} onValueChange={(value: Platform) => setPlatformFilter(value)}>
               <SelectTrigger className={inputBaseStyles}>
                 <SelectValue placeholder="Platform" />
               </SelectTrigger>
@@ -423,13 +427,13 @@ export default function ReviewsPage() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Ratings</SelectItem>
-                {[...Array(MAX_RATING[platformFilter === 'all' ? 'google' : platformFilter])].map((_, i) => {
+                {[...Array(MAX_RATING[platformFilter === 'all' ? 'google' : platformFilter as Exclude<Platform, 'all'>])].map((_, i) => {
                   const rating = i + 1;
                   return (
                     <SelectItem key={rating} value={rating.toString()}>
                       {rating} {platformFilter === 'booking' ? 'out of 10' : 'Stars'}
                     </SelectItem>
-                  )
+                  );
                 })}
               </SelectContent>
             </Select>
