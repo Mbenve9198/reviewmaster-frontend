@@ -35,6 +35,14 @@ const PLATFORMS = [
   }
 ];
 
+interface Integration {
+  _id: string;
+  hotelId: string;
+  platform: string;
+  url: string;
+  // ... altri campi se necessari
+}
+
 export function AddIntegrationModal({
   isOpen,
   onClose,
@@ -44,7 +52,7 @@ export function AddIntegrationModal({
   isOpen: boolean
   onClose: () => void
   hotelId: string
-  onSuccess: () => void
+  onSuccess: (integration: Integration) => void
 }) {
   const [selectedPlatform, setSelectedPlatform] = useState("")
   const [url, setUrl] = useState("")
@@ -71,9 +79,10 @@ export function AddIntegrationModal({
         throw new Error(error.message || 'Failed to add integration')
       }
 
-      toast.success("Integration added successfully")
+      const integration = await response.json()
       
-      onSuccess()
+      toast.success("Integration added successfully")
+      onSuccess(integration)
       onClose()
     } catch (error) {
       toast.error(error.message)
