@@ -4,7 +4,7 @@ import { useState } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { useToast } from "@/components/ui/use-toast"
+import { toast } from "@/components/ui/use-toast"
 import { Loader2 } from "lucide-react"
 import Image from "next/image"
 
@@ -49,10 +49,44 @@ export function AddIntegrationModal({
   const [selectedPlatform, setSelectedPlatform] = useState("")
   const [url, setUrl] = useState("")
   const [isLoading, setIsLoading] = useState(false)
-  const { toast } = useToast()
 
   const handleSubmit = async () => {
-    // ... logica esistente ...
+    try {
+      setIsLoading(true)
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/integrations`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({
+          hotelId,
+          platform: selectedPlatform,
+          url: url.trim()
+        })
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.message || 'Failed to add integration')
+      }
+
+      toast({
+        title: "Success",
+        description: "Integration added successfully"
+      })
+      
+      onSuccess()
+      onClose()
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive"
+      })
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
