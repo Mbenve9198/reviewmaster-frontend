@@ -104,6 +104,16 @@ export function AddIntegrationModal({
     setStep(2)
   }
 
+  const validateUrl = (url: string, platform: Integration['platform']): boolean => {
+    const patterns = {
+      google: /^https:\/\/(www\.)?google\.com\/maps\/place\/.*/,
+      booking: /^https:\/\/www\.booking\.com\/hotel\/[a-z]{2}\/.*\..*\.html$/,
+      tripadvisor: /^https:\/\/www\.tripadvisor\.com\/Hotel_Review-.*/
+    }
+
+    return patterns[platform].test(url)
+  }
+
   const handleSubmit = async () => {
     try {
       setIsLoading(true)
@@ -111,6 +121,11 @@ export function AddIntegrationModal({
       const token = getCookie('token')
       if (!token) {
         throw new Error('Please log in to add an integration')
+      }
+
+      // Validazione URL
+      if (!validateUrl(url.trim(), selectedPlatform)) {
+        throw new Error(`Invalid ${selectedPlatform} URL format. Please check the example and try again.`)
       }
 
       const payload = {
@@ -125,7 +140,7 @@ export function AddIntegrationModal({
         }
       }
 
-      console.log('Sending payload:', payload)
+      console.log('Sending payload:', JSON.stringify(payload, null, 2))
 
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/integrations/hotel/${hotelId}`, {
         method: 'POST',
@@ -137,20 +152,26 @@ export function AddIntegrationModal({
         body: JSON.stringify(payload)
       })
 
+      const responseData = await response.json()
+      console.log('Server response:', {
+        status: response.status,
+        data: responseData
+      })
+
       if (!response.ok) {
-        const errorData = await response.json()
-        console.error('Server error:', errorData)
-        throw new Error(errorData.message || `Error setting up integration: ${response.status}`)
+        throw new Error(responseData.message || `Error setting up integration: ${response.status}`)
       }
 
-      const integration = await response.json()
-      console.log('Integration created:', integration)
-      
       toast.success("Integration added successfully")
-      await onSuccess(integration)
+      await onSuccess(responseData)
       onClose()
     } catch (error) {
-      console.error('Full error details:', error)
+      console.error('Full error details:', {
+        error,
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined
+      })
+      
       if (error instanceof Error) {
         toast.error(error.message)
       } else {
