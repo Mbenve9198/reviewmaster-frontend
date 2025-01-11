@@ -11,7 +11,13 @@ import Image from "next/image"
 const buttonBaseStyles = "transition-all shadow-[0_4px_0_0_#2563eb] active:shadow-[0_0_0_0_#2563eb] active:translate-y-1"
 const inputBaseStyles = "border-2 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
 
-const PLATFORMS = [
+const PLATFORMS: Array<{
+  id: Integration['platform'];
+  name: string;
+  logo: string;
+  placeholder: string;
+  example: string;
+}> = [
   {
     id: 'google',
     name: 'Google Business',
