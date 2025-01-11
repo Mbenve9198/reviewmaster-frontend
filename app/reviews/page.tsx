@@ -1,5 +1,3 @@
-"use client"
-
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import {
@@ -13,9 +11,10 @@ import { Input } from "@/components/ui/input"
 import { Progress } from "@/components/ui/progress"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
-import { Send, Star, Search, X, RotateCw, Filter, Settings } from "lucide-react"
+import { Send, Star, Search, X, RotateCw, Filter, Settings, Check, Calendar } from "lucide-react"
 import { getCookie } from "@/lib/utils"
 import { ResponseModal } from "@/components/response-modal"
+import { Checkbox } from "@/components/ui/checkbox"
 
 interface Hotel {
   _id: string
@@ -35,6 +34,7 @@ interface Review {
   response: {
     text: string | null
     createdAt: Date | null
+    synced: boolean
   } | null
   metadata: {
     originalCreatedAt: Date
@@ -65,6 +65,15 @@ const PLATFORMS: {
   }
 }
 
+const DATE_RANGES = {
+  'this_month': 'This Month',
+  'last_month': 'Last Month',
+  'last_3_months': 'Last 3 Months',
+  'last_6_months': 'Last 6 Months',
+  'last_year': 'Last Year',
+  'all': 'All Time'
+}
+
 export default function ReviewsPage() {
   const router = useRouter()
   const [selectedHotel, setSelectedHotel] = useState("")
@@ -75,12 +84,14 @@ export default function ReviewsPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [platformFilter, setPlatformFilter] = useState<string>("all")
   const [ratingFilter, setRatingFilter] = useState<string>("all")
-  const [responseFilter, setResponseFilter] = useState<string>("all")
+  const [responseFilter, setResponseFilter] = useState<string>("not_responded")
+  const [dateFilter, setDateFilter] = useState<string>("this_month")
   const [isGeneratingResponse, setIsGeneratingResponse] = useState(false)
   const [currentReviewId, setCurrentReviewId] = useState<string | null>(null)
   const [isResponseModalOpen, setIsResponseModalOpen] = useState(false)
   const [aiResponse, setAiResponse] = useState("")
   const [error, setError] = useState<string | null>(null)
+  const [selectedReviews, setSelectedReviews] = useState<Set<string>>(new Set())
   const [responseStyle, setResponseStyle] = useState<'professional' | 'friendly'>('professional')
   const [responseLength, setResponseLength] = useState<'short' | 'medium' | 'long'>('medium')
 
@@ -166,13 +177,39 @@ export default function ReviewsPage() {
 
     // Response filter
     if (responseFilter === 'responded') {
-      filtered = filtered.filter(review => review.response)
+      filtered = filtered.filter(review => review.response?.synced)
     } else if (responseFilter === 'not_responded') {
-      filtered = filtered.filter(review => !review.response)
+      filtered = filtered.filter(review => !review.response?.synced)
+    }
+
+    // Date filter
+    const now = new Date()
+    const filterDate = new Date()
+    switch (dateFilter) {
+      case 'this_month':
+        filterDate.setDate(1)
+        filtered = filtered.filter(review => new Date(review.metadata.originalCreatedAt) >= filterDate)
+        break
+      case 'last_month':
+        filterDate.setMonth(filterDate.getMonth() - 1)
+        filtered = filtered.filter(review => new Date(review.metadata.originalCreatedAt) >= filterDate)
+        break
+      case 'last_3_months':
+        filterDate.setMonth(filterDate.getMonth() - 3)
+        filtered = filtered.filter(review => new Date(review.metadata.originalCreatedAt) >= filterDate)
+        break
+      case 'last_6_months':
+        filterDate.setMonth(filterDate.getMonth() - 6)
+        filtered = filtered.filter(review => new Date(review.metadata.originalCreatedAt) >= filterDate)
+        break
+      case 'last_year':
+        filterDate.setFullYear(filterDate.getFullYear() - 1)
+        filtered = filtered.filter(review => new Date(review.metadata.originalCreatedAt) >= filterDate)
+        break
     }
 
     setFilteredReviews(filtered)
-  }, [reviews, searchTerm, platformFilter, ratingFilter, responseFilter])
+  }, [reviews, searchTerm, platformFilter, ratingFilter, responseFilter, dateFilter])
 
   const handleGenerateResponse = async (reviewId: string) => {
     setCurrentReviewId(reviewId)
@@ -212,6 +249,74 @@ export default function ReviewsPage() {
       setError(error instanceof Error ? error.message : 'Failed to generate response')
     } finally {
       setIsGeneratingResponse(false)
+    }
+  }
+
+  const handleMarkAsResponded = async (reviewId: string) => {
+    try {
+      const token = getCookie('token')
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reviews/${reviewId}/mark-responded`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        }
+      })
+
+      // Update local state
+      setReviews(prev => prev.map(review => 
+        review._id === reviewId 
+          ? { ...review, response: { ...review.response, synced: true } }
+          : review
+      ))
+    } catch (error) {
+      console.error('Error marking as responded:', error)
+    }
+  }
+
+  const handleBulkAction = async (action: 'mark_responded' | 'mark_not_responded') => {
+    try {
+      const token = getCookie('token')
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reviews/bulk-update`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          reviewIds: Array.from(selectedReviews),
+          action
+        })
+      })
+
+      // Update local state
+      setReviews(prev => prev.map(review => 
+        selectedReviews.has(review._id)
+          ? { ...review, response: { ...review.response, synced: action === 'mark_responded' } }
+          : review
+      ))
+
+      // Clear selection
+      setSelectedReviews(new Set())
+    } catch (error) {
+      console.error('Error performing bulk action:', error)
+    }
+  }
+
+  const toggleReviewSelection = (reviewId: string) => {
+    const newSelection = new Set(selectedReviews)
+    if (newSelection.has(reviewId)) {
+      newSelection.delete(reviewId)
+    } else {
+      newSelection.add(reviewId)
+    }
+    setSelectedReviews(newSelection)
+  }
+
+  const toggleSelectAll = () => {
+    if (selectedReviews.size === filteredReviews.length) {
+      setSelectedReviews(new Set())
+    } else {
+      setSelectedReviews(new Set(filteredReviews.map(r => r._id)))
     }
   }
 
@@ -258,7 +363,7 @@ export default function ReviewsPage() {
             </Button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
               <Input
@@ -305,8 +410,53 @@ export default function ReviewsPage() {
                 <SelectItem value="not_responded">Not Responded</SelectItem>
               </SelectContent>
             </Select>
+
+            <Select value={dateFilter} onValueChange={setDateFilter}>
+              <SelectTrigger>
+                <SelectValue placeholder="Date Range" />
+              </SelectTrigger>
+              <SelectContent>
+                {Object.entries(DATE_RANGES).map(([value, label]) => (
+                  <SelectItem key={value} value={value}>
+                    {label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
+
+        {/* Bulk Actions */}
+        {selectedReviews.size > 0 && (
+          <div className="bg-gray-50 border rounded-lg p-4 mb-6 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Checkbox
+                checked={selectedReviews.size === filteredReviews.length}
+                onClick={toggleSelectAll}
+              />
+              <span className="text-sm text-gray-600">
+                {selectedReviews.size} reviews selected
+              </span>
+            </div>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                onClick={() => handleBulkAction('mark_not_responded')}
+                className="gap-2"
+              >
+                <X className="w-4 h-4" />
+                Mark as Not Responded
+              </Button>
+              <Button
+                onClick={() => handleBulkAction('mark_responded')}
+                className="gap-2"
+              >
+                <Check className="w-4 h-4" />
+                Mark as Responded
+              </Button>
+            </div>
+          </div>
+        )}
 
         {/* Reviews List */}
         <div className="space-y-6">
@@ -315,6 +465,10 @@ export default function ReviewsPage() {
               <CardHeader className="bg-gray-50 border-b">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
+                    <Checkbox
+                      checked={selectedReviews.has(review._id)}
+                      onClick={() => toggleReviewSelection(review._id)}
+                    />
                     {PLATFORMS[review.platform] && (
                       <div className="w-8 h-8 relative">
                         <img 
@@ -345,14 +499,46 @@ export default function ReviewsPage() {
                       </div>
                     </div>
                   </div>
+
+                  <div className="flex items-center gap-2">
+                    {review.content.originalUrl && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => window.open(review.content.originalUrl, '_blank')}
+                      >
+                        View Original
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </CardHeader>
               <CardContent className="p-6">
                 <p className="text-gray-700 mb-6">{review.content.text}</p>
                 
-                {review.response && review.response.text ? (
+                {review.response?.text ? (
                   <div className="bg-gray-50 p-4 rounded-lg">
-                    <p className="font-medium mb-2">Your Response:</p>
+                    <div className="flex items-center justify-between mb-2">
+                      <p className="font-medium">Your Response:</p>
+                      <Button
+                        variant={review.response.synced ? "outline" : "default"}
+                        size="sm"
+                        onClick={() => handleMarkAsResponded(review._id)}
+                        className="gap-2"
+                      >
+                        {review.response.synced ? (
+                          <>
+                            <Check className="w-4 h-4" />
+                            Responded
+                          </>
+                        ) : (
+                          <>
+                            <Check className="w-4 h-4" />
+                            Mark as Responded
+                          </>
+                        )}
+                      </Button>
+                    </div>
                     <p className="text-gray-600">{review.response.text}</p>
                   </div>
                 ) : (
@@ -391,4 +577,3 @@ export default function ReviewsPage() {
       </div>
     </div>
   )
-}
