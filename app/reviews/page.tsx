@@ -257,21 +257,24 @@ export default function ReviewsPage() {
   const handleMarkAsResponded = async (reviewId: string) => {
     try {
       const token = getCookie('token')
-      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reviews/${reviewId}/mark-responded`, {
-        method: 'PUT',
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reviews/${reviewId}/mark-responded`, {
+        method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
         }
       })
 
+      if (!response.ok) throw new Error('Failed to mark review as responded')
+
       // Update local state
-      setReviews(prev => prev.map(review => 
-        review._id === reviewId 
-          ? { ...review, response: { ...review.response, synced: true } }
+      setReviews(prev => prev.map(review =>
+        review._id === reviewId
+          ? { ...review, response: { ...review.response, synced: true } as Review['response'] }
           : review
       ))
     } catch (error) {
-      console.error('Error marking as responded:', error)
+      console.error('Error:', error)
     }
   }
 
