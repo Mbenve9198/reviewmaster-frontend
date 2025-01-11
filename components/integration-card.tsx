@@ -11,7 +11,15 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
-import { Loader2, RefreshCw, Settings, AlertCircle, CheckCircle2, XCircle } from "lucide-react"
+import { 
+  Loader2, 
+  RefreshCw, 
+  Settings, 
+  AlertCircle, 
+  CheckCircle2, 
+  XCircle, 
+  Trash2 
+} from "lucide-react"
 import Image from "next/image"
 import {
   Dialog,
@@ -19,11 +27,16 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
+  DialogFooter,
 } from "@/components/ui/dialog"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { getCookie } from "@/lib/utils"
 import { format } from 'date-fns'
+import { toast } from "sonner"
+
+const buttonBaseStyles = "transition-all shadow-[0_4px_0_0_#2563eb] active:shadow-[0_0_0_0_#2563eb] active:translate-y-1"
+const inputBaseStyles = "border-2 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
 
 interface IntegrationCardProps {
   integration: {
@@ -39,7 +52,6 @@ interface IntegrationCardProps {
     syncConfig: {
       type: 'manual' | 'automatic'
       frequency: 'daily' | 'weekly' | 'monthly'
-      language: string
       lastSync: Date | null
       nextScheduledSync: Date | null
       error?: {
@@ -50,12 +62,15 @@ interface IntegrationCardProps {
     }
   }
   onSync: () => Promise<void>
+  onDelete?: () => void
 }
 
-export function IntegrationCard({ integration, onSync }: IntegrationCardProps) {
+export function IntegrationCard({ integration, onSync, onDelete }: IntegrationCardProps) {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [isSyncing, setIsSyncing] = useState(false)
   const [isUpdating, setIsUpdating] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   const statusIcons = {
     active: <CheckCircle2 className="w-5 h-5 text-green-500" />,
@@ -68,10 +83,41 @@ export function IntegrationCard({ integration, onSync }: IntegrationCardProps) {
     try {
       setIsSyncing(true)
       await onSync()
+      toast.success("Sync completed successfully")
     } catch (error) {
       console.error('Sync error:', error)
+      toast.error("Failed to sync reviews")
     } finally {
       setIsSyncing(false)
+    }
+  }
+
+  const handleDelete = async () => {
+    try {
+      setIsDeleting(true)
+      const token = getCookie('token')
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/integrations/${integration._id}`,
+        {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          }
+        }
+      )
+
+      if (!response.ok) {
+        throw new Error('Failed to delete integration')
+      }
+
+      toast.success("Integration deleted successfully")
+      onDelete?.()
+    } catch (error) {
+      console.error('Delete error:', error)
+      toast.error("Failed to delete integration")
+    } finally {
+      setIsDeleting(false)
+      setIsDeleteDialogOpen(false)
     }
   }
 
@@ -94,8 +140,11 @@ export function IntegrationCard({ integration, onSync }: IntegrationCardProps) {
       if (!response.ok) {
         throw new Error('Failed to update settings')
       }
+
+      toast.success("Settings updated successfully")
     } catch (error) {
       console.error('Update settings error:', error)
+      toast.error("Failed to update settings")
     } finally {
       setIsUpdating(false)
     }
@@ -103,8 +152,8 @@ export function IntegrationCard({ integration, onSync }: IntegrationCardProps) {
 
   return (
     <>
-      <Card className="relative overflow-hidden">
-        <CardHeader className="space-y-1">
+      <Card className="relative overflow-hidden border-2 hover:border-primary/20 transition-all duration-200 hover:shadow-xl rounded-2xl bg-gradient-to-b from-white to-gray-50/50">
+        <CardHeader className="space-y-1 border-b bg-white/50">
           <div className="flex items-center justify-between mb-2">
             <div className="h-12 w-12 relative">
               <Image
@@ -114,16 +163,27 @@ export function IntegrationCard({ integration, onSync }: IntegrationCardProps) {
                 className="object-contain"
               />
             </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setIsSettingsOpen(true)}
-            >
-              <Settings className="w-5 h-5" />
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setIsSettingsOpen(true)}
+                className="hover:bg-gray-100 rounded-xl"
+              >
+                <Settings className="w-5 h-5" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setIsDeleteDialogOpen(true)}
+                className="hover:bg-red-50 text-red-500 rounded-xl"
+              >
+                <Trash2 className="w-5 h-5" />
+              </Button>
+            </div>
           </div>
           <div className="flex items-center space-x-2">
-            <CardTitle>{integration.platform}</CardTitle>
+            <CardTitle className="capitalize">{integration.platform}</CardTitle>
             {statusIcons[integration.status]}
           </div>
           <CardDescription>
@@ -133,9 +193,9 @@ export function IntegrationCard({ integration, onSync }: IntegrationCardProps) {
           </CardDescription>
         </CardHeader>
 
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-4 p-6">
           {integration.status === 'error' && integration.syncConfig.error && (
-            <Alert variant="destructive" className="mb-4">
+            <Alert variant="destructive" className="mb-4 rounded-xl">
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>
                 {integration.syncConfig.error.message}
@@ -144,41 +204,36 @@ export function IntegrationCard({ integration, onSync }: IntegrationCardProps) {
           )}
 
           <div className="space-y-2">
-            <div className="flex justify-between text-sm text-gray-500">
-              <span>Reviews Synced</span>
-              <span>
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-500">Reviews Synced</span>
+              <span className="font-medium">
                 {integration.stats.syncedReviews}/{integration.stats.totalReviews}
               </span>
             </div>
             <Progress 
               value={(integration.stats.syncedReviews / integration.stats.totalReviews) * 100} 
+              className="h-2"
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-2 text-sm">
+          <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
-              <p className="text-gray-500">Sync Type</p>
-              <p className="font-medium">
-                {integration.syncConfig.type === 'automatic' ? 'Automatic' : 'Manual'}
+              <p className="text-gray-500 mb-1">Sync Type</p>
+              <p className="font-medium capitalize">
+                {integration.syncConfig.type}
               </p>
             </div>
             {integration.syncConfig.type === 'automatic' && (
               <div>
-                <p className="text-gray-500">Frequency</p>
+                <p className="text-gray-500 mb-1">Frequency</p>
                 <p className="font-medium capitalize">
                   {integration.syncConfig.frequency}
                 </p>
               </div>
             )}
-            <div>
-              <p className="text-gray-500">Language</p>
-              <p className="font-medium uppercase">
-                {integration.syncConfig.language}
-              </p>
-            </div>
             {integration.syncConfig.type === 'automatic' && (
               <div>
-                <p className="text-gray-500">Next Sync</p>
+                <p className="text-gray-500 mb-1">Next Sync</p>
                 <p className="font-medium">
                   {integration.syncConfig.nextScheduledSync
                     ? format(new Date(integration.syncConfig.nextScheduledSync), 'MMM d')
@@ -189,11 +244,11 @@ export function IntegrationCard({ integration, onSync }: IntegrationCardProps) {
           </div>
         </CardContent>
 
-        <CardFooter>
+        <CardFooter className="p-6 pt-0">
           <Button 
-            className="w-full"
             onClick={handleSync}
             disabled={isSyncing || integration.status === 'disconnected'}
+            className={`w-full ${buttonBaseStyles} rounded-xl h-12`}
           >
             {isSyncing ? (
               <>
@@ -210,12 +265,13 @@ export function IntegrationCard({ integration, onSync }: IntegrationCardProps) {
         </CardFooter>
       </Card>
 
+      {/* Settings Dialog */}
       <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
-        <DialogContent>
+        <DialogContent className="bg-white sm:max-w-[425px] rounded-2xl">
           <DialogHeader>
             <DialogTitle>Integration Settings</DialogTitle>
             <DialogDescription>
-              Configure how reviews are synced from {integration.platform}
+              Configure sync settings for {integration.platform}
             </DialogDescription>
           </DialogHeader>
 
@@ -225,13 +281,10 @@ export function IntegrationCard({ integration, onSync }: IntegrationCardProps) {
               <Select 
                 value={integration.syncConfig.type}
                 onValueChange={(value: 'manual' | 'automatic') => 
-                  updateIntegrationSettings({ 
-                    ...integration.syncConfig, 
-                    type: value 
-                  })
+                  updateIntegrationSettings({ type: value })
                 }
               >
-                <SelectTrigger>
+                <SelectTrigger className={inputBaseStyles}>
                   <SelectValue placeholder="Select sync type" />
                 </SelectTrigger>
                 <SelectContent>
@@ -247,13 +300,10 @@ export function IntegrationCard({ integration, onSync }: IntegrationCardProps) {
                 <Select
                   value={integration.syncConfig.frequency}
                   onValueChange={(value: 'daily' | 'weekly' | 'monthly') =>
-                    updateIntegrationSettings({
-                      ...integration.syncConfig,
-                      frequency: value
-                    })
+                    updateIntegrationSettings({ frequency: value })
                   }
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className={inputBaseStyles}>
                     <SelectValue placeholder="Select frequency" />
                   </SelectTrigger>
                   <SelectContent>
@@ -265,39 +315,55 @@ export function IntegrationCard({ integration, onSync }: IntegrationCardProps) {
               </div>
             )}
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Language</label>
-              <Select
-                value={integration.syncConfig.language}
-                onValueChange={(value: string) =>
-                  updateIntegrationSettings({
-                    ...integration.syncConfig,
-                    language: value
-                  })
-                }
+            <div className="pt-4 border-t">
+              <Button
+                variant="destructive"
+                onClick={() => setIsDeleteDialogOpen(true)}
+                className="w-full rounded-xl"
               >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select language" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="en">English</SelectItem>
-                  <SelectItem value="it">Italian</SelectItem>
-                  <SelectItem value="es">Spanish</SelectItem>
-                  <SelectItem value="fr">French</SelectItem>
-                  <SelectItem value="de">German</SelectItem>
-                </SelectContent>
-              </Select>
+                Delete Integration
+              </Button>
             </div>
-
-            {isUpdating && (
-              <div className="flex items-center justify-center text-sm text-gray-500">
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Updating settings...
-              </div>
-            )}
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent className="bg-white sm:max-w-[425px] rounded-2xl">
+          <DialogHeader>
+            <DialogTitle>Delete Integration</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this integration? This action will also delete all associated reviews and cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+
+          <DialogFooter className="flex gap-2 sm:gap-0">
+            <Button
+              variant="outline"
+              onClick={() => setIsDeleteDialogOpen(false)}
+              className="rounded-xl flex-1 sm:flex-none"
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDelete}
+              disabled={isDeleting}
+              className="rounded-xl flex-1 sm:flex-none"
+            >
+              {isDeleting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                'Delete Integration'
+              )}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </>
   )
-} 
+}

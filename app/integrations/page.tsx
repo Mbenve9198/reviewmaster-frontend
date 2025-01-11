@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { PlusCircle, Settings } from 'lucide-react'
 import { AddIntegrationModal } from "@/components/add-integration-modal"
 import { getCookie } from "@/lib/utils"
+import { toast } from "react-hot-toast"
 
 interface Hotel {
   id: string
@@ -50,8 +51,8 @@ const platformLogos = {
 
 export default function IntegrationsPage() {
   const router = useRouter()
-  const [selectedHotel, setSelectedHotel] = useState<string | null>(null)
-  const [isAddIntegrationModalOpen, setIsAddIntegrationModalOpen] = useState(false)
+  const [selectedHotel, setSelectedHotel] = useState<string>("")
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false)
   const [hotels, setHotels] = useState<Hotel[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -112,7 +113,7 @@ export default function IntegrationsPage() {
   }, [])
 
   const handleAddIntegration = () => {
-    setIsAddIntegrationModalOpen(true)
+    setIsAddModalOpen(true)
   }
 
   const handleSettingsClick = () => {
@@ -145,7 +146,41 @@ export default function IntegrationsPage() {
     }
   }
 
-  const selectedHotelData = hotels.find(hotel => hotel.id === selectedHotel)
+  const handleDeleteIntegration = async (integrationId: string) => {
+    try {
+      const token = getCookie('token')
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/integrations/${integrationId}`,
+        {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          }
+        }
+      )
+
+      if (!response.ok) {
+        throw new Error('Failed to delete integration')
+      }
+
+      // Aggiorna la lista delle integrazioni
+      setHotels(prev => prev.map(hotel => 
+        hotel.id === selectedHotel 
+          ? { 
+              ...hotel, 
+              integrations: hotel.integrations.filter(i => i._id !== integrationId)
+            }
+          : hotel
+      ))
+
+      toast.success('Integration deleted successfully')
+    } catch (error) {
+      console.error('Delete integration error:', error)
+      toast.error('Failed to delete integration')
+    }
+  }
+
+  const selectedHotelData = hotels.find(h => h.id === selectedHotel)
 
   const totalReviewsSynced = selectedHotelData
     ? selectedHotelData.integrations.reduce((sum, integration) => sum + integration.stats.syncedReviews, 0)
@@ -249,6 +284,7 @@ export default function IntegrationsPage() {
                   )
                   handleIntegrationAdded(integration)
                 }}
+                onDelete={() => handleDeleteIntegration(integration._id)}
               />
             ))}
           </div>
@@ -260,8 +296,8 @@ export default function IntegrationsPage() {
       </div>
 
       <AddIntegrationModal
-        isOpen={isAddIntegrationModalOpen}
-        onClose={() => setIsAddIntegrationModalOpen(false)}
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
         hotelId={selectedHotel || ''}
         onSuccess={handleIntegrationAdded}
       />
