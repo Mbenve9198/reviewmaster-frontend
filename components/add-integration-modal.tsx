@@ -27,29 +27,29 @@ interface AddIntegrationModalProps {
   onIntegrationAdded: (integration: any) => void
 }
 
-const platforms = [
+const PLATFORMS = [
   {
     id: 'google',
-    name: 'Google Business Profile',
+    name: 'Google Business',
     logo: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/google-my-bussines-logo-png_seeklogo-329002-OvZ3IZAlUXbrND3lwaiejZMlWivOUq.png",
-    placeholder: "Enter your Google Maps listing URL",
-    example: "https://www.google.com/maps/place/YourBusinessName"
+    placeholder: "Enter your Google Business URL",
+    example: "https://www.google.com/maps/place/your-hotel-name"
   },
   {
     id: 'booking',
     name: 'Booking.com',
     logo: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/bookingcom-1-84iWRXFhKw2uhSLPIc1eL4eZPSKnUv.svg",
     placeholder: "Enter your Booking.com property URL",
-    example: "https://www.booking.com/hotel/your-property-name"
+    example: "https://www.booking.com/hotel/it/hotel-name.it.html"
   },
   {
     id: 'tripadvisor',
     name: 'TripAdvisor',
     logo: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Tripadvisor_logoset_solid_green-KkpUOomr3cNSTrXGcYHehXnIDlKdbg.svg",
-    placeholder: "Enter your TripAdvisor listing URL",
-    example: "https://www.tripadvisor.com/your-property"
+    placeholder: "Enter your TripAdvisor property URL",
+    example: "https://www.tripadvisor.com/Hotel_Review-g123-d456-Reviews-Hotel_Name.html"
   }
-]
+];
 
 const maxReviewsOptions = [
   { value: '100', label: 'Last 100 reviews' },
@@ -217,7 +217,7 @@ export function AddIntegrationModal({ isOpen, onClose, hotelId, onIntegrationAdd
               <div className="space-y-4">
                 <label className="text-sm font-medium">Select Platform</label>
                 <div className="grid grid-cols-3 gap-4">
-                  {platforms.map((platform) => (
+                  {PLATFORMS.map((platform) => (
                     <button
                       key={platform.id}
                       onClick={() => setSelectedPlatform(platform.id)}
@@ -247,11 +247,11 @@ export function AddIntegrationModal({ isOpen, onClose, hotelId, onIntegrationAdd
                   <Input
                     value={url}
                     onChange={(e) => setUrl(e.target.value)}
-                    placeholder={platforms.find(p => p.id === selectedPlatform)?.placeholder}
+                    placeholder={PLATFORMS.find(p => p.id === selectedPlatform)?.placeholder}
                     className="text-base p-4"
                   />
                   <p className="text-xs text-gray-500">
-                    Example: {platforms.find(p => p.id === selectedPlatform)?.example}
+                    Example: {PLATFORMS.find(p => p.id === selectedPlatform)?.example}
                   </p>
                 </div>
               )}
