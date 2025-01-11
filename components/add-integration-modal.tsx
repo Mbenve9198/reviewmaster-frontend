@@ -108,7 +108,11 @@ export function AddIntegrationModal({
       await onSuccess(integration)
       onClose()
     } catch (error) {
-      toast.error(error.message)
+      if (error instanceof Error) {
+        toast.error(error.message)
+      } else {
+        toast.error('An unexpected error occurred')
+      }
     } finally {
       setIsLoading(false)
     }
