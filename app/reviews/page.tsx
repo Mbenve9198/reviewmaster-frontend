@@ -1,3 +1,5 @@
+"use client"
+
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import {
@@ -577,3 +579,4 @@ export default function ReviewsPage() {
       </div>
     </div>
   )
+}
