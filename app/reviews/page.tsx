@@ -63,7 +63,7 @@ const PLATFORMS: {
   },
   manual: {
     name: "Manual",
-    logo: "/manual-icon.png"
+    logo: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/manual-icon.png"
   }
 }
 
@@ -185,29 +185,30 @@ export default function ReviewsPage() {
     }
 
     // Date filter
-    const now = new Date()
-    const filterDate = new Date()
-    switch (dateFilter) {
-      case 'this_month':
-        filterDate.setDate(1)
-        filtered = filtered.filter(review => new Date(review.metadata.originalCreatedAt) >= filterDate)
-        break
-      case 'last_month':
-        filterDate.setMonth(filterDate.getMonth() - 1)
-        filtered = filtered.filter(review => new Date(review.metadata.originalCreatedAt) >= filterDate)
-        break
-      case 'last_3_months':
-        filterDate.setMonth(filterDate.getMonth() - 3)
-        filtered = filtered.filter(review => new Date(review.metadata.originalCreatedAt) >= filterDate)
-        break
-      case 'last_6_months':
-        filterDate.setMonth(filterDate.getMonth() - 6)
-        filtered = filtered.filter(review => new Date(review.metadata.originalCreatedAt) >= filterDate)
-        break
-      case 'last_year':
-        filterDate.setFullYear(filterDate.getFullYear() - 1)
-        filtered = filtered.filter(review => new Date(review.metadata.originalCreatedAt) >= filterDate)
-        break
+    if (dateFilter !== 'all') {
+      const filterDate = new Date()
+      switch(dateFilter) {
+        case 'this_month':
+          filterDate.setMonth(filterDate.getMonth() - 1)
+          break
+        case 'last_month':
+          filterDate.setMonth(filterDate.getMonth() - 2)
+          break
+        case 'last_3_months':
+          filterDate.setMonth(filterDate.getMonth() - 3)
+          break
+        case 'last_6_months':
+          filterDate.setMonth(filterDate.getMonth() - 6)
+          break
+        case 'last_year':
+          filterDate.setFullYear(filterDate.getFullYear() - 1)
+          break
+      }
+
+      filtered = filtered.filter(review => 
+        review.metadata?.originalCreatedAt && 
+        new Date(review.metadata.originalCreatedAt) >= filterDate
+      )
     }
 
     setFilteredReviews(filtered)
