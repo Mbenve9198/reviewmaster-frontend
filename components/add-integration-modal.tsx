@@ -106,20 +106,26 @@ export function AddIntegrationModal({
 
   const handleSubmit = async () => {
     try {
-      console.log('Starting submission...', { 
-        hotelId, 
-        platform: selectedPlatform, 
-        url,
-        syncConfig 
-      })
       setIsLoading(true)
       
       const token = getCookie('token')
-      console.log('Token found:', !!token)
-      
       if (!token) {
         throw new Error('Please log in to add an integration')
       }
+
+      const payload = {
+        hotelId,
+        platform: selectedPlatform,
+        url: url.trim(),
+        syncConfig: {
+          type: syncConfig.type,
+          frequency: syncConfig.frequency,
+          maxReviews: parseInt(syncConfig.maxReviews),
+          language: 'en'
+        }
+      }
+
+      console.log('Sending payload:', payload)
 
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/integrations/hotel/${hotelId}`, {
         method: 'POST',
@@ -128,17 +134,13 @@ export function AddIntegrationModal({
           'Authorization': `Bearer ${token}`
         },
         credentials: 'include',
-        body: JSON.stringify({
-          hotelId,
-          platform: selectedPlatform,
-          url: url.trim(),
-          syncConfig
-        })
+        body: JSON.stringify(payload)
       })
 
       if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.message || 'Failed to add integration')
+        const errorData = await response.json()
+        console.error('Server error:', errorData)
+        throw new Error(errorData.message || `Error setting up integration: ${response.status}`)
       }
 
       const integration = await response.json()
@@ -148,7 +150,7 @@ export function AddIntegrationModal({
       await onSuccess(integration)
       onClose()
     } catch (error) {
-      console.error('Submission error:', error)
+      console.error('Full error details:', error)
       if (error instanceof Error) {
         toast.error(error.message)
       } else {
