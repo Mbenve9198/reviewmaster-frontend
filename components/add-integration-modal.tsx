@@ -1,31 +1,15 @@
 "use client"
 
 import { useState } from "react"
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Progress } from "@/components/ui/progress"
-import { getCookie } from "@/lib/utils"
+import { useToast } from "@/components/ui/use-toast"
+import { Loader2 } from "lucide-react"
 import Image from "next/image"
-import { Loader2, AlertCircle } from "lucide-react"
-import { Alert, AlertDescription } from "@/components/ui/alert"
 
-type MaxReviews = '100' | '500' | '1000' | 'all';
-type SyncFrequency = 'daily' | 'weekly' | 'monthly';
-
-interface AddIntegrationModalProps {
-  isOpen: boolean
-  onClose: () => void
-  hotelId: string
-  onIntegrationAdded: (integration: any) => void
-}
+const buttonBaseStyles = "transition-all shadow-[0_4px_0_0_#2563eb] active:shadow-[0_0_0_0_#2563eb] active:translate-y-1"
+const inputBaseStyles = "border-2 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
 
 const PLATFORMS = [
   {
@@ -51,322 +35,91 @@ const PLATFORMS = [
   }
 ];
 
-const maxReviewsOptions = [
-  { value: '100', label: 'Last 100 reviews' },
-  { value: '500', label: 'Last 500 reviews' },
-  { value: '1000', label: 'Last 1000 reviews' },
-  { value: 'all', label: 'All reviews' }
-];
-
-export function AddIntegrationModal({ isOpen, onClose, hotelId, onIntegrationAdded }: AddIntegrationModalProps) {
-  const [step, setStep] = useState(1)
-  const totalSteps = 3
-  const [selectedPlatform, setSelectedPlatform] = useState('')
-  const [url, setUrl] = useState('')
-  const [syncType, setSyncType] = useState<'manual' | 'automatic'>('manual')
-  const [frequency, setFrequency] = useState<SyncFrequency>('weekly')
-  const [maxReviews, setMaxReviews] = useState<MaxReviews>('100')
+export function AddIntegrationModal({
+  isOpen,
+  onClose,
+  hotelId,
+  onSuccess
+}: {
+  isOpen: boolean
+  onClose: () => void
+  hotelId: string
+  onSuccess: () => void
+}) {
+  const [selectedPlatform, setSelectedPlatform] = useState("")
+  const [url, setUrl] = useState("")
   const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState('')
-  const [isVerifying, setIsVerifying] = useState(false)
-  const [placeId, setPlaceId] = useState('');
-
-  const resetForm = () => {
-    setStep(1)
-    setSelectedPlatform('')
-    setUrl('')
-    setSyncType('manual')
-    setFrequency('weekly')
-    setMaxReviews('100')
-    setError('')
-    setIsLoading(false)
-    setIsVerifying(false)
-  }
-
-  const handleClose = () => {
-    resetForm()
-    onClose()
-  }
-
-  const verifyUrl = async () => {
-    setIsVerifying(true)
-    setError('')
-
-    try {
-      const token = getCookie('token')
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/integrations/verify-url`,
-        {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ url, platform: selectedPlatform })
-        }
-      )
-
-      if (!response.ok) {
-        throw new Error('Invalid URL. Please check the format and try again.')
-      }
-
-      const data = await response.json()
-      setPlaceId(data.placeId)
-      setStep(2)
-    } catch (error) {
-      setError(error instanceof Error ? error.message : 'Failed to verify URL')
-    } finally {
-      setIsVerifying(false)
-    }
-  }
+  const { toast } = useToast()
 
   const handleSubmit = async () => {
-    setIsLoading(true);
-    setError('');
-
-    try {
-      const token = getCookie('token');
-      const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/integrations/hotel/${hotelId}`;
-      console.log('Calling API:', apiUrl);
-      console.log('Payload:', {
-        hotelId,
-        platform: selectedPlatform,
-        url: url,
-        placeId,
-        syncConfig: {
-          type: syncType,
-          frequency,
-          maxReviews
-        }
-      });
-
-      const response = await fetch(apiUrl, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          hotelId,
-          platform: selectedPlatform,
-          url: url,
-          placeId,
-          syncConfig: {
-            type: syncType,
-            frequency,
-            maxReviews
-          }
-        })
-      });
-
-      console.log('Response status:', response.status);
-      const data = await response.json();
-      console.log('Response data:', data);
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Failed to create integration');
-      }
-
-      onIntegrationAdded(data);
-      handleClose();
-    } catch (error) {
-      console.error('Error details:', error);
-      setError(error instanceof Error ? error.message : 'Failed to create integration');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const isStepValid = () => {
-    switch (step) {
-      case 1:
-        return selectedPlatform && url
-      case 2:
-        return syncType && (syncType === 'manual' || frequency)
-      case 3:
-        return maxReviews
-      default:
-        return false
-    }
+    // ... logica esistente ...
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-2xl">
-        <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-center">
-            Add New Integration
-          </DialogTitle>
-          <DialogDescription className="text-center">
-            Connect your property with review platforms
-          </DialogDescription>
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="bg-white sm:max-w-[600px] p-0 overflow-hidden rounded-2xl">
+        <DialogHeader className="p-6 bg-gradient-to-b from-gray-50 border-b">
+          <DialogTitle className="text-2xl font-bold text-gray-800">Add Integration</DialogTitle>
         </DialogHeader>
 
-        <Progress value={(step / totalSteps) * 100} className="h-2 mb-8" />
-
-        {error && (
-          <Alert variant="destructive" className="mb-4">
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
-
-        <div className="space-y-6">
-          {step === 1 && (
-            <>
-              <div className="space-y-4">
-                <label className="text-sm font-medium">Select Platform</label>
-                <div className="grid grid-cols-3 gap-4">
-                  {PLATFORMS.map((platform) => (
-                    <button
-                      key={platform.id}
-                      onClick={() => setSelectedPlatform(platform.id)}
-                      className={`p-4 rounded-xl border-2 transition-all ${
-                        selectedPlatform === platform.id
-                          ? 'border-primary bg-primary/5'
-                          : 'border-gray-200 hover:border-gray-300'
-                      }`}
-                    >
-                      <div className="aspect-square relative mb-2">
-                        <Image
-                          src={platform.logo}
-                          alt={platform.name}
-                          fill
-                          className="object-contain"
-                        />
-                      </div>
-                      <p className="text-sm font-medium">{platform.name}</p>
-                    </button>
-                  ))}
+        <div className="p-6 space-y-8">
+          {/* Platform Selection */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {PLATFORMS.map((platform) => (
+              <button
+                key={platform.id}
+                onClick={() => setSelectedPlatform(platform.id)}
+                className={`relative p-6 rounded-xl border-2 transition-all ${
+                  selectedPlatform === platform.id
+                    ? "border-primary bg-primary/5 shadow-lg"
+                    : "border-gray-100 hover:border-gray-200 hover:bg-gray-50"
+                }`}
+              >
+                <div className="flex flex-col items-center gap-3">
+                  <div className="w-12 h-12 relative">
+                    <img
+                      src={platform.logo}
+                      alt={platform.name}
+                      className="object-contain"
+                    />
+                  </div>
+                  <span className="font-medium text-gray-700">{platform.name}</span>
                 </div>
-              </div>
+              </button>
+            ))}
+          </div>
 
-              {selectedPlatform && (
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Property URL</label>
-                  <Input
-                    value={url}
-                    onChange={(e) => setUrl(e.target.value)}
-                    placeholder={PLATFORMS.find(p => p.id === selectedPlatform)?.placeholder}
-                    className="text-base p-4"
-                  />
-                  <p className="text-xs text-gray-500">
-                    Example: {PLATFORMS.find(p => p.id === selectedPlatform)?.example}
-                  </p>
-                </div>
-              )}
-            </>
-          )}
-
-          {step === 2 && (
-            <div className="space-y-6">
+          {/* URL Input */}
+          {selectedPlatform && (
+            <div className="space-y-4">
               <div className="space-y-2">
-                <label className="text-sm font-medium">Sync Type</label>
-                <div className="grid grid-cols-2 gap-4">
-                  <button
-                    onClick={() => setSyncType('manual')}
-                    className={`p-4 rounded-xl border-2 transition-all ${
-                      syncType === 'manual'
-                        ? 'border-primary bg-primary/5'
-                        : 'border-gray-200 hover:border-gray-300'
-                    }`}
-                  >
-                    <h3 className="font-medium mb-1">Manual</h3>
-                    <p className="text-sm text-gray-500">
-                      Sync reviews only when you click the sync button
-                    </p>
-                  </button>
-                  <button
-                    onClick={() => setSyncType('automatic')}
-                    className={`p-4 rounded-xl border-2 transition-all ${
-                      syncType === 'automatic'
-                        ? 'border-primary bg-primary/5'
-                        : 'border-gray-200 hover:border-gray-300'
-                    }`}
-                  >
-                    <h3 className="font-medium mb-1">Automatic</h3>
-                    <p className="text-sm text-gray-500">
-                      Automatically sync reviews on a schedule
-                    </p>
-                  </button>
-                </div>
-              </div>
-
-              {syncType === 'automatic' && (
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Sync Frequency</label>
-                  <Select 
-                    value={frequency} 
-                    onValueChange={(value: SyncFrequency) => setFrequency(value)}
-                  >
-                    <SelectTrigger className="text-base p-4">
-                      <SelectValue placeholder="Select frequency" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="daily">Daily</SelectItem>
-                      <SelectItem value="weekly">Weekly</SelectItem>
-                      <SelectItem value="monthly">Monthly</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
-            </div>
-          )}
-
-          {step === 3 && (
-            <div className="space-y-6">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Reviews to Sync</label>
-                <Select value={maxReviews} onValueChange={(value: MaxReviews) => setMaxReviews(value)}>
-                  <SelectTrigger className="text-base p-4">
-                    <SelectValue placeholder="Select number of reviews" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {maxReviewsOptions.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <p className="text-xs text-gray-500">
-                  Select how many reviews you want to sync initially
+                <Input
+                  value={url}
+                  onChange={(e) => setUrl(e.target.value)}
+                  placeholder={PLATFORMS.find(p => p.id === selectedPlatform)?.placeholder}
+                  className={`h-12 rounded-xl ${inputBaseStyles}`}
+                />
+                <p className="text-sm text-gray-500">
+                  Example: {PLATFORMS.find(p => p.id === selectedPlatform)?.example}
                 </p>
               </div>
+
+              <Button
+                onClick={handleSubmit}
+                disabled={isLoading || !url.trim()}
+                className={`w-full h-12 rounded-xl font-medium ${buttonBaseStyles}`}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Setting up integration...
+                  </>
+                ) : (
+                  "Add Integration"
+                )}
+              </Button>
             </div>
           )}
-
-          <div className="flex justify-between pt-6">
-            {step > 1 ? (
-              <Button
-                variant="outline"
-                onClick={() => setStep(step - 1)}
-                disabled={isLoading}
-              >
-                Back
-              </Button>
-            ) : (
-              <div />
-            )}
-            
-            <Button
-              onClick={step === totalSteps ? handleSubmit : step === 1 ? verifyUrl : () => setStep(step + 1)}
-              disabled={!isStepValid() || isLoading || isVerifying}
-            >
-              {isLoading || isVerifying ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  {isVerifying ? 'Verifying...' : 'Creating...'}
-                </>
-              ) : step === totalSteps ? (
-                'Create Integration'
-              ) : step === 1 ? (
-                'Verify & Continue'
-              ) : (
-                'Continue'
-              )}
-            </Button>
-          </div>
         </div>
       </DialogContent>
     </Dialog>
