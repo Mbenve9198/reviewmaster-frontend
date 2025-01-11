@@ -32,10 +32,10 @@ interface Review {
     language: string
     originalUrl?: string
   }
-  response?: {
-    text: string
-    createdAt: Date
-  }
+  response: {
+    text: string | null
+    createdAt: Date | null
+  } | null
   metadata: {
     originalCreatedAt: Date
   }
@@ -350,7 +350,7 @@ export default function ReviewsPage() {
               <CardContent className="p-6">
                 <p className="text-gray-700 mb-6">{review.content.text}</p>
                 
-                {review.response ? (
+                {review.response && review.response.text ? (
                   <div className="bg-gray-50 p-4 rounded-lg">
                     <p className="font-medium mb-2">Your Response:</p>
                     <p className="text-gray-600">{review.response.text}</p>
