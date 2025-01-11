@@ -80,6 +80,13 @@ const DATE_RANGES = {
 const buttonBaseStyles = "transition-all shadow-[0_4px_0_0_#2563eb] active:shadow-[0_0_0_0_#2563eb] active:translate-y-1"
 const inputBaseStyles = "border-2 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
 
+const MAX_RATING = {
+  google: 5,
+  tripadvisor: 5,
+  booking: 10,
+  manual: 5
+} as const;
+
 export default function ReviewsPage() {
   const router = useRouter()
   const [selectedHotel, setSelectedHotel] = useState("")
@@ -416,11 +423,14 @@ export default function ReviewsPage() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Ratings</SelectItem>
-                {[5, 4, 3, 2, 1].map(rating => (
-                  <SelectItem key={rating} value={rating.toString()}>
-                    {rating} Stars
-                  </SelectItem>
-                ))}
+                {[...Array(MAX_RATING[platformFilter === 'all' ? 'google' : platformFilter])].map((_, i) => {
+                  const rating = i + 1;
+                  return (
+                    <SelectItem key={rating} value={rating.toString()}>
+                      {rating} {platformFilter === 'booking' ? 'out of 10' : 'Stars'}
+                    </SelectItem>
+                  )
+                })}
               </SelectContent>
             </Select>
 
@@ -506,8 +516,8 @@ export default function ReviewsPage() {
                     <div>
                       <p className="font-semibold">{review.content.reviewerName}</p>
                       <div className="flex items-center gap-2">
-                        <div className="flex">
-                          {[...Array(5)].map((_, i) => (
+                        <div className="flex items-center">
+                          {[...Array(MAX_RATING[review.platform])].map((_, i) => (
                             <Star
                               key={i}
                               className={`w-4 h-4 ${
@@ -517,6 +527,9 @@ export default function ReviewsPage() {
                               }`}
                             />
                           ))}
+                          <span className="ml-1 text-sm text-gray-600">
+                            ({review.content.rating}/{MAX_RATING[review.platform]})
+                          </span>
                         </div>
                         <span className="text-sm text-gray-500">
                           {review.metadata?.originalCreatedAt 
