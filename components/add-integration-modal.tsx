@@ -1,13 +1,14 @@
 "use client"
 
 import { useState } from "react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
 import { Loader2 } from "lucide-react"
 import Image from "next/image"
 import { getCookie } from "cookies-next"
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
 
 const buttonBaseStyles = "transition-all shadow-[0_4px_0_0_#2563eb] active:shadow-[0_0_0_0_#2563eb] active:translate-y-1"
 const inputBaseStyles = "border-2 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
@@ -82,10 +83,29 @@ export function AddIntegrationModal({
   const [selectedPlatform, setSelectedPlatform] = useState<Integration['platform']>('google')
   const [url, setUrl] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const [step, setStep] = useState(1)
+  const [syncConfig, setSyncConfig] = useState({
+    type: 'automatic' as const,
+    frequency: 'daily' as const,
+    maxReviews: '100'
+  })
+
+  const handleNext = () => {
+    if (!url.trim()) {
+      toast.error("Please enter a valid URL")
+      return
+    }
+    setStep(2)
+  }
 
   const handleSubmit = async () => {
     try {
-      console.log('Starting submission...', { hotelId, platform: selectedPlatform, url })
+      console.log('Starting submission...', { 
+        hotelId, 
+        platform: selectedPlatform, 
+        url,
+        syncConfig 
+      })
       setIsLoading(true)
       
       const token = getCookie('token')
@@ -106,11 +126,7 @@ export function AddIntegrationModal({
           hotelId,
           platform: selectedPlatform,
           url: url.trim(),
-          syncConfig: {
-            type: 'manual',
-            frequency: 'weekly',
-            maxReviews: '100'
-          }
+          syncConfig
         })
       })
 
@@ -140,69 +156,142 @@ export function AddIntegrationModal({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="bg-white sm:max-w-[600px] p-0 overflow-hidden rounded-2xl">
-        <DialogHeader className="p-6 bg-gradient-to-b from-gray-50 border-b">
-          <DialogTitle className="text-2xl font-bold text-gray-800">Add Integration</DialogTitle>
+        <DialogHeader className="p-6 pb-0">
+          <DialogTitle>Add Integration</DialogTitle>
+          <DialogDescription>
+            Connect your hotel reviews from various platforms
+          </DialogDescription>
         </DialogHeader>
 
-        <div className="p-6 space-y-8">
-          {/* Platform Selection */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {PLATFORMS.map((platform) => (
-              <button
-                key={platform.id}
-                onClick={() => setSelectedPlatform(platform.id)}
-                className={`relative p-6 rounded-xl border-2 transition-all ${
-                  selectedPlatform === platform.id
-                    ? "border-primary bg-primary/5 shadow-lg"
-                    : "border-gray-100 hover:border-gray-200 hover:bg-gray-50"
-                }`}
-              >
-                <div className="flex flex-col items-center gap-3">
-                  <div className="w-12 h-12 relative">
-                    <img
-                      src={platform.logo}
-                      alt={platform.name}
-                      className="object-contain"
-                    />
-                  </div>
-                  <span className="font-medium text-gray-700">{platform.name}</span>
-                </div>
-              </button>
-            ))}
-          </div>
-
-          {/* URL Input */}
-          {selectedPlatform && (
-            <div className="space-y-4 p-6">
-              <div className="space-y-2">
-                <Input
-                  value={url}
-                  onChange={(e) => setUrl(e.target.value)}
-                  placeholder={PLATFORMS.find(p => p.id === selectedPlatform)?.placeholder}
-                  className={`h-12 rounded-xl ${inputBaseStyles}`}
-                />
-                <p className="text-sm text-gray-500">
-                  Example: {PLATFORMS.find(p => p.id === selectedPlatform)?.example}
-                </p>
+        {step === 1 ? (
+          <>
+            <div className="grid grid-cols-1 gap-4 p-6">
+              <div className="space-y-4">
+                {PLATFORMS.map((platform) => (
+                  <button
+                    key={platform.id}
+                    onClick={() => setSelectedPlatform(platform.id)}
+                    className={`relative p-6 rounded-xl border-2 transition-all ${
+                      selectedPlatform === platform.id
+                        ? "border-primary bg-primary/5 shadow-lg"
+                        : "border-gray-200 hover:border-gray-300"
+                    } w-full`}
+                  >
+                    <div className="flex items-center space-x-4">
+                      <Image
+                        src={platform.logo}
+                        alt={platform.name}
+                        width={40}
+                        height={40}
+                        className="rounded"
+                      />
+                      <div className="flex-1 text-left">
+                        <h3 className="font-medium">{platform.name}</h3>
+                      </div>
+                    </div>
+                  </button>
+                ))}
               </div>
 
-              <Button
-                onClick={handleSubmit}
-                disabled={isLoading || !url.trim()}
-                className={`w-full h-12 rounded-xl font-medium ${buttonBaseStyles}`}
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Setting up integration...
-                  </>
-                ) : (
-                  "Add Integration"
-                )}
-              </Button>
+              {selectedPlatform && (
+                <div className="space-y-4">
+                  <Input
+                    value={url}
+                    onChange={(e) => setUrl(e.target.value)}
+                    placeholder={PLATFORMS.find(p => p.id === selectedPlatform)?.placeholder}
+                    className="h-12 rounded-xl"
+                  />
+                  <p className="text-sm text-gray-500">
+                    Example: {PLATFORMS.find(p => p.id === selectedPlatform)?.example}
+                  </p>
+                  <Button
+                    onClick={handleNext}
+                    disabled={!url.trim()}
+                    className="w-full h-12 rounded-xl font-medium"
+                  >
+                    Next
+                  </Button>
+                </div>
+              )}
             </div>
-          )}
-        </div>
+          </>
+        ) : (
+          <div className="p-6 space-y-6">
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Sync Type</label>
+                <Select
+                  value={syncConfig.type}
+                  onValueChange={(value: 'manual' | 'automatic') => 
+                    setSyncConfig(prev => ({ ...prev, type: value }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="automatic">Automatic</SelectItem>
+                    <SelectItem value="manual">Manual</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Sync Frequency</label>
+                <Select
+                  value={syncConfig.frequency}
+                  onValueChange={(value: 'daily' | 'weekly' | 'monthly') => 
+                    setSyncConfig(prev => ({ ...prev, frequency: value }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="daily">Daily</SelectItem>
+                    <SelectItem value="weekly">Weekly</SelectItem>
+                    <SelectItem value="monthly">Monthly</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Initial Reviews to Sync</label>
+                <Select
+                  value={syncConfig.maxReviews}
+                  onValueChange={(value) => 
+                    setSyncConfig(prev => ({ ...prev, maxReviews: value }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="50">Last 50 reviews</SelectItem>
+                    <SelectItem value="100">Last 100 reviews</SelectItem>
+                    <SelectItem value="200">Last 200 reviews</SelectItem>
+                    <SelectItem value="500">Last 500 reviews</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <Button
+              onClick={handleSubmit}
+              disabled={isLoading}
+              className="w-full h-12 rounded-xl font-medium"
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Setting up integration...
+                </>
+              ) : (
+                "Add Integration"
+              )}
+            </Button>
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   )
