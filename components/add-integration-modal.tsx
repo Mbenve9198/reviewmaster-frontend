@@ -85,11 +85,18 @@ export function AddIntegrationModal({
   const handleSubmit = async () => {
     try {
       setIsLoading(true)
+      
+      // Verifichiamo che il token esista
+      const token = localStorage.getItem('token')
+      if (!token) {
+        throw new Error('Authentication token not found')
+      }
+
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/integrations/hotel/${hotelId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${token}`, // Verifichiamo che il token sia formattato correttamente
         },
         body: JSON.stringify({
           hotelId,
@@ -104,6 +111,9 @@ export function AddIntegrationModal({
       })
 
       if (!response.ok) {
+        if (response.status === 403) {
+          throw new Error('Not authorized. Please try logging in again.')
+        }
         const error = await response.json()
         throw new Error(error.message || 'Failed to add integration')
       }
