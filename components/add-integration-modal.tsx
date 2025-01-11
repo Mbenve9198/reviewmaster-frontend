@@ -75,6 +75,23 @@ interface SyncConfig {
   maxReviews: string;
 }
 
+const extractPlaceId = (url: string, platform: Integration['platform']): string => {
+  try {
+    switch (platform) {
+      case 'google':
+        return url.split('/place/')[1]?.split('/')[0] || ''
+      case 'tripadvisor':
+        return url.split('Hotel_Review-')[1]?.split('-')[0] || ''
+      case 'booking':
+        return url.split('/hotel/')[1]?.split('.')[0] || ''
+      default:
+        return ''
+    }
+  } catch {
+    return ''
+  }
+}
+
 export function AddIntegrationModal({
   isOpen,
   onClose,
@@ -128,14 +145,21 @@ export function AddIntegrationModal({
         throw new Error(`Invalid ${selectedPlatform} URL format. Please check the example and try again.`)
       }
 
+      // Estrai placeId dall'URL
+      const placeId = extractPlaceId(url.trim(), selectedPlatform)
+      if (!placeId) {
+        throw new Error('Could not extract place ID from URL')
+      }
+
       const payload = {
         hotelId,
         platform: selectedPlatform,
         url: url.trim(),
+        placeId,
         syncConfig: {
           type: syncConfig.type,
           frequency: syncConfig.frequency,
-          maxReviews: parseInt(syncConfig.maxReviews),
+          maxReviews: String(syncConfig.maxReviews),
           language: 'en'
         }
       }
@@ -324,4 +348,4 @@ export function AddIntegrationModal({
       </DialogContent>
     </Dialog>
   )
-} 
+}
