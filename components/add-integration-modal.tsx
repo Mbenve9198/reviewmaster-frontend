@@ -84,46 +84,59 @@ export function AddIntegrationModal({
 
   const handleSubmit = async () => {
     try {
+      console.log('Starting submission...', { hotelId, platform: selectedPlatform, url })
       setIsLoading(true)
       
-      // Verifichiamo che il token esista
       const token = localStorage.getItem('token')
+      console.log('Token found:', !!token)
+      
       if (!token) {
         throw new Error('Authentication token not found')
       }
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/integrations/hotel/${hotelId}`, {
+      const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/integrations/hotel/${hotelId}`
+      console.log('Calling API:', apiUrl)
+
+      const payload = {
+        hotelId,
+        platform: selectedPlatform,
+        url: url.trim(),
+        syncConfig: {
+          type: 'manual',
+          frequency: 'weekly',
+          maxReviews: '100'
+        }
+      }
+      console.log('Request payload:', payload)
+
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`, // Verifichiamo che il token sia formattato correttamente
+          'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          hotelId,
-          platform: selectedPlatform,
-          url: url.trim(),
-          syncConfig: {
-            type: 'manual',
-            frequency: 'weekly',
-            maxReviews: '100'
-          }
-        })
+        body: JSON.stringify(payload)
       })
 
+      console.log('Response status:', response.status)
+
       if (!response.ok) {
+        const errorData = await response.json()
+        console.error('API error:', errorData)
         if (response.status === 403) {
           throw new Error('Not authorized. Please try logging in again.')
         }
-        const error = await response.json()
-        throw new Error(error.message || 'Failed to add integration')
+        throw new Error(errorData.message || 'Failed to add integration')
       }
 
       const integration = await response.json()
+      console.log('Integration created:', integration)
       
       toast.success("Integration added successfully")
       await onSuccess(integration)
       onClose()
     } catch (error) {
+      console.error('Submission error:', error)
       if (error instanceof Error) {
         toast.error(error.message)
       } else {
@@ -170,7 +183,7 @@ export function AddIntegrationModal({
 
           {/* URL Input */}
           {selectedPlatform && (
-            <div className="space-y-4">
+            <div className="space-y-4 p-6">
               <div className="space-y-2">
                 <Input
                   value={url}
