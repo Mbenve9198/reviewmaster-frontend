@@ -16,10 +16,36 @@ const navigation = [
     href: "/", 
     icon: (props: any) => (
       <Image
-        src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Risposta%20manuali-qcfdUdukBetep6nhZg32XSodq5Ka7I.png"
+        src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/manual%20response-O89S3zfgiDHVSo8aslEIqW3O8G9Q1n.png"
         alt=""
-        width={32}
-        height={32}
+        width={64}
+        height={64}
+        {...props}
+      />
+    )
+  },
+  { 
+    name: "Reviews", 
+    href: "/reviews", 
+    icon: (props: any) => (
+      <Image
+        src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/reviews-l1OpTAuGJuHcOblMRfwhcgfLCeAwcL.png"
+        alt=""
+        width={64}
+        height={64}
+        {...props}
+      />
+    )
+  },
+  { 
+    name: "Integrations", 
+    href: "/integrations", 
+    icon: (props: any) => (
+      <Image
+        src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/integrations-j6xc3UsKFO34cvJf9gb4RD4SCIVG4W.png"
+        alt=""
+        width={64}
+        height={64}
         {...props}
       />
     )
@@ -29,10 +55,10 @@ const navigation = [
     href: "/hotel-settings", 
     icon: (props: any) => (
       <Image
-        src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Impostazioni%20Hotel-H90cL3pqnvHVk1VHUk6pnWcCeQaHlc.png"
+        src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/hotel%20settings-f5Dt1SvEcaRL6BkvvE2q78qgAeJXL4.png"
         alt=""
-        width={32}
-        height={32}
+        width={64}
+        height={64}
         {...props}
       />
     )
@@ -42,10 +68,10 @@ const navigation = [
     href: "/billing", 
     icon: (props: any) => (
       <Image
-        src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Abbonamenti%20e%20fatturazione-0YFzsrAjeO1hOwoR7HQ4LuSw5uFnFs.png"
+        src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/billing-Y6wfuqXGbZ7TIpFrhCoDQMjXShiPgI.png"
         alt=""
-        width={32}
-        height={32}
+        width={64}
+        height={64}
         {...props}
       />
     )
