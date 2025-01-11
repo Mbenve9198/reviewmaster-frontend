@@ -4,7 +4,7 @@ import { useState } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { toast } from "@/components/ui/use-toast"
+import { toast } from "sonner"
 import { Loader2 } from "lucide-react"
 import Image from "next/image"
 
@@ -71,19 +71,12 @@ export function AddIntegrationModal({
         throw new Error(error.message || 'Failed to add integration')
       }
 
-      toast({
-        title: "Success",
-        description: "Integration added successfully"
-      })
+      toast.success("Integration added successfully")
       
       onSuccess()
       onClose()
     } catch (error) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive"
-      })
+      toast.error(error.message)
     } finally {
       setIsLoading(false)
     }
