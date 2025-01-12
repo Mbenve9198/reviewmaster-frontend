@@ -155,11 +155,13 @@ export default function IntegrationsPage() {
           method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${token}`,
-          }
+            'Content-Type': 'application/json'
+          },
+          credentials: 'include'
         }
       )
 
-      if (!response.ok) {
+      if (!response.ok && response.status !== 404) {
         throw new Error('Failed to delete integration')
       }
 
