@@ -70,6 +70,7 @@ export function IntegrationCard({ integration, onSync, onDelete }: IntegrationCa
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   const [isUpdating, setIsUpdating] = useState(false)
+  const [isSyncing, setIsSyncing] = useState(false)
   const [tempSettings, setTempSettings] = useState({
     type: integration.syncConfig.type,
     frequency: integration.syncConfig.frequency
