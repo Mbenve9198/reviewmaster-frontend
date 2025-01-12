@@ -106,22 +106,25 @@ export function IntegrationCard({ integration, onSync, onDelete }: IntegrationCa
           method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${token}`,
-          }
+            'Content-Type': 'application/json'
+          },
+          credentials: 'include'
         }
       )
 
-      if (!response.ok) {
+      if (!response.ok && response.status !== 404) {
         throw new Error('Failed to delete integration')
       }
 
       toast.success("Integration deleted successfully")
+      
+      setIsDeleteDialogOpen(false)
       onDelete?.()
     } catch (error) {
       console.error('Delete error:', error)
       toast.error("Failed to delete integration")
     } finally {
       setIsDeleting(false)
-      setIsDeleteDialogOpen(false)
     }
   }
 
