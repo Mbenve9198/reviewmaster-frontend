@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
-import { Loader2 } from "lucide-react"
+import { Loader2, ArrowLeft } from "lucide-react"
 import Image from "next/image"
 import { getCookie } from "cookies-next"
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
@@ -121,11 +121,15 @@ export function AddIntegrationModal({
     setStep(2)
   }
 
+  const handleBack = () => {
+    setStep(1)
+  }
+
   const validateUrl = (url: string, platform: Integration['platform']): boolean => {
     const patterns = {
       google: /^https:\/\/(www\.)?google\.com\/maps\/place\/.*/,
       booking: /^https:\/\/www\.booking\.com\/hotel\/[a-z]{2}\/.*\..*\.html$/,
-      tripadvisor: /^https:\/\/www\.tripadvisor\.com\/Hotel_Review-.*/
+      tripadvisor: /^https:\/\/(www\.)?tripadvisor\.[a-z]+\/Hotel_Review-.*\.html$/
     }
 
     return patterns[platform].test(url)
@@ -210,10 +214,24 @@ export function AddIntegrationModal({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="bg-white sm:max-w-[600px] p-0 overflow-hidden rounded-2xl">
         <DialogHeader className="p-6 pb-0">
-          <DialogTitle>Add Integration</DialogTitle>
-          <DialogDescription>
-            Connect your hotel reviews from various platforms
-          </DialogDescription>
+          <div className="flex items-center">
+            {step === 2 && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleBack}
+                className="mr-2 h-8 w-8"
+              >
+                <ArrowLeft className="h-4 w-4" />
+              </Button>
+            )}
+            <div>
+              <DialogTitle>Add Integration</DialogTitle>
+              <DialogDescription>
+                Connect your hotel reviews from various platforms
+              </DialogDescription>
+            </div>
+          </div>
         </DialogHeader>
 
         {step === 1 ? (
