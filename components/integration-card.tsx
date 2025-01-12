@@ -68,9 +68,12 @@ interface IntegrationCardProps {
 export function IntegrationCard({ integration, onSync, onDelete }: IntegrationCardProps) {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
-  const [isSyncing, setIsSyncing] = useState(false)
-  const [isUpdating, setIsUpdating] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
+  const [isUpdating, setIsUpdating] = useState(false)
+  const [tempSettings, setTempSettings] = useState({
+    type: integration.syncConfig.type,
+    frequency: integration.syncConfig.frequency
+  })
 
   const statusIcons = {
     active: <CheckCircle2 className="w-5 h-5 text-green-500" />,
@@ -145,6 +148,25 @@ export function IntegrationCard({ integration, onSync, onDelete }: IntegrationCa
     } catch (error) {
       console.error('Update settings error:', error)
       toast.error("Failed to update settings")
+    } finally {
+      setIsUpdating(false)
+    }
+  }
+
+  const handleSettingsChange = (key: string, value: string) => {
+    setTempSettings(prev => ({
+      ...prev,
+      [key]: value
+    }))
+  }
+
+  const handleSaveSettings = async () => {
+    try {
+      setIsUpdating(true)
+      await updateIntegrationSettings(tempSettings)
+      setIsSettingsOpen(false)
+    } catch (error) {
+      console.error('Save settings error:', error)
     } finally {
       setIsUpdating(false)
     }
@@ -266,7 +288,15 @@ export function IntegrationCard({ integration, onSync, onDelete }: IntegrationCa
       </Card>
 
       {/* Settings Dialog */}
-      <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
+      <Dialog open={isSettingsOpen} onOpenChange={(open) => {
+        if (open) {
+          setTempSettings({
+            type: integration.syncConfig.type,
+            frequency: integration.syncConfig.frequency
+          })
+        }
+        setIsSettingsOpen(open)
+      }}>
         <DialogContent className="bg-white sm:max-w-[425px] p-6 rounded-3xl border-0">
           <DialogHeader className="space-y-3">
             <DialogTitle className="text-2xl font-bold text-gray-800">
@@ -281,9 +311,9 @@ export function IntegrationCard({ integration, onSync, onDelete }: IntegrationCa
             <div className="space-y-3">
               <label className="text-sm font-medium text-gray-700">Sync Type</label>
               <Select 
-                value={integration.syncConfig.type}
+                value={tempSettings.type}
                 onValueChange={(value: 'manual' | 'automatic') => 
-                  updateIntegrationSettings({ type: value })
+                  handleSettingsChange('type', value)
                 }
               >
                 <SelectTrigger className="h-12 rounded-xl border-2 focus:ring-2 focus:ring-primary/20 focus:border-primary">
@@ -296,13 +326,13 @@ export function IntegrationCard({ integration, onSync, onDelete }: IntegrationCa
               </Select>
             </div>
 
-            {integration.syncConfig.type === 'automatic' && (
+            {tempSettings.type === 'automatic' && (
               <div className="space-y-3">
                 <label className="text-sm font-medium text-gray-700">Sync Frequency</label>
                 <Select
-                  value={integration.syncConfig.frequency}
+                  value={tempSettings.frequency}
                   onValueChange={(value: 'daily' | 'weekly' | 'monthly') =>
-                    updateIntegrationSettings({ frequency: value })
+                    handleSettingsChange('frequency', value)
                   }
                 >
                   <SelectTrigger className="h-12 rounded-xl border-2 focus:ring-2 focus:ring-primary/20 focus:border-primary">
@@ -316,6 +346,30 @@ export function IntegrationCard({ integration, onSync, onDelete }: IntegrationCa
                 </Select>
               </div>
             )}
+
+            <div className="flex gap-3 pt-6">
+              <Button
+                variant="outline"
+                onClick={() => setIsSettingsOpen(false)}
+                className="flex-1 h-12 rounded-xl border-2 hover:bg-gray-50"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleSaveSettings}
+                disabled={isUpdating}
+                className={`flex-1 h-12 rounded-xl font-medium ${buttonBaseStyles}`}
+              >
+                {isUpdating ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  'Save Changes'
+                )}
+              </Button>
+            </div>
 
             <div className="pt-6 border-t">
               <Button

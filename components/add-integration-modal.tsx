@@ -338,7 +338,6 @@ export function AddIntegrationModal({
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="50">Last 50 reviews</SelectItem>
                     <SelectItem value="100">Last 100 reviews</SelectItem>
                     <SelectItem value="200">Last 200 reviews</SelectItem>
                     <SelectItem value="500">Last 500 reviews</SelectItem>
