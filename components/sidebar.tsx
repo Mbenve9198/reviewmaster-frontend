@@ -9,7 +9,7 @@ import { Progress } from "@/components/ui/progress"
 import { Button } from "@/components/ui/button"
 import { useUserStats } from "@/hooks/useUserStats"
 import { useEffect, useState } from "react"
-import { Sidebar as SidebarContainer, SidebarBody, SidebarLink } from "@/components/ui/sidebar"
+import { Sidebar as SidebarContainer, SidebarBody, SidebarLink } from "@/components/sidebar"
 
 const navigation = [
   { 
