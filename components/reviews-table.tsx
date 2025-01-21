@@ -141,7 +141,8 @@ export const ReviewsTable = ({
       },
     },
     {
-      accessorKey: "metadata.originalCreatedAt",
+      id: "date",
+      accessorFn: (row) => row.metadata?.originalCreatedAt,
       header: ({ column }) => {
         return (
           <Button
@@ -155,21 +156,10 @@ export const ReviewsTable = ({
         )
       },
       cell: ({ row }) => {
-        console.log('Full row data:', row.original)
-        
-        const dateValue = row.getValue("metadata.originalCreatedAt")
-        console.log('Date value:', dateValue, 'Type:', typeof dateValue)
-        
-        const metadata = row.original.metadata
-        console.log('Metadata:', metadata)
-        
+        const dateValue = row.original.metadata?.originalCreatedAt
         if (!dateValue) return "No date"
         
-        const dateStr = typeof dateValue === 'object' ? 
-          dateValue.toString() : 
-          String(dateValue)
-        
-        const date = new Date(dateStr)
+        const date = new Date(dateValue)
         return <div className="hidden sm:block">
           {!isNaN(date.getTime()) ? date.toLocaleDateString() : "Invalid Date"}
         </div>
