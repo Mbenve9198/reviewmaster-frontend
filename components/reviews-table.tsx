@@ -155,12 +155,16 @@ export const ReviewsTable = ({
         )
       },
       cell: ({ row }) => {
+        console.log('Full row data:', row.original)
+        
         const dateValue = row.getValue("metadata.originalCreatedAt")
         console.log('Date value:', dateValue, 'Type:', typeof dateValue)
         
+        const metadata = row.original.metadata
+        console.log('Metadata:', metadata)
+        
         if (!dateValue) return "No date"
         
-        // Assicuriamoci che dateValue sia una stringa valida
         const dateStr = typeof dateValue === 'object' ? 
           dateValue.toString() : 
           String(dateValue)
