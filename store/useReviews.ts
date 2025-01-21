@@ -81,8 +81,9 @@ const useReviews = create<ReviewsState>((set, get) => ({
       if (filters.searchQuery) params.append('search', filters.searchQuery);
       
       const token = getCookie('token');
+      const hotelIdPath = filters.hotelId || 'all';
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/reviews/hotel/${filters.hotelId || 'all'}?${params.toString()}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/reviews/hotel/${hotelIdPath}?${params.toString()}`,
         {
           headers: {
             'Authorization': `Bearer ${token}`,
