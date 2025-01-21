@@ -1,6 +1,11 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
-function ReviewTabs({ value, onValueChange }) {
+interface ReviewTabsProps {
+  value: string;
+  onValueChange: (value: string) => void;
+}
+
+function ReviewTabs({ value, onValueChange }: ReviewTabsProps) {
   return (
     <Tabs value={value} onValueChange={onValueChange} className="w-full min-w-[600px]">
       <TabsList className="relative h-auto w-full gap-0.5 bg-transparent p-0 before:absolute before:inset-x-0 before:bottom-0 before:h-px before:bg-border">
