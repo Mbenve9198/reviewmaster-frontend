@@ -6,8 +6,8 @@ import { Input } from "@/components/ui/input"
 import { ReviewTabs } from "@/components/ui/review-tabs"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { HeroHighlight } from "@/components/ui/hero-highlight"
-import { hotelsApi } from "@/services/api"
 import { Toaster } from "sonner"
+import { getCookie } from "@/lib/utils"
 
 interface Hotel {
   _id: string
@@ -27,8 +27,21 @@ export default function ReviewsPage() {
   useEffect(() => {
     const fetchHotels = async () => {
       try {
-        const data = await hotelsApi.getHotels()
-        setHotels(data)
+        const token = getCookie('token');
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/hotels`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include'
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch hotels');
+        }
+
+        const data = await response.json();
+        setHotels(data);
       } catch (error) {
         console.error('Error fetching hotels:', error)
       } finally {
