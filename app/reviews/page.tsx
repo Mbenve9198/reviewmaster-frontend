@@ -28,6 +28,8 @@ export default function ReviewsPage() {
     const fetchHotels = async () => {
       try {
         const token = getCookie('token');
+        console.log('Fetching hotels with token:', token ? 'Token present' : 'No token');
+        
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/hotels`, {
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -36,11 +38,14 @@ export default function ReviewsPage() {
           credentials: 'include'
         });
 
+        console.log('Hotels response status:', response.status);
+        
         if (!response.ok) {
           throw new Error('Failed to fetch hotels');
         }
 
         const data = await response.json();
+        console.log('Hotels data:', data);
         setHotels(data);
       } catch (error) {
         console.error('Error fetching hotels:', error)

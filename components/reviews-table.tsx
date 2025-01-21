@@ -155,8 +155,12 @@ export const ReviewsTable = ({
         )
       },
       cell: ({ row }) => {
-        const date = new Date(row.getValue("metadata.originalCreatedAt"))
-        return <div className="hidden sm:block">{date.toLocaleDateString()}</div>
+        const dateValue = row.getValue("metadata.originalCreatedAt")
+        if (!dateValue) return "No date"
+        const date = new Date(dateValue)
+        return <div className="hidden sm:block">
+          {!isNaN(date.getTime()) ? date.toLocaleDateString() : "Invalid Date"}
+        </div>
       },
       enableHiding: true,
     },
@@ -171,8 +175,9 @@ export const ReviewsTable = ({
         )
       },
       cell: ({ row }) => {
-        const rating = row.getValue("content.rating") as number
+        const rating = row.getValue("content.rating")
         const platform = row.getValue("platform") as string
+        if (!rating) return "No rating"
         const displayRating = platform === "booking" ? `${rating}/10` : `${rating}/5`
         return <div className="text-center">{displayRating}</div>
       },
@@ -274,14 +279,27 @@ export const ReviewsTable = ({
 
   // Fetch reviews when filters change
   useEffect(() => {
+    console.log('Current filters:', {
+      searchQuery,
+      responseStatus,
+      platform,
+      ratingFilter,
+      property
+    });
+    
     setFilters({
       hotelId: property,
       platform,
       responseStatus,
       rating: ratingFilter,
-      searchQuery,
-    })
-  }, [property, platform, responseStatus, ratingFilter, searchQuery, setFilters])
+      searchQuery
+    });
+  }, [searchQuery, responseStatus, platform, ratingFilter, property]);
+
+  // Log reviews when they change
+  useEffect(() => {
+    console.log('Reviews data:', reviews);
+  }, [reviews]);
 
   const handleGenerateResponse = async (review: Review) => {
     setSelectedReview(review)
