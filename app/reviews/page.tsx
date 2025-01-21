@@ -21,7 +21,7 @@ export default function ReviewsPage() {
   const [platform, setPlatform] = useState("all")
   const [resultsPerPage, setResultsPerPage] = useState("50")
   const [ratingFilter, setRatingFilter] = useState("all")
-  const [hotels, setHotels] = useState([])
+  const [hotels, setHotels] = useState<Hotel[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
