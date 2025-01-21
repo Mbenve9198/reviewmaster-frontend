@@ -1,4 +1,3 @@
-// store/useReviews.ts
 import { create } from 'zustand';
 import { getCookie } from '@/lib/utils';
 
@@ -83,7 +82,7 @@ const useReviews = create<ReviewsState>((set, get) => ({
       
       const token = getCookie('token');
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/reviews/hotel/${filters.hotelId || 'all'}?${params.toString()}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/reviews/hotel/${filters.hotelId || 'all'}?${params.toString()}`,
         {
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -110,7 +109,7 @@ const useReviews = create<ReviewsState>((set, get) => ({
   fetchStats: async (hotelId: string) => {
     try {
       const token = getCookie('token');
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/reviews/stats/${hotelId}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reviews/stats/${hotelId}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -138,7 +137,7 @@ const useReviews = create<ReviewsState>((set, get) => ({
 
   generateResponse: async (hotelId: string, review: string, settings) => {
     const token = getCookie('token');
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/reviews/generate`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reviews/generate`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,
