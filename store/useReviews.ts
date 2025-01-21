@@ -1,6 +1,35 @@
 // store/useReviews.ts
 import { create } from 'zustand';
-import { reviewsApi, type Review } from '@/services/api';
+import { getCookie } from '@/lib/utils';
+
+export interface Review {
+  _id: string;
+  platform: 'google' | 'booking' | 'tripadvisor' | 'manual';
+  hotelId: string;
+  content: {
+    text: string;
+    rating: number;
+    reviewerName: string;
+    reviewerImage?: string;
+    language?: string;
+    images?: { url: string; caption: string; }[];
+    likes?: number;
+    originalUrl?: string;
+  };
+  response?: {
+    text: string;
+    createdAt: Date;
+    settings: {
+      style: 'professional' | 'friendly';
+      length: 'short' | 'medium' | 'long';
+    };
+  };
+  metadata: {
+    originalCreatedAt: Date;
+    lastUpdated?: Date;
+    syncedAt?: Date;
+  };
+}
 
 interface ReviewsState {
   reviews: Review[];
@@ -19,7 +48,6 @@ interface ReviewsState {
     responseRate: number;
   } | null;
   
-  // Actions
   fetchReviews: () => Promise<void>;
   fetchStats: (hotelId: string) => Promise<void>;
   setFilters: (filters: Partial<ReviewsState['filters']>) => void;
@@ -47,13 +75,29 @@ const useReviews = create<ReviewsState>((set, get) => ({
     set({ loading: true, error: null });
     
     try {
-      const reviews = await reviewsApi.getReviews(filters.hotelId, {
-        platform: filters.platform !== 'all' ? filters.platform : undefined,
-        responseStatus: filters.responseStatus !== 'all' ? filters.responseStatus : undefined,
-        rating: filters.rating !== 'all' ? parseInt(filters.rating) : undefined,
-        searchQuery: filters.searchQuery || undefined,
-      });
+      const params = new URLSearchParams();
+      if (filters.platform !== 'all') params.append('platform', filters.platform);
+      if (filters.responseStatus !== 'all') params.append('status', filters.responseStatus);
+      if (filters.rating !== 'all') params.append('rating', filters.rating);
+      if (filters.searchQuery) params.append('search', filters.searchQuery);
       
+      const token = getCookie('token');
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/reviews/hotel/${filters.hotelId || 'all'}?${params.toString()}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          credentials: 'include'
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch reviews');
+      }
+
+      const reviews = await response.json();
       set({ reviews, loading: false });
     } catch (error) {
       set({ 
@@ -65,7 +109,20 @@ const useReviews = create<ReviewsState>((set, get) => ({
 
   fetchStats: async (hotelId: string) => {
     try {
-      const stats = await reviewsApi.getStats(hotelId);
+      const token = getCookie('token');
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/reviews/stats/${hotelId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include'
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch stats');
+      }
+
+      const stats = await response.json();
       set({ stats });
     } catch (error) {
       console.error('Error fetching stats:', error);
@@ -80,14 +137,28 @@ const useReviews = create<ReviewsState>((set, get) => ({
   },
 
   generateResponse: async (hotelId: string, review: string, settings) => {
-    try {
-      const response = await reviewsApi.generateResponse(hotelId, review, settings);
-      // Aggiorna le recensioni dopo la generazione della risposta
-      get().fetchReviews();
-      return response.response;
-    } catch (error) {
-      throw new Error(error instanceof Error ? error.message : 'Error generating response');
+    const token = getCookie('token');
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/reviews/generate`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        hotelId,
+        review,
+        responseSettings: settings
+      }),
+      credentials: 'include'
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to generate response');
     }
+
+    const data = await response.json();
+    get().fetchReviews(); // Aggiorna le recensioni dopo la generazione della risposta
+    return data.response;
   },
 }));
 
