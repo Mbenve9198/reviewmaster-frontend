@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
-import { DayPicker, type CustomComponents, type DayPickerNavigation } from "react-day-picker"
+import { DayPicker, type CustomComponents, type NavigationProps } from "react-day-picker"
 
 import { cn } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
@@ -55,7 +55,7 @@ function Calendar({
         ...classNames,
       }}
       components={{
-        Navigation: ({ onPreviousClick, onNextClick }: DayPickerNavigation) => (
+        Navigation: ({ onPreviousClick, onNextClick }: NavigationProps) => (
           <div className="space-x-1 flex items-center">
             <Button
               variant="outline"
