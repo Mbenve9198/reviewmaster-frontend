@@ -1,18 +1,18 @@
 import { useEffect, useRef, useState } from "react"
 
-interface AutoScrollHookResult<T extends HTMLElement> {
-  scrollRef: React.RefObject<T>;
+interface AutoScrollHookResult {
+  scrollRef: React.RefObject<HTMLDivElement>;
   isAtBottom: boolean;
   autoScrollEnabled: boolean;
   scrollToBottom: () => void;
   disableAutoScroll: () => void;
 }
 
-export function useAutoScroll<T extends HTMLElement>(options: {
+export function useAutoScroll(options: {
   smooth?: boolean;
   content?: React.ReactNode;
-}): AutoScrollHookResult<T> {
-  const scrollRef = useRef<T>(null)
+}): AutoScrollHookResult {
+  const scrollRef = useRef<HTMLDivElement>(null)
   const [isAtBottom, setIsAtBottom] = useState(true)
   const [autoScrollEnabled, setAutoScrollEnabled] = useState(true)
 
