@@ -60,14 +60,14 @@ function Calendar({
             <Button
               variant="outline"
               className="h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100"
-              onClick={() => onPreviousClick()}
+              onClick={onPreviousClick}
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
             <Button
               variant="outline"
               className="h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100"
-              onClick={() => onNextClick()}
+              onClick={onNextClick}
             >
               <ChevronRight className="h-4 w-4" />
             </Button>
