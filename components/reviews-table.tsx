@@ -307,6 +307,22 @@ export const ReviewsTable = ({
     console.log('Reviews data:', reviews);
   }, [reviews]);
 
+  useEffect(() => {
+    if (reviews && reviews.length > 0) {
+      console.log('Review structure:', {
+        full: reviews[0],
+        metadata: reviews[0].metadata,
+        content: reviews[0].content,
+        platform: reviews[0].platform,
+        paths: {
+          date: reviews[0]?.metadata?.originalCreatedAt,
+          rating: reviews[0]?.content?.rating,
+          text: reviews[0]?.content?.text,
+        }
+      });
+    }
+  }, [reviews]);
+
   const handleGenerateResponse = async (review: Review) => {
     setSelectedReview(review)
     setIsModalOpen(true)
