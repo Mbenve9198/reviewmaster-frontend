@@ -156,8 +156,16 @@ export const ReviewsTable = ({
       },
       cell: ({ row }) => {
         const dateValue = row.getValue("metadata.originalCreatedAt")
+        console.log('Date value:', dateValue, 'Type:', typeof dateValue)
+        
         if (!dateValue) return "No date"
-        const date = new Date(dateValue)
+        
+        // Assicuriamoci che dateValue sia una stringa valida
+        const dateStr = typeof dateValue === 'object' ? 
+          dateValue.toString() : 
+          String(dateValue)
+        
+        const date = new Date(dateStr)
         return <div className="hidden sm:block">
           {!isNaN(date.getTime()) ? date.toLocaleDateString() : "Invalid Date"}
         </div>
