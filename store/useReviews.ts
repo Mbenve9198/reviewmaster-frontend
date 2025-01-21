@@ -99,17 +99,31 @@ const useReviews = create<ReviewsState>((set, get) => ({
 
       const reviews = await response.json();
       const mappedReviews = reviews.map((review: any) => ({
-        ...review,
+        _id: review._id || '',
+        platform: review.platform || 'manual',
+        hotelId: review.hotelId || '',
         content: {
-          ...review.content,
-          text: review.content.text || '',
-          rating: review.content.rating || 0,
-          reviewerName: review.content.reviewerName || 'Anonymous'
+          text: review.content?.text || '',
+          rating: review.content?.rating || 0,
+          reviewerName: review.content?.reviewerName || 'Anonymous',
+          reviewerImage: review.content?.reviewerImage,
+          language: review.content?.language,
+          images: review.content?.images || [],
+          likes: review.content?.likes,
+          originalUrl: review.content?.originalUrl
         },
+        response: review.response ? {
+          text: review.response.text || '',
+          createdAt: review.response.createdAt ? new Date(review.response.createdAt) : new Date(),
+          settings: review.response.settings || {
+            style: 'professional',
+            length: 'medium'
+          }
+        } : undefined,
         metadata: {
-          originalCreatedAt: new Date(review.metadata.originalCreatedAt),
-          lastUpdated: review.metadata.lastUpdated ? new Date(review.metadata.lastUpdated) : undefined,
-          syncedAt: review.metadata.syncedAt ? new Date(review.metadata.syncedAt) : undefined
+          originalCreatedAt: review.metadata?.originalCreatedAt ? new Date(review.metadata.originalCreatedAt) : new Date(),
+          lastUpdated: review.metadata?.lastUpdated ? new Date(review.metadata.lastUpdated) : undefined,
+          syncedAt: review.metadata?.syncedAt ? new Date(review.metadata.syncedAt) : undefined
         }
       }));
 
