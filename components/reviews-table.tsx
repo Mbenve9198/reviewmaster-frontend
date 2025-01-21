@@ -142,10 +142,11 @@ export const ReviewsTable = ({
     },
     {
       id: "date",
-      accessorFn: (row: Review) => {
-        const date = row.metadata?.originalCreatedAt
-        if (!date) return null
-        return new Date(date).getTime()
+      accessorFn: (row: any) => {
+        const dateStr = row.metadata?.originalCreatedAt
+        if (!dateStr) return null
+        // Convertiamo la stringa ISO in timestamp per il sorting
+        return new Date(dateStr).getTime()
       },
       header: ({ column }) => {
         return (
@@ -165,7 +166,11 @@ export const ReviewsTable = ({
         
         const date = new Date(timestamp)
         return <div className="hidden sm:block">
-          {date.toLocaleDateString()}
+          {date.toLocaleDateString(undefined, {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+          })}
         </div>
       },
       enableHiding: true,
