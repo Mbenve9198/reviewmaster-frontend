@@ -73,158 +73,6 @@ interface ReviewsTableProps {
   setSearchQuery: (value: string) => void
 }
 
-export const columns: ColumnDef<Review>[] = [
-  {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={table.getIsAllPageRowsSelected()}
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
-  {
-    accessorKey: "platform",
-    header: "Platform",
-    enableHiding: true,
-    cell: ({ row }) => {
-      const platform = row.getValue("platform") as string
-      return (
-        <div className="flex items-center justify-center">
-          <Image
-            src={logoUrls[platform as Platform] || "/placeholder.svg"}
-            alt={`${platform} logo`}
-            width={logoSizes[platform as Platform]?.width || 24}
-            height={logoSizes[platform as Platform]?.height || 24}
-            className="object-contain"
-          />
-        </div>
-      )
-    },
-  },
-  {
-    accessorKey: "metadata.originalCreatedAt",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="hidden sm:flex"
-        >
-          Date
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      )
-    },
-    cell: ({ row }) => {
-      const date = new Date(row.getValue("metadata.originalCreatedAt"))
-      return <div className="hidden sm:block">{date.toLocaleDateString()}</div>
-    },
-    enableHiding: true,
-  },
-  {
-    accessorKey: "content.rating",
-    header: ({ column }) => {
-      return (
-        <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
-          Rating
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      )
-    },
-    cell: ({ row }) => {
-      const rating = row.getValue("content.rating") as number
-      const platform = row.getValue("platform") as string
-      const displayRating = platform === "booking" ? `${rating}/10` : `${rating}/5`
-      return <div className="text-center">{displayRating}</div>
-    },
-    enableHiding: true,
-  },
-  {
-    accessorKey: "content.reviewerName",
-    header: "Reviewer",
-    cell: ({ row }) => {
-      return <div className="hidden sm:block">{row.getValue("content.reviewerName")}</div>
-    },
-    enableHiding: true,
-  },
-  {
-    accessorKey: "content.text",
-    header: "Review",
-    enableHiding: true,
-    cell: ({ row }) => {
-      const content = row.getValue("content.text") as string
-      const [isExpanded, setIsExpanded] = useState(false)
-      return (
-        <div className="max-w-[200px] sm:max-w-md cursor-pointer" onClick={() => setIsExpanded(!isExpanded)}>
-          {isExpanded ? content : `${content.substring(0, 50)}...`}
-        </div>
-      )
-    },
-  },
-  {
-    accessorKey: "response.text",
-    header: "Generated Response",
-    enableHiding: true,
-    cell: ({ row }) => {
-      const response = row.original.response?.text
-      const [isExpanded, setIsExpanded] = useState(false)
-      return (
-        <div className="max-w-[200px] sm:max-w-md cursor-pointer" onClick={() => setIsExpanded(!isExpanded)}>
-          {response ? (isExpanded ? response : `${response.substring(0, 50)}...`) : "No response generated"}
-        </div>
-      )
-    },
-  },
-  {
-    id: "actions",
-    cell: ({ row }) => {
-      const review = row.original
-      
-      return (
-        <ButtonGroup className="shadow-sm">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => handleGenerateResponse(review)}
-            className="px-3 bg-background text-foreground hover:bg-accent hover:text-accent-foreground border-r"
-          >
-            <MessageSquare className="h-4 w-4 sm:mr-2" />
-            <span className="hidden sm:inline">Generate</span>
-          </Button>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                className="px-2 bg-background text-foreground hover:bg-accent hover:text-accent-foreground"
-              >
-                <ChevronDown className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => handleViewDetails(review)}>View Details</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => navigator.clipboard.writeText(review._id)}>
-                Copy Review ID
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </ButtonGroup>
-      )
-    },
-  },
-]
-
 export const ReviewsTable = ({
   searchQuery,
   responseStatus,
@@ -334,6 +182,158 @@ export const ReviewsTable = ({
       setIsLoading(false)
     }
   }
+
+  const columns: ColumnDef<Review>[] = [
+    {
+      id: "select",
+      header: ({ table }) => (
+        <Checkbox
+          checked={table.getIsAllPageRowsSelected()}
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Select all"
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Select row"
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
+    },
+    {
+      accessorKey: "platform",
+      header: "Platform",
+      enableHiding: true,
+      cell: ({ row }) => {
+        const platform = row.getValue("platform") as string
+        return (
+          <div className="flex items-center justify-center">
+            <Image
+              src={logoUrls[platform as Platform] || "/placeholder.svg"}
+              alt={`${platform} logo`}
+              width={logoSizes[platform as Platform]?.width || 24}
+              height={logoSizes[platform as Platform]?.height || 24}
+              className="object-contain"
+            />
+          </div>
+        )
+      },
+    },
+    {
+      accessorKey: "metadata.originalCreatedAt",
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            className="hidden sm:flex"
+          >
+            Date
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          </Button>
+        )
+      },
+      cell: ({ row }) => {
+        const date = new Date(row.getValue("metadata.originalCreatedAt"))
+        return <div className="hidden sm:block">{date.toLocaleDateString()}</div>
+      },
+      enableHiding: true,
+    },
+    {
+      accessorKey: "content.rating",
+      header: ({ column }) => {
+        return (
+          <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
+            Rating
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          </Button>
+        )
+      },
+      cell: ({ row }) => {
+        const rating = row.getValue("content.rating") as number
+        const platform = row.getValue("platform") as string
+        const displayRating = platform === "booking" ? `${rating}/10` : `${rating}/5`
+        return <div className="text-center">{displayRating}</div>
+      },
+      enableHiding: true,
+    },
+    {
+      accessorKey: "content.reviewerName",
+      header: "Reviewer",
+      cell: ({ row }) => {
+        return <div className="hidden sm:block">{row.getValue("content.reviewerName")}</div>
+      },
+      enableHiding: true,
+    },
+    {
+      accessorKey: "content.text",
+      header: "Review",
+      enableHiding: true,
+      cell: ({ row }) => {
+        const content = row.getValue("content.text") as string
+        const [isExpanded, setIsExpanded] = useState(false)
+        return (
+          <div className="max-w-[200px] sm:max-w-md cursor-pointer" onClick={() => setIsExpanded(!isExpanded)}>
+            {isExpanded ? content : `${content.substring(0, 50)}...`}
+          </div>
+        )
+      },
+    },
+    {
+      accessorKey: "response.text",
+      header: "Generated Response",
+      enableHiding: true,
+      cell: ({ row }) => {
+        const response = row.original.response?.text
+        const [isExpanded, setIsExpanded] = useState(false)
+        return (
+          <div className="max-w-[200px] sm:max-w-md cursor-pointer" onClick={() => setIsExpanded(!isExpanded)}>
+            {response ? (isExpanded ? response : `${response.substring(0, 50)}...`) : "No response generated"}
+          </div>
+        )
+      },
+    },
+    {
+      id: "actions",
+      cell: ({ row }) => {
+        const review = row.original
+        
+        return (
+          <ButtonGroup className="shadow-sm">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleGenerateResponse(review)}
+              className="px-3 bg-background text-foreground hover:bg-accent hover:text-accent-foreground border-r"
+            >
+              <MessageSquare className="h-4 w-4 sm:mr-2" />
+              <span className="hidden sm:inline">Generate</span>
+            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="px-2 bg-background text-foreground hover:bg-accent hover:text-accent-foreground"
+                >
+                  <ChevronDown className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => handleViewDetails(review)}>View Details</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigator.clipboard.writeText(review._id)}>
+                  Copy Review ID
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </ButtonGroup>
+        )
+      },
+    },
+  ]
 
   if (loading) {
     return <div>Loading...</div>
