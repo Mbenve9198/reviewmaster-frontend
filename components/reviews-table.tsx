@@ -195,7 +195,7 @@ export const ReviewsTable = ({
         const [isExpanded, setIsExpanded] = useState(false)
         return (
           <div className="max-w-[200px] sm:max-w-md cursor-pointer" onClick={() => setIsExpanded(!isExpanded)}>
-            {isExpanded ? content : `${content.substring(0, 50)}...`}
+            {!content ? "No content" : (isExpanded ? content : `${content.substring(0, 50)}...`)}
           </div>
         )
       },
@@ -209,7 +209,7 @@ export const ReviewsTable = ({
         const [isExpanded, setIsExpanded] = useState(false)
         return (
           <div className="max-w-[200px] sm:max-w-md cursor-pointer" onClick={() => setIsExpanded(!isExpanded)}>
-            {response ? (isExpanded ? response : `${response.substring(0, 50)}...`) : "No response generated"}
+            {!response ? "No response generated" : (isExpanded ? response : `${response.substring(0, 50)}...`)}
           </div>
         )
       },
