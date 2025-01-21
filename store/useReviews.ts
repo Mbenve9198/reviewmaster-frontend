@@ -98,7 +98,22 @@ const useReviews = create<ReviewsState>((set, get) => ({
       }
 
       const reviews = await response.json();
-      set({ reviews, loading: false });
+      const mappedReviews = reviews.map((review: any) => ({
+        ...review,
+        content: {
+          ...review.content,
+          text: review.content.text || '',
+          rating: review.content.rating || 0,
+          reviewerName: review.content.reviewerName || 'Anonymous'
+        },
+        metadata: {
+          originalCreatedAt: new Date(review.metadata.originalCreatedAt),
+          lastUpdated: review.metadata.lastUpdated ? new Date(review.metadata.lastUpdated) : undefined,
+          syncedAt: review.metadata.syncedAt ? new Date(review.metadata.syncedAt) : undefined
+        }
+      }));
+
+      set({ reviews: mappedReviews, loading: false });
     } catch (error) {
       set({ 
         error: error instanceof Error ? error.message : 'Error fetching reviews',
