@@ -9,6 +9,11 @@ import { HeroHighlight } from "@/components/ui/hero-highlight"
 import { hotelsApi } from "@/services/api"
 import { Toaster } from "sonner"
 
+interface Hotel {
+  _id: string
+  name: string
+}
+
 export default function ReviewsPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [hotel, setHotel] = useState("all")
