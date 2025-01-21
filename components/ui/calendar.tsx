@@ -55,7 +55,7 @@ function Calendar({
         ...classNames,
       }}
       components={{
-        Navigation: ({ onPreviousClick, onNextClick }) => (
+        Nav: ({ onPreviousClick, onNextClick }) => (
           <div className="space-x-1 flex items-center">
             <Button
               variant="outline"
