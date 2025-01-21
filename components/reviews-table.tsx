@@ -101,88 +101,6 @@ export const ReviewsTable = ({
   const [responseLength, setResponseLength] = useState("medium")
   const [responseTone, setResponseTone] = useState("professional")
 
-  // Fetch reviews when filters change
-  useEffect(() => {
-    setFilters({
-      hotelId: property,
-      platform,
-      responseStatus,
-      rating: ratingFilter,
-      searchQuery,
-    })
-  }, [property, platform, responseStatus, ratingFilter, searchQuery, setFilters])
-
-  const table = useReactTable({
-    data: reviews,
-    columns,
-    onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
-    getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    onColumnVisibilityChange: setColumnVisibility,
-    onRowSelectionChange: setRowSelection,
-    state: {
-      sorting,
-      columnFilters,
-      columnVisibility,
-      rowSelection,
-    },
-  })
-
-  const handleGenerateResponse = async (review: Review) => {
-    setSelectedReview(review)
-    setIsModalOpen(true)
-    setIsLoading(true)
-
-    try {
-      const response = await generateResponse(
-        review.hotelId,
-        review.content.text,
-        {
-          style: responseTone as 'professional' | 'friendly',
-          length: responseLength as 'short' | 'medium' | 'long',
-        }
-      )
-      setMessages([{ id: 1, content: response, sender: "ai" }])
-      setIsLoading(false)
-    } catch (error) {
-      toast.error("Error generating response")
-      setIsLoading(false)
-    }
-  }
-
-  const handleViewDetails = (review: Review) => {
-    // Implement view details logic
-    console.log("Viewing details for review:", review)
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!input.trim() || !selectedReview) return
-
-    setMessages((prev) => [...prev, { id: prev.length + 1, content: input, sender: "user" }])
-    setInput("")
-    setIsLoading(true)
-
-    try {
-      const response = await generateResponse(
-        selectedReview.hotelId,
-        selectedReview.content.text,
-        {
-          style: responseTone as 'professional' | 'friendly',
-          length: responseLength as 'short' | 'medium' | 'long',
-        }
-      )
-      setMessages((prev) => [...prev, { id: prev.length + 1, content: response, sender: "ai" }])
-    } catch (error) {
-      toast.error("Error generating response")
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
   const columns: ColumnDef<Review>[] = [
     {
       id: "select",
@@ -334,6 +252,88 @@ export const ReviewsTable = ({
       },
     },
   ]
+
+  const table = useReactTable({
+    data: reviews,
+    columns,
+    onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    onColumnVisibilityChange: setColumnVisibility,
+    onRowSelectionChange: setRowSelection,
+    state: {
+      sorting,
+      columnFilters,
+      columnVisibility,
+      rowSelection,
+    },
+  })
+
+  // Fetch reviews when filters change
+  useEffect(() => {
+    setFilters({
+      hotelId: property,
+      platform,
+      responseStatus,
+      rating: ratingFilter,
+      searchQuery,
+    })
+  }, [property, platform, responseStatus, ratingFilter, searchQuery, setFilters])
+
+  const handleGenerateResponse = async (review: Review) => {
+    setSelectedReview(review)
+    setIsModalOpen(true)
+    setIsLoading(true)
+
+    try {
+      const response = await generateResponse(
+        review.hotelId,
+        review.content.text,
+        {
+          style: responseTone as 'professional' | 'friendly',
+          length: responseLength as 'short' | 'medium' | 'long',
+        }
+      )
+      setMessages([{ id: 1, content: response, sender: "ai" }])
+      setIsLoading(false)
+    } catch (error) {
+      toast.error("Error generating response")
+      setIsLoading(false)
+    }
+  }
+
+  const handleViewDetails = (review: Review) => {
+    // Implement view details logic
+    console.log("Viewing details for review:", review)
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!input.trim() || !selectedReview) return
+
+    setMessages((prev) => [...prev, { id: prev.length + 1, content: input, sender: "user" }])
+    setInput("")
+    setIsLoading(true)
+
+    try {
+      const response = await generateResponse(
+        selectedReview.hotelId,
+        selectedReview.content.text,
+        {
+          style: responseTone as 'professional' | 'friendly',
+          length: responseLength as 'short' | 'medium' | 'long',
+        }
+      )
+      setMessages((prev) => [...prev, { id: prev.length + 1, content: response, sender: "ai" }])
+    } catch (error) {
+      toast.error("Error generating response")
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   if (loading) {
     return <div>Loading...</div>
