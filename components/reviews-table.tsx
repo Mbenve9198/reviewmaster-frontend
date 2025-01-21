@@ -45,6 +45,20 @@ import useReviews from "@/store/useReviews"
 import { type Review } from "@/services/api"
 import { toast } from "sonner"
 
+type Platform = 'google' | 'booking' | 'tripadvisor'
+
+const logoUrls: Record<Platform, string> = {
+  google: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/gmg-logo-300x300-1-YhBm2cRJdd8cFKdb5h4uv3cwYooXY7.webp",
+  booking: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/bookingcom-1-s1MP7yjsBCisV79VmZojIZ9Euh0Qn6.svg",
+  tripadvisor: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Tripadvisor_logoset_solid_green-qRQkWYtDeBXNC1eNGeutQj1W40i036.svg"
+}
+
+const logoSizes: Record<Platform, { width: number; height: number }> = {
+  google: { width: 24, height: 24 },
+  booking: { width: 24, height: 24 },
+  tripadvisor: { width: 24, height: 24 }
+}
+
 interface ReviewsTableProps {
   searchQuery: string
   property: string
@@ -85,26 +99,13 @@ export const columns: ColumnDef<Review>[] = [
     enableHiding: true,
     cell: ({ row }) => {
       const platform = row.getValue("platform") as string
-      const logoUrls = {
-        google:
-          "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/gmg-logo-300x300-1-YhBm2cRJdd8cFKdb5h4uv3cwYooXY7.webp",
-        booking:
-          "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/bookingcom-1-s1MP7yjsBCisV79VmZojIZ9Euh0Qn6.svg",
-        tripadvisor:
-          "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Tripadvisor_logoset_solid_green-qRQkWYtDeBXNC1eNGeutQj1W40i036.svg",
-      }
-      const logoSizes = {
-        google: { width: 24, height: 24 },
-        booking: { width: 24, height: 24 },
-        tripadvisor: { width: 24, height: 24 },
-      }
       return (
         <div className="flex items-center justify-center">
           <Image
-            src={logoUrls[platform] || "/placeholder.svg"}
+            src={logoUrls[platform as Platform] || "/placeholder.svg"}
             alt={`${platform} logo`}
-            width={logoSizes[platform]?.width || 24}
-            height={logoSizes[platform]?.height || 24}
+            width={logoSizes[platform as Platform]?.width || 24}
+            height={logoSizes[platform as Platform]?.height || 24}
             className="object-contain"
           />
         </div>
