@@ -142,7 +142,11 @@ export const ReviewsTable = ({
     },
     {
       id: "date",
-      accessorFn: (row) => row.metadata?.originalCreatedAt,
+      accessorFn: (row: Review) => {
+        const date = row.metadata?.originalCreatedAt
+        if (!date) return null
+        return new Date(date).getTime()
+      },
       header: ({ column }) => {
         return (
           <Button
@@ -156,12 +160,12 @@ export const ReviewsTable = ({
         )
       },
       cell: ({ row }) => {
-        const dateValue = row.original.metadata?.originalCreatedAt
-        if (!dateValue) return "No date"
+        const timestamp = row.getValue("date") as number
+        if (!timestamp) return "No date"
         
-        const date = new Date(dateValue)
+        const date = new Date(timestamp)
         return <div className="hidden sm:block">
-          {!isNaN(date.getTime()) ? date.toLocaleDateString() : "Invalid Date"}
+          {date.toLocaleDateString()}
         </div>
       },
       enableHiding: true,
