@@ -17,6 +17,11 @@ interface Hotel {
 
 export default function ReviewsPage() {
   const [searchQuery, setSearchQuery] = useState("")
+  const [hotel, setHotel] = useState("all")
+  const [responseStatus, setResponseStatus] = useState("all")
+  const [platform, setPlatform] = useState("all")
+  const [resultsPerPage, setResultsPerPage] = useState("50")
+  const [ratingFilter, setRatingFilter] = useState("all")
   const [hotels, setHotels] = useState<Hotel[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const { setFilters } = useReviews()
@@ -38,6 +43,7 @@ export default function ReviewsPage() {
 
         // If we have hotels, set the first one as selected
         if (data.length > 0) {
+          setHotel(data[0]._id)
           setFilters({ hotelId: data[0]._id })
         }
       } catch (error) {
@@ -53,15 +59,19 @@ export default function ReviewsPage() {
   const handleFilterChange = (type: string, value: string) => {
     switch (type) {
       case 'hotel':
+        setHotel(value)
         setFilters({ hotelId: value })
         break
       case 'platform':
+        setPlatform(value)
         setFilters({ platform: value })
         break
       case 'responseStatus':
+        setResponseStatus(value)
         setFilters({ responseStatus: value })
         break
       case 'rating':
+        setRatingFilter(value)
         setFilters({ rating: value })
         break
       case 'search':
@@ -85,7 +95,7 @@ export default function ReviewsPage() {
       <HeroHighlight containerClassName="flex-grow overflow-auto">
         <div className="mb-8 w-full overflow-x-auto">
           <ReviewTabs 
-            value="all" 
+            value={responseStatus}
             onValueChange={(value) => handleFilterChange('responseStatus', value)} 
           />
         </div>
@@ -99,23 +109,23 @@ export default function ReviewsPage() {
           />
 
           <Select 
-            defaultValue={hotels[0]?._id} 
+            value={hotel}
             onValueChange={(value) => handleFilterChange('hotel', value)}
           >
             <SelectTrigger className="w-[200px]">
               <SelectValue placeholder="Select property" />
             </SelectTrigger>
             <SelectContent>
-              {hotels.map((hotel) => (
-                <SelectItem key={hotel._id} value={hotel._id}>
-                  {hotel.name}
+              {hotels.map((h) => (
+                <SelectItem key={h._id} value={h._id}>
+                  {h.name}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
 
           <Select 
-            defaultValue="all" 
+            value={platform}
             onValueChange={(value) => handleFilterChange('platform', value)}
           >
             <SelectTrigger className="w-[200px]">
@@ -130,7 +140,7 @@ export default function ReviewsPage() {
           </Select>
 
           <Select 
-            defaultValue="all" 
+            value={ratingFilter}
             onValueChange={(value) => handleFilterChange('rating', value)}
           >
             <SelectTrigger className="w-[200px]">
@@ -147,7 +157,19 @@ export default function ReviewsPage() {
           </Select>
         </div>
 
-        <ReviewsTable />
+        <ReviewsTable 
+          searchQuery={searchQuery}
+          property={hotel}
+          responseStatus={responseStatus}
+          platform={platform}
+          ratingFilter={ratingFilter}
+          resultsPerPage={parseInt(resultsPerPage)}
+          setPlatform={setPlatform}
+          setProperty={setHotel}
+          setRatingFilter={setRatingFilter}
+          setResultsPerPage={setResultsPerPage}
+          setSearchQuery={setSearchQuery}
+        />
       </HeroHighlight>
     </div>
   )
