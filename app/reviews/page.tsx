@@ -86,91 +86,89 @@ export default function ReviewsPage() {
   }
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-[calc(100vh-4rem)]">
       <Toaster position="top-right" />
+      
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold">Reviews</h1>
       </div>
 
-      <HeroHighlight containerClassName="flex-grow overflow-auto">
-        <div className="mb-8 w-full overflow-x-auto">
-          <ReviewTabs 
-            value={responseStatus}
-            onValueChange={(value) => handleFilterChange('responseStatus', value)} 
-          />
+      <div className="flex flex-col flex-1 overflow-hidden">
+        <div className="space-y-4 mb-4">
+          <div className="flex flex-wrap gap-4 mb-4">
+            <Input
+              placeholder="Search reviews..."
+              value={searchQuery}
+              onChange={(e) => handleFilterChange('search', e.target.value)}
+              className="w-[200px]"
+            />
+
+            <Select 
+              value={hotel}
+              onValueChange={(value) => handleFilterChange('hotel', value)}
+            >
+              <SelectTrigger className="w-[200px]">
+                <SelectValue placeholder="Select property" />
+              </SelectTrigger>
+              <SelectContent>
+                {hotels.map((h) => (
+                  <SelectItem key={h._id} value={h._id}>
+                    {h.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select 
+              value={platform}
+              onValueChange={(value) => handleFilterChange('platform', value)}
+            >
+              <SelectTrigger className="w-[200px]">
+                <SelectValue placeholder="Select platform" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Platforms</SelectItem>
+                <SelectItem value="google">Google</SelectItem>
+                <SelectItem value="booking">Booking.com</SelectItem>
+                <SelectItem value="tripadvisor">TripAdvisor</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Select 
+              value={ratingFilter}
+              onValueChange={(value) => handleFilterChange('rating', value)}
+            >
+              <SelectTrigger className="w-[200px]">
+                <SelectValue placeholder="Filter by rating" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Ratings</SelectItem>
+                <SelectItem value="5">5 Stars & Up</SelectItem>
+                <SelectItem value="4">4 Stars & Up</SelectItem>
+                <SelectItem value="3">3 Stars & Up</SelectItem>
+                <SelectItem value="2">2 Stars & Up</SelectItem>
+                <SelectItem value="1">1 Star & Up</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
-        <div className="flex flex-wrap gap-4 mb-4">
-          <Input
-            placeholder="Search reviews..."
-            value={searchQuery}
-            onChange={(e) => handleFilterChange('search', e.target.value)}
-            className="w-[200px]"
+        <div className="flex-1 min-h-0">
+          <ReviewsTable
+            searchQuery={searchQuery}
+            responseStatus={responseStatus}
+            platform={platform}
+            ratingFilter={ratingFilter}
+            resultsPerPage={parseInt(resultsPerPage)}
+            setPlatform={setPlatform}
+            setRatingFilter={setRatingFilter}
+            setResultsPerPage={setResultsPerPage}
+            setSearchQuery={setSearchQuery}
+            property={hotel}
+            setProperty={setHotel}
           />
-
-          <Select 
-            value={hotel}
-            onValueChange={(value) => handleFilterChange('hotel', value)}
-          >
-            <SelectTrigger className="w-[200px]">
-              <SelectValue placeholder="Select property" />
-            </SelectTrigger>
-            <SelectContent>
-              {hotels.map((h) => (
-                <SelectItem key={h._id} value={h._id}>
-                  {h.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          <Select 
-            value={platform}
-            onValueChange={(value) => handleFilterChange('platform', value)}
-          >
-            <SelectTrigger className="w-[200px]">
-              <SelectValue placeholder="Select platform" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Platforms</SelectItem>
-              <SelectItem value="google">Google</SelectItem>
-              <SelectItem value="booking">Booking.com</SelectItem>
-              <SelectItem value="tripadvisor">TripAdvisor</SelectItem>
-            </SelectContent>
-          </Select>
-
-          <Select 
-            value={ratingFilter}
-            onValueChange={(value) => handleFilterChange('rating', value)}
-          >
-            <SelectTrigger className="w-[200px]">
-              <SelectValue placeholder="Filter by rating" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Ratings</SelectItem>
-              <SelectItem value="5">5 Stars & Up</SelectItem>
-              <SelectItem value="4">4 Stars & Up</SelectItem>
-              <SelectItem value="3">3 Stars & Up</SelectItem>
-              <SelectItem value="2">2 Stars & Up</SelectItem>
-              <SelectItem value="1">1 Star & Up</SelectItem>
-            </SelectContent>
-          </Select>
         </div>
-
-        <ReviewsTable 
-          searchQuery={searchQuery}
-          property={hotel}
-          responseStatus={responseStatus}
-          platform={platform}
-          ratingFilter={ratingFilter}
-          resultsPerPage={parseInt(resultsPerPage)}
-          setPlatform={setPlatform}
-          setProperty={setHotel}
-          setRatingFilter={setRatingFilter}
-          setResultsPerPage={setResultsPerPage}
-          setSearchQuery={setSearchQuery}
-        />
-      </HeroHighlight>
+      </div>
     </div>
   )
 }
