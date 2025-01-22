@@ -42,7 +42,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label"
 
 import useReviews from "@/store/useReviews"
-import { type Review } from "@/services/api"
+import { type Review } from "@/types/types"
 import { toast } from "sonner"
 
 type Platform = 'google' | 'booking' | 'tripadvisor'
@@ -71,6 +71,7 @@ interface ReviewsTableProps {
   setRatingFilter: (value: string) => void
   setResultsPerPage: (value: string) => void
   setSearchQuery: (value: string) => void
+  onRefresh?: () => void
 }
 
 export const ReviewsTable = ({
@@ -85,6 +86,7 @@ export const ReviewsTable = ({
   setSearchQuery,
   property,
   setProperty,
+  onRefresh,
 }: ReviewsTableProps) => {
   // Zustand store
   const { reviews, loading, error, fetchReviews, setFilters, generateResponse } = useReviews()
@@ -307,27 +309,6 @@ export const ReviewsTable = ({
     });
   }, [searchQuery, responseStatus, platform, ratingFilter, property]);
 
-  // Log reviews when they change
-  useEffect(() => {
-    console.log('Reviews data:', reviews);
-  }, [reviews]);
-
-  useEffect(() => {
-    if (reviews && reviews.length > 0) {
-      console.log('Review structure:', {
-        full: reviews[0],
-        metadata: reviews[0].metadata,
-        content: reviews[0].content,
-        platform: reviews[0].platform,
-        paths: {
-          date: reviews[0]?.metadata?.originalCreatedAt,
-          rating: reviews[0]?.content?.rating,
-          text: reviews[0]?.content?.text,
-        }
-      });
-    }
-  }, [reviews]);
-
   const handleGenerateResponse = async (review: Review) => {
     setSelectedReview(review)
     setIsModalOpen(true)
@@ -380,6 +361,13 @@ export const ReviewsTable = ({
     }
   }
 
+  const handleRefresh = () => {
+    if (onRefresh) {
+      onRefresh()
+    }
+    fetchReviews()
+  }
+
   if (loading) {
     return <div>Loading...</div>
   }
@@ -390,6 +378,16 @@ export const ReviewsTable = ({
 
   return (
     <div className="w-full">
+      <div className="flex justify-end mb-4">
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={handleRefresh}
+          className="bg-background text-foreground hover:bg-accent hover:text-accent-foreground"
+        >
+          Refresh
+        </Button>
+      </div>
       <div className="rounded-md border bg-background">
         <Table>
           <TableHeader>
