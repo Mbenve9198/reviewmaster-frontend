@@ -394,7 +394,7 @@ export const ReviewsTable = ({
   console.log('Rendering reviews:', reviews?.length || 0)
 
   return (
-    <div className="w-full">
+    <div className="w-full h-full flex flex-col">
       <div className="flex justify-end mb-4">
         <Button 
           variant="outline" 
@@ -405,7 +405,7 @@ export const ReviewsTable = ({
           Refresh
         </Button>
       </div>
-      <div className="rounded-md border bg-background">
+      <div className="rounded-md border bg-background flex-1 overflow-auto">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
