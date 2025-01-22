@@ -126,16 +126,16 @@ export const ReviewsTable = ({
       id: "platform",
       accessorKey: "platform",
       header: "Platform",
-      enableHiding: true,
+      enableHiding: false,
       cell: ({ row }) => {
         const platform = row.original.platform as Platform
         return (
-          <div className="flex items-center justify-center">
+          <div className="w-8 h-8">
             <Image
               src={logoUrls[platform] || "/placeholder.svg"}
               alt={`${platform} logo`}
-              width={logoSizes[platform]?.width || 24}
-              height={logoSizes[platform]?.height || 24}
+              width={32}
+              height={32}
               className="object-contain"
             />
           </div>
@@ -150,7 +150,6 @@ export const ReviewsTable = ({
           <Button
             variant="ghost"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-            className="hidden sm:flex"
           >
             Date
             <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -160,17 +159,8 @@ export const ReviewsTable = ({
       cell: ({ row }) => {
         const dateStr = row.original.metadata?.originalCreatedAt
         if (!dateStr) return "No date"
-        
-        const date = new Date(dateStr)
-        return <div className="hidden sm:block">
-          {date.toLocaleDateString(undefined, {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric'
-          })}
-        </div>
+        return new Date(dateStr).toISOString().split('T')[0]
       },
-      enableHiding: true,
     },
     {
       id: "rating",
@@ -187,32 +177,24 @@ export const ReviewsTable = ({
         const rating = row.original.content?.rating
         const platform = row.original.platform
         if (!rating) return "No rating"
-        const displayRating = platform === "booking" ? `${rating}/10` : `${rating}/5`
-        return <div className="text-center">{displayRating}</div>
+        return platform === "booking" ? `${rating}/10` : `${rating}/5`
       },
-      enableHiding: true,
     },
     {
       id: "reviewer",
       accessorFn: (row) => row.content?.reviewerName,
       header: "Reviewer",
-      cell: ({ row }) => {
-        const reviewerName = row.original.content?.reviewerName
-        return <div className="hidden sm:block">{reviewerName || "Anonymous"}</div>
-      },
-      enableHiding: true,
+      cell: ({ row }) => row.original.content?.reviewerName || "Anonymous",
     },
     {
       id: "review",
       accessorFn: (row) => row.content?.text,
       header: "Review",
-      enableHiding: true,
       cell: ({ row }) => {
         const content = row.original.content?.text
-        const [isExpanded, setIsExpanded] = useState(false)
         return (
-          <div className="max-w-[200px] sm:max-w-md cursor-pointer" onClick={() => setIsExpanded(!isExpanded)}>
-            {!content ? "No content" : (isExpanded ? content : `${content.substring(0, 50)}...`)}
+          <div className="max-w-md truncate">
+            {content || "No content"}
           </div>
         )
       },
@@ -221,50 +203,37 @@ export const ReviewsTable = ({
       id: "response",
       accessorFn: (row) => row.response?.text,
       header: "Generated Response",
-      enableHiding: true,
       cell: ({ row }) => {
         const response = row.original.response?.text
-        const [isExpanded, setIsExpanded] = useState(false)
         return (
-          <div className="max-w-[200px] sm:max-w-md cursor-pointer" onClick={() => setIsExpanded(!isExpanded)}>
-            {!response ? "No response generated" : (isExpanded ? response : `${response.substring(0, 50)}...`)}
+          <div className="max-w-md truncate">
+            {response || "No response generated"}
           </div>
         )
       },
     },
     {
       id: "actions",
+      header: "",
       cell: ({ row }) => {
-        const review = row.original
-        
         return (
-          <ButtonGroup className="shadow-sm">
+          <ButtonGroup>
             <Button
               variant="outline"
               size="sm"
-              onClick={() => handleGenerateResponse(review)}
-              className="px-3 bg-background text-foreground hover:bg-accent hover:text-accent-foreground border-r"
+              onClick={() => handleGenerateResponse(row.original)}
+              className="flex items-center gap-2"
             >
-              <MessageSquare className="h-4 w-4 sm:mr-2" />
-              <span className="hidden sm:inline">Generate</span>
+              <MessageSquare className="h-4 w-4" />
+              Generate
             </Button>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="px-2 bg-background text-foreground hover:bg-accent hover:text-accent-foreground"
-                >
-                  <ChevronDown className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => handleViewDetails(review)}>View Details</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigator.clipboard.writeText(review._id)}>
-                  Copy Review ID
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <Button
+              variant="outline"
+              size="sm"
+              className="px-2"
+            >
+              <ChevronDown className="h-4 w-4" />
+            </Button>
           </ButtonGroup>
         )
       },
@@ -405,13 +374,13 @@ export const ReviewsTable = ({
           Refresh
         </Button>
       </div>
-      <div className="rounded-md border bg-background flex-1 overflow-auto">
+      <div className="rounded-md border">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
+                  <TableHead key={header.id} className="bg-muted/50">
                     {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                   </TableHead>
                 ))}
@@ -423,19 +392,49 @@ export const ReviewsTable = ({
               table.getRowModel().rows.map((row) => (
                 <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
+                    <TableCell key={cell.id}>
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </TableCell>
                   ))}
                 </TableRow>
               ))
             ) : (
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-24 text-center">
-                  No results.
+                  Nessun risultato.
                 </TableCell>
               </TableRow>
             )}
           </TableBody>
         </Table>
+      </div>
+
+      <div className="flex items-center justify-end space-x-2 py-4">
+        <Select value={resultsPerPage.toString()} onValueChange={setResultsPerPage}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Risultati per pagina" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="50">50 per pagina</SelectItem>
+            <SelectItem value="100">100 per pagina</SelectItem>
+          </SelectContent>
+        </Select>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => table.previousPage()}
+          disabled={!table.getCanPreviousPage()}
+        >
+          Precedente
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => table.nextPage()}
+          disabled={!table.getCanNextPage()}
+        >
+          Successivo
+        </Button>
       </div>
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
@@ -531,38 +530,6 @@ export const ReviewsTable = ({
           </div>
         </DialogContent>
       </Dialog>
-
-      <div className="flex items-center justify-end space-x-2 py-4">
-        <Select value={resultsPerPage.toString()} onValueChange={setResultsPerPage}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Results per page" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="50">50 per page</SelectItem>
-            <SelectItem value="100">100 per page</SelectItem>
-          </SelectContent>
-        </Select>
-        <ButtonGroup>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-            className="bg-background text-foreground hover:bg-accent hover:text-accent-foreground"
-          >
-            Previous
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-            className="bg-background text-foreground hover:bg-accent hover:text-accent-foreground"
-          >
-            Next
-          </Button>
-        </ButtonGroup>
-      </div>
     </div>
   )
 }
