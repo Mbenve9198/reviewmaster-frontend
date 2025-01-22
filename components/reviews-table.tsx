@@ -363,7 +363,7 @@ export const ReviewsTable = ({
   console.log('Rendering reviews:', reviews?.length || 0)
 
   return (
-    <div className="w-full h-full flex flex-col">
+    <div className="w-full h-full flex flex-col max-w-[1400px]">
       <div className="flex justify-end mb-4">
         <Button 
           variant="outline" 
@@ -374,13 +374,13 @@ export const ReviewsTable = ({
           Refresh
         </Button>
       </div>
-      <div className="rounded-md border">
+      <div className="rounded-md border flex-1 overflow-auto">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id} className="bg-muted/50">
+                  <TableHead key={header.id} className="bg-muted/50 sticky top-0">
                     {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                   </TableHead>
                 ))}
