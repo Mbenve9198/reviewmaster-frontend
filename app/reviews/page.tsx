@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { HeroHighlight } from "@/components/ui/hero-highlight"
 import { Toaster } from "sonner"
 import { getCookie } from "@/lib/utils"
+import useReviews from "@/store/useReviews"
 
 interface Hotel {
   _id: string
@@ -16,37 +17,29 @@ interface Hotel {
 
 export default function ReviewsPage() {
   const [searchQuery, setSearchQuery] = useState("")
-  const [hotel, setHotel] = useState("all")
-  const [responseStatus, setResponseStatus] = useState("all")
-  const [platform, setPlatform] = useState("all")
-  const [resultsPerPage, setResultsPerPage] = useState("50")
-  const [ratingFilter, setRatingFilter] = useState("all")
   const [hotels, setHotels] = useState<Hotel[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const { setFilters } = useReviews()
 
   useEffect(() => {
     const fetchHotels = async () => {
       try {
-        const token = getCookie('token');
-        console.log('Fetching hotels with token:', token ? 'Token present' : 'No token');
-        
+        const token = getCookie('token')
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/hotels`, {
           headers: {
             'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-          credentials: 'include'
-        });
-
-        console.log('Hotels response status:', response.status);
+          }
+        })
         
-        if (!response.ok) {
-          throw new Error('Failed to fetch hotels');
-        }
+        if (!response.ok) throw new Error('Failed to fetch hotels')
+        
+        const data = await response.json()
+        setHotels(data)
 
-        const data = await response.json();
-        console.log('Hotels data:', data);
-        setHotels(data);
+        // If we have hotels, set the first one as selected
+        if (data.length > 0) {
+          setFilters({ hotelId: data[0]._id })
+        }
       } catch (error) {
         console.error('Error fetching hotels:', error)
       } finally {
@@ -56,6 +49,27 @@ export default function ReviewsPage() {
 
     fetchHotels()
   }, [])
+
+  const handleFilterChange = (type: string, value: string) => {
+    switch (type) {
+      case 'hotel':
+        setFilters({ hotelId: value })
+        break
+      case 'platform':
+        setFilters({ platform: value })
+        break
+      case 'responseStatus':
+        setFilters({ responseStatus: value })
+        break
+      case 'rating':
+        setFilters({ rating: value })
+        break
+      case 'search':
+        setSearchQuery(value)
+        setFilters({ searchQuery: value })
+        break
+    }
+  }
 
   if (isLoading) {
     return <div>Loading...</div>
@@ -70,23 +84,28 @@ export default function ReviewsPage() {
 
       <HeroHighlight containerClassName="flex-grow overflow-auto">
         <div className="mb-8 w-full overflow-x-auto">
-          <ReviewTabs value={responseStatus} onValueChange={setResponseStatus} />
+          <ReviewTabs 
+            value="all" 
+            onValueChange={(value) => handleFilterChange('responseStatus', value)} 
+          />
         </div>
 
         <div className="flex flex-wrap gap-4 mb-4">
           <Input
             placeholder="Search reviews..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => handleFilterChange('search', e.target.value)}
             className="w-[200px]"
           />
 
-          <Select value={hotel} onValueChange={setHotel}>
+          <Select 
+            defaultValue={hotels[0]?._id} 
+            onValueChange={(value) => handleFilterChange('hotel', value)}
+          >
             <SelectTrigger className="w-[200px]">
               <SelectValue placeholder="Select property" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Properties</SelectItem>
               {hotels.map((hotel) => (
                 <SelectItem key={hotel._id} value={hotel._id}>
                   {hotel.name}
@@ -95,7 +114,10 @@ export default function ReviewsPage() {
             </SelectContent>
           </Select>
 
-          <Select value={platform} onValueChange={setPlatform}>
+          <Select 
+            defaultValue="all" 
+            onValueChange={(value) => handleFilterChange('platform', value)}
+          >
             <SelectTrigger className="w-[200px]">
               <SelectValue placeholder="Select platform" />
             </SelectTrigger>
@@ -107,7 +129,10 @@ export default function ReviewsPage() {
             </SelectContent>
           </Select>
 
-          <Select value={ratingFilter} onValueChange={setRatingFilter}>
+          <Select 
+            defaultValue="all" 
+            onValueChange={(value) => handleFilterChange('rating', value)}
+          >
             <SelectTrigger className="w-[200px]">
               <SelectValue placeholder="Filter by rating" />
             </SelectTrigger>
@@ -122,19 +147,7 @@ export default function ReviewsPage() {
           </Select>
         </div>
 
-        <ReviewsTable
-          searchQuery={searchQuery}
-          responseStatus={responseStatus}
-          platform={platform}
-          ratingFilter={ratingFilter}
-          resultsPerPage={parseInt(resultsPerPage)}
-          setPlatform={setPlatform}
-          setRatingFilter={setRatingFilter}
-          setResultsPerPage={setResultsPerPage}
-          setSearchQuery={setSearchQuery}
-          property={hotel}
-          setProperty={setHotel}
-        />
+        <ReviewsTable />
       </HeroHighlight>
     </div>
   )
