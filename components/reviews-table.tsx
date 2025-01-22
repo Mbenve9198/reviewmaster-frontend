@@ -123,18 +123,19 @@ export const ReviewsTable = ({
       enableHiding: false,
     },
     {
+      id: "platform",
       accessorKey: "platform",
       header: "Platform",
       enableHiding: true,
       cell: ({ row }) => {
-        const platform = row.getValue("platform") as string
+        const platform = row.original.platform as Platform
         return (
           <div className="flex items-center justify-center">
             <Image
-              src={logoUrls[platform as Platform] || "/placeholder.svg"}
+              src={logoUrls[platform] || "/placeholder.svg"}
               alt={`${platform} logo`}
-              width={logoSizes[platform as Platform]?.width || 24}
-              height={logoSizes[platform as Platform]?.height || 24}
+              width={logoSizes[platform]?.width || 24}
+              height={logoSizes[platform]?.height || 24}
               className="object-contain"
             />
           </div>
@@ -143,12 +144,7 @@ export const ReviewsTable = ({
     },
     {
       id: "date",
-      accessorFn: (row: any) => {
-        const dateStr = row.metadata?.originalCreatedAt
-        if (!dateStr) return null
-        // Convertiamo la stringa ISO in timestamp per il sorting
-        return new Date(dateStr).getTime()
-      },
+      accessorKey: "metadata.originalCreatedAt",
       header: ({ column }) => {
         return (
           <Button
@@ -162,10 +158,10 @@ export const ReviewsTable = ({
         )
       },
       cell: ({ row }) => {
-        const timestamp = row.getValue("date") as number
-        if (!timestamp) return "No date"
+        const dateStr = row.original.metadata?.originalCreatedAt
+        if (!dateStr) return "No date"
         
-        const date = new Date(timestamp)
+        const date = new Date(dateStr)
         return <div className="hidden sm:block">
           {date.toLocaleDateString(undefined, {
             year: 'numeric',
@@ -177,7 +173,8 @@ export const ReviewsTable = ({
       enableHiding: true,
     },
     {
-      accessorKey: "content.rating",
+      id: "rating",
+      accessorFn: (row) => row.content?.rating,
       header: ({ column }) => {
         return (
           <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
@@ -187,8 +184,8 @@ export const ReviewsTable = ({
         )
       },
       cell: ({ row }) => {
-        const rating = row.getValue("content.rating")
-        const platform = row.getValue("platform") as string
+        const rating = row.original.content?.rating
+        const platform = row.original.platform
         if (!rating) return "No rating"
         const displayRating = platform === "booking" ? `${rating}/10` : `${rating}/5`
         return <div className="text-center">{displayRating}</div>
@@ -196,19 +193,22 @@ export const ReviewsTable = ({
       enableHiding: true,
     },
     {
-      accessorKey: "content.reviewerName",
+      id: "reviewer",
+      accessorFn: (row) => row.content?.reviewerName,
       header: "Reviewer",
       cell: ({ row }) => {
-        return <div className="hidden sm:block">{row.getValue("content.reviewerName")}</div>
+        const reviewerName = row.original.content?.reviewerName
+        return <div className="hidden sm:block">{reviewerName || "Anonymous"}</div>
       },
       enableHiding: true,
     },
     {
-      accessorKey: "content.text",
+      id: "review",
+      accessorFn: (row) => row.content?.text,
       header: "Review",
       enableHiding: true,
       cell: ({ row }) => {
-        const content = row.getValue("content.text") as string
+        const content = row.original.content?.text
         const [isExpanded, setIsExpanded] = useState(false)
         return (
           <div className="max-w-[200px] sm:max-w-md cursor-pointer" onClick={() => setIsExpanded(!isExpanded)}>
@@ -218,7 +218,8 @@ export const ReviewsTable = ({
       },
     },
     {
-      accessorKey: "response.text",
+      id: "response",
+      accessorFn: (row) => row.response?.text,
       header: "Generated Response",
       enableHiding: true,
       cell: ({ row }) => {
@@ -298,6 +299,8 @@ export const ReviewsTable = ({
 
   // Fetch reviews when filters change
   useEffect(() => {
+    if (property === 'all') return;
+    
     console.log('Current filters:', {
       searchQuery,
       responseStatus,
