@@ -48,6 +48,7 @@ const useReviews = create<ReviewsState>((set, get) => ({
     if (filters.hotelId === 'all') return // Don't fetch if no hotel is selected
 
     set({ loading: true, error: null })
+    console.log('Fetching reviews with filters:', filters)
     
     try {
       const token = getCookie('token')
@@ -58,21 +59,29 @@ const useReviews = create<ReviewsState>((set, get) => ({
       if (filters.rating !== 'all') queryParams.append('rating', filters.rating)
       if (filters.searchQuery) queryParams.append('search', filters.searchQuery)
 
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/reviews/hotel/${filters.hotelId}?${queryParams}`,
-        {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          }
-        }
-      )
+      const url = `${process.env.NEXT_PUBLIC_API_URL}/api/reviews/hotel/${filters.hotelId}?${queryParams}`
+      console.log('Fetching URL:', url)
 
-      if (!response.ok) throw new Error('Failed to fetch reviews')
+      const response = await fetch(url, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        }
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.message || 'Failed to fetch reviews')
+      }
       
       const data = await response.json()
+      console.log('Fetched reviews:', data)
       set({ reviews: data, loading: false })
     } catch (error) {
-      set({ error: error instanceof Error ? error.message : 'Failed to fetch reviews', loading: false })
+      console.error('Error fetching reviews:', error)
+      set({ 
+        error: error instanceof Error ? error.message : 'Failed to fetch reviews', 
+        loading: false 
+      })
     }
   },
 

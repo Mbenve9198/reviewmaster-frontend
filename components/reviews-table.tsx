@@ -88,7 +88,6 @@ export const ReviewsTable = ({
   setProperty,
   onRefresh,
 }: ReviewsTableProps) => {
-  // Zustand store
   const { reviews, loading, error, fetchReviews, setFilters, generateResponse } = useReviews()
 
   const [sorting, setSorting] = useState<SortingState>([])
@@ -290,6 +289,13 @@ export const ReviewsTable = ({
     },
   })
 
+  // Initial fetch when component mounts
+  useEffect(() => {
+    if (property !== 'all') {
+      fetchReviews()
+    }
+  }, []) // Solo al mount
+
   // Fetch reviews when filters change
   useEffect(() => {
     console.log('Current filters:', {
@@ -308,6 +314,10 @@ export const ReviewsTable = ({
       searchQuery
     });
   }, [searchQuery, responseStatus, platform, ratingFilter, property]);
+
+  useEffect(() => {
+    console.log('Reviews state:', { reviews, loading, error })
+  }, [reviews, loading, error])
 
   const handleGenerateResponse = async (review: Review) => {
     setSelectedReview(review)
@@ -369,12 +379,16 @@ export const ReviewsTable = ({
   }
 
   if (loading) {
+    console.log('Loading reviews...')
     return <div>Loading...</div>
   }
 
   if (error) {
+    console.error('Error loading reviews:', error)
     return <div>Error: {error}</div>
   }
+
+  console.log('Rendering reviews:', reviews?.length || 0)
 
   return (
     <div className="w-full">
