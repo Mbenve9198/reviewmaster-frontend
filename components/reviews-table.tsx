@@ -357,14 +357,17 @@ export const ReviewsTable = ({
   console.log('Rendering reviews:', reviews?.length || 0)
 
   return (
-    <div className="w-full flex flex-col px-4">
-      <div className="rounded-md border">
+    <div className="w-full flex flex-col min-h-[calc(100vh-16rem)]">
+      <div className="rounded-xl border flex-1 overflow-hidden">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
+              <TableRow key={headerGroup.id} className="border-b">
                 {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id} className="bg-muted/50">
+                  <TableHead 
+                    key={header.id} 
+                    className="bg-muted/50 sticky top-0 first:rounded-tl-xl last:rounded-tr-xl"
+                  >
                     {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                   </TableHead>
                 ))}
@@ -373,10 +376,21 @@ export const ReviewsTable = ({
           </TableHeader>
           <TableBody>
             {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+              table.getRowModel().rows.map((row, index) => (
+                <TableRow 
+                  key={row.id} 
+                  data-state={row.getIsSelected() && "selected"}
+                  className={index === table.getRowModel().rows.length - 1 ? "last-row" : ""}
+                >
+                  {row.getVisibleCells().map((cell, cellIndex) => (
+                    <TableCell 
+                      key={cell.id}
+                      className={`
+                        ${index === table.getRowModel().rows.length - 1 ? "last-row" : ""}
+                        ${cellIndex === 0 ? "first-cell" : ""}
+                        ${cellIndex === row.getVisibleCells().length - 1 ? "last-cell" : ""}
+                      `}
+                    >
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}
@@ -384,7 +398,10 @@ export const ReviewsTable = ({
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
+                <TableCell 
+                  colSpan={columns.length} 
+                  className="h-24 text-center rounded-b-xl"
+                >
                   Nessun risultato.
                 </TableCell>
               </TableRow>
@@ -394,6 +411,10 @@ export const ReviewsTable = ({
       </div>
 
       <div className="flex items-center justify-between space-x-2 py-4">
+        <div className="flex-1 text-sm text-muted-foreground">
+          {table.getFilteredRowModel().rows.length} results total
+        </div>
+        
         <div className="flex items-center space-x-2">
           <Button
             variant="outline"
@@ -413,22 +434,22 @@ export const ReviewsTable = ({
           >
             Next
           </Button>
+          
+          <Select 
+            value={resultsPerPage.toString()} 
+            onValueChange={onResultsPerPageChange}
+          >
+            <SelectTrigger className="h-9 w-[160px] rounded-full border-gray-200 focus:border-primary focus:ring-primary bg-white text-sm">
+              <SelectValue placeholder="Results per page" className="text-sm" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="10" className="text-sm">10 per page</SelectItem>
+              <SelectItem value="20" className="text-sm">20 per page</SelectItem>
+              <SelectItem value="50" className="text-sm">50 per page</SelectItem>
+              <SelectItem value="100" className="text-sm">100 per page</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
-
-        <Select 
-          value={resultsPerPage.toString()} 
-          onValueChange={onResultsPerPageChange}
-        >
-          <SelectTrigger className="h-9 w-[160px] rounded-full border-gray-200 focus:border-primary focus:ring-primary bg-white text-sm">
-            <SelectValue placeholder="Results per page" className="text-sm" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="10" className="text-sm">10 per page</SelectItem>
-            <SelectItem value="20" className="text-sm">20 per page</SelectItem>
-            <SelectItem value="50" className="text-sm">50 per page</SelectItem>
-            <SelectItem value="100" className="text-sm">100 per page</SelectItem>
-          </SelectContent>
-        </Select>
       </div>
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
@@ -527,3 +548,14 @@ export const ReviewsTable = ({
     </div>
   )
 }
+
+// Aggiungi questi stili globali nel tuo CSS
+const styles = `
+  .last-row .first-cell {
+    border-bottom-left-radius: 0.75rem;
+  }
+  
+  .last-row .last-cell {
+    border-bottom-right-radius: 0.75rem;
+  }
+`;

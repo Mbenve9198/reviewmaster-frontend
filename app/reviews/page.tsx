@@ -91,7 +91,7 @@ export default function ReviewsPage() {
   }
 
   return (
-    <div className="flex flex-col h-[calc(100vh-4rem)]">
+    <div className="flex flex-col h-[calc(100vh-4rem)] px-4">
       <Toaster position="top-right" />
       
       <div className="flex justify-between items-center mb-6">
