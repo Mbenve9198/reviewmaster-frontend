@@ -91,14 +91,14 @@ export default function ReviewsPage() {
   }
 
   return (
-    <div className="flex flex-col h-[calc(100vh-4rem)] px-4">
+    <div className="flex flex-col px-4">
       <Toaster position="top-right" />
       
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Reviews</h1>
       </div>
 
-      <div className="flex flex-col flex-1 overflow-hidden">
+      <div className="flex flex-col">
         <div className="bg-white p-4 rounded-xl shadow-sm border mb-4">
           <div className="flex items-center gap-3">
             <div className="relative w-[300px]">
@@ -182,7 +182,7 @@ export default function ReviewsPage() {
           </div>
         </div>
 
-        <div className="flex-1 min-h-0">
+        <div>
           <ReviewsTable
             searchQuery={searchQuery}
             responseStatus={responseStatus}

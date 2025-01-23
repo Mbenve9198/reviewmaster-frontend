@@ -187,8 +187,13 @@ export const ReviewsTable = ({
       cell: ({ row }) => {
         const content = row.original.content?.text
         return (
-          <div className="max-w-md truncate">
-            {content || "No content"}
+          <div className="w-[300px] group relative cursor-pointer">
+            <div className="truncate">
+              {content || "No content"}
+            </div>
+            <div className="invisible group-hover:visible absolute left-0 top-full mt-2 p-4 bg-white rounded-xl shadow-lg border z-10 w-[500px] break-words">
+              {content || "No content"}
+            </div>
           </div>
         )
       },
@@ -200,8 +205,13 @@ export const ReviewsTable = ({
       cell: ({ row }) => {
         const response = row.original.response?.text
         return (
-          <div className="max-w-md truncate">
-            {response || "No response generated"}
+          <div className="w-[300px] group relative cursor-pointer">
+            <div className="truncate">
+              {response || "No response generated"}
+            </div>
+            <div className="invisible group-hover:visible absolute left-0 top-full mt-2 p-4 bg-white rounded-xl shadow-lg border z-10 w-[500px] break-words">
+              {response || "No response generated"}
+            </div>
           </div>
         )
       },
