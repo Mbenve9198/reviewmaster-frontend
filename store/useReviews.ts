@@ -90,7 +90,14 @@ const useReviews = create<ReviewsState>((set, get) => ({
     set((state) => ({
       reviews: state.reviews.map(review => 
         review.hotelId === hotelId 
-          ? { ...review, response: { text: response } }
+          ? { 
+              ...review, 
+              response: { 
+                text: response,
+                createdAt: new Date(),
+                synced: false
+              } 
+            }
           : review
       )
     }))
