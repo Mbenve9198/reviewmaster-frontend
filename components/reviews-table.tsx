@@ -357,8 +357,8 @@ export const ReviewsTable = ({
   console.log('Rendering reviews:', reviews?.length || 0)
 
   return (
-    <div className="w-full flex flex-col min-h-[calc(100vh-16rem)]">
-      <div className="rounded-xl border flex-1 overflow-hidden">
+    <div className="w-full flex flex-col">
+      <div className="rounded-xl border overflow-auto">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -410,30 +410,33 @@ export const ReviewsTable = ({
         </Table>
       </div>
 
-      <div className="flex items-center justify-between space-x-2 py-4">
+      <div className="flex items-center justify-between py-4">
         <div className="flex-1 text-sm text-muted-foreground">
-          {table.getFilteredRowModel().rows.length} results total
+          Page {table.getState().pagination.pageIndex + 1} of{' '}
+          {table.getPageCount()} ({table.getFilteredRowModel().rows.length} results total)
         </div>
         
-        <div className="flex items-center space-x-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-            className="h-9 px-4 rounded-full"
-          >
-            Previous
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-            className="h-9 px-4 rounded-full"
-          >
-            Next
-          </Button>
+        <div className="flex items-center space-x-6">
+          <div className="flex items-center space-x-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => table.previousPage()}
+              disabled={!table.getCanPreviousPage()}
+              className="h-9 px-4 rounded-full"
+            >
+              Previous
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => table.nextPage()}
+              disabled={!table.getCanNextPage()}
+              className="h-9 px-4 rounded-full"
+            >
+              Next
+            </Button>
+          </div>
           
           <Select 
             value={resultsPerPage.toString()} 
