@@ -161,17 +161,22 @@ export const ReviewsTable = ({
       accessorFn: (row) => row.content?.rating,
       header: ({ column }) => {
         return (
-          <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
-            Rating
-            <ArrowUpDown className="ml-2 h-4 w-4" />
-          </Button>
+          <div className="flex items-center justify-start">
+            <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
+              Rating
+              <ArrowUpDown className="ml-2 h-4 w-4" />
+            </Button>
+          </div>
         )
       },
       cell: ({ row }) => {
         const rating = row.original.content?.rating
         const platform = row.original.platform
-        if (!rating) return "No rating"
-        return platform === "booking" ? `${rating}/10` : `${rating}/5`
+        return (
+          <div className="flex items-center justify-start">
+            {platform === "booking" ? `${rating}/10` : `${rating}/5`}
+          </div>
+        )
       },
     },
     {
@@ -221,24 +226,26 @@ export const ReviewsTable = ({
       header: "",
       cell: ({ row }) => {
         return (
-          <ButtonGroup>
-            <Button
-              variant="default"
-              size="sm"
-              onClick={() => handleGenerateResponse(row.original)}
-              className="rounded-xl flex items-center gap-2 shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all"
-            >
-              <MessageSquare className="h-4 w-4" />
-              Generate
-            </Button>
-            <Button
-              variant="default"
-              size="sm"
-              className="rounded-xl px-2 shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all"
-            >
-              <ChevronDown className="h-4 w-4" />
-            </Button>
-          </ButtonGroup>
+          <div className="flex justify-start pl-2">
+            <ButtonGroup>
+              <Button
+                variant="default"
+                size="sm"
+                onClick={() => handleGenerateResponse(row.original)}
+                className="rounded-xl flex items-center gap-2 shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all"
+              >
+                <MessageSquare className="h-4 w-4" />
+                Generate
+              </Button>
+              <Button
+                variant="default"
+                size="sm"
+                className="rounded-xl px-2 shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all"
+              >
+                <ChevronDown className="h-4 w-4" />
+              </Button>
+            </ButtonGroup>
+          </div>
         )
       },
     },
