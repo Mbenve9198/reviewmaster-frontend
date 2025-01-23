@@ -106,7 +106,7 @@ export default function ReviewsPage() {
                 placeholder="Search reviews..."
                 value={searchQuery}
                 onChange={(e) => handleFilterChange('search', e.target.value)}
-                className="pl-4 pr-10 h-9 rounded-full border-gray-200 focus:border-primary focus:ring-primary"
+                className="pl-4 pr-10 h-9 rounded-full border-gray-200 focus:border-primary focus:ring-primary text-sm"
               />
               <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
             </div>
@@ -115,12 +115,12 @@ export default function ReviewsPage() {
               value={hotel}
               onValueChange={(value) => handleFilterChange('hotel', value)}
             >
-              <SelectTrigger className="h-9 w-[160px] rounded-lg border-gray-200 focus:border-primary focus:ring-primary bg-white">
-                <SelectValue placeholder="Property" />
+              <SelectTrigger className="h-9 w-[160px] rounded-full border-gray-200 focus:border-primary focus:ring-primary bg-white text-sm">
+                <SelectValue placeholder="Property" className="text-sm" />
               </SelectTrigger>
               <SelectContent>
                 {hotels.map((h) => (
-                  <SelectItem key={h._id} value={h._id}>
+                  <SelectItem key={h._id} value={h._id} className="text-sm">
                     {h.name}
                   </SelectItem>
                 ))}
@@ -131,14 +131,14 @@ export default function ReviewsPage() {
               value={platform}
               onValueChange={(value) => handleFilterChange('platform', value)}
             >
-              <SelectTrigger className="h-9 w-[160px] rounded-lg border-gray-200 focus:border-primary focus:ring-primary bg-white">
-                <SelectValue placeholder="Platform" />
+              <SelectTrigger className="h-9 w-[160px] rounded-full border-gray-200 focus:border-primary focus:ring-primary bg-white text-sm">
+                <SelectValue placeholder="Platform" className="text-sm" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Platforms</SelectItem>
-                <SelectItem value="google">Google</SelectItem>
-                <SelectItem value="booking">Booking.com</SelectItem>
-                <SelectItem value="tripadvisor">TripAdvisor</SelectItem>
+                <SelectItem value="all" className="text-sm">All Platforms</SelectItem>
+                <SelectItem value="google" className="text-sm">Google</SelectItem>
+                <SelectItem value="booking" className="text-sm">Booking.com</SelectItem>
+                <SelectItem value="tripadvisor" className="text-sm">TripAdvisor</SelectItem>
               </SelectContent>
             </Select>
 
@@ -146,23 +146,23 @@ export default function ReviewsPage() {
               value={ratingFilter}
               onValueChange={(value) => handleFilterChange('rating', value)}
             >
-              <SelectTrigger className="h-9 w-[160px] rounded-lg border-gray-200 focus:border-primary focus:ring-primary bg-white">
-                <SelectValue placeholder="Rating" />
+              <SelectTrigger className="h-9 w-[160px] rounded-full border-gray-200 focus:border-primary focus:ring-primary bg-white text-sm">
+                <SelectValue placeholder="Rating" className="text-sm" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Ratings</SelectItem>
-                <SelectItem value="5">5 Stars & Up</SelectItem>
-                <SelectItem value="4">4 Stars & Up</SelectItem>
-                <SelectItem value="3">3 Stars & Up</SelectItem>
-                <SelectItem value="2">2 Stars & Up</SelectItem>
-                <SelectItem value="1">1 Star & Up</SelectItem>
+                <SelectItem value="all" className="text-sm">All Ratings</SelectItem>
+                <SelectItem value="5" className="text-sm">5 Stars & Up</SelectItem>
+                <SelectItem value="4" className="text-sm">4 Stars & Up</SelectItem>
+                <SelectItem value="3" className="text-sm">3 Stars & Up</SelectItem>
+                <SelectItem value="2" className="text-sm">2 Stars & Up</SelectItem>
+                <SelectItem value="1" className="text-sm">1 Star & Up</SelectItem>
               </SelectContent>
             </Select>
 
             <Button
               variant="outline"
               size="sm"
-              className="h-9 px-3 rounded-lg border-gray-200 hover:bg-gray-50 ml-auto"
+              className="h-9 px-3 rounded-full border-gray-200 hover:bg-gray-50 ml-auto text-sm"
               onClick={() => {
                 setSearchQuery("")
                 setHotel("all")
