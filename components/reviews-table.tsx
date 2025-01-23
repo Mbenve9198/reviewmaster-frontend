@@ -115,12 +115,14 @@ export const ReviewsTable = ({
       ),
       enableSorting: false,
       enableHiding: false,
+      size: 0.1,
     },
     {
       id: "platform",
       accessorKey: "platform",
       header: "Platform",
       enableHiding: false,
+      size: 0.2,
       cell: ({ row }) => {
         const platform = row.original.platform as Platform
         return (
@@ -150,6 +152,7 @@ export const ReviewsTable = ({
           </Button>
         )
       },
+      size: 0.3,
       cell: ({ row }) => {
         const dateStr = row.original.metadata?.originalCreatedAt
         if (!dateStr) return "No date"
@@ -159,6 +162,7 @@ export const ReviewsTable = ({
     {
       id: "rating",
       accessorFn: (row) => row.content?.rating,
+      size: 0.2,
       header: ({ column }) => {
         return (
           <Button
@@ -185,16 +189,18 @@ export const ReviewsTable = ({
       id: "reviewer",
       accessorFn: (row) => row.content?.reviewerName,
       header: "Reviewer",
+      size: 0.4,
       cell: ({ row }) => row.original.content?.reviewerName || "Anonymous",
     },
     {
       id: "review",
       accessorFn: (row) => row.content?.text,
       header: "Review",
+      size: 1,
       cell: ({ row }) => {
         const content = row.original.content?.text
         return (
-          <div className="w-[300px] group relative cursor-pointer">
+          <div className="w-[250px] group relative cursor-pointer">
             <div className="truncate">
               {content || "No content"}
             </div>
@@ -209,10 +215,11 @@ export const ReviewsTable = ({
       id: "response",
       accessorFn: (row) => row.response?.text,
       header: "Generated Response",
+      size: 1,
       cell: ({ row }) => {
         const response = row.original.response?.text
         return (
-          <div className="w-[300px] group relative cursor-pointer">
+          <div className="w-[250px] group relative cursor-pointer">
             <div className="truncate">
               {response || "No response generated"}
             </div>
@@ -226,7 +233,7 @@ export const ReviewsTable = ({
     {
       id: "actions",
       header: "",
-      size: 0.1,
+      size: 0.3,
       cell: ({ row }) => {
         return (
           <div className="flex justify-start -ml-4">
@@ -235,7 +242,7 @@ export const ReviewsTable = ({
                 variant="default"
                 size="sm"
                 onClick={() => handleGenerateResponse(row.original)}
-                className="rounded-xl flex items-center gap-2 shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all"
+                className="rounded-xl flex items-center gap-2 shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all whitespace-nowrap"
               >
                 <MessageSquare className="h-4 w-4" />
                 Generate
