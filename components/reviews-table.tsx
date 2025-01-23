@@ -21,6 +21,7 @@ import {
   MessageSquare,
   Settings,
   Search,
+  X,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -35,7 +36,7 @@ import {
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import Image from "next/image"
 import { ButtonGroup } from "@/components/ui/button-group"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from "@/components/ui/dialog"
 import { ChatMessageList } from "@/components/ui/chat-message-list"
 import { ChatBubble, ChatBubbleAvatar, ChatBubbleMessage } from "@/components/ui/chat-bubble"
 import { ChatInput } from "@/components/ui/chat-input"
@@ -498,24 +499,34 @@ export const ReviewsTable = ({
       </div>
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="sm:max-w-[500px] w-[95vw] max-h-[90vh] p-0 bg-white">
+        <DialogContent className="sm:max-w-[500px] w-[95vw] max-h-[90vh] p-0 bg-white rounded-2xl border shadow-lg">
           <div className="h-full max-h-[90vh] flex flex-col">
-            <DialogHeader className="px-4 py-2 border-b bg-white">
-              <DialogTitle>Generated Response</DialogTitle>
+            <DialogHeader className="px-6 py-4 border-b bg-gray-50/80 rounded-t-2xl relative">
+              <DialogTitle className="text-lg font-semibold pr-6">Generated Response</DialogTitle>
+              <DialogClose className="absolute right-4 top-1/2 -translate-y-1/2 rounded-lg opacity-70 ring-offset-white transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
+                <X className="h-4 w-4" />
+                <span className="sr-only">Close</span>
+              </DialogClose>
             </DialogHeader>
-            <div className="flex-1 overflow-hidden p-4 bg-white">
+            
+            <div className="flex-1 overflow-hidden bg-white px-6">
               <ChatMessageList>
                 {messages.map((message) => (
-                  <ChatBubble key={message.id} variant={message.sender === "user" ? "sent" : "received"}>
+                  <ChatBubble 
+                    key={message.id} 
+                    variant={message.sender === "user" ? "sent" : "received"}
+                    className="rounded-2xl shadow-sm"
+                  >
                     <ChatBubbleAvatar
-                      className="h-8 w-8 shrink-0"
-                      src={
-                        message.sender === "user" ? "https://github.com/shadcn.png" : "https://github.com/vercel.png"
-                      }
+                      className="h-8 w-8 shrink-0 rounded-full border-2 border-white shadow-sm"
+                      src={message.sender === "user" ? "https://github.com/shadcn.png" : "https://github.com/vercel.png"}
                       fallback={message.sender === "user" ? "US" : "AI"}
                     />
                     <div className="flex flex-col">
-                      <ChatBubbleMessage variant={message.sender === "user" ? "sent" : "received"}>
+                      <ChatBubbleMessage 
+                        variant={message.sender === "user" ? "sent" : "received"}
+                        className="rounded-2xl"
+                      >
                         {message.content}
                       </ChatBubbleMessage>
                       {message.sender === "ai" && (
@@ -526,9 +537,9 @@ export const ReviewsTable = ({
                             navigator.clipboard.writeText(message.content)
                             toast.success("Response copied to clipboard")
                           }}
-                          className="self-end mt-1 shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all"
+                          className="self-end mt-1 rounded-full flex items-center gap-2 shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all"
                         >
-                          <Copy className="h-4 w-4 mr-2" />
+                          <Copy className="h-4 w-4" />
                           Copy
                         </Button>
                       )}
@@ -537,41 +548,47 @@ export const ReviewsTable = ({
                 ))}
 
                 {isGenerating && (
-                  <ChatBubble variant="received">
-                    <ChatBubbleAvatar className="h-8 w-8 shrink-0" src="https://github.com/vercel.png" fallback="AI" />
-                    <ChatBubbleMessage isLoading />
+                  <ChatBubble variant="received" className="rounded-2xl shadow-sm">
+                    <ChatBubbleAvatar 
+                      className="h-8 w-8 shrink-0 rounded-full border-2 border-white shadow-sm" 
+                      src="https://github.com/vercel.png" 
+                      fallback="AI" 
+                    />
+                    <ChatBubbleMessage isLoading className="rounded-2xl" />
                   </ChatBubble>
                 )}
               </ChatMessageList>
             </div>
-            <div className="border-t p-4 space-y-4 bg-white">
-              <div className="flex items-center justify-between">
+
+            <div className="border-t p-6 space-y-4 bg-gray-50/80">
+              <div className="flex items-center justify-between gap-4">
                 <Label htmlFor="responseLength" className="text-sm font-medium">Response Length</Label>
                 <Select value={responseLength} onValueChange={setResponseLength}>
-                  <SelectTrigger className="w-[180px] h-9 rounded-full border-gray-200 focus:border-primary focus:ring-primary bg-white text-sm">
+                  <SelectTrigger className="w-[180px] h-9 rounded-xl border-gray-200 focus:border-primary focus:ring-primary bg-white text-sm">
                     <SelectValue placeholder="Select length" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="rounded-xl">
                     <SelectItem value="short" className="text-sm">Short</SelectItem>
                     <SelectItem value="medium" className="text-sm">Medium</SelectItem>
                     <SelectItem value="long" className="text-sm">Long</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between gap-4">
                 <Label htmlFor="responseTone" className="text-sm font-medium">Response Tone</Label>
                 <Select value={responseTone} onValueChange={setResponseTone}>
-                  <SelectTrigger className="w-[180px] h-9 rounded-full border-gray-200 focus:border-primary focus:ring-primary bg-white text-sm">
+                  <SelectTrigger className="w-[180px] h-9 rounded-xl border-gray-200 focus:border-primary focus:ring-primary bg-white text-sm">
                     <SelectValue placeholder="Select tone" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="rounded-xl">
                     <SelectItem value="friendly" className="text-sm">Friendly</SelectItem>
                     <SelectItem value="professional" className="text-sm">Professional</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
-            <div className="border-t p-4 bg-white">
+
+            <div className="border-t px-6 py-4 bg-white rounded-b-2xl">
               <form
                 onSubmit={handleSubmit}
                 className="relative flex items-center"
@@ -581,12 +598,12 @@ export const ReviewsTable = ({
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     placeholder="Type your message..."
-                    className="w-full min-h-12 resize-none rounded-full bg-white border p-3 pr-14 shadow-none focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary"
+                    className="w-full min-h-12 resize-none rounded-xl bg-gray-50/80 border-gray-200 p-3 pr-14 shadow-none focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary"
                   />
                   <Button 
                     type="submit" 
                     size="sm" 
-                    className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[calc(-50%+2px)] transition-all"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 rounded-xl shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[calc(-50%+2px)] transition-all"
                   >
                     <CornerDownLeft className="h-4 w-4" />
                   </Button>
