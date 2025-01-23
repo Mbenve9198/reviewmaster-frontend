@@ -499,15 +499,11 @@ export const ReviewsTable = ({
         </div>
       </div>
 
-      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen} hideCloseButton>
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="sm:max-w-[500px] w-[95vw] max-h-[90vh] p-0 bg-white rounded-2xl border shadow-lg">
           <div className="h-full max-h-[90vh] flex flex-col">
-            <DialogHeader className="px-6 py-4 border-b bg-gray-50/80 rounded-t-2xl relative">
+            <DialogHeader className="px-6 py-4 border-b bg-gray-50/80 rounded-t-2xl">
               <DialogTitle className="text-lg font-semibold">Generated Response</DialogTitle>
-              <DialogClose className="absolute right-4 top-1/2 -translate-y-1/2 rounded-lg opacity-70 ring-offset-white transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
-                <X className="h-4 w-4" />
-                <span className="sr-only">Close</span>
-              </DialogClose>
             </DialogHeader>
             
             <div className="flex-1 overflow-y-auto bg-white px-6">
