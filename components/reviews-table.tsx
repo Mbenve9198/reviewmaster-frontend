@@ -20,6 +20,7 @@ import {
   CornerDownLeft,
   MessageSquare,
   Settings,
+  Search,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -40,6 +41,7 @@ import { ChatBubble, ChatBubbleAvatar, ChatBubbleMessage } from "@/components/ui
 import { ChatInput } from "@/components/ui/chat-input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
+import { Input } from "@/components/ui/input"
 
 import useReviews from "@/store/useReviews"
 import { type Review } from "@/types/types"
@@ -222,7 +224,7 @@ export const ReviewsTable = ({
               variant="default"
               size="sm"
               onClick={() => handleGenerateResponse(row.original)}
-              className="flex items-center gap-2 shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all"
+              className="rounded-xl flex items-center gap-2 shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all"
             >
               <MessageSquare className="h-4 w-4" />
               Generate
@@ -230,7 +232,7 @@ export const ReviewsTable = ({
             <Button
               variant="default"
               size="sm"
-              className="px-2 shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all"
+              className="rounded-xl px-2 shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all"
             >
               <ChevronDown className="h-4 w-4" />
             </Button>
@@ -364,16 +366,44 @@ export const ReviewsTable = ({
 
   return (
     <div className="w-full h-full flex flex-col max-w-[1400px]">
-      <div className="flex justify-end mb-4">
-        <Button 
-          variant="default"
-          size="sm" 
-          onClick={handleRefresh}
-          className="shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all"
-        >
-          Refresh
-        </Button>
+      <div className="flex flex-wrap items-center gap-2 mb-4">
+        <div className="relative flex-grow max-w-sm">
+          <Input
+            placeholder="Cerca recensioni..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-10 h-9 rounded-xl border-gray-200 focus:border-primary focus:ring-primary"
+          />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+        </div>
+        
+        <Select value={platform} onValueChange={setPlatform}>
+          <SelectTrigger className="w-[130px] h-9 rounded-xl text-sm">
+            <SelectValue placeholder="Piattaforma" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Tutte</SelectItem>
+            <SelectItem value="google">Google</SelectItem>
+            <SelectItem value="booking">Booking</SelectItem>
+            <SelectItem value="tripadvisor">TripAdvisor</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <Select value={ratingFilter} onValueChange={setRatingFilter}>
+          <SelectTrigger className="w-[100px] h-9 rounded-xl text-sm">
+            <SelectValue placeholder="Rating" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Tutti</SelectItem>
+            <SelectItem value="5">5 stelle</SelectItem>
+            <SelectItem value="4">4 stelle</SelectItem>
+            <SelectItem value="3">3 stelle</SelectItem>
+            <SelectItem value="2">2 stelle</SelectItem>
+            <SelectItem value="1">1 stella</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
+
       <div className="rounded-md border flex-1 overflow-auto">
         <Table>
           <TableHeader>
@@ -424,7 +454,7 @@ export const ReviewsTable = ({
           size="sm"
           onClick={() => table.previousPage()}
           disabled={!table.getCanPreviousPage()}
-          className="shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all"
+          className="rounded-xl shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all"
         >
           Precedente
         </Button>
@@ -433,7 +463,7 @@ export const ReviewsTable = ({
           size="sm"
           onClick={() => table.nextPage()}
           disabled={!table.getCanNextPage()}
-          className="shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all"
+          className="rounded-xl shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all"
         >
           Successivo
         </Button>
