@@ -198,7 +198,7 @@ export const ReviewsTable = ({
             <div className="truncate">
               {content || "No content"}
             </div>
-            <div className="invisible group-hover:visible absolute left-0 top-full mt-2 p-4 bg-white rounded-xl shadow-lg border z-10 w-[500px] break-words">
+            <div className="invisible group-hover:visible absolute left-0 top-full mt-2 p-4 bg-white rounded-xl shadow-lg border z-10 max-w-[500px] min-w-[300px] break-words">
               {content || "No content"}
             </div>
           </div>
@@ -212,11 +212,11 @@ export const ReviewsTable = ({
       cell: ({ row }) => {
         const response = row.original.response?.text
         return (
-          <div className="w-[300px] group relative cursor-pointer pr-2">
+          <div className="w-[300px] group relative cursor-pointer">
             <div className="truncate">
               {response || "No response generated"}
             </div>
-            <div className="invisible group-hover:visible absolute left-0 top-full mt-2 p-4 bg-white rounded-xl shadow-lg border z-10 w-[500px] break-words">
+            <div className="invisible group-hover:visible absolute left-0 top-full mt-2 p-4 bg-white rounded-xl shadow-lg border z-10 max-w-[500px] min-w-[300px] break-words">
               {response || "No response generated"}
             </div>
           </div>
@@ -226,10 +226,10 @@ export const ReviewsTable = ({
     {
       id: "actions",
       header: "",
-      size: 1,
+      size: 0.1,
       cell: ({ row }) => {
         return (
-          <div className="flex justify-start -ml-2">
+          <div className="flex justify-start -ml-4">
             <ButtonGroup>
               <Button
                 variant="default"
