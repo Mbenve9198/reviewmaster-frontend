@@ -499,7 +499,7 @@ export const ReviewsTable = ({
       </div>
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="sm:max-w-[500px] w-[95vw] max-h-[90vh] p-0 bg-white rounded-2xl border shadow-lg" closeButton={false}>
+        <DialogContent className="sm:max-w-[500px] w-[95vw] max-h-[90vh] p-0 bg-white rounded-2xl border shadow-lg">
           <div className="h-full max-h-[90vh] flex flex-col">
             <DialogHeader className="px-6 py-4 border-b bg-gray-50/80 rounded-t-2xl relative">
               <DialogTitle className="text-lg font-semibold pr-6">Generated Response</DialogTitle>
