@@ -574,21 +574,23 @@ export const ReviewsTable = ({
             <div className="border-t p-4 bg-white">
               <form
                 onSubmit={handleSubmit}
-                className="relative rounded-full border bg-white focus-within:ring-1 focus-within:ring-primary"
+                className="relative flex items-center"
               >
-                <ChatInput
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  placeholder="Type your message..."
-                  className="min-h-12 resize-none rounded-full bg-white border-0 p-3 pr-12 shadow-none focus-visible:ring-0"
-                />
-                <Button 
-                  type="submit" 
-                  size="sm" 
-                  className="absolute bottom-1.5 right-1.5 rounded-full shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all"
-                >
-                  <CornerDownLeft className="h-4 w-4" />
-                </Button>
+                <div className="relative flex-1">
+                  <ChatInput
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    placeholder="Type your message..."
+                    className="w-full min-h-12 resize-none rounded-full bg-white border p-3 pr-14 shadow-none focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary"
+                  />
+                  <Button 
+                    type="submit" 
+                    size="sm" 
+                    className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[calc(-50%+2px)] transition-all"
+                  >
+                    <CornerDownLeft className="h-4 w-4" />
+                  </Button>
+                </div>
               </form>
             </div>
           </div>

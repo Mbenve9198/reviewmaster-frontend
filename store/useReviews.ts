@@ -15,6 +15,7 @@ interface ReviewsState {
   }
   setFilters: (filters: Partial<ReviewsState['filters']>) => void
   fetchReviews: () => Promise<void>
+  updateReviewResponse: (hotelId: string, response: string) => void
   generateResponse: (hotelId: string, reviewText: string, settings: ResponseSettings) => Promise<string>
 }
 
@@ -85,6 +86,16 @@ const useReviews = create<ReviewsState>((set, get) => ({
     }
   },
 
+  updateReviewResponse: (hotelId: string, response: string) => {
+    set((state) => ({
+      reviews: state.reviews.map(review => 
+        review.hotelId === hotelId 
+          ? { ...review, response: { text: response } }
+          : review
+      )
+    }))
+  },
+
   generateResponse: async (hotelId: string, reviewText: string, settings: ResponseSettings) => {
     const token = getCookie('token')
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reviews/generate`, {
@@ -107,8 +118,8 @@ const useReviews = create<ReviewsState>((set, get) => ({
 
     const data = await response.json()
     
-    // Refresh reviews after generating response
-    get().fetchReviews()
+    // Aggiorna solo la risposta specifica invece di ricaricare tutto
+    get().updateReviewResponse(hotelId, data.response)
     
     return data.response
   }
