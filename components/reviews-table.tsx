@@ -372,57 +372,55 @@ export const ReviewsTable = ({
   return (
     <div className="w-full flex flex-col">
       <div className="rounded-xl border">
-        <div className="max-h-[calc(100vh-20rem)] overflow-auto">
-          <Table>
-            <TableHeader>
-              {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id} className="border-b">
-                  {headerGroup.headers.map((header) => (
-                    <TableHead 
-                      key={header.id} 
-                      className="bg-muted/50 sticky top-0 first:rounded-tl-xl last:rounded-tr-xl"
+        <Table>
+          <TableHeader>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id} className="border-b">
+                {headerGroup.headers.map((header) => (
+                  <TableHead 
+                    key={header.id} 
+                    className="bg-muted/50 first:rounded-tl-xl last:rounded-tr-xl"
+                  >
+                    {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+                  </TableHead>
+                ))}
+              </TableRow>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {table.getRowModel().rows?.length ? (
+              table.getRowModel().rows.map((row, index) => (
+                <TableRow 
+                  key={row.id} 
+                  data-state={row.getIsSelected() && "selected"}
+                  className={index === table.getRowModel().rows.length - 1 ? "last-row" : ""}
+                >
+                  {row.getVisibleCells().map((cell, cellIndex) => (
+                    <TableCell 
+                      key={cell.id}
+                      className={`
+                        ${index === table.getRowModel().rows.length - 1 ? "last-row" : ""}
+                        ${cellIndex === 0 ? "first-cell" : ""}
+                        ${cellIndex === row.getVisibleCells().length - 1 ? "last-cell" : ""}
+                      `}
                     >
-                      {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
-                    </TableHead>
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </TableCell>
                   ))}
                 </TableRow>
-              ))}
-            </TableHeader>
-            <TableBody>
-              {table.getRowModel().rows?.length ? (
-                table.getRowModel().rows.map((row, index) => (
-                  <TableRow 
-                    key={row.id} 
-                    data-state={row.getIsSelected() && "selected"}
-                    className={index === table.getRowModel().rows.length - 1 ? "last-row" : ""}
-                  >
-                    {row.getVisibleCells().map((cell, cellIndex) => (
-                      <TableCell 
-                        key={cell.id}
-                        className={`
-                          ${index === table.getRowModel().rows.length - 1 ? "last-row" : ""}
-                          ${cellIndex === 0 ? "first-cell" : ""}
-                          ${cellIndex === row.getVisibleCells().length - 1 ? "last-cell" : ""}
-                        `}
-                      >
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell 
-                    colSpan={columns.length} 
-                    className="h-24 text-center rounded-b-xl"
-                  >
-                    Nessun risultato.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </div>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell 
+                  colSpan={columns.length} 
+                  className="h-24 text-center rounded-b-xl"
+                >
+                  Nessun risultato.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
       </div>
 
       <div className="flex items-center justify-between py-4">
