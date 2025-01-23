@@ -161,19 +161,21 @@ export const ReviewsTable = ({
       accessorFn: (row) => row.content?.rating,
       header: ({ column }) => {
         return (
-          <div className="flex items-center justify-start">
-            <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
-              Rating
-              <ArrowUpDown className="ml-2 h-4 w-4" />
-            </Button>
-          </div>
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            className="w-full flex items-center justify-center"
+          >
+            Rating
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          </Button>
         )
       },
       cell: ({ row }) => {
         const rating = row.original.content?.rating
         const platform = row.original.platform
         return (
-          <div className="flex items-center justify-start">
+          <div className="text-center">
             {platform === "booking" ? `${rating}/10` : `${rating}/5`}
           </div>
         )
@@ -210,7 +212,7 @@ export const ReviewsTable = ({
       cell: ({ row }) => {
         const response = row.original.response?.text
         return (
-          <div className="w-[300px] group relative cursor-pointer">
+          <div className="w-[300px] group relative cursor-pointer pr-2">
             <div className="truncate">
               {response || "No response generated"}
             </div>
@@ -224,9 +226,10 @@ export const ReviewsTable = ({
     {
       id: "actions",
       header: "",
+      size: 1,
       cell: ({ row }) => {
         return (
-          <div className="flex justify-start pl-2">
+          <div className="flex justify-start -ml-2">
             <ButtonGroup>
               <Button
                 variant="default"
@@ -396,7 +399,7 @@ export const ReviewsTable = ({
                 {headerGroup.headers.map((header) => (
                   <TableHead 
                     key={header.id} 
-                    className="bg-muted/50 first:rounded-tl-xl last:rounded-tr-xl"
+                    className="bg-gray-50 first:rounded-tl-xl last:rounded-tr-xl"
                   >
                     {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                   </TableHead>
