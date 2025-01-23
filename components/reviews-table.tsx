@@ -499,7 +499,7 @@ export const ReviewsTable = ({
       </div>
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="sm:max-w-[500px] w-[95vw] max-h-[90vh] p-0 bg-white rounded-2xl border shadow-lg">
+        <DialogContent className="sm:max-w-[500px] w-[95vw] max-h-[90vh] p-0 bg-white rounded-2xl border shadow-lg" closeButton={false}>
           <div className="h-full max-h-[90vh] flex flex-col">
             <DialogHeader className="px-6 py-4 border-b bg-gray-50/80 rounded-t-2xl relative">
               <DialogTitle className="text-lg font-semibold pr-6">Generated Response</DialogTitle>
@@ -509,82 +509,56 @@ export const ReviewsTable = ({
               </DialogClose>
             </DialogHeader>
             
-            <div className="flex-1 overflow-hidden bg-white px-6">
-              <ChatMessageList>
-                {messages.map((message) => (
-                  <ChatBubble 
-                    key={message.id} 
-                    variant={message.sender === "user" ? "sent" : "received"}
-                    className="rounded-2xl shadow-sm"
-                  >
-                    <ChatBubbleAvatar
-                      className="h-8 w-8 shrink-0 rounded-full border-2 border-white shadow-sm"
-                      src={message.sender === "user" ? "https://github.com/shadcn.png" : "https://github.com/vercel.png"}
-                      fallback={message.sender === "user" ? "US" : "AI"}
-                    />
-                    <div className="flex flex-col">
-                      <ChatBubbleMessage 
-                        variant={message.sender === "user" ? "sent" : "received"}
-                        className="rounded-2xl"
-                      >
-                        {message.content}
-                      </ChatBubbleMessage>
-                      {message.sender === "ai" && (
-                        <Button
-                          variant="default"
-                          size="sm"
-                          onClick={() => {
-                            navigator.clipboard.writeText(message.content)
-                            toast.success("Response copied to clipboard")
-                          }}
-                          className="self-end mt-1 rounded-full flex items-center gap-2 shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all"
+            <div className="flex-1 overflow-y-auto bg-white px-6">
+              <div className="py-6">
+                <ChatMessageList>
+                  {messages.map((message) => (
+                    <ChatBubble 
+                      key={message.id} 
+                      variant={message.sender === "user" ? "sent" : "received"}
+                      className="rounded-2xl shadow-sm"
+                    >
+                      <ChatBubbleAvatar
+                        className="h-8 w-8 shrink-0 rounded-full border-2 border-white shadow-sm"
+                        src={message.sender === "user" ? "https://github.com/shadcn.png" : "https://github.com/vercel.png"}
+                        fallback={message.sender === "user" ? "US" : "AI"}
+                      />
+                      <div className="flex flex-col">
+                        <ChatBubbleMessage 
+                          variant={message.sender === "user" ? "sent" : "received"}
+                          className="rounded-2xl"
                         >
-                          <Copy className="h-4 w-4" />
-                          Copy
-                        </Button>
-                      )}
-                    </div>
-                  </ChatBubble>
-                ))}
+                          {message.content}
+                        </ChatBubbleMessage>
+                        {message.sender === "ai" && (
+                          <Button
+                            variant="default"
+                            size="sm"
+                            onClick={() => {
+                              navigator.clipboard.writeText(message.content)
+                              toast.success("Response copied to clipboard")
+                            }}
+                            className="self-end mt-1 rounded-full flex items-center gap-2 shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all"
+                          >
+                            <Copy className="h-4 w-4" />
+                            Copy
+                          </Button>
+                        )}
+                      </div>
+                    </ChatBubble>
+                  ))}
 
-                {isGenerating && (
-                  <ChatBubble variant="received" className="rounded-2xl shadow-sm">
-                    <ChatBubbleAvatar 
-                      className="h-8 w-8 shrink-0 rounded-full border-2 border-white shadow-sm" 
-                      src="https://github.com/vercel.png" 
-                      fallback="AI" 
-                    />
-                    <ChatBubbleMessage isLoading className="rounded-2xl" />
-                  </ChatBubble>
-                )}
-              </ChatMessageList>
-            </div>
-
-            <div className="border-t p-6 space-y-4 bg-gray-50/80">
-              <div className="flex items-center justify-between gap-4">
-                <Label htmlFor="responseLength" className="text-sm font-medium">Response Length</Label>
-                <Select value={responseLength} onValueChange={setResponseLength}>
-                  <SelectTrigger className="w-[180px] h-9 rounded-xl border-gray-200 focus:border-primary focus:ring-primary bg-white text-sm">
-                    <SelectValue placeholder="Select length" />
-                  </SelectTrigger>
-                  <SelectContent className="rounded-xl">
-                    <SelectItem value="short" className="text-sm">Short</SelectItem>
-                    <SelectItem value="medium" className="text-sm">Medium</SelectItem>
-                    <SelectItem value="long" className="text-sm">Long</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="flex items-center justify-between gap-4">
-                <Label htmlFor="responseTone" className="text-sm font-medium">Response Tone</Label>
-                <Select value={responseTone} onValueChange={setResponseTone}>
-                  <SelectTrigger className="w-[180px] h-9 rounded-xl border-gray-200 focus:border-primary focus:ring-primary bg-white text-sm">
-                    <SelectValue placeholder="Select tone" />
-                  </SelectTrigger>
-                  <SelectContent className="rounded-xl">
-                    <SelectItem value="friendly" className="text-sm">Friendly</SelectItem>
-                    <SelectItem value="professional" className="text-sm">Professional</SelectItem>
-                  </SelectContent>
-                </Select>
+                  {isGenerating && (
+                    <ChatBubble variant="received" className="rounded-2xl shadow-sm">
+                      <ChatBubbleAvatar 
+                        className="h-8 w-8 shrink-0 rounded-full border-2 border-white shadow-sm" 
+                        src="https://github.com/vercel.png" 
+                        fallback="AI" 
+                      />
+                      <ChatBubbleMessage isLoading className="rounded-2xl" />
+                    </ChatBubble>
+                  )}
+                </ChatMessageList>
               </div>
             </div>
 
