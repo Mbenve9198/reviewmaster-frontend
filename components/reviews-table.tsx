@@ -499,17 +499,15 @@ export const ReviewsTable = ({
       </div>
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent 
-          className="sm:max-w-[500px] w-[95vw] max-h-[90vh] p-0 bg-white rounded-2xl border shadow-lg"
-          hideCloseButton
-        >
+        <DialogContent className="sm:max-w-[500px] w-[95vw] max-h-[90vh] p-0 bg-white rounded-2xl border shadow-lg">
+          <DialogPrimitive.Close className="absolute right-4 top-4 rounded-lg opacity-70 ring-offset-white transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
+            <X className="h-4 w-4" />
+            <span className="sr-only">Close</span>
+          </DialogPrimitive.Close>
+
           <div className="h-full max-h-[90vh] flex flex-col">
-            <DialogHeader className="px-6 py-4 border-b bg-gray-50/80 rounded-t-2xl relative">
-              <DialogTitle className="text-lg font-semibold pr-6">Generated Response</DialogTitle>
-              <DialogClose className="absolute right-4 top-1/2 -translate-y-1/2 rounded-lg opacity-70 ring-offset-white transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
-                <X className="h-4 w-4" />
-                <span className="sr-only">Close</span>
-              </DialogClose>
+            <DialogHeader className="px-6 py-4 border-b bg-gray-50/80 rounded-t-2xl">
+              <DialogTitle className="text-lg font-semibold">Generated Response</DialogTitle>
             </DialogHeader>
             
             <div className="flex-1 overflow-y-auto bg-white px-6">
@@ -575,19 +573,26 @@ export const ReviewsTable = ({
                     value={input}
                     onChange={(e) => {
                       setInput(e.target.value);
-                      // Auto-resize
-                      e.target.style.height = 'auto';
-                      e.target.style.height = `${e.target.scrollHeight}px`;
+                      // Reset height before calculating new height
+                      e.target.style.height = 'inherit';
+                      // Set new height
+                      const height = e.target.scrollHeight;
+                      e.target.style.height = `${height}px`;
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        handleSubmit(e as any);
+                      }
                     }}
                     placeholder="Type your message..."
-                    rows={1}
-                    className="w-full resize-none rounded-xl bg-gray-50/80 border-gray-200 p-3 pr-14 shadow-none focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary overflow-hidden"
-                    style={{ minHeight: '48px', maxHeight: '200px' }}
+                    className="w-full min-h-[48px] max-h-[200px] resize-none rounded-xl bg-gray-50/80 border-gray-200 p-3 pr-14 shadow-none focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary"
+                    style={{ overflow: 'hidden' }}
                   />
                   <Button 
                     type="submit" 
                     size="sm" 
-                    className="absolute right-2 top-1/2 -translate-y-1/2 rounded-xl shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[calc(-50%+2px)] transition-all"
+                    className="absolute right-2 top-[50%] -translate-y-1/2 rounded-xl shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[calc(-50%+2px)] transition-all"
                   >
                     <CornerDownLeft className="h-4 w-4" />
                   </Button>
