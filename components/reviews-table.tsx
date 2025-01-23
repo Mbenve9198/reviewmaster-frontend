@@ -357,14 +357,14 @@ export const ReviewsTable = ({
   console.log('Rendering reviews:', reviews?.length || 0)
 
   return (
-    <div className="w-full h-full flex flex-col px-4">
-      <div className="rounded-md border flex-1 overflow-auto">
+    <div className="w-full flex flex-col px-4">
+      <div className="rounded-md border">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id} className="bg-muted/50 sticky top-0">
+                  <TableHead key={header.id} className="bg-muted/50">
                     {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                   </TableHead>
                 ))}
@@ -393,7 +393,28 @@ export const ReviewsTable = ({
         </Table>
       </div>
 
-      <div className="flex items-center justify-end space-x-2 py-4">
+      <div className="flex items-center justify-between space-x-2 py-4">
+        <div className="flex items-center space-x-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+            className="h-9 px-4 rounded-full"
+          >
+            Previous
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+            className="h-9 px-4 rounded-full"
+          >
+            Next
+          </Button>
+        </div>
+
         <Select 
           value={resultsPerPage.toString()} 
           onValueChange={onResultsPerPageChange}
@@ -408,24 +429,6 @@ export const ReviewsTable = ({
             <SelectItem value="100" className="text-sm">100 per page</SelectItem>
           </SelectContent>
         </Select>
-        <Button
-          variant="default"
-          size="sm"
-          onClick={() => table.previousPage()}
-          disabled={!table.getCanPreviousPage()}
-          className="rounded-xl shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all"
-        >
-          Precedente
-        </Button>
-        <Button
-          variant="default"
-          size="sm"
-          onClick={() => table.nextPage()}
-          disabled={!table.getCanNextPage()}
-          className="rounded-xl shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all"
-        >
-          Successivo
-        </Button>
       </div>
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
