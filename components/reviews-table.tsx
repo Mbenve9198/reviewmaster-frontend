@@ -250,6 +250,10 @@ export const ReviewsTable = ({
       columnFilters,
       columnVisibility,
       rowSelection,
+      pagination: {
+        pageSize: resultsPerPage,
+        pageIndex: 0
+      }
     },
   })
 
