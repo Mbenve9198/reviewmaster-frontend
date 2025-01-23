@@ -92,7 +92,7 @@ export const ReviewsTable = ({
   const [selectedReview, setSelectedReview] = useState<Review | null>(null)
   const [messages, setMessages] = useState<Array<{ id: number; content: string; sender: "ai" | "user" }>>([])
   const [input, setInput] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
+  const [isGenerating, setIsGenerating] = useState(false)
   const [responseLength, setResponseLength] = useState("medium")
   const [responseTone, setResponseTone] = useState("professional")
 
@@ -328,7 +328,7 @@ export const ReviewsTable = ({
   const handleGenerateResponse = async (review: Review) => {
     setSelectedReview(review)
     setIsModalOpen(true)
-    setIsLoading(true)
+    setIsGenerating(true)
 
     try {
       const response = await generateResponse(
@@ -339,11 +339,13 @@ export const ReviewsTable = ({
           length: responseLength as 'short' | 'medium' | 'long',
         }
       )
+      
+      // Aggiorniamo i messaggi senza chiudere la modal
       setMessages([{ id: 1, content: response, sender: "ai" }])
-      setIsLoading(false)
     } catch (error) {
       toast.error("Error generating response")
-      setIsLoading(false)
+    } finally {
+      setIsGenerating(false)
     }
   }
 
@@ -358,7 +360,7 @@ export const ReviewsTable = ({
 
     setMessages((prev) => [...prev, { id: prev.length + 1, content: input, sender: "user" }])
     setInput("")
-    setIsLoading(true)
+    setIsGenerating(true)
 
     try {
       const response = await generateResponse(
@@ -373,7 +375,7 @@ export const ReviewsTable = ({
     } catch (error) {
       toast.error("Error generating response")
     } finally {
-      setIsLoading(false)
+      setIsGenerating(false)
     }
   }
 
@@ -496,12 +498,12 @@ export const ReviewsTable = ({
       </div>
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="sm:max-w-[500px] w-[95vw] max-h-[90vh] p-0 bg-background">
+        <DialogContent className="sm:max-w-[500px] w-[95vw] max-h-[90vh] p-0 bg-white">
           <div className="h-full max-h-[90vh] flex flex-col">
-            <DialogHeader className="px-4 py-2 border-b">
+            <DialogHeader className="px-4 py-2 border-b bg-white">
               <DialogTitle>Generated Response</DialogTitle>
             </DialogHeader>
-            <div className="flex-1 overflow-hidden p-4">
+            <div className="flex-1 overflow-hidden p-4 bg-white">
               <ChatMessageList>
                 {messages.map((message) => (
                   <ChatBubble key={message.id} variant={message.sender === "user" ? "sent" : "received"}>
@@ -534,7 +536,7 @@ export const ReviewsTable = ({
                   </ChatBubble>
                 ))}
 
-                {isLoading && (
+                {isGenerating && (
                   <ChatBubble variant="received">
                     <ChatBubbleAvatar className="h-8 w-8 shrink-0" src="https://github.com/vercel.png" fallback="AI" />
                     <ChatBubbleMessage isLoading />
@@ -542,45 +544,49 @@ export const ReviewsTable = ({
                 )}
               </ChatMessageList>
             </div>
-            <div className="border-t p-4 space-y-4">
+            <div className="border-t p-4 space-y-4 bg-white">
               <div className="flex items-center justify-between">
-                <Label htmlFor="responseLength">Response Length</Label>
+                <Label htmlFor="responseLength" className="text-sm font-medium">Response Length</Label>
                 <Select value={responseLength} onValueChange={setResponseLength}>
-                  <SelectTrigger className="w-[180px]">
+                  <SelectTrigger className="w-[180px] h-9 rounded-full border-gray-200 focus:border-primary focus:ring-primary bg-white text-sm">
                     <SelectValue placeholder="Select length" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="short">Short</SelectItem>
-                    <SelectItem value="medium">Medium</SelectItem>
-                    <SelectItem value="long">Long</SelectItem>
+                    <SelectItem value="short" className="text-sm">Short</SelectItem>
+                    <SelectItem value="medium" className="text-sm">Medium</SelectItem>
+                    <SelectItem value="long" className="text-sm">Long</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div className="flex items-center justify-between">
-                <Label htmlFor="responseTone">Response Tone</Label>
+                <Label htmlFor="responseTone" className="text-sm font-medium">Response Tone</Label>
                 <Select value={responseTone} onValueChange={setResponseTone}>
-                  <SelectTrigger className="w-[180px]">
+                  <SelectTrigger className="w-[180px] h-9 rounded-full border-gray-200 focus:border-primary focus:ring-primary bg-white text-sm">
                     <SelectValue placeholder="Select tone" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="friendly">Friendly</SelectItem>
-                    <SelectItem value="professional">Professional</SelectItem>
+                    <SelectItem value="friendly" className="text-sm">Friendly</SelectItem>
+                    <SelectItem value="professional" className="text-sm">Professional</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
-            <div className="border-t p-4">
+            <div className="border-t p-4 bg-white">
               <form
                 onSubmit={handleSubmit}
-                className="relative rounded-lg border bg-background focus-within:ring-1 focus-within:ring-ring"
+                className="relative rounded-full border bg-white focus-within:ring-1 focus-within:ring-primary"
               >
                 <ChatInput
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   placeholder="Type your message..."
-                  className="min-h-12 resize-none rounded-lg bg-background border-0 p-3 shadow-none focus-visible:ring-0"
+                  className="min-h-12 resize-none rounded-full bg-white border-0 p-3 pr-12 shadow-none focus-visible:ring-0"
                 />
-                <Button type="submit" size="sm" className="absolute bottom-2 right-2">
+                <Button 
+                  type="submit" 
+                  size="sm" 
+                  className="absolute bottom-1.5 right-1.5 rounded-full shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all"
+                >
                   <CornerDownLeft className="h-4 w-4" />
                 </Button>
               </form>
