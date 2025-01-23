@@ -219,18 +219,18 @@ export const ReviewsTable = ({
         return (
           <ButtonGroup>
             <Button
-              variant="outline"
+              variant="default"
               size="sm"
               onClick={() => handleGenerateResponse(row.original)}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all"
             >
               <MessageSquare className="h-4 w-4" />
               Generate
             </Button>
             <Button
-              variant="outline"
+              variant="default"
               size="sm"
-              className="px-2"
+              className="px-2 shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all"
             >
               <ChevronDown className="h-4 w-4" />
             </Button>
@@ -366,10 +366,10 @@ export const ReviewsTable = ({
     <div className="w-full h-full flex flex-col max-w-[1400px]">
       <div className="flex justify-end mb-4">
         <Button 
-          variant="outline" 
+          variant="default"
           size="sm" 
           onClick={handleRefresh}
-          className="bg-background text-foreground hover:bg-accent hover:text-accent-foreground"
+          className="shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all"
         >
           Refresh
         </Button>
@@ -420,18 +420,20 @@ export const ReviewsTable = ({
           </SelectContent>
         </Select>
         <Button
-          variant="outline"
+          variant="default"
           size="sm"
           onClick={() => table.previousPage()}
           disabled={!table.getCanPreviousPage()}
+          className="shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all"
         >
           Precedente
         </Button>
         <Button
-          variant="outline"
+          variant="default"
           size="sm"
           onClick={() => table.nextPage()}
           disabled={!table.getCanNextPage()}
+          className="shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all"
         >
           Successivo
         </Button>
@@ -460,13 +462,13 @@ export const ReviewsTable = ({
                       </ChatBubbleMessage>
                       {message.sender === "ai" && (
                         <Button
-                          variant="ghost"
+                          variant="default"
                           size="sm"
                           onClick={() => {
                             navigator.clipboard.writeText(message.content)
                             toast.success("Response copied to clipboard")
                           }}
-                          className="self-end mt-1"
+                          className="self-end mt-1 shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all"
                         >
                           <Copy className="h-4 w-4 mr-2" />
                           Copy
