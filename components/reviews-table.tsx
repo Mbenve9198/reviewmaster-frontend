@@ -43,6 +43,7 @@ import { ChatInput } from "@/components/ui/chat-input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
+import * as DialogPrimitive from "@radix-ui/react-dialog"
 
 import useReviews from "@/store/useReviews"
 import { type Review } from "@/types/types"
