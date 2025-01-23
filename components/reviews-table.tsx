@@ -499,7 +499,10 @@ export const ReviewsTable = ({
       </div>
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="sm:max-w-[500px] w-[95vw] max-h-[90vh] p-0 bg-white rounded-2xl border shadow-lg">
+        <DialogContent 
+          className="sm:max-w-[500px] w-[95vw] max-h-[90vh] p-0 bg-white rounded-2xl border shadow-lg"
+          hideCloseButton
+        >
           <div className="h-full max-h-[90vh] flex flex-col">
             <DialogHeader className="px-6 py-4 border-b bg-gray-50/80 rounded-t-2xl relative">
               <DialogTitle className="text-lg font-semibold pr-6">Generated Response</DialogTitle>
@@ -568,11 +571,18 @@ export const ReviewsTable = ({
                 className="relative flex items-center"
               >
                 <div className="relative flex-1">
-                  <ChatInput
+                  <textarea
                     value={input}
-                    onChange={(e) => setInput(e.target.value)}
+                    onChange={(e) => {
+                      setInput(e.target.value);
+                      // Auto-resize
+                      e.target.style.height = 'auto';
+                      e.target.style.height = `${e.target.scrollHeight}px`;
+                    }}
                     placeholder="Type your message..."
-                    className="w-full min-h-12 resize-none rounded-xl bg-gray-50/80 border-gray-200 p-3 pr-14 shadow-none focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary"
+                    rows={1}
+                    className="w-full resize-none rounded-xl bg-gray-50/80 border-gray-200 p-3 pr-14 shadow-none focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary overflow-hidden"
+                    style={{ minHeight: '48px', maxHeight: '200px' }}
                   />
                   <Button 
                     type="submit" 
