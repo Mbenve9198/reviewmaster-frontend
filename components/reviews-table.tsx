@@ -69,6 +69,7 @@ interface ReviewsTableProps {
   ratingFilter: string
   resultsPerPage: number
   onRefresh?: () => void
+  onResultsPerPageChange?: (value: string) => void
 }
 
 export const ReviewsTable = ({
@@ -79,6 +80,7 @@ export const ReviewsTable = ({
   resultsPerPage,
   property,
   onRefresh,
+  onResultsPerPageChange
 }: ReviewsTableProps) => {
   const { reviews, loading, error, fetchReviews, setFilters, generateResponse } = useReviews()
 
@@ -392,11 +394,16 @@ export const ReviewsTable = ({
       </div>
 
       <div className="flex items-center justify-end space-x-2 py-4">
-        <Select value={resultsPerPage.toString()} onValueChange={setResultsPerPage}>
+        <Select 
+          value={resultsPerPage.toString()} 
+          onValueChange={onResultsPerPageChange}
+        >
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Risultati per pagina" />
           </SelectTrigger>
           <SelectContent>
+            <SelectItem value="10">10 per pagina</SelectItem>
+            <SelectItem value="20">20 per pagina</SelectItem>
             <SelectItem value="50">50 per pagina</SelectItem>
             <SelectItem value="100">100 per pagina</SelectItem>
           </SelectContent>

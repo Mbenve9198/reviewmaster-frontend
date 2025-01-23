@@ -82,6 +82,10 @@ export default function ReviewsPage() {
     }
   }
 
+  const handleResultsPerPageChange = (value: string) => {
+    setResultsPerPage(value)
+  }
+
   if (isLoading) {
     return <div>Loading...</div>
   }
@@ -188,6 +192,7 @@ export default function ReviewsPage() {
             resultsPerPage={parseInt(resultsPerPage)}
             property={hotel}
             onRefresh={() => {/* refresh logic */}}
+            onResultsPerPageChange={handleResultsPerPageChange}
           />
         </div>
       </div>
