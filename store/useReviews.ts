@@ -2,6 +2,19 @@ import { create } from 'zustand'
 import { getCookie } from '@/lib/utils'
 import { type Review } from '@/types/types'
 
+type MessageSender = "user" | "ai";
+
+interface ChatMessage {
+  id: number;
+  content: string;
+  sender: MessageSender;
+}
+
+interface ResponseSettings {
+  style: 'professional' | 'friendly';
+  length: 'short' | 'medium' | 'long';
+}
+
 interface ReviewsState {
   reviews: Review[]
   loading: boolean
@@ -16,12 +29,12 @@ interface ReviewsState {
   setFilters: (filters: Partial<ReviewsState['filters']>) => void
   fetchReviews: () => Promise<void>
   updateReviewResponse: (hotelId: string, response: string) => void
-  generateResponse: (hotelId: string, reviewText: string, settings: ResponseSettings, previousMessages?: Message[]) => Promise<string>
-}
-
-interface ResponseSettings {
-  style: 'professional' | 'friendly'
-  length: 'short' | 'medium' | 'long'
+  generateResponse: (
+    hotelId: string, 
+    reviewText: string, 
+    settings: ResponseSettings,
+    previousMessages?: ChatMessage[]
+  ) => Promise<string>
 }
 
 const useReviews = create<ReviewsState>((set, get) => ({
@@ -107,7 +120,7 @@ const useReviews = create<ReviewsState>((set, get) => ({
     hotelId: string, 
     reviewText: string, 
     settings: ResponseSettings,
-    previousMessages?: Message[]
+    previousMessages?: ChatMessage[]
   ) => {
     const token = getCookie('token')
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reviews/generate`, {
