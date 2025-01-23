@@ -68,11 +68,6 @@ interface ReviewsTableProps {
   platform: string
   ratingFilter: string
   resultsPerPage: number
-  setPlatform: (value: string) => void
-  setProperty: (value: string) => void
-  setRatingFilter: (value: string) => void
-  setResultsPerPage: (value: string) => void
-  setSearchQuery: (value: string) => void
   onRefresh?: () => void
 }
 
@@ -82,12 +77,7 @@ export const ReviewsTable = ({
   platform,
   ratingFilter,
   resultsPerPage,
-  setPlatform,
-  setRatingFilter,
-  setResultsPerPage,
-  setSearchQuery,
   property,
-  setProperty,
   onRefresh,
 }: ReviewsTableProps) => {
   const { reviews, loading, error, fetchReviews, setFilters, generateResponse } = useReviews()
@@ -366,44 +356,6 @@ export const ReviewsTable = ({
 
   return (
     <div className="w-full h-full flex flex-col max-w-[1400px]">
-      <div className="flex flex-wrap items-center gap-2 mb-4">
-        <div className="relative flex-grow max-w-sm">
-          <Input
-            placeholder="Cerca recensioni..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 h-9 rounded-xl border-gray-200 focus:border-primary focus:ring-primary"
-          />
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-        </div>
-        
-        <Select value={platform} onValueChange={setPlatform}>
-          <SelectTrigger className="w-[130px] h-9 rounded-xl text-sm">
-            <SelectValue placeholder="Piattaforma" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Tutte</SelectItem>
-            <SelectItem value="google">Google</SelectItem>
-            <SelectItem value="booking">Booking</SelectItem>
-            <SelectItem value="tripadvisor">TripAdvisor</SelectItem>
-          </SelectContent>
-        </Select>
-
-        <Select value={ratingFilter} onValueChange={setRatingFilter}>
-          <SelectTrigger className="w-[100px] h-9 rounded-xl text-sm">
-            <SelectValue placeholder="Rating" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Tutti</SelectItem>
-            <SelectItem value="5">5 stelle</SelectItem>
-            <SelectItem value="4">4 stelle</SelectItem>
-            <SelectItem value="3">3 stelle</SelectItem>
-            <SelectItem value="2">2 stelle</SelectItem>
-            <SelectItem value="1">1 stella</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
       <div className="rounded-md border flex-1 overflow-auto">
         <Table>
           <TableHeader>

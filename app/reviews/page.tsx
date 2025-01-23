@@ -5,7 +5,8 @@ import { ReviewsTable } from "@/components/reviews-table"
 import { Input } from "@/components/ui/input"
 import { ReviewTabs } from "@/components/ui/review-tabs"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { HeroHighlight } from "@/components/ui/hero-highlight"
+import { Search, Filter } from "lucide-react"
+import { Button } from "@/components/ui/button"
 import { Toaster } from "sonner"
 import { getCookie } from "@/lib/utils"
 import useReviews from "@/store/useReviews"
@@ -89,67 +90,92 @@ export default function ReviewsPage() {
     <div className="flex flex-col h-[calc(100vh-4rem)]">
       <Toaster position="top-right" />
       
-      <div className="flex justify-between items-center mb-4">
+      <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Reviews</h1>
       </div>
 
       <div className="flex flex-col flex-1 overflow-hidden">
-        <div className="space-y-4 mb-4">
-          <div className="flex flex-wrap gap-4 mb-4">
-            <Input
-              placeholder="Search reviews..."
-              value={searchQuery}
-              onChange={(e) => handleFilterChange('search', e.target.value)}
-              className="w-[200px]"
-            />
+        <div className="bg-white p-4 rounded-xl shadow-sm border mb-4">
+          <div className="flex flex-wrap gap-4">
+            <div className="relative flex-1 min-w-[200px] max-w-[300px]">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <Input
+                placeholder="Search reviews..."
+                value={searchQuery}
+                onChange={(e) => handleFilterChange('search', e.target.value)}
+                className="pl-10 h-11 rounded-lg border-gray-200 focus:border-primary focus:ring-primary"
+              />
+            </div>
 
-            <Select 
-              value={hotel}
-              onValueChange={(value) => handleFilterChange('hotel', value)}
-            >
-              <SelectTrigger className="w-[200px]">
-                <SelectValue placeholder="Select property" />
-              </SelectTrigger>
-              <SelectContent>
-                {hotels.map((h) => (
-                  <SelectItem key={h._id} value={h._id}>
-                    {h.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div className="flex gap-3 flex-wrap flex-1">
+              <Select 
+                value={hotel}
+                onValueChange={(value) => handleFilterChange('hotel', value)}
+              >
+                <SelectTrigger className="h-11 min-w-[180px] rounded-lg border-gray-200 focus:border-primary focus:ring-primary bg-white">
+                  <SelectValue placeholder="Select property" />
+                </SelectTrigger>
+                <SelectContent>
+                  {hotels.map((h) => (
+                    <SelectItem key={h._id} value={h._id}>
+                      {h.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
 
-            <Select 
-              value={platform}
-              onValueChange={(value) => handleFilterChange('platform', value)}
-            >
-              <SelectTrigger className="w-[200px]">
-                <SelectValue placeholder="Select platform" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Platforms</SelectItem>
-                <SelectItem value="google">Google</SelectItem>
-                <SelectItem value="booking">Booking.com</SelectItem>
-                <SelectItem value="tripadvisor">TripAdvisor</SelectItem>
-              </SelectContent>
-            </Select>
+              <Select 
+                value={platform}
+                onValueChange={(value) => handleFilterChange('platform', value)}
+              >
+                <SelectTrigger className="h-11 min-w-[180px] rounded-lg border-gray-200 focus:border-primary focus:ring-primary bg-white">
+                  <SelectValue placeholder="Platform" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Platforms</SelectItem>
+                  <SelectItem value="google">Google</SelectItem>
+                  <SelectItem value="booking">Booking.com</SelectItem>
+                  <SelectItem value="tripadvisor">TripAdvisor</SelectItem>
+                </SelectContent>
+              </Select>
 
-            <Select 
-              value={ratingFilter}
-              onValueChange={(value) => handleFilterChange('rating', value)}
-            >
-              <SelectTrigger className="w-[200px]">
-                <SelectValue placeholder="Filter by rating" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Ratings</SelectItem>
-                <SelectItem value="5">5 Stars & Up</SelectItem>
-                <SelectItem value="4">4 Stars & Up</SelectItem>
-                <SelectItem value="3">3 Stars & Up</SelectItem>
-                <SelectItem value="2">2 Stars & Up</SelectItem>
-                <SelectItem value="1">1 Star & Up</SelectItem>
-              </SelectContent>
-            </Select>
+              <Select 
+                value={ratingFilter}
+                onValueChange={(value) => handleFilterChange('rating', value)}
+              >
+                <SelectTrigger className="h-11 min-w-[180px] rounded-lg border-gray-200 focus:border-primary focus:ring-primary bg-white">
+                  <SelectValue placeholder="Rating" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Ratings</SelectItem>
+                  <SelectItem value="5">5 Stars & Up</SelectItem>
+                  <SelectItem value="4">4 Stars & Up</SelectItem>
+                  <SelectItem value="3">3 Stars & Up</SelectItem>
+                  <SelectItem value="2">2 Stars & Up</SelectItem>
+                  <SelectItem value="1">1 Star & Up</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Button
+                variant="outline"
+                className="h-11 px-4 rounded-lg border-gray-200 hover:bg-gray-50"
+                onClick={() => {
+                  setSearchQuery("")
+                  setHotel("all")
+                  setPlatform("all")
+                  setRatingFilter("all")
+                  setFilters({
+                    hotelId: "all",
+                    platform: "all",
+                    rating: "all",
+                    searchQuery: ""
+                  })
+                }}
+              >
+                <Filter className="h-4 w-4 mr-2" />
+                Reset Filters
+              </Button>
+            </div>
           </div>
         </div>
 
@@ -160,12 +186,8 @@ export default function ReviewsPage() {
             platform={platform}
             ratingFilter={ratingFilter}
             resultsPerPage={parseInt(resultsPerPage)}
-            setPlatform={setPlatform}
-            setRatingFilter={setRatingFilter}
-            setResultsPerPage={setResultsPerPage}
-            setSearchQuery={setSearchQuery}
             property={hotel}
-            setProperty={setHotel}
+            onRefresh={() => {/* refresh logic */}}
           />
         </div>
       </div>
