@@ -357,7 +357,7 @@ export const ReviewsTable = ({
   console.log('Rendering reviews:', reviews?.length || 0)
 
   return (
-    <div className="w-full h-full flex flex-col max-w-[1400px]">
+    <div className="w-full h-full flex flex-col px-4">
       <div className="rounded-md border flex-1 overflow-auto">
         <Table>
           <TableHeader>
@@ -398,14 +398,14 @@ export const ReviewsTable = ({
           value={resultsPerPage.toString()} 
           onValueChange={onResultsPerPageChange}
         >
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Risultati per pagina" />
+          <SelectTrigger className="h-9 w-[160px] rounded-full border-gray-200 focus:border-primary focus:ring-primary bg-white text-sm">
+            <SelectValue placeholder="Results per page" className="text-sm" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="10">10 per pagina</SelectItem>
-            <SelectItem value="20">20 per pagina</SelectItem>
-            <SelectItem value="50">50 per pagina</SelectItem>
-            <SelectItem value="100">100 per pagina</SelectItem>
+            <SelectItem value="10" className="text-sm">10 per page</SelectItem>
+            <SelectItem value="20" className="text-sm">20 per page</SelectItem>
+            <SelectItem value="50" className="text-sm">50 per page</SelectItem>
+            <SelectItem value="100" className="text-sm">100 per page</SelectItem>
           </SelectContent>
         </Select>
         <Button
