@@ -499,16 +499,15 @@ export const ReviewsTable = ({
         </div>
       </div>
 
-      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen} hideCloseButton>
         <DialogContent className="sm:max-w-[500px] w-[95vw] max-h-[90vh] p-0 bg-white rounded-2xl border shadow-lg">
-          <DialogPrimitive.Close className="absolute right-4 top-4 rounded-lg opacity-70 ring-offset-white transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
-            <X className="h-4 w-4" />
-            <span className="sr-only">Close</span>
-          </DialogPrimitive.Close>
-
           <div className="h-full max-h-[90vh] flex flex-col">
-            <DialogHeader className="px-6 py-4 border-b bg-gray-50/80 rounded-t-2xl">
+            <DialogHeader className="px-6 py-4 border-b bg-gray-50/80 rounded-t-2xl relative">
               <DialogTitle className="text-lg font-semibold">Generated Response</DialogTitle>
+              <DialogClose className="absolute right-4 top-1/2 -translate-y-1/2 rounded-lg opacity-70 ring-offset-white transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
+                <X className="h-4 w-4" />
+                <span className="sr-only">Close</span>
+              </DialogClose>
             </DialogHeader>
             
             <div className="flex-1 overflow-y-auto bg-white px-6">
@@ -528,24 +527,24 @@ export const ReviewsTable = ({
                       <div className="flex flex-col">
                         <ChatBubbleMessage 
                           variant={message.sender === "user" ? "sent" : "received"}
-                          className="rounded-2xl"
+                          className="rounded-2xl relative pr-10"
                         >
                           {message.content}
+                          {message.sender === "ai" && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => {
+                                navigator.clipboard.writeText(message.content)
+                                toast.success("Response copied to clipboard")
+                              }}
+                              className="absolute bottom-1 right-1 h-7 w-7 rounded-full bg-white/80 hover:bg-white/90 shadow-sm"
+                            >
+                              <Copy className="h-3.5 w-3.5" />
+                              <span className="sr-only">Copy response</span>
+                            </Button>
+                          )}
                         </ChatBubbleMessage>
-                        {message.sender === "ai" && (
-                          <Button
-                            variant="default"
-                            size="sm"
-                            onClick={() => {
-                              navigator.clipboard.writeText(message.content)
-                              toast.success("Response copied to clipboard")
-                            }}
-                            className="self-end mt-1 rounded-full flex items-center gap-2 shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all"
-                          >
-                            <Copy className="h-4 w-4" />
-                            Copy
-                          </Button>
-                        )}
                       </div>
                     </ChatBubble>
                   ))}
