@@ -63,6 +63,15 @@ const logoSizes: Record<Platform, { width: number; height: number }> = {
   tripadvisor: { width: 24, height: 24 }
 }
 
+// Definizione dei tipi
+type MessageSender = "user" | "ai";
+
+interface ChatMessage {
+  id: number;
+  content: string;
+  sender: MessageSender;
+}
+
 interface ReviewsTableProps {
   searchQuery: string
   property: string
@@ -92,7 +101,7 @@ export const ReviewsTable = ({
   const [rowSelection, setRowSelection] = useState({})
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedReview, setSelectedReview] = useState<Review | null>(null)
-  const [messages, setMessages] = useState<Array<{ id: number; content: string; sender: "ai" | "user" }>>([])
+  const [messages, setMessages] = useState<ChatMessage[]>([])
   const [input, setInput] = useState("")
   const [isGenerating, setIsGenerating] = useState(false)
   const [responseLength, setResponseLength] = useState("medium")
@@ -363,7 +372,11 @@ export const ReviewsTable = ({
     
     try {
       // Aggiungi il messaggio dell'utente alla chat
-      const newUserMessage = { id: messages.length + 1, content: input, sender: "user" };
+      const newUserMessage: ChatMessage = { 
+        id: messages.length + 1, 
+        content: input, 
+        sender: "user" 
+      };
       setMessages(prev => [...prev, newUserMessage]);
       
       const response = await generateResponse(
@@ -373,15 +386,16 @@ export const ReviewsTable = ({
           style: responseTone as 'professional' | 'friendly',
           length: responseLength as 'short' | 'medium' | 'long',
         },
-        messages // Passa i messaggi precedenti
+        messages
       );
       
       // Aggiungi la risposta dell'AI alla chat
-      setMessages(prev => [...prev, { 
-        id: prev.length + 1, 
+      const aiMessage: ChatMessage = { 
+        id: messages.length + 2, 
         content: response, 
         sender: "ai" 
-      }]);
+      };
+      setMessages(prev => [...prev, aiMessage]);
     } catch (error) {
       toast.error("Error generating response");
     } finally {
