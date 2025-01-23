@@ -16,7 +16,7 @@ interface ReviewsState {
   setFilters: (filters: Partial<ReviewsState['filters']>) => void
   fetchReviews: () => Promise<void>
   updateReviewResponse: (hotelId: string, response: string) => void
-  generateResponse: (hotelId: string, reviewText: string, settings: ResponseSettings) => Promise<string>
+  generateResponse: (hotelId: string, reviewText: string, settings: ResponseSettings, previousMessages?: Message[]) => Promise<string>
 }
 
 interface ResponseSettings {
@@ -103,7 +103,12 @@ const useReviews = create<ReviewsState>((set, get) => ({
     }))
   },
 
-  generateResponse: async (hotelId: string, reviewText: string, settings: ResponseSettings) => {
+  generateResponse: async (
+    hotelId: string, 
+    reviewText: string, 
+    settings: ResponseSettings,
+    previousMessages?: Message[]
+  ) => {
     const token = getCookie('token')
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reviews/generate`, {
       method: 'POST',
@@ -114,7 +119,8 @@ const useReviews = create<ReviewsState>((set, get) => ({
       body: JSON.stringify({
         hotelId,
         review: reviewText,
-        responseSettings: settings
+        responseSettings: settings,
+        previousMessages
       })
     })
 

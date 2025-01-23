@@ -356,30 +356,38 @@ export const ReviewsTable = ({
     console.log("Viewing details for review:", review)
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!input.trim() || !selectedReview) return
-
-    setMessages((prev) => [...prev, { id: prev.length + 1, content: input, sender: "user" }])
-    setInput("")
-    setIsGenerating(true)
-
+  const handleChatSubmit = async (input: string) => {
+    if (!input.trim() || !selectedReview) return;
+    
+    setIsGenerating(true);
+    
     try {
+      // Aggiungi il messaggio dell'utente alla chat
+      const newUserMessage = { id: messages.length + 1, content: input, sender: "user" };
+      setMessages(prev => [...prev, newUserMessage]);
+      
       const response = await generateResponse(
         selectedReview.hotelId,
         selectedReview.content.text,
         {
           style: responseTone as 'professional' | 'friendly',
           length: responseLength as 'short' | 'medium' | 'long',
-        }
-      )
-      setMessages((prev) => [...prev, { id: prev.length + 1, content: response, sender: "ai" }])
+        },
+        messages // Passa i messaggi precedenti
+      );
+      
+      // Aggiungi la risposta dell'AI alla chat
+      setMessages(prev => [...prev, { 
+        id: prev.length + 1, 
+        content: response, 
+        sender: "ai" 
+      }]);
     } catch (error) {
-      toast.error("Error generating response")
+      toast.error("Error generating response");
     } finally {
-      setIsGenerating(false)
+      setIsGenerating(false);
     }
-  }
+  };
 
   const handleRefresh = () => {
     if (onRefresh) {
@@ -561,7 +569,10 @@ export const ReviewsTable = ({
 
             <div className="border-t px-6 py-4 bg-white rounded-b-2xl">
               <form
-                onSubmit={handleSubmit}
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleChatSubmit(input);
+                }}
                 className="relative flex items-center"
               >
                 <div className="relative flex-1">
@@ -578,7 +589,7 @@ export const ReviewsTable = ({
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' && !e.shiftKey) {
                         e.preventDefault();
-                        handleSubmit(e as any);
+                        handleChatSubmit(input);
                       }
                     }}
                     placeholder="Type your message..."
