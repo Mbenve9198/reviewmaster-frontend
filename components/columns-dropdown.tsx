@@ -1,17 +1,16 @@
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
-  DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuLabel,
-  DropdownMenuSeparator,
+  DropdownMenuCheckboxItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Settings2, Check } from "lucide-react"
-import { Table } from "@tanstack/react-table"
+import { Settings2 } from "lucide-react"
+import { type Table as TableType } from "@tanstack/react-table"
 
 interface ColumnsDropdownProps {
-  table: Table<any>
+  table: TableType<any>
 }
 
 export function ColumnsDropdown({ table }: ColumnsDropdownProps) {
@@ -40,20 +39,26 @@ export function ColumnsDropdown({ table }: ColumnsDropdownProps) {
               typeof column.accessorFn !== "undefined" && column.getCanHide()
           )
           .map((column) => {
-            const isChecked = column.getIsVisible();
             return (
-              <div
+              <DropdownMenuCheckboxItem
                 key={column.id}
-                className="px-3 py-2 cursor-pointer hover:bg-gray-50 flex items-center justify-between"
-                onClick={() => column.toggleVisibility(!isChecked)}
+                className="px-3 py-2 cursor-pointer focus:bg-gray-50 focus:text-gray-700 
+                  data-[state=checked]:bg-primary/10 
+                  data-[state=checked]:text-primary
+                  hover:bg-gray-50
+                  transition-colors"
+                checked={column.getIsVisible()}
+                onCheckedChange={(value) => column.toggleVisibility(!!value)}
+                style={{ 
+                  paddingLeft: "12px"
+                }}
               >
-                <span className="text-sm text-gray-700">
-                  {column.id.charAt(0).toUpperCase() + column.id.slice(1)}
-                </span>
-                {isChecked && (
-                  <Check className="h-4 w-4 text-primary" />
-                )}
-              </div>
+                <div className="flex items-center justify-between w-full">
+                  <span className="text-sm">
+                    {column.id.charAt(0).toUpperCase() + column.id.slice(1)}
+                  </span>
+                </div>
+              </DropdownMenuCheckboxItem>
             )
           })}
       </DropdownMenuContent>
