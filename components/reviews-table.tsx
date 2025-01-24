@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import {
   type ColumnDef,
   type ColumnFiltersState,
@@ -106,6 +106,8 @@ export const ReviewsTable = ({
   const [isGenerating, setIsGenerating] = useState(false)
   const [responseLength, setResponseLength] = useState("medium")
   const [responseTone, setResponseTone] = useState("professional")
+
+  const chatContainerRef = useRef<HTMLDivElement>(null);
 
   const columns: ColumnDef<Review>[] = [
     {
@@ -253,7 +255,7 @@ export const ReviewsTable = ({
                 variant="default"
                 size="sm"
                 onClick={() => handleGenerateResponse(row.original)}
-                className="rounded-xl flex items-center gap-2 shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all whitespace-nowrap"
+                className="rounded-xl flex items-center gap-2 bg-white text-gray-700 shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all whitespace-nowrap scale-80"
               >
                 <MessageSquare className="h-4 w-4" />
                 Generate
@@ -261,7 +263,7 @@ export const ReviewsTable = ({
               <Button
                 variant="default"
                 size="sm"
-                className="rounded-xl px-2 shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all"
+                className="rounded-xl px-2 bg-white text-gray-700 shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all scale-80"
               >
                 <ChevronDown className="h-4 w-4" />
               </Button>
@@ -336,6 +338,12 @@ export const ReviewsTable = ({
     console.log('Reviews state:', { reviews, loading, error })
   }, [reviews, loading, error])
 
+  useEffect(() => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
+  }, [messages]);
+
   const handleGenerateResponse = async (review: Review) => {
     setSelectedReview(review)
     setIsModalOpen(true)
@@ -369,6 +377,7 @@ export const ReviewsTable = ({
     if (!input.trim() || !selectedReview) return;
     
     setIsGenerating(true);
+    setInput(''); // Clear input after sending
     
     try {
       const newUserMessage: ChatMessage = { 
@@ -527,7 +536,7 @@ export const ReviewsTable = ({
               <DialogTitle className="text-lg font-semibold">Generated Response</DialogTitle>
             </DialogHeader>
             
-            <div className="flex-1 overflow-y-auto bg-white px-6">
+            <div className="flex-1 overflow-y-auto bg-white px-6" ref={chatContainerRef}>
               <div className="py-6">
                 <ChatMessageList>
                   {messages.map((message) => (
