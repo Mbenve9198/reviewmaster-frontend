@@ -276,10 +276,13 @@ export const ReviewsTable = ({
                     <ChevronDown className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
+                <DropdownMenuContent 
+                  align="end" 
+                  className="w-[160px] bg-white rounded-xl border border-gray-200"
+                >
                   <DropdownMenuItem
                     onClick={() => handleDeleteReview(row.original._id)}
-                    className="text-red-600 focus:text-red-600 focus:bg-red-50"
+                    className="text-red-600 focus:text-red-600 focus:bg-red-50 rounded-lg mx-1 my-1"
                   >
                     <Trash2 className="mr-2 h-4 w-4" />
                     Delete Review
