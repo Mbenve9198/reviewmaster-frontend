@@ -24,6 +24,8 @@ export function BulkActionsDropdown({ selectedRows, onRefresh }: BulkActionsDrop
         return;
       }
 
+      console.log('Sending bulk delete request for IDs:', selectedIds);
+
       const token = getCookie('token');
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reviews/bulk-delete`, {
         method: 'POST',
@@ -34,9 +36,16 @@ export function BulkActionsDropdown({ selectedRows, onRefresh }: BulkActionsDrop
         body: JSON.stringify({ reviewIds: selectedIds })
       });
 
+      console.log('Bulk delete response:', response.status);
+
       if (!response.ok) {
-        throw new Error('Failed to delete reviews');
+        const errorData = await response.json();
+        console.error('Bulk delete error response:', errorData);
+        throw new Error(errorData.message || 'Failed to delete reviews');
       }
+
+      const data = await response.json();
+      console.log('Bulk delete success:', data);
 
       toast.success(`Successfully deleted ${selectedIds.length} reviews`);
       onRefresh();
