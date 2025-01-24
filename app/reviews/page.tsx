@@ -12,6 +12,7 @@ import { getCookie } from "@/lib/utils"
 import useReviews from "@/store/useReviews"
 import Image from "next/image"
 import { BulkActionsDropdown } from "@/components/bulk-actions-dropdown"
+import { ColumnsDropdown } from "@/components/columns-dropdown"
 
 interface Hotel {
   _id: string
@@ -189,11 +190,12 @@ export default function ReviewsPage() {
             </Select>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
             <BulkActionsDropdown 
               selectedRows={selectedRows} 
               onRefresh={handleRefresh} 
             />
+            <ColumnsDropdown table={table} />
           </div>
         </div>
 
