@@ -47,11 +47,20 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import * as DialogPrimitive from "@radix-ui/react-dialog"
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination"
 
 import useReviews from "@/store/useReviews"
 import { type Review } from "@/types/types"
 import { toast } from "sonner"
 import { getCookie } from "cookies-next"
+import { cn } from "@/lib/utils"
 
 type Platform = 'google' | 'booking' | 'tripadvisor' | 'manual'
 
@@ -504,12 +513,18 @@ export const ReviewsTable = ({
       <div className="w-fit">
         <div className="rounded-xl border border-gray-200 bg-white">
           <Table>
-            <TableHeader>
+            <TableHeader className="bg-gray-50/75">
               {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id}>
+                <TableRow key={headerGroup.id} className="hover:bg-gray-50/75 border-gray-200">
                   {headerGroup.headers.map((header) => {
                     return (
-                      <TableHead key={header.id}>
+                      <TableHead 
+                        key={header.id}
+                        className={cn(
+                          "text-gray-600 font-medium",
+                          header.id === "select" && "[&_input[type='checkbox']]:rounded-lg [&_input[type='checkbox']]:border-gray-300"
+                        )}
+                      >
                         {header.isPlaceholder
                           ? null
                           : flexRender(
@@ -530,7 +545,12 @@ export const ReviewsTable = ({
                     data-state={row.getIsSelected() && "selected"}
                   >
                     {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
+                      <TableCell 
+                        key={cell.id}
+                        className={cn(
+                          cell.column.id === "select" && "[&_input[type='checkbox']]:rounded-lg [&_input[type='checkbox']]:border-gray-300"
+                        )}
+                      >
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </TableCell>
                     ))}
@@ -548,6 +568,59 @@ export const ReviewsTable = ({
               )}
             </TableBody>
           </Table>
+        </div>
+        
+        <div className="mt-4 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-500">Results per page</span>
+            <Select
+              value={resultsPerPage.toString()}
+              onValueChange={handleResultsPerPageChange}
+            >
+              <SelectTrigger className="h-8 w-[70px]">
+                <SelectValue placeholder="10" />
+              </SelectTrigger>
+              <SelectContent>
+                {[10, 20, 30, 40, 50].map((value) => (
+                  <SelectItem key={value} value={value.toString()}>
+                    {value}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious 
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    table.previousPage();
+                  }}
+                  className={!table.getCanPreviousPage() ? 'pointer-events-none opacity-50' : ''}
+                />
+              </PaginationItem>
+              {/* Mostra il numero di pagina corrente */}
+              <PaginationItem>
+                <span className="text-sm">
+                  Page {table.getState().pagination.pageIndex + 1} of{' '}
+                  {table.getPageCount()}
+                </span>
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationNext 
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    table.nextPage();
+                  }}
+                  className={!table.getCanNextPage() ? 'pointer-events-none opacity-50' : ''}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
         </div>
       </div>
     </div>
