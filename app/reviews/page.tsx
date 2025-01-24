@@ -18,6 +18,11 @@ interface Hotel {
   name: string
 }
 
+interface Review {
+  _id: string
+  // ... altri campi della review se necessari
+}
+
 export default function ReviewsPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [hotel, setHotel] = useState("all")
@@ -28,7 +33,7 @@ export default function ReviewsPage() {
   const [hotels, setHotels] = useState<Hotel[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const { setFilters } = useReviews()
-  const [selectedRows, setSelectedRows] = useState([]);
+  const [selectedRows, setSelectedRows] = useState<Review[]>([])
 
   useEffect(() => {
     const fetchHotels = async () => {
