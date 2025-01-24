@@ -3,10 +3,9 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuLabel,
-  DropdownMenuCheckboxItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Settings2 } from "lucide-react"
+import { Settings2, Check } from "lucide-react"
 import { type Table as TableType } from "@tanstack/react-table"
 
 interface ColumnsDropdownProps {
@@ -39,26 +38,27 @@ export function ColumnsDropdown({ table }: ColumnsDropdownProps) {
               typeof column.accessorFn !== "undefined" && column.getCanHide()
           )
           .map((column) => {
+            const isVisible = column.getIsVisible();
             return (
-              <DropdownMenuCheckboxItem
+              <div
                 key={column.id}
-                className="px-3 py-2 cursor-pointer focus:bg-gray-50 focus:text-gray-700 
-                  data-[state=checked]:bg-primary/10 
-                  data-[state=checked]:text-primary
-                  hover:bg-gray-50
-                  transition-colors"
-                checked={column.getIsVisible()}
-                onCheckedChange={(value) => column.toggleVisibility(!!value)}
-                style={{ 
-                  paddingLeft: "12px"
-                }}
+                role="button"
+                onClick={() => column.toggleVisibility(!isVisible)}
+                className={`
+                  px-3 py-2 cursor-pointer 
+                  hover:bg-gray-50 
+                  flex items-center justify-between
+                  transition-colors
+                  ${isVisible ? 'text-primary bg-primary/5' : 'text-gray-700'}
+                `}
               >
-                <div className="flex items-center justify-between w-full">
-                  <span className="text-sm">
-                    {column.id.charAt(0).toUpperCase() + column.id.slice(1)}
-                  </span>
-                </div>
-              </DropdownMenuCheckboxItem>
+                <span className="text-sm">
+                  {column.id.charAt(0).toUpperCase() + column.id.slice(1)}
+                </span>
+                {isVisible && (
+                  <Check className="h-4 w-4 flex-shrink-0 ml-2" />
+                )}
+              </div>
             )
           })}
       </DropdownMenuContent>
