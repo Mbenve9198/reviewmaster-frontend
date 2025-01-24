@@ -30,7 +30,7 @@ export default function ReviewsPage() {
   const [hotel, setHotel] = useState("all")
   const [responseStatus, setResponseStatus] = useState("all")
   const [platform, setPlatform] = useState("all")
-  const [resultsPerPage, setResultsPerPage] = useState("50")
+  const [resultsPerPage, setResultsPerPage] = useState<number>(10)
   const [ratingFilter, setRatingFilter] = useState("all")
   const [hotels, setHotels] = useState<Hotel[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -93,7 +93,7 @@ export default function ReviewsPage() {
     }
   }
 
-  const handleResultsPerPageChange = (value: string) => {
+  const handleResultsPerPageChange = (value: number) => {
     setResultsPerPage(value)
   }
 
@@ -211,7 +211,7 @@ export default function ReviewsPage() {
           responseStatus={responseStatus}
           platform={platform}
           ratingFilter={ratingFilter}
-          resultsPerPage={parseInt(resultsPerPage)}
+          resultsPerPage={resultsPerPage}
           onRefresh={handleRefresh}
           onResultsPerPageChange={handleResultsPerPageChange}
           onSelectionChange={setSelectedRows}
