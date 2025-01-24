@@ -125,6 +125,8 @@ export const ReviewsTable = ({
   const [isGenerating, setIsGenerating] = useState(false)
   const [responseLength, setResponseLength] = useState("medium")
   const [responseTone, setResponseTone] = useState("professional")
+  const [pageIndex, setPageIndex] = useState(0)
+  const [pageSize, setPageSize] = useState(resultsPerPage)
 
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
@@ -327,8 +329,19 @@ export const ReviewsTable = ({
       columnVisibility,
       rowSelection,
       pagination: {
-        pageSize: resultsPerPage,
-        pageIndex: 0
+        pageIndex,
+        pageSize,
+      },
+    },
+    enableRowSelection: true,
+    onPaginationChange: (updater) => {
+      if (typeof updater === 'function') {
+        const newState = updater({
+          pageIndex,
+          pageSize,
+        })
+        setPageIndex(newState.pageIndex)
+        setPageSize(newState.pageSize)
       }
     },
   })
@@ -492,9 +505,17 @@ export const ReviewsTable = ({
     onTableReady(table);
   }, [table, onTableReady]);
 
+  // Aggiorna pageSize quando cambia resultsPerPage
+  useEffect(() => {
+    setPageSize(resultsPerPage)
+  }, [resultsPerPage])
+
   const handleResultsPerPageChange = (value: string) => {
-    onResultsPerPageChange(parseInt(value));
-  };
+    const newPageSize = parseInt(value)
+    setPageSize(newPageSize)
+    setPageIndex(0) // Reset alla prima pagina
+    onResultsPerPageChange(newPageSize)
+  }
 
   if (loading) {
     console.log('Loading reviews...')
@@ -513,15 +534,18 @@ export const ReviewsTable = ({
       <div className="w-fit">
         <div className="rounded-xl border border-gray-200 bg-white">
           <Table>
-            <TableHeader className="bg-gray-50/75">
+            <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id} className="hover:bg-gray-50/75 border-gray-200">
+                <TableRow 
+                  key={headerGroup.id} 
+                  className="bg-gray-50 hover:bg-gray-50 border-gray-200"
+                >
                   {headerGroup.headers.map((header) => {
                     return (
                       <TableHead 
                         key={header.id}
                         className={cn(
-                          "text-gray-600 font-medium",
+                          "text-gray-600 font-medium h-11 bg-gray-50",
                           header.id === "select" && "[&_input[type='checkbox']]:rounded-lg [&_input[type='checkbox']]:border-gray-300"
                         )}
                       >
@@ -570,57 +594,55 @@ export const ReviewsTable = ({
           </Table>
         </div>
         
-        <div className="mt-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-500">Results per page</span>
+        <div className="mt-6 mb-4 px-2 flex items-center justify-between">
+          <div className="flex items-center gap-3">
             <Select
-              value={resultsPerPage.toString()}
+              value={pageSize.toString()}
               onValueChange={handleResultsPerPageChange}
             >
-              <SelectTrigger className="h-8 w-[70px]">
-                <SelectValue placeholder="10" />
+              <SelectTrigger className="h-9 w-[160px] rounded-full border-gray-200 focus:border-primary focus:ring-primary bg-white text-sm">
+                <SelectValue placeholder="Results per page" />
               </SelectTrigger>
               <SelectContent>
                 {[10, 20, 30, 40, 50].map((value) => (
-                  <SelectItem key={value} value={value.toString()}>
-                    {value}
+                  <SelectItem 
+                    key={value} 
+                    value={value.toString()}
+                    className="text-sm"
+                  >
+                    {value} results
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
 
-          <Pagination>
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious 
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    table.previousPage();
-                  }}
-                  className={!table.getCanPreviousPage() ? 'pointer-events-none opacity-50' : ''}
-                />
-              </PaginationItem>
-              {/* Mostra il numero di pagina corrente */}
-              <PaginationItem>
-                <span className="text-sm">
-                  Page {table.getState().pagination.pageIndex + 1} of{' '}
-                  {table.getPageCount()}
-                </span>
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationNext 
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    table.nextPage();
-                  }}
-                  className={!table.getCanNextPage() ? 'pointer-events-none opacity-50' : ''}
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
+          <div className="flex items-center gap-4">
+            <span className="text-sm text-gray-500">
+              Page {pageIndex + 1} of {table.getPageCount()}
+            </span>
+            
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => table.previousPage()}
+                disabled={!table.getCanPreviousPage()}
+                className="rounded-full border-gray-200 hover:bg-gray-50 hover:text-gray-900 text-gray-600"
+              >
+                Previous
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => table.nextPage()}
+                disabled={!table.getCanNextPage()}
+                className="rounded-full border-gray-200 hover:bg-gray-50 hover:text-gray-900 text-gray-600"
+              >
+                Next
+              </Button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
