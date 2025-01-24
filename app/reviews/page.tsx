@@ -11,6 +11,7 @@ import { Toaster } from "sonner"
 import { getCookie } from "@/lib/utils"
 import useReviews from "@/store/useReviews"
 import Image from "next/image"
+import { BulkActionsDropdown } from "@/components/ui/bulk-actions-dropdown"
 
 interface Hotel {
   _id: string
@@ -87,6 +88,10 @@ export default function ReviewsPage() {
     setResultsPerPage(value)
   }
 
+  const handleRefresh = () => {
+    // Implement the refresh logic here
+  }
+
   if (isLoading) {
     return <div>Loading...</div>
   }
@@ -103,19 +108,9 @@ export default function ReviewsPage() {
       </div>
 
       <div className="flex flex-col">
-        <div className="bg-white p-4 rounded-xl shadow-sm border mb-4">
-          <div className="flex items-center gap-3">
-            <div className="relative w-[300px]">
-              <Input
-                placeholder="Search reviews..."
-                value={searchQuery}
-                onChange={(e) => handleFilterChange('search', e.target.value)}
-                className="pl-4 pr-10 h-9 rounded-full border-gray-200 focus:border-primary focus:ring-primary text-sm"
-              />
-              <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-            </div>
-
-            <Select 
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-4">
+            <Select
               value={hotel}
               onValueChange={(value) => handleFilterChange('hotel', value)}
             >
@@ -131,7 +126,21 @@ export default function ReviewsPage() {
               </SelectContent>
             </Select>
 
-            <Select 
+            <Select
+              value={responseStatus}
+              onValueChange={(value) => handleFilterChange('responseStatus', value)}
+            >
+              <SelectTrigger className="h-9 w-[160px] rounded-full border-gray-200 focus:border-primary focus:ring-primary bg-white text-sm">
+                <SelectValue placeholder="Response Status" className="text-sm" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all" className="text-sm">All Reviews</SelectItem>
+                <SelectItem value="responded" className="text-sm">Responded</SelectItem>
+                <SelectItem value="not_responded" className="text-sm">Not Responded</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Select
               value={platform}
               onValueChange={(value) => handleFilterChange('platform', value)}
             >
@@ -146,7 +155,7 @@ export default function ReviewsPage() {
               </SelectContent>
             </Select>
 
-            <Select 
+            <Select
               value={ratingFilter}
               onValueChange={(value) => handleFilterChange('rating', value)}
             >
@@ -163,57 +172,29 @@ export default function ReviewsPage() {
               </SelectContent>
             </Select>
 
-            <Select 
-              value={responseStatus}
-              onValueChange={(value) => handleFilterChange('responseStatus', value)}
-            >
-              <SelectTrigger className="h-9 w-[160px] rounded-full border-gray-200 focus:border-primary focus:ring-primary bg-white text-sm">
-                <SelectValue placeholder="Response Status" className="text-sm" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all" className="text-sm">All Reviews</SelectItem>
-                <SelectItem value="responded" className="text-sm">Responded</SelectItem>
-                <SelectItem value="not_responded" className="text-sm">Not Responded</SelectItem>
-              </SelectContent>
-            </Select>
+            <Input
+              placeholder="Search reviews..."
+              value={searchQuery}
+              onChange={(e) => handleFilterChange('search', e.target.value)}
+              className="max-w-[200px]"
+            />
+          </div>
 
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-9 px-3 rounded-full border-gray-200 hover:bg-gray-50 ml-auto text-sm"
-              onClick={() => {
-                setSearchQuery("")
-                setHotel("all")
-                setPlatform("all")
-                setRatingFilter("all")
-                setResponseStatus("all")
-                setFilters({
-                  hotelId: "all",
-                  platform: "all",
-                  rating: "all",
-                  responseStatus: "all",
-                  searchQuery: ""
-                })
-              }}
-            >
-              <Filter className="h-4 w-4 mr-2" />
-              Reset
-            </Button>
+          <div className="flex items-center gap-4">
+            <BulkActionsDropdown table={table} onRefresh={handleRefresh} />
           </div>
         </div>
 
-        <div>
-          <ReviewsTable
-            searchQuery={searchQuery}
-            responseStatus={responseStatus}
-            platform={platform}
-            ratingFilter={ratingFilter}
-            resultsPerPage={parseInt(resultsPerPage)}
-            property={hotel}
-            onRefresh={() => {/* refresh logic */}}
-            onResultsPerPageChange={handleResultsPerPageChange}
-          />
-        </div>
+        <ReviewsTable
+          searchQuery={searchQuery}
+          property={hotel}
+          responseStatus={responseStatus}
+          platform={platform}
+          ratingFilter={ratingFilter}
+          resultsPerPage={parseInt(resultsPerPage)}
+          onRefresh={handleRefresh}
+          onResultsPerPageChange={handleResultsPerPageChange}
+        />
       </div>
     </div>
   )

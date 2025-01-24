@@ -579,6 +579,36 @@ export const ReviewsTable = ({
         </div>
       </div>
 
+      <div className="flex justify-between items-center mb-4">
+        <div className="flex items-center gap-2">
+          {table.getSelectedRowModel().rows.length > 0 && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="default"
+                  size="sm"
+                  className="rounded-xl bg-primary text-primary-foreground shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all"
+                >
+                  Bulk Actions <ChevronDown className="ml-2 h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent 
+                align="start"
+                className="w-[160px] bg-white rounded-xl border border-gray-200"
+              >
+                <DropdownMenuItem
+                  onClick={handleBulkDelete}
+                  className="text-red-600 focus:text-red-600 focus:bg-red-50 rounded-lg mx-1 my-1"
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Delete Reviews
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+        </div>
+      </div>
+
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="sm:max-w-[500px] w-[95vw] max-h-[90vh] p-0 bg-white rounded-2xl border shadow-lg">
           <div className="h-full max-h-[90vh] flex flex-col">
