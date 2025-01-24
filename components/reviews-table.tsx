@@ -86,6 +86,7 @@ interface ReviewsTableProps {
   resultsPerPage: number
   onRefresh?: () => void
   onResultsPerPageChange?: (value: string) => void
+  onSelectionChange: (rows: any[]) => void
 }
 
 export const ReviewsTable = ({
@@ -96,7 +97,8 @@ export const ReviewsTable = ({
   resultsPerPage,
   property,
   onRefresh,
-  onResultsPerPageChange
+  onResultsPerPageChange,
+  onSelectionChange
 }: ReviewsTableProps) => {
   const { reviews, loading, error, fetchReviews, setFilters, generateResponse } = useReviews()
 
@@ -468,6 +470,11 @@ export const ReviewsTable = ({
     }
   };
 
+  useEffect(() => {
+    const selectedRows = table.getSelectedRowModel().rows.map(row => row.original);
+    onSelectionChange(selectedRows);
+  }, [table.getSelectedRowModel().rows]);
+
   if (loading) {
     console.log('Loading reviews...')
     return <div>Loading...</div>
@@ -576,36 +583,6 @@ export const ReviewsTable = ({
               <SelectItem value="100" className="text-sm">100 per page</SelectItem>
             </SelectContent>
           </Select>
-        </div>
-      </div>
-
-      <div className="flex justify-between items-center mb-4">
-        <div className="flex items-center gap-2">
-          {table.getSelectedRowModel().rows.length > 0 && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="default"
-                  size="sm"
-                  className="rounded-xl bg-primary text-primary-foreground shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all"
-                >
-                  Bulk Actions <ChevronDown className="ml-2 h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent 
-                align="start"
-                className="w-[160px] bg-white rounded-xl border border-gray-200"
-              >
-                <DropdownMenuItem
-                  onClick={handleBulkDelete}
-                  className="text-red-600 focus:text-red-600 focus:bg-red-50 rounded-lg mx-1 my-1"
-                >
-                  <Trash2 className="mr-2 h-4 w-4" />
-                  Delete Reviews
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
         </div>
       </div>
 

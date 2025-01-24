@@ -9,12 +9,15 @@ import { ChevronDown, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 import { getCookie } from "cookies-next"
 
-export function BulkActionsDropdown({ table, onRefresh }) {
+interface BulkActionsDropdownProps {
+  selectedRows: any[];
+  onRefresh: () => void;
+}
+
+export function BulkActionsDropdown({ selectedRows, onRefresh }: BulkActionsDropdownProps) {
   const handleBulkDelete = async () => {
     try {
-      const selectedIds = table
-        .getSelectedRowModel()
-        .rows.map(row => row.original._id);
+      const selectedIds = selectedRows.map(row => row._id);
 
       if (selectedIds.length === 0) {
         toast.error('No reviews selected');
@@ -37,7 +40,6 @@ export function BulkActionsDropdown({ table, onRefresh }) {
 
       toast.success(`Successfully deleted ${selectedIds.length} reviews`);
       onRefresh();
-      table.resetRowSelection();
     } catch (error) {
       console.error('Bulk delete error:', error);
       toast.error('Failed to delete reviews');
@@ -45,7 +47,7 @@ export function BulkActionsDropdown({ table, onRefresh }) {
   };
 
   return (
-    table.getSelectedRowModel().rows.length > 0 && (
+    selectedRows.length > 0 && (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button

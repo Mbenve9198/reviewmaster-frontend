@@ -28,6 +28,7 @@ export default function ReviewsPage() {
   const [hotels, setHotels] = useState<Hotel[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const { setFilters } = useReviews()
+  const [selectedRows, setSelectedRows] = useState([]);
 
   useEffect(() => {
     const fetchHotels = async () => {
@@ -181,7 +182,10 @@ export default function ReviewsPage() {
           </div>
 
           <div className="flex items-center gap-4">
-            <BulkActionsDropdown table={table} onRefresh={handleRefresh} />
+            <BulkActionsDropdown 
+              selectedRows={selectedRows} 
+              onRefresh={handleRefresh} 
+            />
           </div>
         </div>
 
@@ -194,6 +198,7 @@ export default function ReviewsPage() {
           resultsPerPage={parseInt(resultsPerPage)}
           onRefresh={handleRefresh}
           onResultsPerPageChange={handleResultsPerPageChange}
+          onSelectionChange={setSelectedRows}
         />
       </div>
     </div>
