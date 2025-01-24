@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button"
 import { useUserStats } from "@/hooks/useUserStats"
 import { useEffect, useState } from "react"
 import { SidebarContainer, SidebarBody, SidebarLink } from "@/components/ui/sidebar"
+import { motion } from "framer-motion"
 
 const navigation = [
   { 
@@ -21,7 +22,7 @@ const navigation = [
         alt=""
         width={48}
         height={48}
-        className="w-5 h-5 flex-shrink-0"
+        className="w-7 h-7 flex-shrink-0"
       />
     )
   },
@@ -34,7 +35,7 @@ const navigation = [
         alt=""
         width={48}
         height={48}
-        className="w-5 h-5 flex-shrink-0"
+        className="w-7 h-7 flex-shrink-0"
       />
     )
   },
@@ -47,7 +48,7 @@ const navigation = [
         alt=""
         width={48}
         height={48}
-        className="w-5 h-5 flex-shrink-0"
+        className="w-7 h-7 flex-shrink-0"
       />
     )
   },
@@ -60,7 +61,7 @@ const navigation = [
         alt=""
         width={48}
         height={48}
-        className="w-5 h-5 flex-shrink-0"
+        className="w-7 h-7 flex-shrink-0"
       />
     )
   },
@@ -73,7 +74,7 @@ const navigation = [
         alt=""
         width={48}
         height={48}
-        className="w-5 h-5 flex-shrink-0"
+        className="w-7 h-7 flex-shrink-0"
       />
     )
   },
@@ -124,13 +125,9 @@ export function Sidebar() {
 
   return (
     <SidebarContainer open={open} setOpen={setOpen}>
-      <SidebarBody className="justify-between">
+      <SidebarBody className="justify-between bg-white shadow-lg">
         <div className="flex flex-col flex-1">
-          <div className="mb-8">
-            <h1 className="text-2xl font-bold text-primary">ReviewMaster</h1>
-          </div>
-
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2 mt-4">
             {navigation.map((link) => (
               <SidebarLink 
                 key={link.href}
@@ -142,7 +139,13 @@ export function Sidebar() {
             ))}
           </div>
 
-          <div className="mt-auto space-y-6">
+          <motion.div 
+            className="mt-auto space-y-6"
+            animate={{
+              display: open ? "block" : "none",
+              opacity: open ? 1 : 0
+            }}
+          >
             <div className="space-y-2">
               <div className="flex justify-between text-sm font-medium">
                 <span className="text-gray-600">Responses generated</span>
@@ -193,7 +196,7 @@ export function Sidebar() {
               <LogOut className="w-4 h-4" />
               Log out
             </Button>
-          </div>
+          </motion.div>
         </div>
       </SidebarBody>
     </SidebarContainer>
