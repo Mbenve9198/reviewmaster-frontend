@@ -38,24 +38,29 @@ export function ColumnsDropdown({ table }: ColumnsDropdownProps) {
               typeof column.accessorFn !== "undefined" && column.getCanHide()
           )
           .map((column) => {
-            const isVisible = column.getIsVisible();
             return (
               <div
                 key={column.id}
                 role="button"
-                onClick={() => column.toggleVisibility(!isVisible)}
+                onClick={() => {
+                  const nextIsVisible = !column.getIsVisible();
+                  if (!nextIsVisible && table.getVisibleLeafColumns().length === 1) {
+                    return;
+                  }
+                  column.toggleVisibility(nextIsVisible);
+                }}
                 className={`
                   px-3 py-2 cursor-pointer 
                   hover:bg-gray-50 
                   flex items-center justify-between
                   transition-colors
-                  ${isVisible ? 'text-primary bg-primary/5' : 'text-gray-700'}
+                  ${column.getIsVisible() ? 'text-primary bg-primary/5' : 'text-gray-700'}
                 `}
               >
                 <span className="text-sm">
                   {column.id.charAt(0).toUpperCase() + column.id.slice(1)}
                 </span>
-                {isVisible && (
+                {column.getIsVisible() && (
                   <Check className="h-4 w-4 flex-shrink-0 ml-2" />
                 )}
               </div>
