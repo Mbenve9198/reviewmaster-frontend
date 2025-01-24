@@ -7,7 +7,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Settings2 } from "lucide-react"
+import { Settings2, Check } from "lucide-react"
 import { Table } from "@tanstack/react-table"
 
 interface ColumnsDropdownProps {
@@ -40,19 +40,20 @@ export function ColumnsDropdown({ table }: ColumnsDropdownProps) {
               typeof column.accessorFn !== "undefined" && column.getCanHide()
           )
           .map((column) => {
+            const isChecked = column.getIsVisible();
             return (
-              <DropdownMenuCheckboxItem
+              <div
                 key={column.id}
-                className="px-3 py-2 cursor-pointer relative"
-                checked={column.getIsVisible()}
-                onCheckedChange={(value) => column.toggleVisibility(!!value)}
+                className="px-3 py-2 cursor-pointer hover:bg-gray-50 flex items-center justify-between"
+                onClick={() => column.toggleVisibility(!isChecked)}
               >
-                <div className="flex items-center justify-between w-full">
-                  <span className="block truncate">
-                    {column.id.charAt(0).toUpperCase() + column.id.slice(1)}
-                  </span>
-                </div>
-              </DropdownMenuCheckboxItem>
+                <span className="text-sm text-gray-700">
+                  {column.id.charAt(0).toUpperCase() + column.id.slice(1)}
+                </span>
+                {isChecked && (
+                  <Check className="h-4 w-4 text-primary" />
+                )}
+              </div>
             )
           })}
       </DropdownMenuContent>

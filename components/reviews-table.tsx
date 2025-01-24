@@ -500,206 +500,56 @@ export const ReviewsTable = ({
   console.log('Rendering reviews:', reviews?.length || 0)
 
   return (
-    <div className="w-full flex flex-col">
-      <div className="rounded-xl border">
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} className="border-b">
-                {headerGroup.headers.map((header) => (
-                  <TableHead 
-                    key={header.id} 
-                    className="bg-gray-50 first:rounded-tl-xl last:rounded-tr-xl"
-                  >
-                    {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
-                  </TableHead>
-                ))}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row, index) => (
-                <TableRow 
-                  key={row.id} 
-                  data-state={row.getIsSelected() && "selected"}
-                  className={`even:bg-gray-50 ${index === table.getRowModel().rows.length - 1 ? "last-row" : ""}`}
-                >
-                  {row.getVisibleCells().map((cell, cellIndex) => (
-                    <TableCell 
-                      key={cell.id}
-                      className={`
-                        ${index === table.getRowModel().rows.length - 1 ? "last-row" : ""}
-                        ${cellIndex === 0 ? "first-cell" : ""}
-                        ${cellIndex === row.getVisibleCells().length - 1 ? "last-cell" : ""}
-                      `}
-                    >
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </TableCell>
-                  ))}
+    <div className="w-full flex justify-center">
+      <div className="w-fit">
+        <div className="rounded-xl border border-gray-200 bg-white">
+          <Table>
+            <TableHeader>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => {
+                    return (
+                      <TableHead key={header.id}>
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                      </TableHead>
+                    )
+                  })}
                 </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell 
-                  colSpan={columns.length} 
-                  className="h-24 text-center rounded-b-xl"
-                >
-                  Nessun risultato.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
-
-      <div className="flex items-center justify-between py-4">
-        <div className="flex-1 text-sm text-muted-foreground">
-          Page {table.getState().pagination.pageIndex + 1} of{' '}
-          {table.getPageCount()} ({table.getFilteredRowModel().rows.length} results total)
-        </div>
-        
-        <div className="flex items-center space-x-6">
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => table.previousPage()}
-              disabled={!table.getCanPreviousPage()}
-              className="h-9 px-4 rounded-full"
-            >
-              Previous
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => table.nextPage()}
-              disabled={!table.getCanNextPage()}
-              className="h-9 px-4 rounded-full"
-            >
-              Next
-            </Button>
-          </div>
-          
-          <Select 
-            value={resultsPerPage.toString()} 
-            onValueChange={handleResultsPerPageChange}
-          >
-            <SelectTrigger className="h-9 w-[160px] rounded-full border-gray-200 focus:border-primary focus:ring-primary bg-white text-sm">
-              <SelectValue placeholder="Results per page" className="text-sm" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="10" className="text-sm">10 per page</SelectItem>
-              <SelectItem value="20" className="text-sm">20 per page</SelectItem>
-              <SelectItem value="50" className="text-sm">50 per page</SelectItem>
-              <SelectItem value="100" className="text-sm">100 per page</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
-      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="sm:max-w-[500px] w-[95vw] max-h-[90vh] p-0 bg-white rounded-2xl border shadow-lg">
-          <div className="h-full max-h-[90vh] flex flex-col">
-            <DialogHeader className="px-6 py-4 border-b bg-gray-50/80 rounded-t-2xl">
-              <DialogTitle className="text-lg font-semibold">Generated Response</DialogTitle>
-            </DialogHeader>
-            
-            <div className="flex-1 overflow-y-auto bg-white px-6" ref={chatContainerRef}>
-              <div className="py-6">
-                <ChatMessageList>
-                  {messages.map((message) => (
-                    <ChatBubble 
-                      key={message.id} 
-                      variant={message.sender === "user" ? "sent" : "received"}
-                      className="rounded-2xl shadow-sm"
-                    >
-                      <ChatBubbleAvatar
-                        className="h-8 w-8 shrink-0 rounded-full border-2 border-white shadow-sm"
-                        src={message.sender === "user" ? "https://github.com/shadcn.png" : "https://github.com/vercel.png"}
-                        fallback={message.sender === "user" ? "US" : "AI"}
-                      />
-                      <div className="flex flex-col">
-                        <ChatBubbleMessage 
-                          variant={message.sender === "user" ? "sent" : "received"}
-                          className="rounded-2xl relative pr-10"
-                        >
-                          {message.content}
-                          {message.sender === "ai" && (
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => {
-                                navigator.clipboard.writeText(message.content)
-                                toast.success("Response copied to clipboard")
-                              }}
-                              className="absolute bottom-1 right-1 h-7 w-7 rounded-full bg-white/80 hover:bg-white/90 shadow-sm"
-                            >
-                              <Copy className="h-3.5 w-3.5" />
-                              <span className="sr-only">Copy response</span>
-                            </Button>
-                          )}
-                        </ChatBubbleMessage>
-                      </div>
-                    </ChatBubble>
-                  ))}
-
-                  {isGenerating && (
-                    <ChatBubble variant="received" className="rounded-2xl shadow-sm">
-                      <ChatBubbleAvatar 
-                        className="h-8 w-8 shrink-0 rounded-full border-2 border-white shadow-sm" 
-                        src="https://github.com/vercel.png" 
-                        fallback="AI" 
-                      />
-                      <ChatBubbleMessage isLoading className="rounded-2xl" />
-                    </ChatBubble>
-                  )}
-                </ChatMessageList>
-              </div>
-            </div>
-
-            <div className="border-t px-6 py-4 bg-white rounded-b-2xl">
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  handleChatSubmit(input);
-                }}
-                className="relative flex items-center"
-              >
-                <div className="relative flex-1">
-                  <textarea
-                    value={input}
-                    onChange={(e) => {
-                      setInput(e.target.value);
-                      // Reset height before calculating new height
-                      e.target.style.height = 'inherit';
-                      // Set new height
-                      const height = e.target.scrollHeight;
-                      e.target.style.height = `${height}px`;
-                    }}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        handleChatSubmit(input);
-                      }
-                    }}
-                    placeholder="Type your message..."
-                    className="w-full min-h-[48px] max-h-[200px] resize-none rounded-xl bg-gray-50/80 border-gray-200 p-3 pr-14 shadow-none focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary"
-                    style={{ overflow: 'hidden' }}
-                  />
-                  <Button 
-                    type="submit" 
-                    size="sm" 
-                    className="absolute right-2 top-[50%] -translate-y-1/2 rounded-xl shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[calc(-50%+2px)] transition-all"
+              ))}
+            </TableHeader>
+            <TableBody>
+              {table.getRowModel().rows?.length ? (
+                table.getRowModel().rows.map((row) => (
+                  <TableRow
+                    key={row.id}
+                    data-state={row.getIsSelected() && "selected"}
                   >
-                    <CornerDownLeft className="h-4 w-4" />
-                  </Button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id}>
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-24 text-center"
+                  >
+                    No results.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      </div>
     </div>
   )
 }
