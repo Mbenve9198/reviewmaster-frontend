@@ -11,7 +11,7 @@ import { Toaster } from "sonner"
 import { getCookie } from "@/lib/utils"
 import useReviews from "@/store/useReviews"
 import Image from "next/image"
-import { BulkActionsDropdown } from "@/components/ui/bulk-actions-dropdown"
+import { BulkActionsDropdown } from "@/components/bulk-actions-dropdown"
 
 interface Hotel {
   _id: string
