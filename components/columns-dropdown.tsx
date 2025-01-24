@@ -7,12 +7,51 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Settings2, Check } from "lucide-react"
 import { type Table as TableType } from "@tanstack/react-table"
+import { useState, useEffect } from "react"
 
 interface ColumnsDropdownProps {
   table: TableType<any>
 }
 
 export function ColumnsDropdown({ table }: ColumnsDropdownProps) {
+  const [visibleColumns, setVisibleColumns] = useState<Set<string>>(new Set())
+
+  // Sincronizza lo stato locale con lo stato effettivo della tabella
+  useEffect(() => {
+    const visible = new Set(
+      table.getAllColumns()
+        .filter(col => col.getIsVisible())
+        .map(col => col.id)
+    )
+    setVisibleColumns(visible)
+  }, [table])
+
+  const handleToggle = (columnId: string) => {
+    const column = table.getColumn(columnId)
+    if (!column) return
+
+    const nextIsVisible = !column.getIsVisible()
+    
+    // Previeni la disattivazione se è l'ultima colonna visibile
+    if (!nextIsVisible && table.getVisibleLeafColumns().length === 1) {
+      return
+    }
+
+    // Aggiorna lo stato della colonna
+    column.toggleVisibility(nextIsVisible)
+    
+    // Aggiorna lo stato locale
+    setVisibleColumns(prev => {
+      const next = new Set(prev)
+      if (nextIsVisible) {
+        next.add(columnId)
+      } else {
+        next.delete(columnId)
+      }
+      return next
+    })
+  }
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -38,29 +77,24 @@ export function ColumnsDropdown({ table }: ColumnsDropdownProps) {
               typeof column.accessorFn !== "undefined" && column.getCanHide()
           )
           .map((column) => {
+            const isVisible = visibleColumns.has(column.id)
             return (
               <div
                 key={column.id}
                 role="button"
-                onClick={() => {
-                  const nextIsVisible = !column.getIsVisible();
-                  if (!nextIsVisible && table.getVisibleLeafColumns().length === 1) {
-                    return;
-                  }
-                  column.toggleVisibility(nextIsVisible);
-                }}
+                onClick={() => handleToggle(column.id)}
                 className={`
                   px-3 py-2 cursor-pointer 
                   hover:bg-gray-50 
                   flex items-center justify-between
                   transition-colors
-                  ${column.getIsVisible() ? 'text-primary bg-primary/5' : 'text-gray-700'}
+                  ${isVisible ? 'text-primary bg-primary/5' : 'text-gray-700'}
                 `}
               >
                 <span className="text-sm">
                   {column.id.charAt(0).toUpperCase() + column.id.slice(1)}
                 </span>
-                {column.getIsVisible() && (
+                {isVisible && (
                   <Check className="h-4 w-4 flex-shrink-0 ml-2" />
                 )}
               </div>
