@@ -12,6 +12,7 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
+  type Table as TableType,
 } from "@tanstack/react-table"
 import {
   ArrowUpDown,
@@ -87,7 +88,7 @@ interface ReviewsTableProps {
   onRefresh?: () => void
   onResultsPerPageChange: (value: number) => void
   onSelectionChange: (rows: any[]) => void
-  onTableReady: (table: Table<any>) => void
+  onTableReady: (table: TableType<any>) => void
 }
 
 export const ReviewsTable = ({

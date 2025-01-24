@@ -13,7 +13,7 @@ import useReviews from "@/store/useReviews"
 import Image from "next/image"
 import { BulkActionsDropdown } from "@/components/bulk-actions-dropdown"
 import { ColumnsDropdown } from "@/components/columns-dropdown"
-import { Table } from "@tanstack/react-table"
+import { type Table as TableType } from "@tanstack/react-table"
 
 interface Hotel {
   _id: string
@@ -36,7 +36,7 @@ export default function ReviewsPage() {
   const [isLoading, setIsLoading] = useState(true)
   const { setFilters } = useReviews()
   const [selectedRows, setSelectedRows] = useState<Review[]>([])
-  const [tableInstance, setTableInstance] = useState<Table<any> | null>(null);
+  const [tableInstance, setTableInstance] = useState<TableType<any> | null>(null);
 
   useEffect(() => {
     const fetchHotels = async () => {
@@ -101,7 +101,7 @@ export default function ReviewsPage() {
     // Implement the refresh logic here
   }
 
-  const handleTableReady = (table: Table<any>) => {
+  const handleTableReady = (table: TableType<any>) => {
     setTableInstance(table);
   };
 
