@@ -116,6 +116,16 @@ export default function ReviewsPage() {
       <div className="flex flex-col">
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <Input
+                placeholder="Search reviews..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 w-[280px] rounded-full border-gray-200 focus:border-primary focus:ring-primary bg-white text-sm"
+              />
+            </div>
+
             <Select
               value={hotel}
               onValueChange={(value) => handleFilterChange('hotel', value)}
@@ -177,13 +187,6 @@ export default function ReviewsPage() {
                 <SelectItem value="1" className="text-sm">1 Star & Up</SelectItem>
               </SelectContent>
             </Select>
-
-            <Input
-              placeholder="Search reviews..."
-              value={searchQuery}
-              onChange={(e) => handleFilterChange('search', e.target.value)}
-              className="max-w-[200px]"
-            />
           </div>
 
           <div className="flex items-center gap-4">
