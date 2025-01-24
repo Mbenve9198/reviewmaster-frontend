@@ -85,8 +85,9 @@ interface ReviewsTableProps {
   ratingFilter: string
   resultsPerPage: number
   onRefresh?: () => void
-  onResultsPerPageChange?: (value: string) => void
+  onResultsPerPageChange: (value: number) => void
   onSelectionChange: (rows: any[]) => void
+  onTableReady: (table: Table<any>) => void
 }
 
 export const ReviewsTable = ({
@@ -98,7 +99,8 @@ export const ReviewsTable = ({
   property,
   onRefresh,
   onResultsPerPageChange,
-  onSelectionChange
+  onSelectionChange,
+  onTableReady
 }: ReviewsTableProps) => {
   const { reviews, loading, error, fetchReviews, setFilters, generateResponse } = useReviews()
 
@@ -474,6 +476,11 @@ export const ReviewsTable = ({
     const selectedRows = table.getSelectedRowModel().rows.map(row => row.original);
     onSelectionChange(selectedRows);
   }, [table.getSelectedRowModel().rows]);
+
+  // Notifica il parent component quando la tabella è pronta
+  useEffect(() => {
+    onTableReady(table);
+  }, [table, onTableReady]);
 
   if (loading) {
     console.log('Loading reviews...')
