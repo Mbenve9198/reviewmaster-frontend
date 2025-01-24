@@ -22,6 +22,7 @@ import {
   Settings,
   Search,
   X,
+  PenSquare,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -49,18 +50,20 @@ import useReviews from "@/store/useReviews"
 import { type Review } from "@/types/types"
 import { toast } from "sonner"
 
-type Platform = 'google' | 'booking' | 'tripadvisor'
+type Platform = 'google' | 'booking' | 'tripadvisor' | 'manual'
 
 const logoUrls: Record<Platform, string> = {
   google: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/gmg-logo-300x300-1-YhBm2cRJdd8cFKdb5h4uv3cwYooXY7.webp",
   booking: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/bookingcom-1-s1MP7yjsBCisV79VmZojIZ9Euh0Qn6.svg",
-  tripadvisor: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Tripadvisor_logoset_solid_green-qRQkWYtDeBXNC1eNGeutQj1W40i036.svg"
+  tripadvisor: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Tripadvisor_logoset_solid_green-qRQkWYtDeBXNC1eNGeutQj1W40i036.svg",
+  manual: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/manual%20response-O89S3zfgiDHVSo8aslEIqW3O8G9Q1n.png"
 }
 
 const logoSizes: Record<Platform, { width: number; height: number }> = {
   google: { width: 24, height: 24 },
   booking: { width: 24, height: 24 },
-  tripadvisor: { width: 24, height: 24 }
+  tripadvisor: { width: 24, height: 24 },
+  manual: { width: 24, height: 24 }
 }
 
 // Definizione dei tipi
@@ -263,9 +266,11 @@ export const ReviewsTable = ({
               <Button
                 variant="default"
                 size="sm"
-                className="rounded-xl px-2 bg-white text-gray-700 shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all scale-80"
+                onClick={() => handleCustomResponse(row.original)}
+                className="rounded-xl flex items-center gap-2 bg-primary text-primary-foreground shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all"
               >
-                <ChevronDown className="h-4 w-4" />
+                <PenSquare className="h-4 w-4" />
+                Custom
               </Button>
             </ButtonGroup>
           </div>
@@ -368,6 +373,11 @@ export const ReviewsTable = ({
     }
   }
 
+  const handleCustomResponse = (review: Review) => {
+    // Implement custom response logic
+    console.log("Custom response for review:", review)
+  }
+
   const handleViewDetails = (review: Review) => {
     // Implement view details logic
     console.log("Viewing details for review:", review)
@@ -454,7 +464,7 @@ export const ReviewsTable = ({
                 <TableRow 
                   key={row.id} 
                   data-state={row.getIsSelected() && "selected"}
-                  className={index === table.getRowModel().rows.length - 1 ? "last-row" : ""}
+                  className={`even:bg-gray-50 ${index === table.getRowModel().rows.length - 1 ? "last-row" : ""}`}
                 >
                   {row.getVisibleCells().map((cell, cellIndex) => (
                     <TableCell 

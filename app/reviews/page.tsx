@@ -96,18 +96,7 @@ export default function ReviewsPage() {
       <Toaster position="top-right" />
       
       <div className="text-center mb-8 py-12">
-        <h1 className="text-4xl font-bold text-gray-800 mb-4">
-          <div className="flex items-center justify-center gap-3">
-            <Image
-              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/manual%20response-O89S3zfgiDHVSo8aslEIqW3O8G9Q1n.png"
-              alt=""
-              width={48}
-              height={48}
-              className="w-8 h-8"
-            />
-            Reviews
-          </div>
-        </h1>
+        <h1 className="text-4xl font-bold text-gray-800 mb-4">Reviews</h1>
         <p className="text-xl text-gray-600">
           Monitor and respond to all your guest reviews in one place
         </p>
