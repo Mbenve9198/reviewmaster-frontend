@@ -94,8 +94,11 @@ export default function ReviewsPage() {
     <div className="flex flex-col px-10">
       <Toaster position="top-right" />
       
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Reviews</h1>
+      <div className="text-center mb-12 py-12">
+        <h1 className="text-4xl font-bold text-gray-800 mb-4">Reviews</h1>
+        <p className="text-xl text-gray-600">
+          Monitor and respond to all your guest reviews in one place
+        </p>
       </div>
 
       <div className="flex flex-col">
