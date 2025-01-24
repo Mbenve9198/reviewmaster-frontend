@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button"
 import { Toaster } from "sonner"
 import { getCookie } from "@/lib/utils"
 import useReviews from "@/store/useReviews"
+import Image from "next/image"
 
 interface Hotel {
   _id: string
@@ -94,8 +95,19 @@ export default function ReviewsPage() {
     <div className="flex flex-col px-10">
       <Toaster position="top-right" />
       
-      <div className="text-center mb-12 py-12">
-        <h1 className="text-4xl font-bold text-gray-800 mb-4">Reviews</h1>
+      <div className="text-center mb-8 py-12">
+        <h1 className="text-4xl font-bold text-gray-800 mb-4">
+          <div className="flex items-center justify-center gap-3">
+            <Image
+              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/manual%20response-O89S3zfgiDHVSo8aslEIqW3O8G9Q1n.png"
+              alt=""
+              width={48}
+              height={48}
+              className="w-8 h-8"
+            />
+            Reviews
+          </div>
+        </h1>
         <p className="text-xl text-gray-600">
           Monitor and respond to all your guest reviews in one place
         </p>
@@ -162,6 +174,20 @@ export default function ReviewsPage() {
               </SelectContent>
             </Select>
 
+            <Select 
+              value={responseStatus}
+              onValueChange={(value) => handleFilterChange('responseStatus', value)}
+            >
+              <SelectTrigger className="h-9 w-[160px] rounded-full border-gray-200 focus:border-primary focus:ring-primary bg-white text-sm">
+                <SelectValue placeholder="Response Status" className="text-sm" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all" className="text-sm">All Reviews</SelectItem>
+                <SelectItem value="responded" className="text-sm">Responded</SelectItem>
+                <SelectItem value="not_responded" className="text-sm">Not Responded</SelectItem>
+              </SelectContent>
+            </Select>
+
             <Button
               variant="outline"
               size="sm"
@@ -171,10 +197,12 @@ export default function ReviewsPage() {
                 setHotel("all")
                 setPlatform("all")
                 setRatingFilter("all")
+                setResponseStatus("all")
                 setFilters({
                   hotelId: "all",
                   platform: "all",
                   rating: "all",
+                  responseStatus: "all",
                   searchQuery: ""
                 })
               }}

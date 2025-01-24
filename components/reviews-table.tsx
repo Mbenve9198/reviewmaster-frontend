@@ -255,7 +255,7 @@ export const ReviewsTable = ({
                 variant="default"
                 size="sm"
                 onClick={() => handleGenerateResponse(row.original)}
-                className="rounded-xl flex items-center gap-2 bg-white text-gray-700 shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all whitespace-nowrap scale-80"
+                className="rounded-xl flex items-center gap-2 bg-primary text-primary-foreground shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all"
               >
                 <MessageSquare className="h-4 w-4" />
                 Generate
