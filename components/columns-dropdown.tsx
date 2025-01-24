@@ -30,10 +30,9 @@ export function ColumnsDropdown({ table }: ColumnsDropdownProps) {
         align="end"
         className="w-[180px] bg-white rounded-xl border border-gray-200"
       >
-        <DropdownMenuLabel className="text-gray-500 text-sm font-normal px-2 py-1.5">
+        <DropdownMenuLabel className="text-gray-500 text-sm font-normal px-3 py-2 border-b">
           Toggle Columns
         </DropdownMenuLabel>
-        <DropdownMenuSeparator />
         {table
           .getAllColumns()
           .filter(
@@ -44,11 +43,15 @@ export function ColumnsDropdown({ table }: ColumnsDropdownProps) {
             return (
               <DropdownMenuCheckboxItem
                 key={column.id}
-                className="px-2 py-1.5 data-[state=checked]:bg-primary/5"
+                className="px-3 py-2 cursor-pointer relative"
                 checked={column.getIsVisible()}
                 onCheckedChange={(value) => column.toggleVisibility(!!value)}
               >
-                {column.id.charAt(0).toUpperCase() + column.id.slice(1)}
+                <div className="flex items-center justify-between w-full">
+                  <span className="block truncate">
+                    {column.id.charAt(0).toUpperCase() + column.id.slice(1)}
+                  </span>
+                </div>
               </DropdownMenuCheckboxItem>
             )
           })}
