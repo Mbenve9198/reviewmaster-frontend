@@ -22,7 +22,7 @@ const navigation = [
         alt=""
         width={48}
         height={48}
-        className="w-7 h-7 flex-shrink-0"
+        className="w-9 h-9 flex-shrink-0"
       />
     )
   },
@@ -35,7 +35,7 @@ const navigation = [
         alt=""
         width={48}
         height={48}
-        className="w-7 h-7 flex-shrink-0"
+        className="w-9 h-9 flex-shrink-0"
       />
     )
   },
@@ -48,7 +48,7 @@ const navigation = [
         alt=""
         width={48}
         height={48}
-        className="w-7 h-7 flex-shrink-0"
+        className="w-9 h-9 flex-shrink-0"
       />
     )
   },
@@ -61,7 +61,7 @@ const navigation = [
         alt=""
         width={48}
         height={48}
-        className="w-7 h-7 flex-shrink-0"
+        className="w-9 h-9 flex-shrink-0"
       />
     )
   },
@@ -74,7 +74,7 @@ const navigation = [
         alt=""
         width={48}
         height={48}
-        className="w-7 h-7 flex-shrink-0"
+        className="w-9 h-9 flex-shrink-0"
       />
     )
   },
