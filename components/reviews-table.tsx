@@ -483,6 +483,10 @@ export const ReviewsTable = ({
     onTableReady(table);
   }, [table, onTableReady]);
 
+  const handleResultsPerPageChange = (value: string) => {
+    onResultsPerPageChange(parseInt(value));
+  };
+
   if (loading) {
     console.log('Loading reviews...')
     return <div>Loading...</div>
@@ -579,7 +583,7 @@ export const ReviewsTable = ({
           
           <Select 
             value={resultsPerPage.toString()} 
-            onValueChange={onResultsPerPageChange}
+            onValueChange={handleResultsPerPageChange}
           >
             <SelectTrigger className="h-9 w-[160px] rounded-full border-gray-200 focus:border-primary focus:ring-primary bg-white text-sm">
               <SelectValue placeholder="Results per page" className="text-sm" />
