@@ -50,6 +50,7 @@ import * as DialogPrimitive from "@radix-ui/react-dialog"
 import useReviews from "@/store/useReviews"
 import { type Review } from "@/types/types"
 import { toast } from "sonner"
+import { getCookie } from "cookies-next"
 
 type Platform = 'google' | 'booking' | 'tripadvisor' | 'manual'
 
@@ -440,6 +441,29 @@ export const ReviewsTable = ({
     }
     fetchReviews()
   }
+
+  const handleDeleteReview = async (reviewId: string) => {
+    try {
+      const token = getCookie('token');
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reviews/${reviewId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete review');
+      }
+
+      toast.success('Review deleted successfully');
+      handleRefresh(); // Ricarica la tabella dopo l'eliminazione
+    } catch (error) {
+      console.error('Delete review error:', error);
+      toast.error('Failed to delete review');
+    }
+  };
 
   if (loading) {
     console.log('Loading reviews...')
