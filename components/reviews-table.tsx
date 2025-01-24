@@ -371,14 +371,16 @@ export const ReviewsTable = ({
     setIsGenerating(true);
     
     try {
-      // Aggiungi il messaggio dell'utente alla chat
-      const newUserMessage: ChatMessage = { 
+      const newUserMessage = { 
         id: messages.length + 1, 
         content: input, 
         sender: "user" 
       };
+      
+      // Add user message immediately
       setMessages(prev => [...prev, newUserMessage]);
       
+      // Pass all previous messages plus new input
       const response = await generateResponse(
         selectedReview.hotelId,
         selectedReview.content.text,
@@ -386,11 +388,10 @@ export const ReviewsTable = ({
           style: responseTone as 'professional' | 'friendly',
           length: responseLength as 'short' | 'medium' | 'long',
         },
-        messages
+        [...messages, newUserMessage] // Include full conversation history
       );
       
-      // Aggiungi la risposta dell'AI alla chat
-      const aiMessage: ChatMessage = { 
+      const aiMessage = { 
         id: messages.length + 2, 
         content: response, 
         sender: "ai" 
