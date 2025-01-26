@@ -136,15 +136,15 @@ export function AddPropertyModal({ isOpen, onClose, onSuccess }: AddPropertyModa
           body: JSON.stringify(hotelPayload)
         })
 
-        const hotelData = await hotelResponse.json()
+        const createdHotel = await hotelResponse.json()
         
         if (!hotelResponse.ok) {
-          throw new Error(hotelData.message || 'Error creating hotel')
+          throw new Error(createdHotel.message || 'Error creating hotel')
         }
 
         // Then create the integration
         const integrationPayload = {
-          hotelId: hotelData._id,
+          hotelId: createdHotel._id,
           platform: selectedPlatform,
           url: platformUrl.trim(),
           placeId: 'placeholder',
@@ -157,7 +157,7 @@ export function AddPropertyModal({ isOpen, onClose, onSuccess }: AddPropertyModa
         }
 
         const integrationResponse = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/integrations/hotel/${hotelData._id}`,
+          `${process.env.NEXT_PUBLIC_API_URL}/api/integrations/hotel/${createdHotel._id}`,
           {
             method: 'POST',
             headers: {
