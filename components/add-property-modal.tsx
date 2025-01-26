@@ -191,8 +191,7 @@ export function AddPropertyModal({ isOpen, onClose, onSuccess }: AddPropertyModa
         <div className="p-8">
           <Progress 
             value={(step / totalSteps) * 100} 
-            className="mb-10 h-2 w-[90%] mx-auto"
-            indicatorClassName="bg-primary"
+            className="mb-10 h-2 w-[90%] mx-auto [&>div]:bg-primary"
           />
           
           <div className="space-y-8">
