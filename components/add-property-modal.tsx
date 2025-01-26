@@ -65,6 +65,12 @@ interface IntegrationPayload {
   }
 }
 
+interface SyncConfig {
+  type: 'manual' | 'automatic'
+  frequency: 'daily' | 'weekly' | 'monthly'
+  maxReviews: string
+}
+
 interface AddPropertyModalProps {
   isOpen: boolean
   onClose: () => void
@@ -82,7 +88,7 @@ export function AddPropertyModal({ isOpen, onClose, onSuccess }: AddPropertyModa
   })
   const [selectedPlatform, setSelectedPlatform] = useState<string>('google')
   const [platformUrl, setPlatformUrl] = useState("")
-  const [syncConfig, setSyncConfig] = useState({
+  const [syncConfig, setSyncConfig] = useState<SyncConfig>({
     type: 'automatic',
     frequency: 'daily',
     maxReviews: '100'
