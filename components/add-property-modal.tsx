@@ -178,7 +178,7 @@ export function AddPropertyModal({ isOpen, onClose, onSuccess }: AddPropertyModa
         toast.success('Property and integration setup completed successfully')
       } catch (error) {
         console.error('Setup error:', error)
-        setError(error.message)
+        setError(error instanceof Error ? error.message : 'An unexpected error occurred')
       } finally {
         setIsLoading(false)
       }
