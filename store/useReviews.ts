@@ -33,7 +33,8 @@ interface ReviewsState {
     hotelId: string, 
     reviewText: string, 
     settings: ResponseSettings,
-    previousMessages?: ChatMessage[]
+    previousMessages?: ChatMessage[],
+    reviewId?: string
   ) => Promise<string>
 }
 
@@ -120,7 +121,8 @@ const useReviews = create<ReviewsState>((set, get) => ({
     hotelId: string, 
     reviewText: string, 
     settings: ResponseSettings,
-    previousMessages?: ChatMessage[]
+    previousMessages?: ChatMessage[],
+    reviewId?: string
   ) => {
     const token = getCookie('token')
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reviews/generate`, {

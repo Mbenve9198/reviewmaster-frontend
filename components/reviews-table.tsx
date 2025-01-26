@@ -410,11 +410,10 @@ export const ReviewsTable = ({
             style: responseTone as 'professional' | 'friendly',
             length: responseLength as 'short' | 'medium' | 'long',
           },
-          undefined, // previousMessages
-          review._id // Passiamo l'ID della review
+          undefined,  // previousMessages
+          review._id  // reviewId
         )
         
-        // Non aggiorniamo più la tabella qui, solo i messaggi
         setMessages([{ id: 1, content: response, sender: "ai" }])
       } catch (error) {
         toast.error("Error generating response")
