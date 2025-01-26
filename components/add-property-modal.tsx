@@ -48,8 +48,8 @@ interface HotelPayload {
   description: string
   managerSignature: string
   responseSettings: {
-    style: 'professional'
-    length: 'medium'
+    style: 'professional' | 'friendly'
+    length: 'short' | 'medium' | 'long'
   }
 }
 
