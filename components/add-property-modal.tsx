@@ -374,55 +374,67 @@ export function AddPropertyModal({ isOpen, onClose, onSuccess }: AddPropertyModa
             {/* Step 6: Sync Configuration */}
             {step === 6 && (
               <div className="space-y-6">
-                <div className="space-y-4">
-                  <label className="text-sm font-medium">Platform</label>
-                  <Select
-                    value={selectedPlatform}
-                    onValueChange={setSelectedPlatform}
-                  >
-                    <SelectTrigger className="border-2 border-gray-200 focus:ring-primary focus:ring-offset-0">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="google">Google Reviews</SelectItem>
-                      <SelectItem value="booking">Booking.com</SelectItem>
-                      <SelectItem value="tripadvisor">TripAdvisor</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                <h2 className="text-2xl font-bold">Sync Settings</h2>
+                
+                <div className="space-y-6">
+                  <div className="space-y-4">
+                    <label className="text-sm font-medium">Sync Type</label>
+                    <Select
+                      value={syncConfig.type}
+                      onValueChange={(value: 'manual' | 'automatic') => 
+                        setSyncConfig(prev => ({ ...prev, type: value }))
+                      }
+                    >
+                      <SelectTrigger className="border-2 border-gray-200 focus:ring-primary focus:ring-offset-0">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="automatic">Automatic</SelectItem>
+                        <SelectItem value="manual">Manual</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
 
-                <div className="space-y-4">
-                  <label className="text-sm font-medium">Sync Settings</label>
-                  <Select
-                    value={syncConfig.type}
-                    onValueChange={(value: 'manual' | 'automatic') => 
-                      setSyncConfig(prev => ({ ...prev, type: value }))
-                    }
-                  >
-                    <SelectTrigger className="border-2 border-gray-200 focus:ring-primary focus:ring-offset-0">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="automatic">Automatic</SelectItem>
-                      <SelectItem value="manual">Manual</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  {syncConfig.type === 'automatic' && (
+                    <div className="space-y-4">
+                      <label className="text-sm font-medium">Sync Frequency</label>
+                      <Select
+                        value={syncConfig.frequency}
+                        onValueChange={(value: 'daily' | 'weekly' | 'monthly') => 
+                          setSyncConfig(prev => ({ ...prev, frequency: value }))
+                        }
+                      >
+                        <SelectTrigger className="border-2 border-gray-200 focus:ring-primary focus:ring-offset-0">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="daily">Daily</SelectItem>
+                          <SelectItem value="weekly">Weekly</SelectItem>
+                          <SelectItem value="monthly">Monthly</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
 
-                  <Select
-                    value={syncConfig.frequency}
-                    onValueChange={(value: 'daily' | 'weekly' | 'monthly') => 
-                      setSyncConfig(prev => ({ ...prev, frequency: value }))
-                    }
-                  >
-                    <SelectTrigger className="border-2 border-gray-200 focus:ring-primary focus:ring-offset-0">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="daily">Daily</SelectItem>
-                      <SelectItem value="weekly">Weekly</SelectItem>
-                      <SelectItem value="monthly">Monthly</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <div className="space-y-4">
+                    <label className="text-sm font-medium">Initial Reviews to Sync</label>
+                    <Select
+                      value={syncConfig.maxReviews}
+                      onValueChange={(value: string) => 
+                        setSyncConfig(prev => ({ ...prev, maxReviews: value }))
+                      }
+                    >
+                      <SelectTrigger className="border-2 border-gray-200 focus:ring-primary focus:ring-offset-0">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="50">Last 50 reviews</SelectItem>
+                        <SelectItem value="100">Last 100 reviews</SelectItem>
+                        <SelectItem value="200">Last 200 reviews</SelectItem>
+                        <SelectItem value="500">Last 500 reviews</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
               </div>
             )}
