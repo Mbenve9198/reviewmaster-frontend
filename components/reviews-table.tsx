@@ -113,7 +113,7 @@ export const ReviewsTable = ({
   onSelectionChange,
   onTableReady
 }: ReviewsTableProps) => {
-  const { reviews, loading, error, fetchReviews, setFilters, generateResponse, get } = useReviews()
+  const { reviews, loading, error, fetchReviews, setFilters, generateResponse, updateReviewResponse } = useReviews()
 
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
@@ -554,7 +554,7 @@ export const ReviewsTable = ({
         throw new Error('Failed to save response')
       }
 
-      get().updateReviewResponse(selectedReview._id, lastAiMessage.content)
+      updateReviewResponse(selectedReview._id, lastAiMessage.content)
       
       toast.success('Response saved successfully')
       setIsModalOpen(false)
