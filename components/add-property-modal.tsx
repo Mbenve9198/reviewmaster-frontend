@@ -42,6 +42,29 @@ const PLATFORMS = [
   }
 ];
 
+interface HotelPayload {
+  name: string
+  type: string
+  description: string
+  managerSignature: string
+  responseSettings: {
+    style: 'professional'
+    length: 'medium'
+  }
+}
+
+interface IntegrationPayload {
+  hotelId: string
+  platform: string
+  url: string
+  syncConfig: {
+    type: 'manual' | 'automatic'
+    frequency: 'daily' | 'weekly' | 'monthly'
+    maxReviews: string
+    language: string
+  }
+}
+
 interface AddPropertyModalProps {
   isOpen: boolean
   onClose: () => void
@@ -77,7 +100,7 @@ export function AddPropertyModal({ isOpen, onClose, onSuccess }: AddPropertyModa
         const token = getCookie('token')
 
         // First create the hotel
-        const hotelPayload = {
+        const hotelPayload: HotelPayload = {
           name: hotelData.name,
           type: hotelData.type.toLowerCase(),
           description: hotelData.description,
@@ -97,15 +120,15 @@ export function AddPropertyModal({ isOpen, onClose, onSuccess }: AddPropertyModa
           body: JSON.stringify(hotelPayload)
         })
 
-        const hotelData = await hotelResponse.json()
+        const hotelResponseData = await hotelResponse.json()
         
         if (!hotelResponse.ok) {
-          throw new Error(hotelData.message || 'Error creating hotel')
+          throw new Error(hotelResponseData.message || 'Error creating hotel')
         }
 
         // Then create the integration
-        const integrationPayload = {
-          hotelId: hotelData._id,
+        const integrationPayload: IntegrationPayload = {
+          hotelId: hotelResponseData._id,
           platform: selectedPlatform,
           url: platformUrl.trim(),
           syncConfig: {
@@ -117,7 +140,7 @@ export function AddPropertyModal({ isOpen, onClose, onSuccess }: AddPropertyModa
         }
 
         const integrationResponse = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/integrations/hotel/${hotelData._id}`,
+          `${process.env.NEXT_PUBLIC_API_URL}/api/integrations/hotel/${hotelResponseData._id}`,
           {
             method: 'POST',
             headers: {
