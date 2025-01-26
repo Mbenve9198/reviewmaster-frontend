@@ -4,168 +4,385 @@ import { useState } from "react"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Progress } from "@/components/ui/progress"
-import { Hotel, BedDouble, Home, ArrowRight } from 'lucide-react'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import Image from "next/image"
+import { getCookie } from '@/lib/utils'
+import { toast } from "sonner"
+import { Loader2, ArrowLeft } from "lucide-react"
+
+const PLATFORMS = [
+  {
+    id: 'google',
+    name: 'Google Business',
+    logo: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/google-my-bussines-logo-png_seeklogo-329002-OvZ3IZAlUXbrND3lwaiejZMlWivOUq.png",
+    placeholder: "Enter your Google Business URL",
+    example: "https://www.google.com/maps/place/your-hotel-name"
+  },
+  {
+    id: 'booking',
+    name: 'Booking.com',
+    logo: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/bookingcom-1-84iWRXFhKw2uhSLPIc1eL4eZPSKnUv.svg",
+    placeholder: "Enter your Booking.com property URL",
+    example: "https://www.booking.com/hotel/it/hotel-name.it.html"
+  },
+  {
+    id: 'tripadvisor',
+    name: 'TripAdvisor',
+    logo: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Tripadvisor_logoset_solid_green-KkpUOomr3cNSTrXGcYHehXnIDlKdbg.svg",
+    placeholder: "Enter your TripAdvisor property URL",
+    example: "https://www.tripadvisor.com/Hotel_Review-g123-d456-Reviews-Hotel_Name.html"
+  }
+];
 
 interface AddPropertyModalProps {
   isOpen: boolean
   onClose: () => void
+  onSuccess: () => Promise<void>
 }
 
-export function AddPropertyModal({ isOpen, onClose }: AddPropertyModalProps) {
+export function AddPropertyModal({ isOpen, onClose, onSuccess }: AddPropertyModalProps) {
   const [step, setStep] = useState(1)
-  const [propertyData, setPropertyData] = useState({
+  const totalSteps = 5
+  const [hotelData, setHotelData] = useState({
     name: "",
     type: "",
     description: "",
-    managerSignature: "",
-    bookingUrl: ""
+    managerSignature: ""
   })
+  const [selectedPlatform, setSelectedPlatform] = useState<string>('google')
+  const [platformUrl, setPlatformUrl] = useState("")
+  const [syncConfig, setSyncConfig] = useState({
+    type: 'automatic',
+    frequency: 'daily',
+    maxReviews: '100'
+  })
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target
-    setPropertyData(prev => ({ ...prev, [name]: value }))
-  }
-
-  const handleSelectChange = (value: string) => {
-    setPropertyData(prev => ({ ...prev, type: value }))
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (step === 1) {
-      setStep(2)
+  const handleContinue = async () => {
+    if (step < totalSteps) {
+      setStep(step + 1)
     } else {
-      console.log("Submitting property data:", propertyData)
-      onClose()
+      try {
+        setIsLoading(true)
+        setError(null)
+        const token = getCookie('token')
+
+        // First create the hotel
+        const hotelPayload = {
+          name: hotelData.name,
+          type: hotelData.type.toLowerCase(),
+          description: hotelData.description,
+          managerSignature: hotelData.managerSignature,
+          responseSettings: {
+            style: 'professional',
+            length: 'medium'
+          }
+        }
+
+        const hotelResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/hotels`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify(hotelPayload)
+        })
+
+        const hotelData = await hotelResponse.json()
+        
+        if (!hotelResponse.ok) {
+          throw new Error(hotelData.message || 'Error creating hotel')
+        }
+
+        // Then create the integration
+        const integrationPayload = {
+          hotelId: hotelData._id,
+          platform: selectedPlatform,
+          url: platformUrl.trim(),
+          syncConfig: {
+            type: syncConfig.type,
+            frequency: syncConfig.frequency,
+            maxReviews: syncConfig.maxReviews,
+            language: 'en'
+          }
+        }
+
+        const integrationResponse = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/integrations/hotel/${hotelData._id}`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(integrationPayload)
+          }
+        )
+
+        if (!integrationResponse.ok) {
+          throw new Error('Error creating integration')
+        }
+
+        toast.success("Property and integration added successfully")
+        await onSuccess()
+        onClose()
+        
+      } catch (error) {
+        console.error('Error:', error)
+        setError(error instanceof Error ? error.message : 'An unexpected error occurred')
+        toast.error(error instanceof Error ? error.message : 'An unexpected error occurred')
+      } finally {
+        setIsLoading(false)
+      }
     }
   }
 
-  const progress = (step / 2) * 100
-
-  const buttonClasses = "relative bg-primary hover:bg-primary/90 text-primary-foreground font-bold transition-all active:top-[2px] active:shadow-[0_0_0_0_#2563eb] disabled:opacity-50 disabled:hover:bg-primary disabled:active:top-0 disabled:active:shadow-[0_4px_0_0_#2563eb]"
-
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px] p-0 overflow-hidden rounded-3xl">
-        <div className="bg-primary p-4">
-          <Progress value={progress} className="h-3 bg-primary/20" />
-        </div>
+      <DialogContent className="bg-white max-w-4xl max-h-[90vh] overflow-y-auto p-0">
         <div className="p-6">
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {step === 1 ? (
-              <>
-                <div className="text-center mb-6">
-                  <h2 className="text-2xl font-bold text-primary mb-2">Property Details</h2>
-                  <p className="text-gray-600">Tell us about your property</p>
-                </div>
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="name" className="text-gray-700">Property Name</Label>
-                    <Input 
-                      id="name" 
-                      name="name" 
-                      value={propertyData.name} 
-                      onChange={handleInputChange} 
-                      className="rounded-xl border-2 focus:border-primary focus:ring-primary"
-                      required 
-                    />
+          <div className="max-w-3xl mx-auto space-y-8">
+            <div className="text-center">
+              <h1 className="text-4xl font-bold mb-2">Add New Property</h1>
+              <p className="text-xl text-gray-600">Let's set up your new property</p>
+            </div>
+
+            <Progress value={(step / totalSteps) * 100} className="h-3" />
+
+            <div className="flex items-start gap-8">
+              <div className="w-48 h-48 flex-shrink-0 sticky top-8">
+                <Image
+                  src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Animation%20-%201735492269786-mKYfBdc9ahOzlN7orHkSTFifJ4H3MG.gif"
+                  alt="ReviewMaster Assistant"
+                  width={192}
+                  height={192}
+                  className="w-full h-full object-contain"
+                />
+              </div>
+
+              <div className="flex-1 space-y-8">
+                {/* Step 1-3: Hotel Details */}
+                {step === 1 && (
+                  <div className="space-y-6">
+                    <div className="space-y-2">
+                      <label className="text-xl font-bold text-gray-800">Property Name</label>
+                      <Input
+                        value={hotelData.name}
+                        onChange={(e) => setHotelData({ ...hotelData, name: e.target.value })}
+                        className="p-6 text-xl rounded-2xl border-2 border-gray-200 focus:border-[#58CC02] focus:ring-[#58CC02]"
+                        placeholder="Enter your property name"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-xl font-bold text-gray-800">Property Type</label>
+                      <Select
+                        value={hotelData.type}
+                        onValueChange={(value) => setHotelData({ ...hotelData, type: value })}
+                      >
+                        <SelectTrigger className="p-6 text-xl rounded-2xl border-2 border-gray-200 focus:border-[#58CC02] focus:ring-[#58CC02]">
+                          <SelectValue placeholder="Select property type" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-white">
+                          <SelectItem value="hotel">Hotel</SelectItem>
+                          <SelectItem value="b&b">B&B</SelectItem>
+                          <SelectItem value="resort">Resort</SelectItem>
+                          <SelectItem value="apartment">Apartment</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="type" className="text-gray-700">Property Type</Label>
-                    <Select onValueChange={handleSelectChange} value={propertyData.type}>
-                      <SelectTrigger className="rounded-xl border-2">
-                        <SelectValue placeholder="Select property type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="hotel">
-                          <div className="flex items-center">
-                            <Hotel className="w-4 h-4 mr-2" />
-                            Hotel
+                )}
+
+                {step === 2 && (
+                  <div className="space-y-6">
+                    <div className="space-y-2">
+                      <label className="text-xl font-bold text-gray-800">Description</label>
+                      <Textarea
+                        value={hotelData.description}
+                        onChange={(e) => setHotelData({ ...hotelData, description: e.target.value })}
+                        className="p-6 text-xl rounded-2xl border-2 border-gray-200 focus:border-[#58CC02] focus:ring-[#58CC02] min-h-[200px]"
+                        placeholder="Describe your property..."
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {step === 3 && (
+                  <div className="space-y-6">
+                    <div className="space-y-2">
+                      <label className="text-xl font-bold text-gray-800">Manager Signature</label>
+                      <Input
+                        value={hotelData.managerSignature}
+                        onChange={(e) => setHotelData({ ...hotelData, managerSignature: e.target.value })}
+                        className="p-6 text-xl rounded-2xl border-2 border-gray-200 focus:border-[#58CC02] focus:ring-[#58CC02]"
+                        placeholder="Your name and title"
+                      />
+                      <p className="text-sm text-gray-600 px-2">
+                        This signature will appear at the end of your review responses
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Step 4: Platform Selection and URL */}
+                {step === 4 && (
+                  <div className="space-y-6">
+                    <div className="space-y-4">
+                      {PLATFORMS.map((platform) => (
+                        <button
+                          key={platform.id}
+                          onClick={() => setSelectedPlatform(platform.id)}
+                          className={`relative p-6 rounded-xl border-2 transition-all ${
+                            selectedPlatform === platform.id
+                              ? "border-primary bg-primary/5 shadow-lg"
+                              : "border-gray-200 hover:border-gray-300"
+                          } w-full`}
+                        >
+                          <div className="flex items-center space-x-4">
+                            <Image
+                              src={platform.logo}
+                              alt={platform.name}
+                              width={40}
+                              height={40}
+                              className="rounded"
+                            />
+                            <div className="flex-1 text-left">
+                              <h3 className="font-medium">{platform.name}</h3>
+                            </div>
                           </div>
-                        </SelectItem>
-                        <SelectItem value="b&b">
-                          <div className="flex items-center">
-                            <BedDouble className="w-4 h-4 mr-2" />
-                            B&B
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="apartment">
-                          <div className="flex items-center">
-                            <Home className="w-4 h-4 mr-2" />
-                            Apartment
-                          </div>
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
+                        </button>
+                      ))}
+                    </div>
+
+                    {selectedPlatform && (
+                      <div className="space-y-4">
+                        <Input
+                          value={platformUrl}
+                          onChange={(e) => setPlatformUrl(e.target.value)}
+                          placeholder={PLATFORMS.find(p => p.id === selectedPlatform)?.placeholder}
+                          className="h-12 rounded-xl"
+                        />
+                        <p className="text-sm text-gray-500">
+                          Example: {PLATFORMS.find(p => p.id === selectedPlatform)?.example}
+                        </p>
+                      </div>
+                    )}
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="description" className="text-gray-700">Description</Label>
-                    <Textarea 
-                      id="description" 
-                      name="description" 
-                      value={propertyData.description} 
-                      onChange={handleInputChange}
-                      className="rounded-xl border-2 focus:border-primary focus:ring-primary"
-                    />
+                )}
+
+                {/* Step 5: Sync Configuration */}
+                {step === 5 && (
+                  <div className="space-y-6">
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Sync Type</label>
+                        <Select
+                          value={syncConfig.type}
+                          onValueChange={(value) => 
+                            setSyncConfig(prev => ({ ...prev, type: value }))
+                          }
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="automatic">Automatic</SelectItem>
+                            <SelectItem value="manual">Manual</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Sync Frequency</label>
+                        <Select
+                          value={syncConfig.frequency}
+                          onValueChange={(value) => 
+                            setSyncConfig(prev => ({ ...prev, frequency: value }))
+                          }
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="daily">Daily</SelectItem>
+                            <SelectItem value="weekly">Weekly</SelectItem>
+                            <SelectItem value="monthly">Monthly</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Initial Reviews to Sync</label>
+                        <Select
+                          value={syncConfig.maxReviews}
+                          onValueChange={(value) => 
+                            setSyncConfig(prev => ({ ...prev, maxReviews: value }))
+                          }
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="100">Last 100 reviews</SelectItem>
+                            <SelectItem value="200">Last 200 reviews</SelectItem>
+                            <SelectItem value="500">Last 500 reviews</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="managerSignature" className="text-gray-700">Manager Signature</Label>
-                    <Input 
-                      id="managerSignature" 
-                      name="managerSignature" 
-                      value={propertyData.managerSignature} 
-                      onChange={handleInputChange}
-                      className="rounded-xl border-2 focus:border-primary focus:ring-primary"
-                    />
+                )}
+
+                {error && (
+                  <div className="text-red-500 text-sm mt-2">
+                    {error}
                   </div>
+                )}
+
+                <div className="flex justify-end gap-4">
+                  {step > 1 && (
+                    <Button
+                      onClick={() => setStep(step - 1)}
+                      variant="outline"
+                      className="relative bg-white hover:bg-gray-100 text-primary font-bold py-6 px-8 text-xl border-2 border-primary rounded-2xl shadow-[0_4px_0_0_#1d6d05] transition-all active:top-[2px] active:shadow-[0_0_0_0_#1d6d05]"
+                    >
+                      Back
+                    </Button>
+                  )}
+                  <Button
+                    onClick={handleContinue}
+                    disabled={
+                      isLoading ||
+                      (step === 1 && (!hotelData.name || !hotelData.type)) ||
+                      (step === 2 && !hotelData.description) ||
+                      (step === 3 && !hotelData.managerSignature) ||
+                      (step === 4 && !platformUrl) ||
+                      (step === 5 && (!syncConfig.type || !syncConfig.frequency || !syncConfig.maxReviews))
+                    }
+                    className="relative bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-6 px-8 text-xl rounded-2xl shadow-[0_4px_0_0_#1d6d05] transition-all active:top-[2px] active:shadow-[0_0_0_0_#1d6d05]"
+                  >
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Setting up property...
+                      </>
+                    ) : (
+                      step === totalSteps ? "Complete Setup" : "Continue"
+                    )}
+                  </Button>
                 </div>
-              </>
-            ) : (
-              <>
-                <div className="text-center mb-6">
-                  <h2 className="text-2xl font-bold text-primary mb-2">Connect Reviews</h2>
-                  <p className="text-gray-600">Link your Booking.com listing</p>
-                </div>
-                <div className="space-y-4">
-                  <div className="p-4 bg-blue-50 rounded-xl flex items-start space-x-3">
-                    <ArrowRight className="w-5 h-5 text-blue-500 mt-0.5" />
-                    <p className="text-sm text-blue-700">
-                      We'll import all your existing reviews and keep them synchronized automatically.
-                    </p>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="bookingUrl" className="text-gray-700">Booking.com Property URL</Label>
-                    <Input 
-                      id="bookingUrl" 
-                      name="bookingUrl" 
-                      value={propertyData.bookingUrl} 
-                      onChange={handleInputChange} 
-                      className="rounded-xl border-2 focus:border-primary focus:ring-primary"
-                      placeholder="https://www.booking.com/hotel/..."
-                      required 
-                    />
-                  </div>
-                </div>
-              </>
-            )}
-            <Button 
-              type="submit"
-              className={`${buttonClasses} w-full text-xl py-6 rounded-xl shadow-[0_4px_0_0_#2563eb] flex items-center justify-center`}
-            >
-              {step === 1 ? (
-                <div className="flex items-center justify-center">
-                  Continue
-                  <ArrowRight className="ml-2 w-5 h-5" />
-                </div>
-              ) : (
-                'Connect Property'
-              )}
-            </Button>
-          </form>
+              </div>
+            </div>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

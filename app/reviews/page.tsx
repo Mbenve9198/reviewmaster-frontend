@@ -14,6 +14,7 @@ import Image from "next/image"
 import { BulkActionsDropdown } from "@/components/bulk-actions-dropdown"
 import { ColumnsDropdown } from "@/components/columns-dropdown"
 import { type Table as TableType } from "@tanstack/react-table"
+import { AddPropertyModal } from "@/components/add-property-modal"
 
 interface Hotel {
   _id: string
@@ -37,6 +38,7 @@ export default function ReviewsPage() {
   const { setFilters } = useReviews()
   const [selectedRows, setSelectedRows] = useState<Review[]>([])
   const [tableInstance, setTableInstance] = useState<TableType<any> | null>(null);
+  const [isAddPropertyModalOpen, setIsAddPropertyModalOpen] = useState(false)
 
   useEffect(() => {
     const fetchHotels = async () => {
@@ -107,6 +109,51 @@ export default function ReviewsPage() {
 
   if (isLoading) {
     return <div>Loading...</div>
+  }
+
+  if (hotels.length === 0) {
+    return (
+      <>
+        <div className="flex flex-col items-center justify-center min-h-[80vh] px-10">
+          <div className="text-center mb-8">
+            <h1 className="text-4xl font-bold text-gray-800 mb-4">Welcome to ReviewMaster</h1>
+            <p className="text-xl text-gray-600">
+              Get started by adding your first property
+            </p>
+          </div>
+
+          <Button 
+            onClick={() => setIsAddPropertyModalOpen(true)}
+            className="relative bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-6 px-8 text-xl rounded-2xl shadow-[0_4px_0_0_#1d6d05] transition-all active:top-[2px] active:shadow-[0_0_0_0_#1d6d05]"
+          >
+            Add Your First Property
+          </Button>
+        </div>
+
+        <AddPropertyModal 
+          isOpen={isAddPropertyModalOpen}
+          onClose={() => setIsAddPropertyModalOpen(false)}
+          onSuccess={async () => {
+            // Refresh hotels list
+            const token = getCookie('token')
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/hotels`, {
+              headers: {
+                'Authorization': `Bearer ${token}`,
+              }
+            })
+            
+            if (response.ok) {
+              const data = await response.json()
+              setHotels(data)
+              if (data.length > 0) {
+                setHotel(data[0]._id)
+                setFilters({ hotelId: data[0]._id })
+              }
+            }
+          }}
+        />
+      </>
+    )
   }
 
   return (
