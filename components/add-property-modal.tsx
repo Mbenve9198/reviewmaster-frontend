@@ -316,7 +316,7 @@ export function AddPropertyModal({ isOpen, onClose, onSuccess }: AddPropertyModa
                         <label className="text-sm font-medium">Sync Type</label>
                         <Select
                           value={syncConfig.type}
-                          onValueChange={(value) => 
+                          onValueChange={(value: 'manual' | 'automatic') => 
                             setSyncConfig(prev => ({ ...prev, type: value }))
                           }
                         >
@@ -334,7 +334,7 @@ export function AddPropertyModal({ isOpen, onClose, onSuccess }: AddPropertyModa
                         <label className="text-sm font-medium">Sync Frequency</label>
                         <Select
                           value={syncConfig.frequency}
-                          onValueChange={(value) => 
+                          onValueChange={(value: 'daily' | 'weekly' | 'monthly') => 
                             setSyncConfig(prev => ({ ...prev, frequency: value }))
                           }
                         >
