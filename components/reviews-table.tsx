@@ -396,12 +396,10 @@ export const ReviewsTable = ({
   }, [messages]);
 
   const handleGenerateResponse = async (review: Review) => {
-    // Prima settiamo la modale e la recensione selezionata
     setSelectedReview(review)
     setIsModalOpen(true)
-    setMessages([]) // Reset messages before generating new ones
+    setMessages([])
     
-    // Poi avviamo la generazione in un setTimeout per evitare il re-render della tabella
     setTimeout(async () => {
       setIsGenerating(true)
       try {
@@ -411,9 +409,12 @@ export const ReviewsTable = ({
           {
             style: responseTone as 'professional' | 'friendly',
             length: responseLength as 'short' | 'medium' | 'long',
-          }
+          },
+          undefined, // previousMessages
+          review._id // Passiamo l'ID della review
         )
         
+        // Non aggiorniamo più la tabella qui, solo i messaggi
         setMessages([{ id: 1, content: response, sender: "ai" }])
       } catch (error) {
         toast.error("Error generating response")

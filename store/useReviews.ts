@@ -28,7 +28,7 @@ interface ReviewsState {
   }
   setFilters: (filters: Partial<ReviewsState['filters']>) => void
   fetchReviews: () => Promise<void>
-  updateReviewResponse: (hotelId: string, response: string) => void
+  updateReviewResponse: (reviewId: string, response: string) => void
   generateResponse: (
     hotelId: string, 
     reviewText: string, 
@@ -99,10 +99,10 @@ const useReviews = create<ReviewsState>((set, get) => ({
     }
   },
 
-  updateReviewResponse: (hotelId: string, response: string) => {
+  updateReviewResponse: (reviewId: string, response: string) => {
     set((state) => ({
       reviews: state.reviews.map(review => 
-        review.hotelId === hotelId 
+        review._id === reviewId
           ? { 
               ...review, 
               response: { 
@@ -143,10 +143,6 @@ const useReviews = create<ReviewsState>((set, get) => ({
     }
 
     const data = await response.json()
-    
-    // Aggiorna solo la risposta specifica invece di ricaricare tutto
-    get().updateReviewResponse(hotelId, data.response)
-    
     return data.response
   }
 }))
