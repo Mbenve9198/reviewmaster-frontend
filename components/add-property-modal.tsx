@@ -188,10 +188,10 @@ export function AddPropertyModal({ isOpen, onClose, onSuccess }: AddPropertyModa
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[600px] p-0 bg-white">
-        <div className="p-6">
-          <Progress value={(step / totalSteps) * 100} className="mb-8" />
+        <div className="p-8">
+          <Progress value={(step / totalSteps) * 100} className="mb-10" />
           
-          <div className="space-y-6">
+          <div className="space-y-8">
             {/* Step 1-3: Hotel Details */}
             {step === 1 && (
               <div className="space-y-6">
@@ -303,65 +303,61 @@ export function AddPropertyModal({ isOpen, onClose, onSuccess }: AddPropertyModa
 
             {/* Step 5: Response Settings */}
             {step === 5 && (
-              <div className="space-y-6">
-                <div className="space-y-4">
-                  <h2 className="text-2xl font-bold">Response Settings</h2>
+              <div className="space-y-8">
+                <div>
+                  <h2 className="text-2xl font-bold mb-6">Response Settings</h2>
                   
-                  <div className="space-y-4">
+                  <div className="space-y-6">
                     <div>
-                      <label className="text-sm font-medium mb-2 block">Response Style</label>
-                      <div className="grid grid-cols-2 gap-4">
-                        <Button
+                      <label className="text-sm font-medium mb-4 block">Response Style</label>
+                      <div className="grid grid-cols-2 gap-6">
+                        <button
                           type="button"
-                          variant={responseSettings.style === 'professional' ? 'default' : 'outline'}
-                          className={`p-4 h-auto ${
-                            responseSettings.style === 'professional' 
-                              ? 'bg-primary text-white' 
-                              : 'bg-white'
-                          }`}
                           onClick={() => setResponseSettings(prev => ({ ...prev, style: 'professional' }))}
+                          className={`relative p-6 rounded-2xl text-left transition-all ${
+                            responseSettings.style === 'professional'
+                              ? 'bg-primary text-white shadow-[0_4px_0_0_#1e40af]'
+                              : 'bg-white border-2 border-gray-200 hover:border-primary'
+                          } active:top-[2px] active:shadow-[0_0_0_0_#1e40af]`}
                         >
-                          <div className="text-left">
-                            <div className="font-bold">Professional</div>
-                            <div className="text-sm opacity-90">Formal and business-like tone</div>
-                          </div>
-                        </Button>
+                          <div className="font-bold text-lg mb-2">Professional</div>
+                          <div className="text-sm opacity-90">Formal and business-like tone</div>
+                        </button>
                         
-                        <Button
+                        <button
                           type="button"
-                          variant={responseSettings.style === 'friendly' ? 'default' : 'outline'}
-                          className={`p-4 h-auto ${
-                            responseSettings.style === 'friendly' 
-                              ? 'bg-primary text-white' 
-                              : 'bg-white'
-                          }`}
                           onClick={() => setResponseSettings(prev => ({ ...prev, style: 'friendly' }))}
+                          className={`relative p-6 rounded-2xl text-left transition-all ${
+                            responseSettings.style === 'friendly'
+                              ? 'bg-primary text-white shadow-[0_4px_0_0_#1e40af]'
+                              : 'bg-white border-2 border-gray-200 hover:border-primary'
+                          } active:top-[2px] active:shadow-[0_0_0_0_#1e40af]`}
                         >
-                          <div className="text-left">
-                            <div className="font-bold">Friendly</div>
-                            <div className="text-sm opacity-90">Warm and conversational tone</div>
-                          </div>
-                        </Button>
+                          <div className="font-bold text-lg mb-2">Friendly</div>
+                          <div className="text-sm opacity-90">Warm and conversational tone</div>
+                        </button>
                       </div>
                     </div>
 
                     <div>
-                      <label className="text-sm font-medium mb-2 block">Response Length</label>
-                      <div className="grid grid-cols-3 gap-4">
+                      <label className="text-sm font-medium mb-4 block">Response Length</label>
+                      <div className="grid grid-cols-3 gap-6">
                         {['short', 'medium', 'long'].map((length) => (
-                          <Button
+                          <button
                             key={length}
                             type="button"
-                            variant={responseSettings.length === length ? 'default' : 'outline'}
-                            className={`p-4 h-auto ${
-                              responseSettings.length === length 
-                                ? 'bg-primary text-white' 
-                                : 'bg-white'
-                            }`}
-                            onClick={() => setResponseSettings(prev => ({ ...prev, length: length as ResponseSettings['length'] }))}
+                            onClick={() => setResponseSettings(prev => ({ 
+                              ...prev, 
+                              length: length as ResponseSettings['length'] 
+                            }))}
+                            className={`relative p-6 rounded-2xl text-center transition-all ${
+                              responseSettings.length === length
+                                ? 'bg-primary text-white shadow-[0_4px_0_0_#1e40af]'
+                                : 'bg-white border-2 border-gray-200 hover:border-primary'
+                            } active:top-[2px] active:shadow-[0_0_0_0_#1e40af]`}
                           >
-                            <div className="font-bold capitalize">{length}</div>
-                          </Button>
+                            <div className="font-bold text-lg capitalize">{length}</div>
+                          </button>
                         ))}
                       </div>
                     </div>
@@ -439,7 +435,7 @@ export function AddPropertyModal({ isOpen, onClose, onSuccess }: AddPropertyModa
               </div>
             )}
 
-            <div className="flex justify-end gap-4 mt-6">
+            <div className="flex justify-end gap-4 mt-8">
               {step > 1 && (
                 <Button
                   onClick={() => setStep(step - 1)}
