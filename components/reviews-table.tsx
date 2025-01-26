@@ -533,12 +533,14 @@ export const ReviewsTable = ({
 
       const token = getCookie('token')
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reviews/${selectedReview._id}`, {
-        method: 'PATCH',
+        method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'X-HTTP-Method-Override': 'PATCH'
         },
         body: JSON.stringify({
+          _method: 'PATCH',
           response: {
             text: lastAiMessage.content,
             createdAt: new Date(),
