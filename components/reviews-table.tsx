@@ -396,27 +396,31 @@ export const ReviewsTable = ({
   }, [messages]);
 
   const handleGenerateResponse = async (review: Review) => {
+    // Prima settiamo la modale e la recensione selezionata
     setSelectedReview(review)
     setIsModalOpen(true)
-    setIsGenerating(true)
-
-    try {
-      const response = await generateResponse(
-        review.hotelId,
-        review.content.text,
-        {
-          style: responseTone as 'professional' | 'friendly',
-          length: responseLength as 'short' | 'medium' | 'long',
-        }
-      )
-      
-      // Aggiorniamo i messaggi senza chiudere la modal
-      setMessages([{ id: 1, content: response, sender: "ai" }])
-    } catch (error) {
-      toast.error("Error generating response")
-    } finally {
-      setIsGenerating(false)
-    }
+    setMessages([]) // Reset messages before generating new ones
+    
+    // Poi avviamo la generazione in un setTimeout per evitare il re-render della tabella
+    setTimeout(async () => {
+      setIsGenerating(true)
+      try {
+        const response = await generateResponse(
+          review.hotelId,
+          review.content.text,
+          {
+            style: responseTone as 'professional' | 'friendly',
+            length: responseLength as 'short' | 'medium' | 'long',
+          }
+        )
+        
+        setMessages([{ id: 1, content: response, sender: "ai" }])
+      } catch (error) {
+        toast.error("Error generating response")
+      } finally {
+        setIsGenerating(false)
+      }
+    }, 0)
   }
 
   const handleCustomResponse = (review: Review) => {
@@ -699,23 +703,7 @@ export const ReviewsTable = ({
           <DialogContent className="sm:max-w-[500px] w-[95vw] max-h-[90vh] p-0 bg-white rounded-2xl border shadow-lg">
             <div className="h-full max-h-[90vh] flex flex-col">
               <DialogHeader className="px-6 py-4 border-b bg-gray-50/80 rounded-t-2xl">
-                <div className="flex items-center justify-between">
-                  <DialogTitle className="text-lg font-semibold">Generated Response</DialogTitle>
-                  <Button
-                    onClick={handleSaveResponse}
-                    disabled={isSaving || isGenerating || !messages.length}
-                    className="relative bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-xl shadow-[0_4px_0_0_#1e40af] transition-all active:top-[2px] active:shadow-[0_0_0_0_#1e40af]"
-                  >
-                    {isSaving ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Saving...
-                      </>
-                    ) : (
-                      "Save Response"
-                    )}
-                  </Button>
-                </div>
+                <DialogTitle className="text-lg font-semibold">Generated Response</DialogTitle>
               </DialogHeader>
               
               <div className="flex-1 overflow-y-auto bg-white px-6" ref={chatContainerRef}>
@@ -771,13 +759,13 @@ export const ReviewsTable = ({
                 </div>
               </div>
 
-              <div className="border-t px-6 py-4 bg-white rounded-b-2xl">
+              <div className="border-t px-6 py-4 bg-gray-50">
                 <form
                   onSubmit={(e) => {
                     e.preventDefault();
                     handleChatSubmit(input);
                   }}
-                  className="relative flex items-center"
+                  className="relative flex items-center gap-4"
                 >
                   <div className="relative flex-1">
                     <textarea
@@ -795,7 +783,7 @@ export const ReviewsTable = ({
                         }
                       }}
                       placeholder="Type your message..."
-                      className="w-full min-h-[48px] max-h-[200px] resize-none rounded-xl bg-gray-50/80 border-gray-200 p-3 pr-14 shadow-none focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary"
+                      className="w-full min-h-[48px] max-h-[200px] resize-none rounded-xl bg-white border-gray-200 p-3 pr-14 shadow-none focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary"
                       style={{ overflow: 'hidden' }}
                     />
                     <Button 
@@ -806,6 +794,20 @@ export const ReviewsTable = ({
                       <CornerDownLeft className="h-4 w-4" />
                     </Button>
                   </div>
+                  <Button
+                    onClick={handleSaveResponse}
+                    disabled={isSaving || isGenerating || !messages.length}
+                    className="relative bg-primary hover:bg-primary/90 text-white px-6 py-2 rounded-xl shadow-[0_4px_0_0_#1e40af] transition-all active:top-[2px] active:shadow-[0_0_0_0_#1e40af]"
+                  >
+                    {isSaving ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Saving...
+                      </>
+                    ) : (
+                      "Save Response"
+                    )}
+                  </Button>
                 </form>
               </div>
             </div>
