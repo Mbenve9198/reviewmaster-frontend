@@ -646,7 +646,108 @@ export const ReviewsTable = ({
         </div>
       </div>
     </div>
-  )
+
+    <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+      <DialogContent className="sm:max-w-[500px] w-[95vw] max-h-[90vh] p-0 bg-white rounded-2xl border shadow-lg">
+        <div className="h-full max-h-[90vh] flex flex-col">
+          <DialogHeader className="px-6 py-4 border-b bg-gray-50/80 rounded-t-2xl">
+            <DialogTitle className="text-lg font-semibold">Generated Response</DialogTitle>
+          </DialogHeader>
+          
+          <div className="flex-1 overflow-y-auto bg-white px-6" ref={chatContainerRef}>
+            <div className="py-6">
+              <ChatMessageList>
+                {messages.map((message) => (
+                  <ChatBubble 
+                    key={message.id} 
+                    variant={message.sender === "user" ? "sent" : "received"}
+                    className="rounded-2xl shadow-sm"
+                  >
+                    <ChatBubbleAvatar
+                      className="h-8 w-8 shrink-0 rounded-full border-2 border-white shadow-sm"
+                      src={message.sender === "user" ? "https://github.com/shadcn.png" : "https://github.com/vercel.png"}
+                      fallback={message.sender === "user" ? "US" : "AI"}
+                    />
+                    <div className="flex flex-col">
+                      <ChatBubbleMessage 
+                        variant={message.sender === "user" ? "sent" : "received"}
+                        className="rounded-2xl relative pr-10"
+                      >
+                        {message.content}
+                        {message.sender === "ai" && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => {
+                              navigator.clipboard.writeText(message.content)
+                              toast.success("Response copied to clipboard")
+                            }}
+                            className="absolute bottom-1 right-1 h-7 w-7 rounded-full bg-white/80 hover:bg-white/90 shadow-sm"
+                          >
+                            <Copy className="h-3.5 w-3.5" />
+                            <span className="sr-only">Copy response</span>
+                          </Button>
+                        )}
+                      </ChatBubbleMessage>
+                    </div>
+                  </ChatBubble>
+                ))}
+
+                {isGenerating && (
+                  <ChatBubble variant="received" className="rounded-2xl shadow-sm">
+                    <ChatBubbleAvatar 
+                      className="h-8 w-8 shrink-0 rounded-full border-2 border-white shadow-sm" 
+                      src="https://github.com/vercel.png" 
+                      fallback="AI" 
+                    />
+                    <ChatBubbleMessage isLoading className="rounded-2xl" />
+                  </ChatBubble>
+                )}
+              </ChatMessageList>
+            </div>
+          </div>
+
+          <div className="border-t px-6 py-4 bg-white rounded-b-2xl">
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleChatSubmit(input);
+              }}
+              className="relative flex items-center"
+            >
+              <div className="relative flex-1">
+                <textarea
+                  value={input}
+                  onChange={(e) => {
+                    setInput(e.target.value);
+                    e.target.style.height = 'inherit';
+                    const height = e.target.scrollHeight;
+                    e.target.style.height = `${height}px`;
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      handleChatSubmit(input);
+                    }
+                  }}
+                  placeholder="Type your message..."
+                  className="w-full min-h-[48px] max-h-[200px] resize-none rounded-xl bg-gray-50/80 border-gray-200 p-3 pr-14 shadow-none focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary"
+                  style={{ overflow: 'hidden' }}
+                />
+                <Button 
+                  type="submit" 
+                  size="sm" 
+                  className="absolute right-2 top-[50%] -translate-y-1/2 rounded-xl shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[calc(-50%+2px)] transition-all"
+                >
+                  <CornerDownLeft className="h-4 w-4" />
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  </div>
 }
 
 // Aggiungi questi stili globali nel tuo CSS
