@@ -124,7 +124,7 @@ export default function ReviewsPage() {
 
           <Button 
             onClick={() => setIsAddPropertyModalOpen(true)}
-            className="relative bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-6 px-8 text-xl rounded-2xl shadow-[0_4px_0_0_#1d6d05] transition-all active:top-[2px] active:shadow-[0_0_0_0_#1d6d05]"
+            className="relative bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-6 px-8 text-xl rounded-2xl shadow-[0_4px_0_0_#1e40af] transition-all active:top-[2px] active:shadow-[0_0_0_0_#1e40af]"
           >
             Add Your First Property
           </Button>
