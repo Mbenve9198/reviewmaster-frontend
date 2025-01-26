@@ -262,52 +262,6 @@ export function AddPropertyModal({ isOpen, onClose, onSuccess }: AddPropertyModa
 
             {/* Step 4: Platform Selection and URL */}
             {step === 4 && (
-              <div className="space-y-6">
-                <div className="space-y-4">
-                  {PLATFORMS.map((platform) => (
-                    <button
-                      key={platform.id}
-                      onClick={() => setSelectedPlatform(platform.id)}
-                      className={`relative p-6 rounded-xl border-2 transition-all ${
-                        selectedPlatform === platform.id
-                          ? "border-primary bg-primary/5 shadow-lg"
-                          : "border-gray-200 hover:border-gray-300"
-                      } w-full`}
-                    >
-                      <div className="flex items-center space-x-4">
-                        <Image
-                          src={platform.logo}
-                          alt={platform.name}
-                          width={40}
-                          height={40}
-                          className="rounded"
-                        />
-                        <div className="flex-1 text-left">
-                          <h3 className="font-medium">{platform.name}</h3>
-                        </div>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-
-                {selectedPlatform && (
-                  <div className="space-y-4">
-                    <Input
-                      value={platformUrl}
-                      onChange={(e) => setPlatformUrl(e.target.value)}
-                      placeholder={PLATFORMS.find(p => p.id === selectedPlatform)?.placeholder}
-                      className="h-12 rounded-xl"
-                    />
-                    <p className="text-sm text-gray-500">
-                      Example: {PLATFORMS.find(p => p.id === selectedPlatform)?.example}
-                    </p>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Step 5: Response Settings */}
-            {step === 5 && (
               <div className="space-y-8">
                 <div>
                   <h2 className="text-2xl font-bold mb-6">Response Settings</h2>
@@ -368,6 +322,51 @@ export function AddPropertyModal({ isOpen, onClose, onSuccess }: AddPropertyModa
                     </div>
                   </div>
                 </div>
+              </div>
+            )}
+
+            {step === 5 && (
+              <div className="space-y-6">
+                <div className="space-y-4">
+                  {PLATFORMS.map((platform) => (
+                    <button
+                      key={platform.id}
+                      onClick={() => setSelectedPlatform(platform.id)}
+                      className={`relative p-6 rounded-xl border-2 transition-all ${
+                        selectedPlatform === platform.id
+                          ? "border-primary bg-primary/5 shadow-lg"
+                          : "border-gray-200 hover:border-gray-300"
+                      } w-full`}
+                    >
+                      <div className="flex items-center space-x-4">
+                        <Image
+                          src={platform.logo}
+                          alt={platform.name}
+                          width={40}
+                          height={40}
+                          className="rounded"
+                        />
+                        <div className="flex-1 text-left">
+                          <h3 className="font-medium">{platform.name}</h3>
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+
+                {selectedPlatform && (
+                  <div className="space-y-4">
+                    <Input
+                      value={platformUrl}
+                      onChange={(e) => setPlatformUrl(e.target.value)}
+                      placeholder={PLATFORMS.find(p => p.id === selectedPlatform)?.placeholder}
+                      className="h-12 rounded-xl"
+                    />
+                    <p className="text-sm text-gray-500">
+                      Example: {PLATFORMS.find(p => p.id === selectedPlatform)?.example}
+                    </p>
+                  </div>
+                )}
               </div>
             )}
 
