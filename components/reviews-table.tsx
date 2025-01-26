@@ -25,6 +25,7 @@ import {
   X,
   PenSquare,
   Trash2,
+  Loader2,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -112,7 +113,7 @@ export const ReviewsTable = ({
   onSelectionChange,
   onTableReady
 }: ReviewsTableProps) => {
-  const { reviews, loading, error, fetchReviews, setFilters, generateResponse } = useReviews()
+  const { reviews, loading, error, fetchReviews, setFilters, generateResponse, get } = useReviews()
 
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
@@ -127,6 +128,7 @@ export const ReviewsTable = ({
   const [responseTone, setResponseTone] = useState("professional")
   const [pageIndex, setPageIndex] = useState(0)
   const [pageSize, setPageSize] = useState(resultsPerPage)
+  const [isSaving, setIsSaving] = useState(false)
 
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
@@ -517,6 +519,54 @@ export const ReviewsTable = ({
     onResultsPerPageChange(newPageSize)
   }
 
+  const handleSaveResponse = async () => {
+    if (!selectedReview || !messages.length) return
+    
+    setIsSaving(true)
+    try {
+      const lastAiMessage = [...messages].reverse().find(m => m.sender === "ai")
+      if (!lastAiMessage) throw new Error("No AI response to save")
+
+      const token = getCookie('token')
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reviews/${selectedReview._id}`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          response: {
+            text: lastAiMessage.content,
+            createdAt: new Date(),
+            settings: {
+              style: responseTone,
+              length: responseLength
+            }
+          }
+        })
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to save response')
+      }
+
+      get().updateReviewResponse(selectedReview._id, lastAiMessage.content)
+      
+      toast.success('Response saved successfully')
+      setIsModalOpen(false)
+      
+      if (onRefresh) {
+        onRefresh()
+      }
+
+    } catch (error) {
+      console.error('Save response error:', error)
+      toast.error('Failed to save response')
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
   if (loading) {
     console.log('Loading reviews...')
     return <div>Loading...</div>
@@ -649,7 +699,23 @@ export const ReviewsTable = ({
           <DialogContent className="sm:max-w-[500px] w-[95vw] max-h-[90vh] p-0 bg-white rounded-2xl border shadow-lg">
             <div className="h-full max-h-[90vh] flex flex-col">
               <DialogHeader className="px-6 py-4 border-b bg-gray-50/80 rounded-t-2xl">
-                <DialogTitle className="text-lg font-semibold">Generated Response</DialogTitle>
+                <div className="flex items-center justify-between">
+                  <DialogTitle className="text-lg font-semibold">Generated Response</DialogTitle>
+                  <Button
+                    onClick={handleSaveResponse}
+                    disabled={isSaving || isGenerating || !messages.length}
+                    className="relative bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-xl shadow-[0_4px_0_0_#1e40af] transition-all active:top-[2px] active:shadow-[0_0_0_0_#1e40af]"
+                  >
+                    {isSaving ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Saving...
+                      </>
+                    ) : (
+                      "Save Response"
+                    )}
+                  </Button>
+                </div>
               </DialogHeader>
               
               <div className="flex-1 overflow-y-auto bg-white px-6" ref={chatContainerRef}>
