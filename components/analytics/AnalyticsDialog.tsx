@@ -71,9 +71,9 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl h-[80vh] p-0 bg-white rounded-3xl overflow-hidden">
-        {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b">
+      <DialogContent className="max-w-3xl h-[80vh] p-0 bg-white rounded-3xl overflow-hidden flex flex-col">
+        {/* Header - fisso */}
+        <div className="flex items-center justify-between p-4 border-b">
           <h2 className="text-xl font-semibold">Analisi Recensioni</h2>
           <Button 
             variant="ghost" 
@@ -85,9 +85,9 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
           </Button>
         </div>
 
-        {/* Chat Area */}
-        <div className="flex-1 overflow-y-auto p-6">
-          <div className="space-y-6">
+        {/* Chat Area - scrollabile */}
+        <div className="flex-1 overflow-y-auto">
+          <div className="p-6 space-y-6">
             {messages.map((msg, i) => (
               <div key={i} className="relative group">
                 <ChatBubble variant={msg.role === "user" ? "sent" : "received"}>
@@ -123,9 +123,9 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
           </div>
         </div>
 
-        {/* Input Area con suggerimenti */}
-        <div className="p-6 border-t bg-white space-y-4">
-          {/* Input principale */}
+        {/* Input Area - fisso, più compatto */}
+        <div className="border-t bg-white p-4 space-y-3">
+          {/* Input con altezza fissa */}
           <div className="relative">
             <Input
               value={inputValue}
@@ -133,8 +133,8 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
               onKeyPress={(e) => e.key === 'Enter' && inputValue.trim() && handleAnalysis(inputValue)}
               placeholder={isLoading ? "Analisi in corso..." : "Fai domande sull'analisi..."}
               disabled={isLoading}
-              className="pr-24 bg-white border-2 border-gray-100 rounded-2xl py-6 
-                        text-lg focus:border-blue-500 focus:ring-0 transition-colors"
+              className="pr-24 bg-white border-2 border-gray-100 rounded-xl h-12
+                        text-base focus:border-blue-500 focus:ring-0"
             />
             <div className="absolute right-2 top-1/2 -translate-y-1/2 flex gap-2">
               {inputValue && (
@@ -162,23 +162,28 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
             </div>
           </div>
 
-          {/* Suggerimenti in orizzontale */}
-          <div className="flex gap-2 overflow-x-auto pb-2 px-1">
-            {suggestedPrompts.map(prompt => (
-              <Button
-                key={prompt}
-                variant="outline"
-                size="sm"
-                onClick={() => handleAnalysis(prompt)}
-                disabled={isLoading}
-                className="flex-shrink-0 bg-white hover:bg-blue-50 
-                          border border-gray-200 rounded-full px-4
-                          flex items-center gap-2 whitespace-nowrap"
-              >
-                {getPromptIcon(prompt)}
-                <span className="text-sm">{prompt}</span>
-              </Button>
-            ))}
+          {/* Suggerimenti con scroll orizzontale */}
+          <div className="relative">
+            <div className="flex gap-2 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-200 pb-2">
+              {suggestedPrompts.map(prompt => (
+                <Button
+                  key={prompt}
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleAnalysis(prompt)}
+                  disabled={isLoading}
+                  className="flex-shrink-0 bg-white hover:bg-blue-50 
+                            border border-gray-200 rounded-full h-9
+                            flex items-center gap-2 whitespace-nowrap"
+                >
+                  {getPromptIcon(prompt)}
+                  <span className="text-sm">{prompt}</span>
+                </Button>
+              ))}
+            </div>
+            
+            {/* Fade effect per indicare lo scroll */}
+            <div className="absolute right-0 top-0 h-full w-8 bg-gradient-to-l from-white pointer-events-none" />
           </div>
         </div>
       </DialogContent>
