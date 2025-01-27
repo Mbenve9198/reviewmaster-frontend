@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import {
@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { PlusCircle, Send, Settings } from 'lucide-react'
+import { PlusCircle, Send, Settings, Copy, CornerDownLeft } from 'lucide-react'
 import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import { useRouter } from 'next/navigation'
@@ -26,6 +26,13 @@ import { Progress } from "@/components/ui/progress"
 import { Input } from "@/components/ui/input"
 import { ResponseModal } from "@/components/response-modal"
 import { getCookie } from "@/lib/utils"
+import { toast } from "react-hot-toast"
+import {
+  ChatBubble,
+  ChatBubbleAvatar,
+  ChatBubbleMessage,
+  ChatMessageList,
+} from "@/components/ui/chat-bubble"
 
 interface Hotel {
   _id: string
@@ -36,6 +43,13 @@ interface Hotel {
 
 type ResponseStyle = 'professional' | 'friendly'
 type ResponseLength = 'short' | 'medium' | 'long'
+type MessageSender = "user" | "ai"
+
+interface ChatMessage {
+  id: number
+  content: string
+  sender: MessageSender
+}
 
 export default function HomePage() {
   const [selectedHotel, setSelectedHotel] = useState("")
@@ -56,6 +70,12 @@ export default function HomePage() {
   const [isResponseModalOpen, setIsResponseModalOpen] = useState(false)
   const [responseStyle, setResponseStyle] = useState<ResponseStyle>('professional')
   const [responseLength, setResponseLength] = useState<ResponseLength>('medium')
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [messages, setMessages] = useState<ChatMessage[]>([])
+  const [input, setInput] = useState("")
+  const [isGenerating, setIsGenerating] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
+  const chatContainerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const checkAuthAndFetchData = async () => {
@@ -128,9 +148,11 @@ export default function HomePage() {
 
   const handleGenerateResponse = async () => {
     if (!selectedHotel || !review.trim()) return;
-    setIsLoading(true);
-    setError(null);
-    setAiResponse("");
+    
+    setIsModalOpen(true)
+    setMessages([])
+    setIsGenerating(true)
+    setError(null)
     
     try {
       const token = getCookie('token');
@@ -147,8 +169,6 @@ export default function HomePage() {
         }
       };
 
-      console.log('Sending request with:', payload);
-
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reviews/generate`, {
         method: 'POST',
         headers: {
@@ -160,35 +180,71 @@ export default function HomePage() {
       });
 
       const data = await response.json();
-      console.log('Response received:', data);
       
       if (!response.ok) {
         throw new Error(data.message || `HTTP error! status: ${response.status}`);
       }
       
-      setAiResponse(data.response);
-      setIsResponseModalOpen(true);
-
-      // Aggiorna i crediti usati
-      const statsResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/stats`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        credentials: 'include'
-      });
-      
-      if (statsResponse.ok) {
-        const statsData = await statsResponse.json();
-        // Aggiorna i crediti nel componente padre o nel context se necessario
-      }
+      setMessages([{ id: 1, content: data.response, sender: "ai" }]);
 
     } catch (error) {
-      console.error('Error generating response:', error);
-      setError(error instanceof Error ? error.message : 'An unexpected error occurred');
-      setIsResponseModalOpen(true);
+      setError(error.message || "An error occurred");
+      toast.error(error.message || "An error occurred");
     } finally {
-      setIsLoading(false);
+      setIsGenerating(false);
+    }
+  };
+
+  const handleChatSubmit = async (input: string) => {
+    if (!input.trim() || !selectedHotel) return;
+    
+    setIsGenerating(true);
+    setInput(''); // Clear input after sending
+    
+    try {
+      const newUserMessage: ChatMessage = { 
+        id: messages.length + 1, 
+        content: input, 
+        sender: "user"
+      };
+      
+      setMessages(prev => [...prev, newUserMessage]);
+      
+      const token = getCookie('token');
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reviews/generate`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          hotelId: selectedHotel,
+          review: review,
+          responseSettings: {
+            style: responseStyle,
+            length: responseLength
+          },
+          previousMessages: [...messages, newUserMessage]
+        }),
+        credentials: 'include'
+      });
+
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.message || `HTTP error! status: ${response.status}`);
+      }
+
+      const aiMessage: ChatMessage = { 
+        id: messages.length + 2, 
+        content: data.response, 
+        sender: "ai"
+      };
+      setMessages(prev => [...prev, aiMessage]);
+    } catch (error) {
+      toast.error("Error generating response");
+    } finally {
+      setIsGenerating(false);
     }
   };
 
@@ -309,123 +365,105 @@ export default function HomePage() {
           </Button>
         </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="flex justify-center mb-12"
-        >
-          <div className="flex items-start gap-8 w-full max-w-3xl">
-            <div className="w-48 h-48 flex-shrink-0">
-              <Image
-                src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Animation%20-%201735475353995%20(1)-gb0Iqm2o4UfOtqKV9ci6WaYC8gW8R8.gif"
-                alt="ReviewMaster Assistant"
-                width={192}
-                height={192}
-                className="w-full h-full object-contain"
-              />
-            </div>
-            <div className="flex-1 space-y-4">
-              <div className="space-y-4">
-                <h2 className="text-2xl font-bold">Enter Guest Review</h2>
-                
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <p className="text-sm text-gray-500 font-medium">Tone of voice</p>
-                    <div className="flex gap-3">
-                      <Button
-                        onClick={() => setResponseStyle('professional')}
-                        className={`px-6 py-3 text-base rounded-xl transition-all ${
-                          responseStyle === 'professional'
-                            ? 'bg-primary text-primary-foreground shadow-[0_2px_0_0_#1d6d05] hover:bg-primary/90'
-                            : 'bg-gray-100 text-gray-600 shadow-[0_2px_0_0_#d1d5db] hover:bg-gray-200'
-                        }`}
-                      >
-                        Professional
-                      </Button>
-                      <Button
-                        onClick={() => setResponseStyle('friendly')}
-                        className={`px-6 py-3 text-base rounded-xl transition-all ${
-                          responseStyle === 'friendly'
-                            ? 'bg-primary text-primary-foreground shadow-[0_2px_0_0_#1d6d05] hover:bg-primary/90'
-                            : 'bg-gray-100 text-gray-600 shadow-[0_2px_0_0_#d1d5db] hover:bg-gray-200'
-                        }`}
-                      >
-                        Friendly
-                      </Button>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <p className="text-sm text-gray-500 font-medium">Length</p>
-                    <div className="flex gap-3">
-                      <Button
-                        onClick={() => setResponseLength('short')}
-                        className={`px-6 py-3 text-base rounded-xl transition-all ${
-                          responseLength === 'short'
-                            ? 'bg-primary text-primary-foreground shadow-[0_2px_0_0_#1d6d05] hover:bg-primary/90'
-                            : 'bg-gray-100 text-gray-600 shadow-[0_2px_0_0_#d1d5db] hover:bg-gray-200'
-                        }`}
-                      >
-                        Short
-                      </Button>
-                      <Button
-                        onClick={() => setResponseLength('medium')}
-                        className={`px-6 py-3 text-base rounded-xl transition-all ${
-                          responseLength === 'medium'
-                            ? 'bg-primary text-primary-foreground shadow-[0_2px_0_0_#1d6d05] hover:bg-primary/90'
-                            : 'bg-gray-100 text-gray-600 shadow-[0_2px_0_0_#d1d5db] hover:bg-gray-200'
-                        }`}
-                      >
-                        Medium
-                      </Button>
-                      <Button
-                        onClick={() => setResponseLength('long')}
-                        className={`px-6 py-3 text-base rounded-xl transition-all ${
-                          responseLength === 'long'
-                            ? 'bg-primary text-primary-foreground shadow-[0_2px_0_0_#1d6d05] hover:bg-primary/90'
-                            : 'bg-gray-100 text-gray-600 shadow-[0_2px_0_0_#d1d5db] hover:bg-gray-200'
-                        }`}
-                      >
-                        Long
-                      </Button>
-                    </div>
-                  </div>
+        <div className="flex flex-col gap-4 w-full max-w-3xl">
+          <div className="space-y-4">
+            <h2 className="text-2xl font-bold">Enter Guest Review</h2>
+            
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <p className="text-sm text-gray-500 font-medium">Tone of voice</p>
+                <div className="flex gap-3">
+                  <Button
+                    onClick={() => setResponseStyle('professional')}
+                    className={`px-6 py-3 text-base rounded-xl transition-all ${
+                      responseStyle === 'professional'
+                        ? 'bg-primary text-primary-foreground shadow-[0_2px_0_0_#1d6d05] hover:bg-primary/90'
+                        : 'bg-gray-100 text-gray-600 shadow-[0_2px_0_0_#d1d5db] hover:bg-gray-200'
+                    }`}
+                  >
+                    Professional
+                  </Button>
+                  <Button
+                    onClick={() => setResponseStyle('friendly')}
+                    className={`px-6 py-3 text-base rounded-xl transition-all ${
+                      responseStyle === 'friendly'
+                        ? 'bg-primary text-primary-foreground shadow-[0_2px_0_0_#1d6d05] hover:bg-primary/90'
+                        : 'bg-gray-100 text-gray-600 shadow-[0_2px_0_0_#d1d5db] hover:bg-gray-200'
+                    }`}
+                  >
+                    Friendly
+                  </Button>
                 </div>
+              </div>
 
-                <Textarea
-                  value={review}
-                  onChange={(e) => setReview(e.target.value)}
-                  className="p-6 text-xl rounded-2xl border-2 border-gray-200 focus:border-primary focus:ring-primary min-h-[200px]"
-                  placeholder="Paste the guest review here..."
-                />
-                
-                <Button
-                  onClick={handleGenerateResponse}
-                  disabled={!selectedHotel || !review.trim() || isLoading}
-                  className={`${buttonClasses} w-full text-2xl py-8 rounded-2xl shadow-[0_4px_0_0_#2563eb] flex items-center justify-center gap-2`}
-                >
-                  {isLoading ? (
-                    <>
-                      <motion.div
-                        animate={{ rotate: 360 }}
-                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                      >
-                        <Send className="w-6 h-6" />
-                      </motion.div>
-                      Generating...
-                    </>
-                  ) : (
-                    <>
-                      <Send className="w-6 h-6" />
-                      Generate AI Response
-                    </>
-                  )}
-                </Button>
+              <div className="space-y-2">
+                <p className="text-sm text-gray-500 font-medium">Length</p>
+                <div className="flex gap-3">
+                  <Button
+                    onClick={() => setResponseLength('short')}
+                    className={`px-6 py-3 text-base rounded-xl transition-all ${
+                      responseLength === 'short'
+                        ? 'bg-primary text-primary-foreground shadow-[0_2px_0_0_#1d6d05] hover:bg-primary/90'
+                        : 'bg-gray-100 text-gray-600 shadow-[0_2px_0_0_#d1d5db] hover:bg-gray-200'
+                    }`}
+                  >
+                    Short
+                  </Button>
+                  <Button
+                    onClick={() => setResponseLength('medium')}
+                    className={`px-6 py-3 text-base rounded-xl transition-all ${
+                      responseLength === 'medium'
+                        ? 'bg-primary text-primary-foreground shadow-[0_2px_0_0_#1d6d05] hover:bg-primary/90'
+                        : 'bg-gray-100 text-gray-600 shadow-[0_2px_0_0_#d1d5db] hover:bg-gray-200'
+                    }`}
+                  >
+                    Medium
+                  </Button>
+                  <Button
+                    onClick={() => setResponseLength('long')}
+                    className={`px-6 py-3 text-base rounded-xl transition-all ${
+                      responseLength === 'long'
+                        ? 'bg-primary text-primary-foreground shadow-[0_2px_0_0_#1d6d05] hover:bg-primary/90'
+                        : 'bg-gray-100 text-gray-600 shadow-[0_2px_0_0_#d1d5db] hover:bg-gray-200'
+                    }`}
+                  >
+                    Long
+                  </Button>
+                </div>
               </div>
             </div>
+
+            <Textarea
+              value={review}
+              onChange={(e) => setReview(e.target.value)}
+              className="p-6 text-xl rounded-2xl border-2 border-gray-200 focus:border-primary focus:ring-primary min-h-[200px]"
+              placeholder="Paste the guest review here..."
+            />
+            
+            <Button
+              onClick={handleGenerateResponse}
+              disabled={!selectedHotel || !review.trim() || isGenerating}
+              className={`${buttonClasses} w-full text-2xl py-8 rounded-2xl shadow-[0_4px_0_0_#2563eb] flex items-center justify-center gap-2`}
+            >
+              {isGenerating ? (
+                <>
+                  <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                  >
+                    <Send className="w-6 h-6" />
+                  </motion.div>
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <Send className="w-6 h-6" />
+                  Generate AI Response
+                </>
+              )}
+            </Button>
           </div>
-        </motion.div>
+        </div>
 
         <ResponseModal
           isOpen={isResponseModalOpen}
@@ -524,6 +562,122 @@ export default function HomePage() {
                   {step === totalSteps ? "Complete" : "Continue"}
                 </Button>
               </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent className="sm:max-w-[500px] w-[95vw] max-h-[90vh] p-0 bg-white rounded-2xl border shadow-lg">
+          <div className="h-full max-h-[90vh] flex flex-col">
+            <DialogHeader className="px-6 py-4 border-b bg-gray-50/80 rounded-t-2xl">
+              <DialogTitle className="text-lg font-semibold">Generated Response</DialogTitle>
+            </DialogHeader>
+            
+            <div className="flex-1 overflow-y-auto bg-white px-6" ref={chatContainerRef}>
+              <div className="py-6">
+                <ChatMessageList>
+                  {messages.map((message) => (
+                    <ChatBubble 
+                      key={message.id} 
+                      variant={message.sender === "user" ? "sent" : "received"}
+                      className="rounded-2xl shadow-sm"
+                    >
+                      <ChatBubbleAvatar
+                        className="h-8 w-8 shrink-0 rounded-full border-2 border-white shadow-sm"
+                        src={message.sender === "user" ? "https://github.com/shadcn.png" : "https://github.com/vercel.png"}
+                        fallback={message.sender === "user" ? "US" : "AI"}
+                      />
+                      <div className="flex flex-col">
+                        <ChatBubbleMessage 
+                          variant={message.sender === "user" ? "sent" : "received"}
+                          className="rounded-2xl relative pr-10"
+                        >
+                          {message.content}
+                          {message.sender === "ai" && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => {
+                                navigator.clipboard.writeText(message.content)
+                                toast.success("Response copied to clipboard")
+                              }}
+                              className="absolute bottom-1 right-1 h-7 w-7 rounded-full bg-white/80 hover:bg-white/90 shadow-sm"
+                            >
+                              <Copy className="h-3.5 w-3.5" />
+                              <span className="sr-only">Copy response</span>
+                            </Button>
+                          )}
+                        </ChatBubbleMessage>
+                      </div>
+                    </ChatBubble>
+                  ))}
+
+                  {isGenerating && (
+                    <ChatBubble variant="received" className="rounded-2xl shadow-sm">
+                      <ChatBubbleAvatar 
+                        className="h-8 w-8 shrink-0 rounded-full border-2 border-white shadow-sm" 
+                        src="https://github.com/vercel.png" 
+                        fallback="AI" 
+                      />
+                      <ChatBubbleMessage isLoading className="rounded-2xl" />
+                    </ChatBubble>
+                  )}
+                </ChatMessageList>
+              </div>
+            </div>
+
+            <div className="border-t px-6 py-4 bg-gray-50">
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleChatSubmit(input);
+                }}
+                className="relative flex items-center gap-4"
+              >
+                <div className="relative flex-1">
+                  <textarea
+                    value={input}
+                    onChange={(e) => {
+                      setInput(e.target.value);
+                      e.target.style.height = 'inherit';
+                      const height = e.target.scrollHeight;
+                      e.target.style.height = `${height}px`;
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        handleChatSubmit(input);
+                      }
+                    }}
+                    placeholder="Type your message..."
+                    className="w-full min-h-[48px] max-h-[200px] resize-none rounded-xl bg-white border-gray-200 p-3 pr-14 shadow-none focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary"
+                    style={{ overflow: 'hidden' }}
+                  />
+                  <Button 
+                    type="submit" 
+                    size="sm" 
+                    className="absolute right-2 top-[50%] -translate-y-1/2 rounded-xl shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[calc(-50%+2px)] transition-all"
+                  >
+                    <CornerDownLeft className="h-4 w-4" />
+                  </Button>
+                </div>
+                <Button
+                  onClick={() => {
+                    if (messages.length > 0) {
+                      const lastAiMessage = [...messages].reverse().find(m => m.sender === "ai");
+                      if (lastAiMessage) {
+                        setAiResponse(lastAiMessage.content);
+                        setIsModalOpen(false);
+                      }
+                    }
+                  }}
+                  disabled={isGenerating || !messages.length}
+                  className="relative bg-primary hover:bg-primary/90 text-white px-6 py-2 rounded-xl shadow-[0_4px_0_0_#1e40af] transition-all active:top-[2px] active:shadow-[0_0_0_0_#1e40af]"
+                >
+                  Save Response
+                </Button>
+              </form>
             </div>
           </div>
         </DialogContent>
