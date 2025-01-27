@@ -26,6 +26,7 @@ import {
   PenSquare,
   Trash2,
   Loader2,
+  ExternalLink,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -272,8 +273,20 @@ export const ReviewsTable = ({
       header: "",
       size: 0.3,
       cell: ({ row }) => {
+        const review = row.original;
         return (
-          <div className="flex justify-start -ml-4">
+          <div className="flex items-center gap-2">
+            {review.content?.originalUrl && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => window.open(review.content.originalUrl, '_blank')}
+                className="h-8 w-8 rounded-full hover:bg-gray-100"
+                title="View original review"
+              >
+                <ExternalLink className="h-4 w-4 text-gray-500" />
+              </Button>
+            )}
             <ButtonGroup>
               <Button
                 variant="default"
@@ -703,7 +716,20 @@ export const ReviewsTable = ({
           <DialogContent className="sm:max-w-[500px] w-[95vw] max-h-[90vh] p-0 bg-white rounded-2xl border shadow-lg">
             <div className="h-full max-h-[90vh] flex flex-col">
               <DialogHeader className="px-6 py-4 border-b bg-gray-50/80 rounded-t-2xl">
-                <DialogTitle className="text-lg font-semibold">Generated Response</DialogTitle>
+                <div className="flex items-center justify-between">
+                  <DialogTitle className="text-lg font-semibold">Generated Response</DialogTitle>
+                  {selectedReview?.content?.originalUrl && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => window.open(selectedReview.content.originalUrl, '_blank')}
+                      className="h-8 w-8 rounded-full hover:bg-gray-100"
+                      title="View original review"
+                    >
+                      <ExternalLink className="h-4 w-4 text-gray-500" />
+                    </Button>
+                  )}
+                </div>
               </DialogHeader>
               
               <div className="flex-1 overflow-y-auto bg-white px-6" ref={chatContainerRef}>
