@@ -71,7 +71,7 @@ export function BulkActionsDropdown({
         <DropdownMenuTrigger asChild>
           <Button 
             variant="default"
-            className="relative h-8 px-2 lg:px-3 bg-blue-500 text-white rounded-lg 
+            className="relative h-8 px-2 lg:px-3 bg-blue-500 text-white rounded-full 
               shadow-[0_2px_0_0_rgb(37,99,235)] 
               active:shadow-[0_0_0_0_rgb(37,99,235)] active:translate-y-[2px] 
               transition-all duration-150 
@@ -83,21 +83,22 @@ export function BulkActionsDropdown({
         </DropdownMenuTrigger>
         <DropdownMenuContent 
           align="end"
-          className="bg-white border rounded-lg shadow-lg"
+          className="w-56 bg-white rounded-xl border border-gray-200 shadow-lg p-2"
         >
           <DropdownMenuItem
             onClick={() => setIsAnalyticsOpen(true)}
             disabled={selectedRows.length < 10}
-            className="hover:bg-gray-100 cursor-pointer"
+            className="relative flex cursor-pointer select-none items-center rounded-lg px-2 py-1.5 text-sm outline-none transition-colors hover:bg-blue-50 focus:bg-blue-50 data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
           >
             <BarChart2 className="mr-2 h-4 w-4" />
             Analizza Recensioni
           </DropdownMenuItem>
           {onBulkDelete && (
             <DropdownMenuItem
-              className="text-red-600 hover:bg-red-50 cursor-pointer"
+              className="relative flex cursor-pointer select-none items-center rounded-lg px-2 py-1.5 text-sm outline-none transition-colors text-red-600 hover:bg-red-50 focus:bg-red-50"
               onClick={handleBulkDelete}
             >
+              <Trash2 className="mr-2 h-4 w-4" />
               Elimina Recensioni
             </DropdownMenuItem>
           )}

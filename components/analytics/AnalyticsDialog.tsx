@@ -56,26 +56,31 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl h-[80vh] p-0 bg-white">
+      <DialogContent className="max-w-3xl h-[80vh] p-0 bg-white rounded-3xl overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b">
+        <div className="flex items-center justify-between p-6 border-b">
           <h2 className="text-xl font-semibold">Analisi Recensioni</h2>
-          <Button variant="ghost" size="icon" onClick={onClose}>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={onClose}
+            className="rounded-full hover:bg-gray-100"
+          >
             <X className="h-4 w-4" />
           </Button>
         </div>
 
-        <div className="flex flex-1 h-full">
-          <div className="w-2/3 flex flex-col p-4">
+        <div className="flex flex-col h-full">
+          <div className="flex-1 flex flex-col p-6">
             {/* Suggested Prompts */}
-            <div className="flex flex-wrap gap-2 mb-4">
+            <div className="flex flex-wrap gap-2 mb-6">
               {suggestedPrompts.map(prompt => (
                 <Button 
                   key={prompt}
                   variant="outline"
                   onClick={() => handleAnalysis(prompt)}
                   disabled={isLoading}
-                  className="bg-white hover:bg-gray-50"
+                  className="bg-white hover:bg-gray-50 rounded-full"
                 >
                   {prompt}
                 </Button>
@@ -89,14 +94,14 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
                   <ChatBubble variant={msg.role === "user" ? "sent" : "received"}>
                     {msg.role === "assistant" && (
                       <ChatBubbleAvatar>
-                        <div className="bg-black rounded-sm p-1">
+                        <div className="bg-black rounded-full p-1">
                           <div className="w-0 h-0 border-l-[6px] border-l-transparent border-b-[8px] border-b-white border-r-[6px] border-r-transparent" />
                         </div>
                       </ChatBubbleAvatar>
                     )}
                     <ChatBubbleMessage 
                       variant={msg.role === "user" ? "sent" : "received"}
-                      className="text-lg"
+                      className="text-lg rounded-2xl"
                     >
                       {msg.content}
                     </ChatBubbleMessage>
@@ -104,7 +109,7 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="absolute bottom-2 right-2 opacity-50 hover:opacity-100"
+                        className="absolute bottom-2 right-2 opacity-50 hover:opacity-100 rounded-full"
                         onClick={() => handleCopy(msg.content)}
                       >
                         <Copy className="h-4 w-4" />
@@ -116,28 +121,32 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
               {isLoading && (
                 <ChatBubble variant="received">
                   <ChatBubbleAvatar>
-                    <div className="bg-black rounded-sm p-1">
+                    <div className="bg-black rounded-full p-1">
                       <div className="w-0 h-0 border-l-[6px] border-l-transparent border-b-[8px] border-b-white border-r-[6px] border-r-transparent" />
                     </div>
                   </ChatBubbleAvatar>
-                  <ChatBubbleMessage variant="received" isLoading={true} />
+                  <ChatBubbleMessage 
+                    variant="received" 
+                    isLoading={true} 
+                    className="rounded-2xl"
+                  />
                 </ChatBubble>
               )}
             </div>
 
             {/* Input Area */}
-            <div className="mt-4">
+            <div className="mt-6">
               <div className="relative">
                 <Input
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && handleAnalysis(inputValue)}
                   placeholder="Type your message..."
-                  className="pr-10 border-2 border-blue-500 rounded-full"
+                  className="pr-12 bg-white border-2 border-gray-100 rounded-2xl py-6 text-lg focus:border-blue-500 focus:ring-0 transition-colors"
                 />
                 <Button
                   size="icon"
-                  className="absolute right-1 top-1/2 -translate-y-1/2"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full h-8 w-8 bg-blue-500 hover:bg-blue-600 text-white"
                   onClick={() => handleAnalysis(inputValue)}
                   disabled={!inputValue.trim() || isLoading}
                 >
@@ -152,11 +161,6 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
                 </Button>
               </div>
             </div>
-          </div>
-
-          {/* Chart Section */}
-          <div className="w-1/3 border-l p-4">
-            <SentimentChart reviews={selectedReviews} />
           </div>
         </div>
       </DialogContent>
