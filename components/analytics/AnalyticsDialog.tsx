@@ -22,12 +22,6 @@ interface AnalyticsDialogProps {
   selectedReviews: any[]
 }
 
-// Import html2pdf solo lato client
-const html2pdf = dynamic(() => import('html2pdf.js'), { 
-  ssr: false,
-  loading: () => null 
-})
-
 // Funzione per ottenere l'icona appropriata per ogni prompt
 const getPromptIcon = (prompt: string) => {
   if (prompt.includes('problemi')) {
@@ -87,29 +81,29 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
       return;
     }
 
-    // Importa html2pdf dinamicamente solo quando serve
-    const html2pdfModule = await import('html2pdf.js');
-    const html2pdf = html2pdfModule.default;
-
-    const element = document.createElement("div");
-    element.innerHTML = `
-      <div style="font-family: system-ui, sans-serif; padding: 2rem;">
-        <h1 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1rem;">
-          Analisi Recensioni
-        </h1>
-        <div style="white-space: pre-wrap;">${analysisContent}</div>
-      </div>
-    `;
-
-    const opt = {
-      margin: 1,
-      filename: 'analisi-recensioni.pdf',
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2 },
-      jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
-    };
-
     try {
+      // Import dinamico di html2pdf solo quando necessario
+      const html2pdfModule = await import('html2pdf.js');
+      const html2pdf = html2pdfModule.default;
+
+      const element = document.createElement("div");
+      element.innerHTML = `
+        <div style="font-family: system-ui, sans-serif; padding: 2rem;">
+          <h1 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1rem;">
+            Analisi Recensioni
+          </h1>
+          <div style="white-space: pre-wrap;">${analysisContent}</div>
+        </div>
+      `;
+
+      const opt = {
+        margin: 1,
+        filename: 'analisi-recensioni.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+      };
+
       await html2pdf().set(opt).from(element).save();
       toast.success("PDF scaricato con successo");
     } catch (error) {
