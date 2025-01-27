@@ -27,6 +27,8 @@ import {
   Trash2,
   Loader2,
   ExternalLink,
+  Check,
+  ListFilter,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -137,23 +139,56 @@ export const ReviewsTable = ({
     {
       id: "select",
       header: ({ table }) => (
-        <Checkbox
-          checked={table.getIsAllPageRowsSelected()}
-          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-          aria-label="Select all"
-        />
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button 
+              variant="ghost" 
+              size="sm"
+              className="h-8 w-8 p-0 hover:bg-gray-100 rounded-full"
+            >
+              <Checkbox
+                checked={table.getIsAllPageRowsSelected()}
+                indeterminate={table.getIsSomePageRowsSelected()}
+                className="rounded-md"
+                onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+              />
+              <ChevronDown className="h-4 w-4 ml-1" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start" className="w-48">
+            <DropdownMenuItem 
+              onClick={() => table.toggleAllRowsSelected(true)}
+              className="flex items-center gap-2"
+            >
+              <Check className="h-4 w-4" />
+              <span>Seleziona tutte ({table.getFilteredRowModel().rows.length})</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem 
+              onClick={() => table.toggleAllPageRowsSelected(true)}
+              className="flex items-center gap-2"
+            >
+              <ListFilter className="h-4 w-4" />
+              <span>Seleziona pagina ({table.getRowModel().rows.length})</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem 
+              onClick={() => table.toggleAllRowsSelected(false)}
+              className="flex items-center gap-2 text-red-600"
+            >
+              <X className="h-4 w-4" />
+              <span>Deseleziona tutto</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       ),
       cell: ({ row }) => (
         <Checkbox
           checked={row.getIsSelected()}
           onCheckedChange={(value) => row.toggleSelected(!!value)}
-          aria-label="Select row"
-          className="rounded-lg border-gray-200 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+          className="rounded-md"
         />
       ),
       enableSorting: false,
       enableHiding: false,
-      size: 0.1,
     },
     {
       id: "platform",
