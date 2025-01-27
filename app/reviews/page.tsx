@@ -16,6 +16,7 @@ import { ColumnsDropdown } from "@/components/columns-dropdown"
 import { type Table as TableType } from "@tanstack/react-table"
 import { AddPropertyModal } from "@/components/add-property-modal"
 import { AuroraBackground } from "@/components/ui/aurora-background"
+import { HandWrittenTitle } from "@/components/ui/hand-writing-text"
 
 interface Hotel {
   _id: string
@@ -185,6 +186,10 @@ export default function ReviewsPage() {
     <>
       <AuroraBackground className="fixed inset-0 -z-10" />
       <div className="flex flex-col px-10 md:pl-[96px]">
+        <HandWrittenTitle 
+          title="Review Management" 
+          subtitle="Manage and respond to your reviews efficiently"
+        />
         <Toaster position="top-right" />
         
         <div className="text-center mb-8 py-12">
