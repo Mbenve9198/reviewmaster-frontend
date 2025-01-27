@@ -13,6 +13,7 @@ import { api } from "@/services/api"
 import { toast } from "sonner"
 import { ChatBubble, ChatBubbleMessage, ChatBubbleAvatar } from "@/components/ui/chat-bubble"
 import { Input } from "@/components/ui/input"
+import { FormattedMessage } from "./FormattedMessage"
 
 interface AnalyticsDialogProps {
   isOpen: boolean
@@ -112,36 +113,29 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
           <div className="flex-1 overflow-y-auto p-6">
             <div className="space-y-6">
               {messages.map((msg, i) => (
-                <div key={i} className="relative">
+                <div key={i} className="relative group">
                   <ChatBubble variant={msg.role === "user" ? "sent" : "received"}>
                     {msg.role === "assistant" && (
                       <ChatBubbleAvatar>
                         <div className="bg-black rounded-full p-1">
-                          <div className="w-0 h-0 border-l-[6px] border-l-transparent border-b-[8px] border-b-white border-r-[6px] border-r-transparent" />
+                          <Bot className="h-4 w-4 text-white" />
                         </div>
                       </ChatBubbleAvatar>
                     )}
-                    <ChatBubbleMessage 
-                      variant={msg.role === "user" ? "sent" : "received"}
-                      className={`text-lg rounded-2xl ${
-                        msg.role === "assistant" 
-                          ? "prose prose-blue max-w-none prose-headings:text-blue-600 prose-p:text-gray-600 prose-strong:text-gray-800 prose-ul:my-2" 
-                          : ""
-                      }`}
-                    >
-                      {msg.role === "assistant" && (
-                        <div className="flex items-center gap-2 mb-3 pb-2 border-b text-sm text-gray-500">
-                          <Bot className="h-4 w-4" />
-                          <span>Analisi basata su {selectedReviews.length} recensioni</span>
-                        </div>
-                      )}
-                      {msg.content}
-                    </ChatBubbleMessage>
+                    
+                    {msg.role === "user" ? (
+                      <ChatBubbleMessage variant="sent" className="text-lg rounded-2xl">
+                        {msg.content}
+                      </ChatBubbleMessage>
+                    ) : (
+                      <FormattedMessage content={msg.content} />
+                    )}
+
                     {msg.role === "assistant" && (
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="absolute bottom-2 right-2 opacity-50 hover:opacity-100 rounded-full"
+                        className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
                         onClick={() => handleCopy(msg.content)}
                       >
                         <Copy className="h-4 w-4" />
@@ -154,7 +148,7 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
                 <ChatBubble variant="received">
                   <ChatBubbleAvatar>
                     <div className="bg-black rounded-full p-1">
-                      <div className="w-0 h-0 border-l-[6px] border-l-transparent border-b-[8px] border-b-white border-r-[6px] border-r-transparent" />
+                      <Bot className="h-4 w-4 text-white" />
                     </div>
                   </ChatBubbleAvatar>
                   <ChatBubbleMessage 
