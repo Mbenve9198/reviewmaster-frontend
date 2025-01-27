@@ -47,15 +47,15 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl h-[80vh] flex flex-col">
-        <DialogHeader>
-          <DialogTitle>Analisi Recensioni</DialogTitle>
-          <DialogDescription>
+      <DialogContent className="max-w-4xl h-[80vh] flex flex-col bg-white rounded-lg shadow-xl">
+        <DialogHeader className="border-b pb-4">
+          <DialogTitle className="text-xl font-semibold">Analisi Recensioni</DialogTitle>
+          <DialogDescription className="text-gray-600">
             Analisi di {selectedReviews.length} recensioni selezionate
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex-1 flex gap-4">
+        <div className="flex-1 flex gap-4 p-6 bg-white">
           <div className="w-2/3 flex flex-col">
             <div className="flex flex-wrap gap-2 mb-4">
               {suggestedPrompts.map(prompt => (
@@ -64,20 +64,21 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
                   variant="outline"
                   onClick={() => handleAnalysis(prompt)}
                   disabled={isLoading}
+                  className="bg-white hover:bg-gray-50 border rounded-lg"
                 >
                   {prompt}
                 </Button>
               ))}
             </div>
 
-            <div className="flex-1 overflow-y-auto p-4 border rounded-lg">
+            <div className="flex-1 overflow-y-auto p-4 border rounded-lg bg-white">
               {messages.map((msg, i) => (
-                <div key={i} className={`mb-4 ${msg.role === "assistant" ? "pl-4" : ""}`}>
+                <div key={i} className={`mb-4 ${msg.role === "assistant" ? "pl-4 border-l-2 border-blue-500" : ""}`}>
                   <p className="whitespace-pre-wrap">{msg.content}</p>
                 </div>
               ))}
               {isLoading && (
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 text-gray-600">
                   <Loader2 className="h-4 w-4 animate-spin" />
                   Analisi in corso...
                 </div>
@@ -85,7 +86,7 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
             </div>
           </div>
 
-          <div className="w-1/3">
+          <div className="w-1/3 bg-white p-4 border rounded-lg">
             <SentimentChart reviews={selectedReviews} />
           </div>
         </div>

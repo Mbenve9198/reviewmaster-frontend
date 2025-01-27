@@ -69,22 +69,29 @@ export function BulkActionsDropdown({
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" className="h-8 px-2 lg:px-3">
+          <Button 
+            variant="default"
+            className="h-8 px-2 lg:px-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg shadow-sm hover:shadow-md transition-all"
+          >
             Bulk Actions
             <ChevronDown className="ml-2 h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
+        <DropdownMenuContent 
+          align="end"
+          className="bg-white border rounded-lg shadow-lg"
+        >
           <DropdownMenuItem
             onClick={() => setIsAnalyticsOpen(true)}
             disabled={selectedRows.length < 10}
+            className="hover:bg-gray-100 cursor-pointer"
           >
             <BarChart2 className="mr-2 h-4 w-4" />
             Analizza Recensioni
           </DropdownMenuItem>
           {onBulkDelete && (
             <DropdownMenuItem
-              className="text-red-600"
+              className="text-red-600 hover:bg-red-50 cursor-pointer"
               onClick={handleBulkDelete}
             >
               Elimina Recensioni
