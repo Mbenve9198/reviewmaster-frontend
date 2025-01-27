@@ -81,126 +81,104 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
             onClick={onClose}
             className="rounded-full hover:bg-gray-100"
           >
-            <X className="h-4 w-4" />
+            <X className="h-5 w-5" />
           </Button>
         </div>
 
-        {/* Main Container */}
-        <div className="flex flex-col h-[calc(80vh-80px)]">
-          {/* Quick Action Buttons */}
-          <div className="p-6 pb-4 border-b">
-            <div className="grid grid-cols-2 gap-3">
-              {suggestedPrompts.map(prompt => (
-                <Button 
-                  key={prompt}
-                  variant="outline"
-                  onClick={() => handleAnalysis(prompt)}
-                  disabled={isLoading}
-                  className="bg-white hover:bg-blue-50 border-2 border-gray-100 
-                           hover:border-blue-100 rounded-xl py-4 px-6 h-auto
-                           flex items-center gap-2 text-left transition-all
-                           hover:shadow-md disabled:opacity-50 disabled:hover:bg-white
-                           disabled:hover:border-gray-100 disabled:hover:shadow-none"
-                >
-                  {getPromptIcon(prompt)}
-                  <span className="font-medium text-sm">{prompt}</span>
-                </Button>
-              ))}
-            </div>
-          </div>
-
-          {/* Chat Messages */}
-          <div className="flex-1 overflow-y-auto p-6">
-            <div className="space-y-6">
-              {messages.map((msg, i) => (
-                <div key={i} className="relative group">
-                  <ChatBubble variant={msg.role === "user" ? "sent" : "received"}>
-                    {msg.role === "assistant" && (
-                      <ChatBubbleAvatar>
-                        <div className="bg-black rounded-full p-1">
-                          <Bot className="h-4 w-4 text-white" />
-                        </div>
-                      </ChatBubbleAvatar>
-                    )}
-                    
-                    {msg.role === "user" ? (
-                      <ChatBubbleMessage variant="sent" className="text-lg rounded-2xl">
-                        {msg.content}
-                      </ChatBubbleMessage>
-                    ) : (
-                      <FormattedMessage content={msg.content} />
-                    )}
-
-                    {msg.role === "assistant" && (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
-                        onClick={() => handleCopy(msg.content)}
-                      >
-                        <Copy className="h-4 w-4" />
-                      </Button>
-                    )}
-                  </ChatBubble>
-                </div>
-              ))}
-              {isLoading && (
-                <ChatBubble variant="received">
-                  <ChatBubbleAvatar>
-                    <div className="bg-black rounded-full p-1">
-                      <Bot className="h-4 w-4 text-white" />
-                    </div>
-                  </ChatBubbleAvatar>
-                  <ChatBubbleMessage 
-                    variant="received" 
-                    isLoading={true} 
-                    className="rounded-2xl"
-                  />
-                </ChatBubble>
-              )}
-            </div>
-          </div>
-
-          {/* Input Area - Fixed at bottom */}
-          <div className="p-6 border-t bg-white">
-            <div className="relative">
-              <Input
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && inputValue.trim() && handleAnalysis(inputValue)}
-                placeholder={isLoading ? "Analisi in corso..." : "Fai domande sull'analisi..."}
-                disabled={isLoading}
-                className="pr-24 bg-white border-2 border-gray-100 rounded-2xl py-6 
-                           text-lg focus:border-blue-500 focus:ring-0 transition-colors
-                           disabled:opacity-50 disabled:cursor-not-allowed"
-              />
-              <div className="absolute right-2 top-1/2 -translate-y-1/2 flex gap-2">
-                {inputValue && (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => setInputValue("")}
-                    className="rounded-full h-8 w-8 hover:bg-gray-100"
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                )}
-                <Button
-                  size="icon"
-                  className="rounded-full h-8 w-8 bg-blue-500 hover:bg-blue-600 text-white
-                             disabled:opacity-50 disabled:cursor-not-allowed
-                             transition-colors duration-200"
-                  onClick={() => handleAnalysis(inputValue)}
-                  disabled={!inputValue.trim() || isLoading}
-                >
-                  {isLoading ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <SendHorizonal className="h-4 w-4" />
+        {/* Chat Area */}
+        <div className="flex-1 overflow-y-auto p-6">
+          <div className="space-y-6">
+            {messages.map((msg, i) => (
+              <div key={i} className="relative group">
+                <ChatBubble variant={msg.role === "user" ? "sent" : "received"}>
+                  {msg.role === "assistant" && (
+                    <ChatBubbleAvatar>
+                      <div className="bg-black rounded-full p-1">
+                        <Bot className="h-4 w-4 text-white" />
+                      </div>
+                    </ChatBubbleAvatar>
                   )}
-                </Button>
+                  
+                  {msg.role === "user" ? (
+                    <ChatBubbleMessage variant="sent" className="text-lg rounded-2xl">
+                      {msg.content}
+                    </ChatBubbleMessage>
+                  ) : (
+                    <FormattedMessage content={msg.content} />
+                  )}
+
+                  {msg.role === "assistant" && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                      onClick={() => handleCopy(msg.content)}
+                    >
+                      <Copy className="h-4 w-4" />
+                    </Button>
+                  )}
+                </ChatBubble>
               </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Input Area con suggerimenti */}
+        <div className="p-6 border-t bg-white space-y-4">
+          {/* Input principale */}
+          <div className="relative">
+            <Input
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && inputValue.trim() && handleAnalysis(inputValue)}
+              placeholder={isLoading ? "Analisi in corso..." : "Fai domande sull'analisi..."}
+              disabled={isLoading}
+              className="pr-24 bg-white border-2 border-gray-100 rounded-2xl py-6 
+                        text-lg focus:border-blue-500 focus:ring-0 transition-colors"
+            />
+            <div className="absolute right-2 top-1/2 -translate-y-1/2 flex gap-2">
+              {inputValue && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setInputValue("")}
+                  className="rounded-full h-8 w-8"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              )}
+              <Button
+                size="icon"
+                className="rounded-full h-8 w-8 bg-blue-500 hover:bg-blue-600 text-white"
+                onClick={() => handleAnalysis(inputValue)}
+                disabled={!inputValue.trim() || isLoading}
+              >
+                {isLoading ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <SendHorizonal className="h-4 w-4" />
+                )}
+              </Button>
             </div>
+          </div>
+
+          {/* Suggerimenti in orizzontale */}
+          <div className="flex gap-2 overflow-x-auto pb-2 px-1">
+            {suggestedPrompts.map(prompt => (
+              <Button
+                key={prompt}
+                variant="outline"
+                size="sm"
+                onClick={() => handleAnalysis(prompt)}
+                disabled={isLoading}
+                className="flex-shrink-0 bg-white hover:bg-blue-50 
+                          border border-gray-200 rounded-full px-4
+                          flex items-center gap-2 whitespace-nowrap"
+              >
+                {getPromptIcon(prompt)}
+                <span className="text-sm">{prompt}</span>
+              </Button>
+            ))}
           </div>
         </div>
       </DialogContent>
