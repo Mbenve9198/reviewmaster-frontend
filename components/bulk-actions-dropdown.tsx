@@ -10,18 +10,24 @@ import { ChevronDown, Trash2, BarChart2 } from "lucide-react"
 import { toast } from "sonner"
 import { getCookie } from "cookies-next"
 import { AnalyticsDialog } from "./analytics/AnalyticsDialog"
+import { Review } from "@/services/api"
 
 interface BulkActionsDropdownProps {
-  selectedReviews: any[]
-  onBulkDelete: () => void
+  selectedRows: Review[]
+  onRefresh: () => void
+  onBulkDelete?: () => void
 }
 
-export function BulkActionsDropdown({ selectedReviews, onBulkDelete }: BulkActionsDropdownProps) {
+export function BulkActionsDropdown({ 
+  selectedRows, 
+  onRefresh,
+  onBulkDelete 
+}: BulkActionsDropdownProps) {
   const [isAnalyticsOpen, setIsAnalyticsOpen] = useState(false)
 
   const handleBulkDelete = async () => {
     try {
-      const selectedIds = selectedReviews.map(row => row._id);
+      const selectedIds = selectedRows.map(row => row._id);
 
       if (selectedIds.length === 0) {
         toast.error('No reviews selected');
@@ -52,7 +58,7 @@ export function BulkActionsDropdown({ selectedReviews, onBulkDelete }: BulkActio
       console.log('Bulk delete success:', data);
 
       toast.success(`Successfully deleted ${selectedIds.length} reviews`);
-      onBulkDelete();
+      onBulkDelete && onBulkDelete();
     } catch (error) {
       console.error('Bulk delete error:', error);
       toast.error('Failed to delete reviews');
@@ -71,24 +77,26 @@ export function BulkActionsDropdown({ selectedReviews, onBulkDelete }: BulkActio
         <DropdownMenuContent align="end">
           <DropdownMenuItem
             onClick={() => setIsAnalyticsOpen(true)}
-            disabled={selectedReviews.length < 10}
+            disabled={selectedRows.length < 10}
           >
             <BarChart2 className="mr-2 h-4 w-4" />
             Analizza Recensioni
           </DropdownMenuItem>
-          <DropdownMenuItem
-            className="text-red-600"
-            onClick={handleBulkDelete}
-          >
-            Elimina Recensioni
-          </DropdownMenuItem>
+          {onBulkDelete && (
+            <DropdownMenuItem
+              className="text-red-600"
+              onClick={handleBulkDelete}
+            >
+              Elimina Recensioni
+            </DropdownMenuItem>
+          )}
         </DropdownMenuContent>
       </DropdownMenu>
 
       <AnalyticsDialog
         isOpen={isAnalyticsOpen}
         onClose={() => setIsAnalyticsOpen(false)}
-        selectedReviews={selectedReviews}
+        selectedReviews={selectedRows}
       />
     </>
   )
