@@ -68,17 +68,19 @@ interface ChatBubbleAvatarProps {
   src?: string
   fallback?: string
   className?: string
+  children?: React.ReactNode
 }
 
 export function ChatBubbleAvatar({
   src,
   fallback = "AI",
   className,
+  children,
 }: ChatBubbleAvatarProps) {
   return (
     <Avatar className={cn("h-8 w-8", className)}>
-      {src && <AvatarImage src={src} />}
-      <AvatarFallback>{fallback}</AvatarFallback>
+      {children || (src && <AvatarImage src={src} />)}
+      {!children && <AvatarFallback>{fallback}</AvatarFallback>}
     </Avatar>
   )
 }
