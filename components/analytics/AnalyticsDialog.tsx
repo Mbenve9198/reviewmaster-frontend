@@ -14,13 +14,19 @@ import { toast } from "sonner"
 import { ChatBubble, ChatBubbleMessage, ChatBubbleAvatar } from "@/components/ui/chat-bubble"
 import { Input } from "@/components/ui/input"
 import { FormattedMessage } from "./FormattedMessage"
-import html2pdf from "html2pdf.js"
+import dynamic from 'next/dynamic'
 
 interface AnalyticsDialogProps {
   isOpen: boolean
   onClose: () => void
   selectedReviews: any[]
 }
+
+// Import html2pdf solo lato client
+const html2pdf = dynamic(() => import('html2pdf.js'), { 
+  ssr: false,
+  loading: () => null 
+})
 
 // Funzione per ottenere l'icona appropriata per ogni prompt
 const getPromptIcon = (prompt: string) => {
@@ -80,6 +86,10 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
       toast.error("Nessuna analisi da scaricare");
       return;
     }
+
+    // Importa html2pdf dinamicamente solo quando serve
+    const html2pdfModule = await import('html2pdf.js');
+    const html2pdf = html2pdfModule.default;
 
     const element = document.createElement("div");
     element.innerHTML = `
