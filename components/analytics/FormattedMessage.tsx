@@ -31,6 +31,7 @@ export function FormattedMessage({ content, variant = "received" }: FormattedMes
             ),
             // Metriche e badge
             strong: ({ children }) => {
+              if (!children) return null;
               const text = children.toString();
               if (text.includes('Frequenza:') || text.includes('Impatto:')) {
                 return (
