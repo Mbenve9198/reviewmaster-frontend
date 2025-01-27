@@ -22,8 +22,32 @@ interface Hotel {
 }
 
 interface Review {
-  _id: string
-  // ... altri campi della review se necessari
+  _id: string;
+  platform: 'google' | 'booking' | 'tripadvisor' | 'manual';
+  hotelId: string;
+  content: {
+    text: string;
+    rating: number;
+    reviewerName: string;
+    reviewerImage?: string;
+    language?: string;
+    images?: { url: string; caption: string; }[];
+    likes?: number;
+    originalUrl?: string;
+  };
+  metadata: {
+    originalCreatedAt: Date;
+    lastUpdated?: Date;
+    syncedAt?: Date;
+  };
+  response?: {
+    text: string;
+    createdAt: Date;
+    settings: {
+      style: 'professional' | 'friendly';
+      length: 'short' | 'medium' | 'long';
+    };
+  };
 }
 
 export default function ReviewsPage() {
