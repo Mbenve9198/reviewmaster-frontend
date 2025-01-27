@@ -249,16 +249,12 @@ export default function IntegrationsPage() {
           </div>
 
           {selectedHotelData && (
-            <div className="flex justify-center space-x-8">
+            <div className="flex justify-center">
               <div>
                 <p className="text-sm text-gray-500">Total Reviews Synced</p>
                 <p className="text-2xl font-bold text-primary">
-                  {totalReviewsSynced}/{totalReviewsAvailable}
+                  {totalReviewsSynced}
                 </p>
-                <Progress 
-                  value={totalReviewsAvailable > 0 ? (totalReviewsSynced / totalReviewsAvailable) * 100 : 0} 
-                  className="w-40 mt-2" 
-                />
               </div>
             </div>
           )}

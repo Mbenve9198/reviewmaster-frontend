@@ -233,13 +233,9 @@ export function IntegrationCard({ integration, onSync, onDelete }: IntegrationCa
             <div className="flex justify-between text-sm">
               <span className="text-gray-500">Reviews Synced</span>
               <span className="font-medium">
-                {integration.stats.syncedReviews}/{integration.stats.totalReviews}
+                {integration.stats.syncedReviews}
               </span>
             </div>
-            <Progress 
-              value={(integration.stats.syncedReviews / integration.stats.totalReviews) * 100} 
-              className="h-2"
-            />
           </div>
 
           <div className="grid grid-cols-2 gap-4 text-sm">
