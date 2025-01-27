@@ -383,7 +383,7 @@ export const ReviewsTable = ({
     
     console.log('Current filters:', {
       searchQuery,
-      responseStatus,  // 'responded' | 'not_responded' | 'all'
+      responseStatus,  // Aggiungiamo un log per vedere il valore
       platform,
       ratingFilter,
       property
