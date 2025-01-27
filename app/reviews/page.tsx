@@ -193,8 +193,8 @@ export default function ReviewsPage() {
         <Toaster position="top-right" />
         
         <div className="flex flex-col">
-          <div className="mb-8">
-            <div className="flex items-center justify-between">
+          <div className="mb-8 w-fit">
+            <div className="flex items-center justify-between px-6">
               <div className="flex items-center gap-4">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
