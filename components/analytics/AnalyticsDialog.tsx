@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useRef, useEffect } from "react"
 import {
   Dialog,
   DialogContent,
@@ -40,6 +40,19 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
   const [messages, setMessages] = useState<Array<{ role: string; content: string }>>([])
   const [isLoading, setIsLoading] = useState(false)
   const [inputValue, setInputValue] = useState("")
+  const chatContainerRef = useRef<HTMLDivElement>(null)
+
+  // Funzione per scrollare in fondo
+  const scrollToBottom = () => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight
+    }
+  }
+
+  // Scroll automatico quando arrivano nuovi messaggi
+  useEffect(() => {
+    scrollToBottom()
+  }, [messages])
 
   const suggestedPrompts = [
     "Analizza i problemi più ricorrenti e suggerisci soluzioni concrete",
@@ -115,25 +128,35 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-3xl h-[80vh] p-0 bg-white rounded-3xl overflow-hidden flex flex-col">
-        {/* Header solo con pulsante download */}
         <div className="flex items-center justify-between p-4 border-b">
-          <h2 className="text-xl font-semibold">Analisi Recensioni</h2>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleDownloadPDF}
-            className="rounded-full hover:bg-gray-100"
-            disabled={!messages.some(msg => msg.role === "assistant")}
-          >
-            <Download className="h-5 w-5" />
-          </Button>
+          <div className="flex items-center gap-4">
+            <h2 className="text-xl font-semibold">Analisi Recensioni</h2>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleDownloadPDF}
+              className="rounded-full border-gray-200 hover:bg-gray-50 hover:text-gray-900"
+              disabled={!messages.some(msg => msg.role === "assistant")}
+            >
+              <Download className="h-4 w-4 mr-2" />
+              Scarica PDF
+            </Button>
+          </div>
+          {/* Il DialogClose viene aggiunto automaticamente da Radix UI nell'angolo in alto a destra */}
         </div>
 
-        {/* Chat Area - scrollabile */}
-        <div className="flex-1 overflow-y-auto">
+        {/* Chat Area con ref e ottimizzazione del rendering */}
+        <div 
+          ref={chatContainerRef}
+          className="flex-1 overflow-y-auto bg-white will-change-scroll"
+        >
           <div className="p-6 space-y-6">
             {messages.map((msg, i) => (
-              <div key={i} className="relative group">
+              <div 
+                key={i} 
+                className="relative group"
+                style={{ willChange: 'transform' }}
+              >
                 <ChatBubble variant={msg.role === "user" ? "sent" : "received"}>
                   {msg.role === "assistant" && (
                     <ChatBubbleAvatar>
