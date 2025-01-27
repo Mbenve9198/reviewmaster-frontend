@@ -27,12 +27,8 @@ import { Input } from "@/components/ui/input"
 import { ResponseModal } from "@/components/response-modal"
 import { getCookie } from "@/lib/utils"
 import { toast } from "react-hot-toast"
-import {
-  ChatBubble,
-  ChatBubbleAvatar,
-  ChatBubbleMessage,
-  ChatMessageList,
-} from "@/components/ui/chat-bubble"
+import { ChatMessageList } from "@/components/ui/chat-message-list"
+import { ChatBubble, ChatBubbleAvatar, ChatBubbleMessage } from "@/components/ui/chat-bubble"
 
 interface Hotel {
   _id: string
