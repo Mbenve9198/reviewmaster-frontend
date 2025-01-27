@@ -168,9 +168,22 @@ export function IntegrationCard({ integration, onSync, onDelete }: IntegrationCa
     try {
       setIsUpdating(true)
       await updateIntegrationSettings(tempSettings)
+      
+      // Aggiorna l'integrazione locale con i nuovi settings
+      integration.syncConfig = {
+        ...integration.syncConfig,
+        ...tempSettings
+      }
+      
+      // Chiudi la modal
       setIsSettingsOpen(false)
+      
+      // Notifica il componente padre del cambiamento
+      onSync() // Questo ricaricherà i dati aggiornati
+      
     } catch (error) {
       console.error('Save settings error:', error)
+      toast.error("Failed to update settings")
     } finally {
       setIsUpdating(false)
     }
