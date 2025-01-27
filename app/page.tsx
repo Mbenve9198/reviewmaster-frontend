@@ -598,7 +598,7 @@ export default function HomePage() {
                                 navigator.clipboard.writeText(message.content)
                                 toast.success("Response copied to clipboard")
                               }}
-                              className="absolute bottom-1 right-1 h-7 w-7 rounded-full bg-white/80 hover:bg-white/90 shadow-sm"
+                              className="absolute bottom-1 right-1 h-7 w-7 rounded-full bg-primary/10 hover:bg-primary/20 text-primary shadow-sm"
                             >
                               <Copy className="h-3.5 w-3.5" />
                               <span className="sr-only">Copy response</span>
@@ -653,7 +653,7 @@ export default function HomePage() {
                   <Button 
                     type="submit" 
                     size="sm" 
-                    className="absolute right-2 top-[50%] -translate-y-1/2 rounded-xl shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[calc(-50%+2px)] transition-all"
+                    className="absolute right-2 top-[50%] -translate-y-1/2 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground shadow-[0_4px_0_0_#1e40af] hover:shadow-[0_2px_0_0_#1e40af] hover:translate-y-[calc(-50%+2px)] transition-all"
                   >
                     <CornerDownLeft className="h-4 w-4" />
                   </Button>
@@ -669,7 +669,7 @@ export default function HomePage() {
                     }
                   }}
                   disabled={isGenerating || !messages.length}
-                  className="relative bg-primary hover:bg-primary/90 text-white px-6 py-2 rounded-xl shadow-[0_4px_0_0_#1e40af] transition-all active:top-[2px] active:shadow-[0_0_0_0_#1e40af]"
+                  className="relative bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-2 rounded-xl shadow-[0_4px_0_0_#1e40af] hover:shadow-[0_2px_0_0_#1e40af] hover:translate-y-[2px] transition-all"
                 >
                   Save Response
                 </Button>
