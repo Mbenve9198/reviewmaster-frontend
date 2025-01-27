@@ -383,7 +383,7 @@ export const ReviewsTable = ({
     
     console.log('Current filters:', {
       searchQuery,
-      responseStatus,
+      responseStatus,  // 'responded' | 'not_responded' | 'all'
       platform,
       ratingFilter,
       property
@@ -392,7 +392,7 @@ export const ReviewsTable = ({
     setFilters({
       hotelId: property,
       platform,
-      responseStatus,
+      responseStatus: responseStatus === 'all' ? undefined : responseStatus,
       rating: ratingFilter,
       searchQuery
     });
@@ -716,18 +716,21 @@ export const ReviewsTable = ({
           <DialogContent className="sm:max-w-[500px] w-[95vw] max-h-[90vh] p-0 bg-white rounded-2xl border shadow-lg">
             <div className="h-full max-h-[90vh] flex flex-col">
               <DialogHeader className="px-6 py-4 border-b bg-gray-50/80 rounded-t-2xl">
-                <div className="flex items-center justify-between">
-                  <DialogTitle className="text-lg font-semibold">Generated Response</DialogTitle>
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center justify-between">
+                    <DialogTitle className="text-lg font-semibold">Generated Response</DialogTitle>
+                  </div>
                   {selectedReview?.content?.originalUrl && (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => window.open(selectedReview.content.originalUrl, '_blank')}
-                      className="h-8 w-8 rounded-full hover:bg-gray-100"
-                      title="View original review"
-                    >
-                      <ExternalLink className="h-4 w-4 text-gray-500" />
-                    </Button>
+                    <div className="flex items-center gap-2 text-sm text-gray-500">
+                      <ExternalLink className="h-4 w-4" />
+                      <Button
+                        variant="link"
+                        className="h-auto p-0 text-gray-500 hover:text-primary"
+                        onClick={() => window.open(selectedReview.content.originalUrl, '_blank')}
+                      >
+                        View original review
+                      </Button>
+                    </div>
                   )}
                 </div>
               </DialogHeader>
