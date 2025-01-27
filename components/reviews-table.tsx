@@ -155,7 +155,10 @@ export const ReviewsTable = ({
               <ChevronDown className="h-4 w-4 ml-1" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="start" className="w-48">
+          <DropdownMenuContent 
+            align="start" 
+            className="w-48 bg-white rounded-xl border border-gray-200"
+          >
             <DropdownMenuItem 
               onClick={() => table.toggleAllRowsSelected(true)}
               className="flex items-center gap-2"
