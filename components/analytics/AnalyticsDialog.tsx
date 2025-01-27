@@ -7,7 +7,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import { Loader2, Bot, X, Copy } from "lucide-react"
+import { Loader2, Bot, X, Copy, BarChart2, TrendingUp, Star, Lightbulb, SendHorizonal } from "lucide-react"
 import { SentimentChart } from "./charts/SentimentChart"
 import { api } from "@/services/api"
 import { toast } from "sonner"
@@ -18,6 +18,20 @@ interface AnalyticsDialogProps {
   isOpen: boolean
   onClose: () => void
   selectedReviews: any[]
+}
+
+// Funzione per ottenere l'icona appropriata per ogni prompt
+const getPromptIcon = (prompt: string) => {
+  if (prompt.includes('problemi')) {
+    return <BarChart2 className="w-5 h-5 text-blue-500" />
+  }
+  if (prompt.includes('forza')) {
+    return <Star className="w-5 h-5 text-yellow-500" />
+  }
+  if (prompt.includes('trend')) {
+    return <TrendingUp className="w-5 h-5 text-green-500" />
+  }
+  return <Lightbulb className="w-5 h-5 text-purple-500" />
 }
 
 export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsDialogProps) {
@@ -72,18 +86,23 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
 
         {/* Main Container */}
         <div className="flex flex-col h-[calc(80vh-80px)]">
-          {/* Suggested Prompts */}
+          {/* Quick Action Buttons */}
           <div className="p-6 pb-4 border-b">
-            <div className="flex flex-wrap gap-2">
+            <div className="grid grid-cols-2 gap-3">
               {suggestedPrompts.map(prompt => (
                 <Button 
                   key={prompt}
                   variant="outline"
                   onClick={() => handleAnalysis(prompt)}
                   disabled={isLoading}
-                  className="bg-white hover:bg-gray-50 rounded-full"
+                  className="bg-white hover:bg-blue-50 border-2 border-gray-100 
+                           hover:border-blue-100 rounded-xl py-4 px-6 h-auto
+                           flex items-center gap-2 text-left transition-all
+                           hover:shadow-md disabled:opacity-50 disabled:hover:bg-white
+                           disabled:hover:border-gray-100 disabled:hover:shadow-none"
                 >
-                  {prompt}
+                  {getPromptIcon(prompt)}
+                  <span className="font-medium text-sm">{prompt}</span>
                 </Button>
               ))}
             </div>
@@ -104,8 +123,18 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
                     )}
                     <ChatBubbleMessage 
                       variant={msg.role === "user" ? "sent" : "received"}
-                      className="text-lg rounded-2xl"
+                      className={`text-lg rounded-2xl ${
+                        msg.role === "assistant" 
+                          ? "prose prose-blue max-w-none prose-headings:text-blue-600 prose-p:text-gray-600 prose-strong:text-gray-800 prose-ul:my-2" 
+                          : ""
+                      }`}
                     >
+                      {msg.role === "assistant" && (
+                        <div className="flex items-center gap-2 mb-3 pb-2 border-b text-sm text-gray-500">
+                          <Bot className="h-4 w-4" />
+                          <span>Analisi basata su {selectedReviews.length} recensioni</span>
+                        </div>
+                      )}
                       {msg.content}
                     </ChatBubbleMessage>
                     {msg.role === "assistant" && (
@@ -145,24 +174,38 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && inputValue.trim() && handleAnalysis(inputValue)}
-                placeholder="Type your message..."
-                className="pr-12 bg-white border-2 border-gray-100 rounded-2xl py-6 text-lg focus:border-blue-500 focus:ring-0 transition-colors"
+                placeholder={isLoading ? "Analisi in corso..." : "Fai domande sull'analisi..."}
+                disabled={isLoading}
+                className="pr-24 bg-white border-2 border-gray-100 rounded-2xl py-6 
+                           text-lg focus:border-blue-500 focus:ring-0 transition-colors
+                           disabled:opacity-50 disabled:cursor-not-allowed"
               />
-              <Button
-                size="icon"
-                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full h-8 w-8 bg-blue-500 hover:bg-blue-600 text-white"
-                onClick={() => handleAnalysis(inputValue)}
-                disabled={!inputValue.trim() || isLoading}
-              >
-                <svg width="15" height="15" viewBox="0 0 15 15">
-                  <path
-                    d="M1.20308 1.04312C1.00481 0.954998 0.772341 1.0048 0.627577 1.16641C0.482813 1.32802 0.458794 1.56455 0.568117 1.75196L3.92115 7.50002L0.568117 13.2481C0.458794 13.4355 0.482813 13.672 0.627577 13.8336C0.772341 13.9952 1.00481 14.045 1.20308 13.9569L14.2031 7.95693C14.3837 7.87668 14.5 7.69762 14.5 7.50002C14.5 7.30243 14.3837 7.12337 14.2031 7.04312L1.20308 1.04312Z"
-                    fill="currentColor"
-                    fillRule="evenodd"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              </Button>
+              <div className="absolute right-2 top-1/2 -translate-y-1/2 flex gap-2">
+                {inputValue && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setInputValue("")}
+                    className="rounded-full h-8 w-8 hover:bg-gray-100"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                )}
+                <Button
+                  size="icon"
+                  className="rounded-full h-8 w-8 bg-blue-500 hover:bg-blue-600 text-white
+                             disabled:opacity-50 disabled:cursor-not-allowed
+                             transition-colors duration-200"
+                  onClick={() => handleAnalysis(inputValue)}
+                  disabled={!inputValue.trim() || isLoading}
+                >
+                  {isLoading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <SendHorizonal className="h-4 w-4" />
+                  )}
+                </Button>
+              </div>
             </div>
           </div>
         </div>
