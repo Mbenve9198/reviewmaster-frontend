@@ -5,7 +5,7 @@ import { getCookie } from 'cookies-next';
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
 
 // Configura l'istanza axios con le impostazioni di default
-const api = axios.create({
+const axiosInstance = axios.create({
   baseURL: BASE_URL,
   headers: {
     'Content-Type': 'application/json',
@@ -13,7 +13,7 @@ const api = axios.create({
 });
 
 // Interceptor per aggiungere il token di autenticazione
-api.interceptors.request.use((config) => {
+axiosInstance.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
@@ -77,7 +77,7 @@ export const reviewsApi = {
     if (filters?.rating) params.append('rating', filters.rating.toString());
     if (filters?.searchQuery) params.append('search', filters.searchQuery);
 
-    const response = await api.get(`/reviews/hotel/${hotelId || ''}?${params.toString()}`);
+    const response = await axiosInstance.get(`/reviews/hotel/${hotelId || ''}?${params.toString()}`);
     return response.data;
   },
 
@@ -85,7 +85,7 @@ export const reviewsApi = {
     style: 'professional' | 'friendly';
     length: 'short' | 'medium' | 'long';
   }) => {
-    const response = await api.post('/reviews/generate', {
+    const response = await axiosInstance.post('/reviews/generate', {
       hotelId,
       review,
       responseSettings: settings
@@ -94,12 +94,12 @@ export const reviewsApi = {
   },
 
   updateResponse: async (reviewId: string, response: string) => {
-    const res = await api.put(`/reviews/${reviewId}/response`, { response });
+    const res = await axiosInstance.put(`/reviews/${reviewId}/response`, { response });
     return res.data;
   },
 
   getStats: async (hotelId: string) => {
-    const response = await api.get(`/reviews/stats/${hotelId}`);
+    const response = await axiosInstance.get(`/reviews/stats/${hotelId}`);
     return response.data;
   }
 };
@@ -107,12 +107,12 @@ export const reviewsApi = {
 // Funzioni per gli hotel
 export const hotelsApi = {
   getHotels: async () => {
-    const response = await api.get('/hotels');
+    const response = await axiosInstance.get('/hotels');
     return response.data;
   },
 
   getHotel: async (id: string) => {
-    const response = await api.get(`/hotels/${id}`);
+    const response = await axiosInstance.get(`/hotels/${id}`);
     return response.data;
   }
 };
@@ -120,7 +120,7 @@ export const hotelsApi = {
 // Auth APIs
 export const authApi = {
   login: async (email: string, password: string) => {
-    const response = await api.post('/auth/login', { email, password });
+    const response = await axiosInstance.post('/auth/login', { email, password });
     const { token, user } = response.data;
     localStorage.setItem('token', token);
     return { token, user };
@@ -131,7 +131,7 @@ export const authApi = {
   },
 
   getProfile: async () => {
-    const response = await api.get('/auth/profile');
+    const response = await axiosInstance.get('/auth/profile');
     return response.data;
   }
 };
@@ -158,11 +158,12 @@ export const analyticsApi = {
   }
 };
 
-// Aggiorniamo l'export principale
+// Export principale
 export const api = {
   reviews: reviewsApi,
   analytics: analyticsApi,
-  // ... altri servizi esistenti ...
+  hotels: hotelsApi,
+  auth: authApi
 };
 
 export default api;
