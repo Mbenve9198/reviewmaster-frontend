@@ -183,9 +183,9 @@ export default function HomePage() {
       
       setMessages([{ id: 1, content: data.response, sender: "ai" }]);
 
-    } catch (error) {
-      setError(error.message || "An error occurred");
-      toast.error(error.message || "An error occurred");
+    } catch (error: any) {
+      setError(error?.message || "An error occurred");
+      toast.error(error?.message || "An error occurred");
     } finally {
       setIsGenerating(false);
     }
