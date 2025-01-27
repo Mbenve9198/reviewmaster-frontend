@@ -192,87 +192,89 @@ export default function ReviewsPage() {
       </div>
 
       <div className="flex flex-col">
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-              <Input
-                placeholder="Search reviews..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 w-[280px] rounded-full border-gray-200 focus:border-primary focus:ring-primary bg-white text-sm"
-              />
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm mb-8">
+          <div className="p-4 flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <Input
+                  placeholder="Search reviews..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10 w-[280px] rounded-full border-gray-200 focus:border-primary focus:ring-primary bg-white text-sm"
+                />
+              </div>
+
+              <Select
+                value={hotel}
+                onValueChange={(value) => handleFilterChange('hotel', value)}
+              >
+                <SelectTrigger className="h-9 w-[160px] rounded-full border-gray-200 focus:border-primary focus:ring-primary bg-white text-sm">
+                  <SelectValue placeholder="Property" className="text-sm" />
+                </SelectTrigger>
+                <SelectContent>
+                  {hotels.map((h) => (
+                    <SelectItem key={h._id} value={h._id} className="text-sm">
+                      {h.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <Select
+                value={responseStatus}
+                onValueChange={(value) => handleFilterChange('responseStatus', value)}
+              >
+                <SelectTrigger className="h-9 w-[160px] rounded-full border-gray-200 focus:border-primary focus:ring-primary bg-white text-sm">
+                  <SelectValue placeholder="Response Status" className="text-sm" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all" className="text-sm">All Reviews</SelectItem>
+                  <SelectItem value="responded" className="text-sm">Responded</SelectItem>
+                  <SelectItem value="not_responded" className="text-sm">Not Responded</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select
+                value={platform}
+                onValueChange={(value) => handleFilterChange('platform', value)}
+              >
+                <SelectTrigger className="h-9 w-[160px] rounded-full border-gray-200 focus:border-primary focus:ring-primary bg-white text-sm">
+                  <SelectValue placeholder="Platform" className="text-sm" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all" className="text-sm">All Platforms</SelectItem>
+                  <SelectItem value="google" className="text-sm">Google</SelectItem>
+                  <SelectItem value="booking" className="text-sm">Booking.com</SelectItem>
+                  <SelectItem value="tripadvisor" className="text-sm">TripAdvisor</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select
+                value={ratingFilter}
+                onValueChange={(value) => handleFilterChange('rating', value)}
+              >
+                <SelectTrigger className="h-9 w-[160px] rounded-full border-gray-200 focus:border-primary focus:ring-primary bg-white text-sm">
+                  <SelectValue placeholder="Rating" className="text-sm" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all" className="text-sm">All Ratings</SelectItem>
+                  <SelectItem value="5" className="text-sm">5 Stars & Up</SelectItem>
+                  <SelectItem value="4" className="text-sm">4 Stars & Up</SelectItem>
+                  <SelectItem value="3" className="text-sm">3 Stars & Up</SelectItem>
+                  <SelectItem value="2" className="text-sm">2 Stars & Up</SelectItem>
+                  <SelectItem value="1" className="text-sm">1 Star & Up</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
-            <Select
-              value={hotel}
-              onValueChange={(value) => handleFilterChange('hotel', value)}
-            >
-              <SelectTrigger className="h-9 w-[160px] rounded-full border-gray-200 focus:border-primary focus:ring-primary bg-white text-sm">
-                <SelectValue placeholder="Property" className="text-sm" />
-              </SelectTrigger>
-              <SelectContent>
-                {hotels.map((h) => (
-                  <SelectItem key={h._id} value={h._id} className="text-sm">
-                    {h.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <Select
-              value={responseStatus}
-              onValueChange={(value) => handleFilterChange('responseStatus', value)}
-            >
-              <SelectTrigger className="h-9 w-[160px] rounded-full border-gray-200 focus:border-primary focus:ring-primary bg-white text-sm">
-                <SelectValue placeholder="Response Status" className="text-sm" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all" className="text-sm">All Reviews</SelectItem>
-                <SelectItem value="responded" className="text-sm">Responded</SelectItem>
-                <SelectItem value="not_responded" className="text-sm">Not Responded</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select
-              value={platform}
-              onValueChange={(value) => handleFilterChange('platform', value)}
-            >
-              <SelectTrigger className="h-9 w-[160px] rounded-full border-gray-200 focus:border-primary focus:ring-primary bg-white text-sm">
-                <SelectValue placeholder="Platform" className="text-sm" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all" className="text-sm">All Platforms</SelectItem>
-                <SelectItem value="google" className="text-sm">Google</SelectItem>
-                <SelectItem value="booking" className="text-sm">Booking.com</SelectItem>
-                <SelectItem value="tripadvisor" className="text-sm">TripAdvisor</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select
-              value={ratingFilter}
-              onValueChange={(value) => handleFilterChange('rating', value)}
-            >
-              <SelectTrigger className="h-9 w-[160px] rounded-full border-gray-200 focus:border-primary focus:ring-primary bg-white text-sm">
-                <SelectValue placeholder="Rating" className="text-sm" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all" className="text-sm">All Ratings</SelectItem>
-                <SelectItem value="5" className="text-sm">5 Stars & Up</SelectItem>
-                <SelectItem value="4" className="text-sm">4 Stars & Up</SelectItem>
-                <SelectItem value="3" className="text-sm">3 Stars & Up</SelectItem>
-                <SelectItem value="2" className="text-sm">2 Stars & Up</SelectItem>
-                <SelectItem value="1" className="text-sm">1 Star & Up</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <BulkActionsDropdown 
-              selectedRows={selectedRows} 
-              onRefresh={handleRefresh} 
-            />
-            {tableInstance && <ColumnsDropdown table={tableInstance} />}
+            <div className="flex items-center gap-2">
+              <BulkActionsDropdown 
+                selectedRows={selectedRows} 
+                onRefresh={handleRefresh} 
+              />
+              {tableInstance && <ColumnsDropdown table={tableInstance} />}
+            </div>
           </div>
         </div>
 
