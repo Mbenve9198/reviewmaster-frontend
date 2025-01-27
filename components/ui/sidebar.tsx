@@ -65,6 +65,7 @@ const DesktopSidebar = ({
     <motion.div
       className={cn(
         "h-full px-4 py-4 hidden md:flex md:flex-col bg-white shadow-lg w-[320px] flex-shrink-0",
+        "fixed left-0 top-0 z-30",
         className
       )}
       animate={{

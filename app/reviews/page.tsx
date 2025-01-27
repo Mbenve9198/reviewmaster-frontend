@@ -184,7 +184,7 @@ export default function ReviewsPage() {
   return (
     <>
       <AuroraBackground className="fixed inset-0 -z-10" />
-      <div className="flex flex-col px-10">
+      <div className="flex flex-col px-10 md:pl-[96px]">
         <Toaster position="top-right" />
         
         <div className="text-center mb-8 py-12">
