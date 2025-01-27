@@ -70,10 +70,11 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
           </Button>
         </div>
 
-        <div className="flex flex-col h-full">
-          <div className="flex-1 flex flex-col p-6">
-            {/* Suggested Prompts */}
-            <div className="flex flex-wrap gap-2 mb-6">
+        {/* Main Container */}
+        <div className="flex flex-col h-[calc(80vh-80px)]">
+          {/* Suggested Prompts */}
+          <div className="p-6 pb-4 border-b">
+            <div className="flex flex-wrap gap-2">
               {suggestedPrompts.map(prompt => (
                 <Button 
                   key={prompt}
@@ -86,9 +87,11 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
                 </Button>
               ))}
             </div>
+          </div>
 
-            {/* Chat Messages */}
-            <div className="flex-1 overflow-y-auto space-y-6 pr-4">
+          {/* Chat Messages */}
+          <div className="flex-1 overflow-y-auto p-6">
+            <div className="space-y-6">
               {messages.map((msg, i) => (
                 <div key={i} className="relative">
                   <ChatBubble variant={msg.role === "user" ? "sent" : "received"}>
@@ -133,33 +136,33 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
                 </ChatBubble>
               )}
             </div>
+          </div>
 
-            {/* Input Area */}
-            <div className="mt-6">
-              <div className="relative">
-                <Input
-                  value={inputValue}
-                  onChange={(e) => setInputValue(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && handleAnalysis(inputValue)}
-                  placeholder="Type your message..."
-                  className="pr-12 bg-white border-2 border-gray-100 rounded-2xl py-6 text-lg focus:border-blue-500 focus:ring-0 transition-colors"
-                />
-                <Button
-                  size="icon"
-                  className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full h-8 w-8 bg-blue-500 hover:bg-blue-600 text-white"
-                  onClick={() => handleAnalysis(inputValue)}
-                  disabled={!inputValue.trim() || isLoading}
-                >
-                  <svg width="15" height="15" viewBox="0 0 15 15">
-                    <path
-                      d="M1.20308 1.04312C1.00481 0.954998 0.772341 1.0048 0.627577 1.16641C0.482813 1.32802 0.458794 1.56455 0.568117 1.75196L3.92115 7.50002L0.568117 13.2481C0.458794 13.4355 0.482813 13.672 0.627577 13.8336C0.772341 13.9952 1.00481 14.045 1.20308 13.9569L14.2031 7.95693C14.3837 7.87668 14.5 7.69762 14.5 7.50002C14.5 7.30243 14.3837 7.12337 14.2031 7.04312L1.20308 1.04312Z"
-                      fill="currentColor"
-                      fillRule="evenodd"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </Button>
-              </div>
+          {/* Input Area - Fixed at bottom */}
+          <div className="p-6 border-t bg-white">
+            <div className="relative">
+              <Input
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && inputValue.trim() && handleAnalysis(inputValue)}
+                placeholder="Type your message..."
+                className="pr-12 bg-white border-2 border-gray-100 rounded-2xl py-6 text-lg focus:border-blue-500 focus:ring-0 transition-colors"
+              />
+              <Button
+                size="icon"
+                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full h-8 w-8 bg-blue-500 hover:bg-blue-600 text-white"
+                onClick={() => handleAnalysis(inputValue)}
+                disabled={!inputValue.trim() || isLoading}
+              >
+                <svg width="15" height="15" viewBox="0 0 15 15">
+                  <path
+                    d="M1.20308 1.04312C1.00481 0.954998 0.772341 1.0048 0.627577 1.16641C0.482813 1.32802 0.458794 1.56455 0.568117 1.75196L3.92115 7.50002L0.568117 13.2481C0.458794 13.4355 0.482813 13.672 0.627577 13.8336C0.772341 13.9952 1.00481 14.045 1.20308 13.9569L14.2031 7.95693C14.3837 7.87668 14.5 7.69762 14.5 7.50002C14.5 7.30243 14.3837 7.12337 14.2031 7.04312L1.20308 1.04312Z"
+                    fill="currentColor"
+                    fillRule="evenodd"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </Button>
             </div>
           </div>
         </div>
