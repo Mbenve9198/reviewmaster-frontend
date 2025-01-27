@@ -1,3 +1,4 @@
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -5,19 +6,22 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { ChevronDown, Trash2 } from "lucide-react"
+import { ChevronDown, Trash2, BarChart2 } from "lucide-react"
 import { toast } from "sonner"
 import { getCookie } from "cookies-next"
+import { AnalyticsDialog } from "./analytics/AnalyticsDialog"
 
 interface BulkActionsDropdownProps {
-  selectedRows: any[];
-  onRefresh: () => void;
+  selectedReviews: any[]
+  onBulkDelete: () => void
 }
 
-export function BulkActionsDropdown({ selectedRows, onRefresh }: BulkActionsDropdownProps) {
+export function BulkActionsDropdown({ selectedReviews, onBulkDelete }: BulkActionsDropdownProps) {
+  const [isAnalyticsOpen, setIsAnalyticsOpen] = useState(false)
+
   const handleBulkDelete = async () => {
     try {
-      const selectedIds = selectedRows.map(row => row._id);
+      const selectedIds = selectedReviews.map(row => row._id);
 
       if (selectedIds.length === 0) {
         toast.error('No reviews selected');
@@ -48,7 +52,7 @@ export function BulkActionsDropdown({ selectedRows, onRefresh }: BulkActionsDrop
       console.log('Bulk delete success:', data);
 
       toast.success(`Successfully deleted ${selectedIds.length} reviews`);
-      onRefresh();
+      onBulkDelete();
     } catch (error) {
       console.error('Bulk delete error:', error);
       toast.error('Failed to delete reviews');
@@ -56,35 +60,36 @@ export function BulkActionsDropdown({ selectedRows, onRefresh }: BulkActionsDrop
   };
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button
-          variant="default"
-          size="sm"
-          disabled={selectedRows.length === 0}
-          className={`
-            rounded-xl bg-primary text-primary-foreground transition-all
-            ${selectedRows.length === 0 
-              ? 'opacity-50 cursor-not-allowed'
-              : 'shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px]'
-            }
-          `}
-        >
-          Bulk Actions ({selectedRows.length}) <ChevronDown className="ml-2 h-4 w-4" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent 
-        align="end"
-        className="w-[160px] bg-white rounded-xl border border-gray-200"
-      >
-        <DropdownMenuItem
-          onClick={handleBulkDelete}
-          className="text-red-600 focus:text-red-600 focus:bg-red-50 rounded-lg mx-1 my-1"
-        >
-          <Trash2 className="mr-2 h-4 w-4" />
-          Delete Reviews
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="outline" className="h-8 px-2 lg:px-3">
+            Bulk Actions
+            <ChevronDown className="ml-2 h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem
+            onClick={() => setIsAnalyticsOpen(true)}
+            disabled={selectedReviews.length < 10}
+          >
+            <BarChart2 className="mr-2 h-4 w-4" />
+            Analizza Recensioni
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            className="text-red-600"
+            onClick={handleBulkDelete}
+          >
+            Elimina Recensioni
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      <AnalyticsDialog
+        isOpen={isAnalyticsOpen}
+        onClose={() => setIsAnalyticsOpen(false)}
+        selectedReviews={selectedReviews}
+      />
+    </>
+  )
 } 

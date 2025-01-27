@@ -1,5 +1,6 @@
 // services/api.ts
 import axios from 'axios';
+import { getCookie } from 'cookies-next';
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
 
@@ -133,6 +134,35 @@ export const authApi = {
     const response = await api.get('/auth/profile');
     return response.data;
   }
+};
+
+// Funzioni per l'analytics
+export const analyticsApi = {
+  analyzeReviews: async (reviews: any[], prompt: string) => {
+    const token = getCookie('token');
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/analytics/analyze`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ reviews, prompt })
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to analyze reviews');
+    }
+
+    return response.json();
+  }
+};
+
+// Aggiorniamo l'export principale
+export const api = {
+  reviews: reviewsApi,
+  analytics: analyticsApi,
+  // ... altri servizi esistenti ...
 };
 
 export default api;
