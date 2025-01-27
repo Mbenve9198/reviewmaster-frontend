@@ -38,9 +38,29 @@ const getPromptIcon = (prompt: string) => {
 
 export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsDialogProps) {
   const [messages, setMessages] = useState<Array<{ role: string; content: string }>>([])
+  const [currentTypingContent, setCurrentTypingContent] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [inputValue, setInputValue] = useState("")
   const chatContainerRef = useRef<HTMLDivElement>(null)
+
+  // Effetto di digitazione
+  const typeMessage = (content: string, speed = 10) => {
+    return new Promise<void>((resolve) => {
+      let i = 0;
+      setCurrentTypingContent("");
+      
+      const interval = setInterval(() => {
+        setCurrentTypingContent(prev => prev + content[i]);
+        i++;
+        
+        if (i === content.length) {
+          clearInterval(interval);
+          setCurrentTypingContent("");
+          resolve();
+        }
+      }, speed);
+    });
+  };
 
   // Funzione per scrollare in fondo
   const scrollToBottom = () => {
@@ -69,7 +89,17 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
       
       const { analysis } = await api.analytics.analyzeReviews(selectedReviews, prompt)
       
-      setMessages(prev => [...prev, { role: "assistant", content: analysis }])
+      // Aggiungi messaggio vuoto per l'assistente
+      setMessages(prev => [...prev, { role: "assistant", content: "" }])
+      
+      // Avvia l'effetto di digitazione
+      await typeMessage(analysis)
+      
+      // Aggiorna il messaggio con il contenuto completo
+      setMessages(prev => [
+        ...prev.slice(0, -1),
+        { role: "assistant", content: analysis }
+      ])
     } catch (error: any) {
       console.error("Analysis error:", error)
       toast.error(error.message || "Errore durante l'analisi")
@@ -187,6 +217,20 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
                 </ChatBubble>
               </div>
             ))}
+            
+            {/* Messaggio in digitazione */}
+            {currentTypingContent && (
+              <div className="relative group" style={{ willChange: 'transform' }}>
+                <ChatBubble variant="received">
+                  <ChatBubbleAvatar>
+                    <div className="bg-black rounded-full p-1">
+                      <Bot className="h-4 w-4 text-white" />
+                    </div>
+                  </ChatBubbleAvatar>
+                  <FormattedMessage content={currentTypingContent} />
+                </ChatBubble>
+              </div>
+            )}
           </div>
         </div>
 
