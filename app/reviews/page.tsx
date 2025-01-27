@@ -15,6 +15,7 @@ import { BulkActionsDropdown } from "@/components/bulk-actions-dropdown"
 import { ColumnsDropdown } from "@/components/columns-dropdown"
 import { type Table as TableType } from "@tanstack/react-table"
 import { AddPropertyModal } from "@/components/add-property-modal"
+import { AuroraBackground } from "@/components/ui/aurora-background"
 
 interface Hotel {
   _id: string
@@ -181,12 +182,12 @@ export default function ReviewsPage() {
   }
 
   return (
-    <div className="flex flex-col px-10">
+    <AuroraBackground className="px-10">
       <Toaster position="top-right" />
       
       <div className="text-center mb-8 py-12">
-        <h1 className="text-4xl font-bold text-gray-800 mb-4">Reviews</h1>
-        <p className="text-xl text-gray-600">
+        <h1 className="text-4xl font-bold text-gray-800 dark:text-gray-100 mb-4">Reviews</h1>
+        <p className="text-xl text-gray-600 dark:text-gray-300">
           Monitor and respond to all your guest reviews in one place
         </p>
       </div>
@@ -291,6 +292,6 @@ export default function ReviewsPage() {
           onTableReady={handleTableReady}
         />
       </div>
-    </div>
+    </AuroraBackground>
   )
 }
