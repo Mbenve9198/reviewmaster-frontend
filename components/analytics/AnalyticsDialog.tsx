@@ -7,10 +7,11 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import { Loader2 } from "lucide-react"
+import { Loader2, Bot } from "lucide-react"
 import { SentimentChart } from "./charts/SentimentChart"
 import { api } from "@/services/api"
 import { toast } from "sonner"
+import { ChatBubble, ChatBubbleMessage, ChatBubbleAvatar } from "@/components/ui/chat-bubble"
 
 interface AnalyticsDialogProps {
   isOpen: boolean
@@ -55,7 +56,7 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex-1 flex gap-4 p-6 bg-white">
+        <div className="flex-1 flex gap-4 p-6">
           <div className="w-2/3 flex flex-col">
             <div className="flex flex-wrap gap-2 mb-4">
               {suggestedPrompts.map(prompt => (
@@ -71,17 +72,35 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
               ))}
             </div>
 
-            <div className="flex-1 overflow-y-auto p-4 border rounded-lg bg-white">
+            <div className="flex-1 overflow-y-auto space-y-4 p-4">
               {messages.map((msg, i) => (
-                <div key={i} className={`mb-4 ${msg.role === "assistant" ? "pl-4 border-l-2 border-blue-500" : ""}`}>
-                  <p className="whitespace-pre-wrap">{msg.content}</p>
-                </div>
+                <ChatBubble
+                  key={i}
+                  variant={msg.role === "user" ? "sent" : "received"}
+                >
+                  {msg.role === "assistant" && (
+                    <ChatBubbleAvatar fallback="AI">
+                      <Bot className="h-5 w-5" />
+                    </ChatBubbleAvatar>
+                  )}
+                  <ChatBubbleMessage 
+                    variant={msg.role === "user" ? "sent" : "received"}
+                    className="prose prose-sm max-w-none"
+                  >
+                    {msg.content}
+                  </ChatBubbleMessage>
+                </ChatBubble>
               ))}
               {isLoading && (
-                <div className="flex items-center gap-2 text-gray-600">
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Analisi in corso...
-                </div>
+                <ChatBubble variant="received">
+                  <ChatBubbleAvatar fallback="AI">
+                    <Bot className="h-5 w-5" />
+                  </ChatBubbleAvatar>
+                  <ChatBubbleMessage 
+                    variant="received"
+                    isLoading={true}
+                  />
+                </ChatBubble>
               )}
             </div>
           </div>

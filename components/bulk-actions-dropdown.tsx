@@ -71,7 +71,11 @@ export function BulkActionsDropdown({
         <DropdownMenuTrigger asChild>
           <Button 
             variant="default"
-            className="h-8 px-2 lg:px-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg shadow-sm hover:shadow-md transition-all"
+            className="relative h-8 px-2 lg:px-3 bg-blue-500 text-white rounded-lg 
+              shadow-[0_2px_0_0_rgb(37,99,235)] 
+              active:shadow-[0_0_0_0_rgb(37,99,235)] active:translate-y-[2px] 
+              transition-all duration-150 
+              hover:bg-blue-600 disabled:opacity-50"
           >
             Bulk Actions
             <ChevronDown className="ml-2 h-4 w-4" />
