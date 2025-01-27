@@ -7,13 +7,14 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import { Loader2, Bot, X, Copy, BarChart2, TrendingUp, Star, Lightbulb, SendHorizonal } from "lucide-react"
+import { Loader2, Bot, X, Copy, BarChart2, TrendingUp, Star, Lightbulb, SendHorizonal, Download } from "lucide-react"
 import { SentimentChart } from "./charts/SentimentChart"
 import { api } from "@/services/api"
 import { toast } from "sonner"
 import { ChatBubble, ChatBubbleMessage, ChatBubbleAvatar } from "@/components/ui/chat-bubble"
 import { Input } from "@/components/ui/input"
 import { FormattedMessage } from "./FormattedMessage"
+import html2pdf from "html2pdf.js"
 
 interface AnalyticsDialogProps {
   isOpen: boolean
@@ -69,19 +70,58 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
     toast.success("Testo copiato negli appunti")
   }
 
+  const handleDownloadPDF = async () => {
+    const analysisContent = messages
+      .filter(msg => msg.role === "assistant")
+      .map(msg => msg.content)
+      .join("\n\n");
+
+    if (!analysisContent) {
+      toast.error("Nessuna analisi da scaricare");
+      return;
+    }
+
+    const element = document.createElement("div");
+    element.innerHTML = `
+      <div style="font-family: system-ui, sans-serif; padding: 2rem;">
+        <h1 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1rem;">
+          Analisi Recensioni
+        </h1>
+        <div style="white-space: pre-wrap;">${analysisContent}</div>
+      </div>
+    `;
+
+    const opt = {
+      margin: 1,
+      filename: 'analisi-recensioni.pdf',
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+    };
+
+    try {
+      await html2pdf().set(opt).from(element).save();
+      toast.success("PDF scaricato con successo");
+    } catch (error) {
+      toast.error("Errore durante il download del PDF");
+      console.error(error);
+    }
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-3xl h-[80vh] p-0 bg-white rounded-3xl overflow-hidden flex flex-col">
-        {/* Header - fisso */}
+        {/* Header solo con pulsante download */}
         <div className="flex items-center justify-between p-4 border-b">
           <h2 className="text-xl font-semibold">Analisi Recensioni</h2>
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            onClick={onClose}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleDownloadPDF}
             className="rounded-full hover:bg-gray-100"
+            disabled={!messages.some(msg => msg.role === "assistant")}
           >
-            <X className="h-5 w-5" />
+            <Download className="h-5 w-5" />
           </Button>
         </div>
 
