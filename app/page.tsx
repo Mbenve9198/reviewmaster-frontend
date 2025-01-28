@@ -29,6 +29,8 @@ import { getCookie } from "@/lib/utils"
 import { toast } from "react-hot-toast"
 import { ChatMessageList } from "@/components/ui/chat-message-list"
 import { ChatBubble, ChatBubbleAvatar, ChatBubbleMessage } from "@/components/ui/chat-bubble"
+import { Tiles } from "@/components/ui/tiles"
+import { HandDrawnArrow } from "@/components/ui/hand-drawn-arrow"
 
 interface Hotel {
   _id: string
@@ -324,360 +326,357 @@ export default function HomePage() {
   const buttonClasses = "relative bg-primary hover:bg-primary/90 text-primary-foreground font-bold transition-all active:top-[2px] active:shadow-[0_0_0_0_#2563eb] disabled:opacity-50 disabled:hover:bg-primary disabled:active:top-0 disabled:active:shadow-[0_4px_0_0_#2563eb]"
 
   return (
-    <div className="min-h-screen bg-white py-12">
-      <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold text-gray-800 mb-4">Manual Responses</h1>
-        <p className="text-xl text-gray-600">Create personalized responses to your guest reviews with AI assistance</p>
-      </div>
-
-      <div className="max-w-4xl mx-auto px-6">
-        <div className="flex items-center justify-center gap-4 mb-12">
-          <Select value={selectedHotel} onValueChange={handleHotelChange}>
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Select a hotel" />
-            </SelectTrigger>
-            <SelectContent>
-              {hotels.map((hotel) => (
-                <SelectItem key={hotel._id} value={hotel._id}>
-                  {hotel.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Button
-            onClick={handleSettingsClick}
-            disabled={!selectedHotel}
-            className={`${buttonClasses} text-xl p-4 rounded-full shadow-[0_4px_0_0_#2563eb]`}
-            aria-label="Hotel Settings"
-          >
-            <Settings className="w-6 h-6" />
-          </Button>
-          <Button
-            onClick={() => setIsAddHotelModalOpen(true)}
-            className={`${buttonClasses} text-xl py-6 px-8 rounded-2xl shadow-[0_4px_0_0_#2563eb] flex items-center gap-2`}
-          >
-            <PlusCircle className="w-6 h-6" />
-            Add Hotel
-          </Button>
+    <>
+      <Tiles 
+        className="fixed inset-0 -z-10" 
+        rows={100}
+        cols={20}
+        tileSize="md"
+      />
+      
+      <div className="relative">
+        <HandDrawnArrow
+          className="absolute -right-24 top-24 rotate-[60deg] hidden xl:block text-blue-500"
+          width={150}
+        />
+        
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold text-gray-800 mb-4">Manual Responses</h1>
+          <p className="text-xl text-gray-600">Create personalized responses with AI</p>
         </div>
 
-        <div className="flex flex-col gap-4 w-full max-w-3xl">
-          <div className="space-y-4">
-            <h2 className="text-2xl font-bold">Enter Guest Review</h2>
-            
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <p className="text-sm text-gray-500 font-medium">Tone of voice</p>
-                <div className="flex gap-3">
-                  <Button
-                    onClick={() => setResponseStyle('professional')}
-                    className={`px-6 py-3 text-base rounded-xl transition-all ${
-                      responseStyle === 'professional'
-                        ? 'bg-primary text-primary-foreground shadow-[0_2px_0_0_#1d6d05] hover:bg-primary/90'
-                        : 'bg-gray-100 text-gray-600 shadow-[0_2px_0_0_#d1d5db] hover:bg-gray-200'
-                    }`}
-                  >
-                    Professional
-                  </Button>
-                  <Button
-                    onClick={() => setResponseStyle('friendly')}
-                    className={`px-6 py-3 text-base rounded-xl transition-all ${
-                      responseStyle === 'friendly'
-                        ? 'bg-primary text-primary-foreground shadow-[0_2px_0_0_#1d6d05] hover:bg-primary/90'
-                        : 'bg-gray-100 text-gray-600 shadow-[0_2px_0_0_#d1d5db] hover:bg-gray-200'
-                    }`}
-                  >
-                    Friendly
-                  </Button>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <p className="text-sm text-gray-500 font-medium">Length</p>
-                <div className="flex gap-3">
-                  <Button
-                    onClick={() => setResponseLength('short')}
-                    className={`px-6 py-3 text-base rounded-xl transition-all ${
-                      responseLength === 'short'
-                        ? 'bg-primary text-primary-foreground shadow-[0_2px_0_0_#1d6d05] hover:bg-primary/90'
-                        : 'bg-gray-100 text-gray-600 shadow-[0_2px_0_0_#d1d5db] hover:bg-gray-200'
-                    }`}
-                  >
-                    Short
-                  </Button>
-                  <Button
-                    onClick={() => setResponseLength('medium')}
-                    className={`px-6 py-3 text-base rounded-xl transition-all ${
-                      responseLength === 'medium'
-                        ? 'bg-primary text-primary-foreground shadow-[0_2px_0_0_#1d6d05] hover:bg-primary/90'
-                        : 'bg-gray-100 text-gray-600 shadow-[0_2px_0_0_#d1d5db] hover:bg-gray-200'
-                    }`}
-                  >
-                    Medium
-                  </Button>
-                  <Button
-                    onClick={() => setResponseLength('long')}
-                    className={`px-6 py-3 text-base rounded-xl transition-all ${
-                      responseLength === 'long'
-                        ? 'bg-primary text-primary-foreground shadow-[0_2px_0_0_#1d6d05] hover:bg-primary/90'
-                        : 'bg-gray-100 text-gray-600 shadow-[0_2px_0_0_#d1d5db] hover:bg-gray-200'
-                    }`}
-                  >
-                    Long
-                  </Button>
-                </div>
-              </div>
-            </div>
-
-            <Textarea
-              value={review}
-              onChange={(e) => setReview(e.target.value)}
-              className="p-6 text-xl rounded-2xl border-2 border-gray-200 focus:border-primary focus:ring-primary min-h-[200px]"
-              placeholder="Paste the guest review here..."
-            />
-            
+        <div className="max-w-4xl mx-auto px-6">
+          <div className="flex items-center justify-center gap-4 mb-12">
+            <Select value={selectedHotel} onValueChange={handleHotelChange}>
+              <SelectTrigger className="w-full rounded-xl">
+                <SelectValue placeholder="Select a hotel" />
+              </SelectTrigger>
+              <SelectContent>
+                {hotels.map((hotel) => (
+                  <SelectItem key={hotel._id} value={hotel._id}>
+                    {hotel.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             <Button
-              onClick={handleGenerateResponse}
-              disabled={!selectedHotel || !review.trim() || isGenerating}
-              className={`${buttonClasses} w-full text-2xl py-8 rounded-2xl shadow-[0_4px_0_0_#2563eb] flex items-center justify-center gap-2`}
+              onClick={handleSettingsClick}
+              disabled={!selectedHotel}
+              className="rounded-xl bg-primary text-primary-foreground shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all"
+              aria-label="Hotel Settings"
             >
-              {isGenerating ? (
-                <>
-                  <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                  >
-                    <Send className="w-6 h-6" />
-                  </motion.div>
-                  Generating...
-                </>
-              ) : (
-                <>
-                  <Send className="w-6 h-6" />
-                  Generate AI Response
-                </>
-              )}
+              <Settings className="w-4 h-4" />
+            </Button>
+            <Button
+              onClick={() => setIsAddHotelModalOpen(true)}
+              className="rounded-xl bg-primary text-primary-foreground shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all flex items-center gap-2"
+            >
+              <PlusCircle className="w-4 h-4" />
+              Add Hotel
             </Button>
           </div>
-        </div>
 
-        <ResponseModal
-          isOpen={isResponseModalOpen}
-          onClose={() => setIsResponseModalOpen(false)}
-          response={error || aiResponse}
-          isError={!!error}
-        />
-      </div>
-      
-      <AddHotelModal
-        isOpen={isAddHotelModalOpen}
-        onClose={() => setIsAddHotelModalOpen(false)}
-        onHotelAdded={handleHotelAdded}
-      />
-
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="bg-white max-w-4xl h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="text-4xl font-bold text-center">Add New Hotel</DialogTitle>
-            <DialogDescription className="text-xl text-center">
-              Let's set up your new property
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="mt-8">
-            <div className="max-w-3xl mx-auto">
-              <Progress value={(step / totalSteps) * 100} className="h-3 mb-8" />
-
-              {step === 1 && (
-                <div className="space-y-6">
-                  <div className="space-y-2">
-                    <label className="text-xl font-bold">Property Name</label>
-                    <Input
-                      value={newHotelName}
-                      onChange={(e) => setNewHotelName(e.target.value)}
-                      className="p-6 text-xl rounded-2xl border-2 border-gray-200 focus:border-[#58CC02] focus:ring-[#58CC02]"
-                      placeholder="Enter your property name"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-xl font-bold">Property Type</label>
-                    <Select value={newHotelType} onValueChange={setNewHotelType}>
-                      <SelectTrigger className="p-6 text-xl rounded-2xl border-2">
-                        <SelectValue placeholder="Select property type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="hotel">Hotel</SelectItem>
-                        <SelectItem value="b&b">B&B</SelectItem>
-                        <SelectItem value="resort">Resort</SelectItem>
-                        <SelectItem value="apartment">Apartment</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-              )}
-
-              {step === 2 && (
-                <div className="space-y-6">
-                  <div className="space-y-2">
-                    <label className="text-xl font-bold">Property Description</label>
-                    <Textarea
-                      value={description}
-                      onChange={(e) => setDescription(e.target.value)}
-                      className="p-6 text-xl rounded-2xl border-2 min-h-[200px]"
-                      placeholder="Describe your property..."
-                    />
-                  </div>
-                </div>
-              )}
-
-              {step === 3 && (
-                <div className="space-y-6">
-                  <div className="space-y-2">
-                    <label className="text-xl font-bold">Manager Signature</label>
-                    <Input
-                      value={managerSignature}
-                      onChange={(e) => setManagerSignature(e.target.value)}
-                      className="p-6 text-xl rounded-2xl border-2"
-                      placeholder="Your name and title"
-                    />
-                  </div>
-                </div>
-              )}
-
-              <div className="flex justify-end mt-8 gap-4">
-                {step > 1 && (
-                  <Button onClick={() => setStep(step - 1)} variant="outline" className="text-xl py-6 px-8">
-                    Back
-                  </Button>
-                )}
-                <Button
-                  onClick={step === totalSteps ? handleAddHotel : () => setStep(step + 1)}
-                  className="text-xl py-6 px-8"
-                  disabled={!isStepValid()}
-                >
-                  {step === totalSteps ? "Complete" : "Continue"}
-                </Button>
-              </div>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="sm:max-w-[500px] w-[95vw] max-h-[90vh] p-0 bg-white rounded-2xl border shadow-lg">
-          <div className="h-full max-h-[90vh] flex flex-col">
-            <DialogHeader className="px-6 py-4 border-b bg-gray-50/80 rounded-t-2xl">
-              <DialogTitle className="text-lg font-semibold">Generated Response</DialogTitle>
-            </DialogHeader>
-            
-            <div className="flex-1 overflow-y-auto bg-white px-6" ref={chatContainerRef}>
-              <div className="py-6">
-                <ChatMessageList>
-                  {messages.map((message) => (
-                    <ChatBubble 
-                      key={message.id} 
-                      variant={message.sender === "user" ? "sent" : "received"}
-                      className="rounded-2xl shadow-sm"
+          <div className="flex flex-col gap-4 w-full max-w-3xl">
+            <div className="space-y-4">
+              <h2 className="text-2xl font-bold">Enter Guest Review</h2>
+              
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <p className="text-sm text-gray-500 font-medium">Tone of voice</p>
+                  <div className="flex gap-3">
+                    <Button
+                      onClick={() => setResponseStyle('professional')}
+                      className={`rounded-xl transition-all flex items-center gap-2 ${
+                        responseStyle === 'professional'
+                          ? 'bg-primary text-primary-foreground shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px]'
+                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      }`}
                     >
-                      <ChatBubbleAvatar
-                        className="h-8 w-8 shrink-0 rounded-full border-2 border-white shadow-sm"
-                        src={message.sender === "user" ? "https://github.com/shadcn.png" : "https://github.com/vercel.png"}
-                        fallback={message.sender === "user" ? "US" : "AI"}
-                      />
-                      <div className="flex flex-col">
-                        <ChatBubbleMessage 
-                          variant={message.sender === "user" ? "sent" : "received"}
-                          className="rounded-2xl relative pr-10"
-                        >
-                          {message.content}
-                          {message.sender === "ai" && (
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => {
-                                navigator.clipboard.writeText(message.content)
-                                toast.success("Response copied to clipboard")
-                              }}
-                              className="absolute bottom-1 right-1 h-7 w-7 rounded-full bg-primary/10 hover:bg-primary/20 text-primary shadow-sm"
-                            >
-                              <Copy className="h-3.5 w-3.5" />
-                              <span className="sr-only">Copy response</span>
-                            </Button>
-                          )}
-                        </ChatBubbleMessage>
-                      </div>
-                    </ChatBubble>
-                  ))}
-
-                  {isGenerating && (
-                    <ChatBubble variant="received" className="rounded-2xl shadow-sm">
-                      <ChatBubbleAvatar 
-                        className="h-8 w-8 shrink-0 rounded-full border-2 border-white shadow-sm" 
-                        src="https://github.com/vercel.png" 
-                        fallback="AI" 
-                      />
-                      <ChatBubbleMessage isLoading className="rounded-2xl" />
-                    </ChatBubble>
-                  )}
-                </ChatMessageList>
-              </div>
-            </div>
-
-            <div className="border-t px-6 py-4 bg-gray-50">
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  handleChatSubmit(input);
-                }}
-                className="relative flex items-center gap-4"
-              >
-                <div className="relative flex-1">
-                  <textarea
-                    value={input}
-                    onChange={(e) => {
-                      setInput(e.target.value);
-                      e.target.style.height = 'inherit';
-                      const height = e.target.scrollHeight;
-                      e.target.style.height = `${height}px`;
-                    }}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        handleChatSubmit(input);
-                      }
-                    }}
-                    placeholder="Type your message..."
-                    className="w-full min-h-[48px] max-h-[200px] resize-none rounded-xl bg-white border-gray-200 p-3 pr-14 shadow-none focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary"
-                    style={{ overflow: 'hidden' }}
-                  />
-                  <Button 
-                    type="submit" 
-                    size="sm" 
-                    className="absolute right-2 top-[50%] -translate-y-1/2 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground shadow-[0_4px_0_0_#1e40af] hover:shadow-[0_2px_0_0_#1e40af] hover:translate-y-[calc(-50%+2px)] transition-all"
-                  >
-                    <CornerDownLeft className="h-4 w-4" />
-                  </Button>
+                      Professional
+                    </Button>
+                    <Button
+                      onClick={() => setResponseStyle('friendly')}
+                      className={`rounded-xl transition-all flex items-center gap-2 ${
+                        responseStyle === 'friendly'
+                          ? 'bg-primary text-primary-foreground shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px]'
+                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      }`}
+                    >
+                      Friendly
+                    </Button>
+                  </div>
                 </div>
-                <Button
-                  onClick={() => {
-                    if (messages.length > 0) {
-                      const lastAiMessage = [...messages].reverse().find(m => m.sender === "ai");
-                      if (lastAiMessage) {
-                        setAiResponse(lastAiMessage.content);
-                        setIsModalOpen(false);
-                      }
-                    }
-                  }}
-                  disabled={isGenerating || !messages.length}
-                  className="relative bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-2 rounded-xl shadow-[0_4px_0_0_#1e40af] hover:shadow-[0_2px_0_0_#1e40af] hover:translate-y-[2px] transition-all"
-                >
-                  Save Response
-                </Button>
-              </form>
+
+                <div className="space-y-2">
+                  <p className="text-sm text-gray-500 font-medium">Length</p>
+                  <div className="flex gap-3">
+                    {['short', 'medium', 'long'].map((length) => (
+                      <Button
+                        key={length}
+                        onClick={() => setResponseLength(length as ResponseLength)}
+                        className={`rounded-xl transition-all flex items-center gap-2 ${
+                          responseLength === length
+                            ? 'bg-primary text-primary-foreground shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px]'
+                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        }`}
+                      >
+                        {length.charAt(0).toUpperCase() + length.slice(1)}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <Textarea
+                value={review}
+                onChange={(e) => setReview(e.target.value)}
+                className="p-6 text-xl rounded-2xl border-2 border-gray-200 focus:border-primary focus:ring-primary min-h-[200px]"
+                placeholder="Paste the guest review here..."
+              />
+              
+              <Button
+                onClick={handleGenerateResponse}
+                disabled={!selectedHotel || !review.trim() || isGenerating}
+                className="w-full rounded-xl bg-primary text-primary-foreground shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all flex items-center justify-center gap-2"
+              >
+                {isGenerating ? (
+                  <>
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                    >
+                      <Send className="w-4 h-4" />
+                    </motion.div>
+                    Generating...
+                  </>
+                ) : (
+                  <>
+                    <Send className="w-4 h-4" />
+                    Generate AI Response
+                  </>
+                )}
+              </Button>
             </div>
           </div>
-        </DialogContent>
-      </Dialog>
-    </div>
+
+          <ResponseModal
+            isOpen={isResponseModalOpen}
+            onClose={() => setIsResponseModalOpen(false)}
+            response={error || aiResponse}
+            isError={!!error}
+          />
+        </div>
+        
+        <AddHotelModal
+          isOpen={isAddHotelModalOpen}
+          onClose={() => setIsAddHotelModalOpen(false)}
+          onHotelAdded={handleHotelAdded}
+        />
+
+        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+          <DialogContent className="bg-white max-w-4xl h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="text-4xl font-bold text-center">Add New Hotel</DialogTitle>
+              <DialogDescription className="text-xl text-center">
+                Let's set up your new property
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="mt-8">
+              <div className="max-w-3xl mx-auto">
+                <Progress value={(step / totalSteps) * 100} className="h-3 mb-8" />
+
+                {step === 1 && (
+                  <div className="space-y-6">
+                    <div className="space-y-2">
+                      <label className="text-xl font-bold">Property Name</label>
+                      <Input
+                        value={newHotelName}
+                        onChange={(e) => setNewHotelName(e.target.value)}
+                        className="p-6 text-xl rounded-2xl border-2 border-gray-200 focus:border-[#58CC02] focus:ring-[#58CC02]"
+                        placeholder="Enter your property name"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-xl font-bold">Property Type</label>
+                      <Select value={newHotelType} onValueChange={setNewHotelType}>
+                        <SelectTrigger className="p-6 text-xl rounded-2xl border-2">
+                          <SelectValue placeholder="Select property type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="hotel">Hotel</SelectItem>
+                          <SelectItem value="b&b">B&B</SelectItem>
+                          <SelectItem value="resort">Resort</SelectItem>
+                          <SelectItem value="apartment">Apartment</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                )}
+
+                {step === 2 && (
+                  <div className="space-y-6">
+                    <div className="space-y-2">
+                      <label className="text-xl font-bold">Property Description</label>
+                      <Textarea
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                        className="p-6 text-xl rounded-2xl border-2 min-h-[200px]"
+                        placeholder="Describe your property..."
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {step === 3 && (
+                  <div className="space-y-6">
+                    <div className="space-y-2">
+                      <label className="text-xl font-bold">Manager Signature</label>
+                      <Input
+                        value={managerSignature}
+                        onChange={(e) => setManagerSignature(e.target.value)}
+                        className="p-6 text-xl rounded-2xl border-2"
+                        placeholder="Your name and title"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex justify-end mt-8 gap-4">
+                  {step > 1 && (
+                    <Button onClick={() => setStep(step - 1)} variant="outline" className="text-xl py-6 px-8">
+                      Back
+                    </Button>
+                  )}
+                  <Button
+                    onClick={step === totalSteps ? handleAddHotel : () => setStep(step + 1)}
+                    className="text-xl py-6 px-8"
+                    disabled={!isStepValid()}
+                  >
+                    {step === totalSteps ? "Complete" : "Continue"}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+          <DialogContent className="sm:max-w-[500px] w-[95vw] max-h-[90vh] p-0 bg-white rounded-2xl border shadow-lg">
+            <div className="h-full max-h-[90vh] flex flex-col">
+              <DialogHeader className="px-6 py-4 border-b bg-gray-50/80 rounded-t-2xl">
+                <DialogTitle className="text-lg font-semibold">Generated Response</DialogTitle>
+              </DialogHeader>
+              
+              <div className="flex-1 overflow-y-auto bg-white px-6" ref={chatContainerRef}>
+                <div className="py-6">
+                  <ChatMessageList>
+                    {messages.map((message) => (
+                      <ChatBubble 
+                        key={message.id} 
+                        variant={message.sender === "user" ? "sent" : "received"}
+                        className="rounded-2xl shadow-sm"
+                      >
+                        <ChatBubbleAvatar
+                          className="h-8 w-8 shrink-0 rounded-full border-2 border-white shadow-sm"
+                          src={message.sender === "user" ? "https://github.com/shadcn.png" : "https://github.com/vercel.png"}
+                          fallback={message.sender === "user" ? "US" : "AI"}
+                        />
+                        <div className="flex flex-col">
+                          <ChatBubbleMessage 
+                            variant={message.sender === "user" ? "sent" : "received"}
+                            className="rounded-2xl relative pr-10"
+                          >
+                            {message.content}
+                            {message.sender === "ai" && (
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => {
+                                  navigator.clipboard.writeText(message.content)
+                                  toast.success("Response copied to clipboard")
+                                }}
+                                className="absolute bottom-1 right-1 h-7 w-7 rounded-full bg-primary/10 hover:bg-primary/20 text-primary shadow-sm"
+                              >
+                                <Copy className="h-3.5 w-3.5" />
+                                <span className="sr-only">Copy response</span>
+                              </Button>
+                            )}
+                          </ChatBubbleMessage>
+                        </div>
+                      </ChatBubble>
+                    ))}
+
+                    {isGenerating && (
+                      <ChatBubble variant="received" className="rounded-2xl shadow-sm">
+                        <ChatBubbleAvatar 
+                          className="h-8 w-8 shrink-0 rounded-full border-2 border-white shadow-sm" 
+                          src="https://github.com/vercel.png" 
+                          fallback="AI" 
+                        />
+                        <ChatBubbleMessage isLoading className="rounded-2xl" />
+                      </ChatBubble>
+                    )}
+                  </ChatMessageList>
+                </div>
+              </div>
+
+              <div className="border-t px-6 py-4 bg-gray-50">
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    handleChatSubmit(input);
+                  }}
+                  className="relative flex items-center gap-4"
+                >
+                  <div className="relative flex-1">
+                    <textarea
+                      value={input}
+                      onChange={(e) => {
+                        setInput(e.target.value);
+                        e.target.style.height = 'inherit';
+                        const height = e.target.scrollHeight;
+                        e.target.style.height = `${height}px`;
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                          e.preventDefault();
+                          handleChatSubmit(input);
+                        }
+                      }}
+                      placeholder="Type your message..."
+                      className="w-full min-h-[48px] max-h-[200px] resize-none rounded-xl bg-white border-gray-200 p-3 pr-14 shadow-none focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary"
+                      style={{ overflow: 'hidden' }}
+                    />
+                    <Button 
+                      type="submit" 
+                      size="sm" 
+                      className="absolute right-2 top-[50%] -translate-y-1/2 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground shadow-[0_4px_0_0_#1e40af] hover:shadow-[0_2px_0_0_#1e40af] hover:translate-y-[calc(-50%+2px)] transition-all"
+                    >
+                      <CornerDownLeft className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  <Button
+                    onClick={() => {
+                      if (messages.length > 0) {
+                        const lastAiMessage = [...messages].reverse().find(m => m.sender === "ai");
+                        if (lastAiMessage) {
+                          setAiResponse(lastAiMessage.content);
+                          setIsModalOpen(false);
+                        }
+                      }
+                    }}
+                    disabled={isGenerating || !messages.length}
+                    className="relative bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-2 rounded-xl shadow-[0_4px_0_0_#1e40af] hover:shadow-[0_2px_0_0_#1e40af] hover:translate-y-[2px] transition-all"
+                  >
+                    Save Response
+                  </Button>
+                </form>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </div>
+    </>
   )
 }
