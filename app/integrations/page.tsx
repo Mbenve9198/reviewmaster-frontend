@@ -211,7 +211,7 @@ export default function IntegrationsPage() {
         tileSize="md"
       />
       
-      <div className="min-h-screen py-12 md:pl-[80px] md:hover:pl-[320px] transition-all duration-300">
+      <div className="min-h-screen py-12 md:pl-[100px]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <HandWrittenTitle 
             title="Integrations"
