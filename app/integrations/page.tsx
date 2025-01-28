@@ -256,51 +256,38 @@ export default function IntegrationsPage() {
             </Button>
           </div>
 
-          {selectedHotelData && (
-            <div className="flex justify-center mb-12">
-              <div className="bg-white rounded-xl shadow-[0_4px_16px_-3px_rgb(0,0,0,0.15)] px-8 py-4">
-                <div className="text-center">
-                  <p className="text-sm text-gray-500 mb-1">Total Reviews Synced</p>
-                  <p className="text-3xl font-bold text-primary">
-                    {totalReviewsSynced}
-                  </p>
-                </div>
-              </div>
+          {selectedHotelData ? (
+            <div className="grid md:grid-cols-3 gap-8 mb-12">
+              {selectedHotelData.integrations.map((integration) => (
+                <IntegrationCard 
+                  key={integration._id} 
+                  integration={{
+                    ...integration,
+                    logo: platformLogos[integration.platform]
+                  }}
+                  onSync={async () => {
+                    const token = getCookie('token')
+                    await fetch(
+                      `${process.env.NEXT_PUBLIC_API_URL}/api/integrations/${integration._id}/sync`,
+                      {
+                        method: 'POST',
+                        headers: {
+                          'Authorization': `Bearer ${token}`,
+                        }
+                      }
+                    )
+                    handleIntegrationAdded(integration)
+                  }}
+                  onDelete={() => handleDeleteIntegration(integration._id)}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center text-gray-500">
+              Please select a hotel to manage its integrations
             </div>
           )}
         </div>
-
-        {selectedHotelData ? (
-          <div className="grid md:grid-cols-3 gap-8 mb-12">
-            {selectedHotelData.integrations.map((integration) => (
-              <IntegrationCard 
-                key={integration._id} 
-                integration={{
-                  ...integration,
-                  logo: platformLogos[integration.platform]
-                }}
-                onSync={async () => {
-                  const token = getCookie('token')
-                  await fetch(
-                    `${process.env.NEXT_PUBLIC_API_URL}/api/integrations/${integration._id}/sync`,
-                    {
-                      method: 'POST',
-                      headers: {
-                        'Authorization': `Bearer ${token}`,
-                      }
-                    }
-                  )
-                  handleIntegrationAdded(integration)
-                }}
-                onDelete={() => handleDeleteIntegration(integration._id)}
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="text-center text-gray-500">
-            Please select a hotel to manage its integrations
-          </div>
-        )}
       </div>
 
       <AddIntegrationModal
