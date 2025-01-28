@@ -206,23 +206,25 @@ export default function IntegrationsPage() {
   return (
     <>
       {showBanner && (
-        <div className="fixed top-0 left-0 right-0 z-50">
-          <div className="bg-gradient-to-r from-primary/90 to-blue-600/90 backdrop-blur-sm text-white px-4 py-3">
-            <div className="max-w-7xl mx-auto flex items-center justify-between">
-              <p className="text-sm">
-                Want to auto-respond to reviews directly on TripAdvisor and Booking.com? 
-                <a 
-                  href="https://chromewebstore.google.com/detail/replai/dgdhioopdabddaifmlbjpabdlegpkepn?authuser=0&hl=it"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="underline ml-1 hover:text-blue-100"
-                >
-                  Get our Chrome extension here
-                </a>
-              </p>
+        <div className="fixed top-0 left-0 right-0 z-20">
+          <div className="bg-gradient-to-r from-primary/85 via-blue-500/85 to-blue-600/85 backdrop-blur-sm text-white shadow-lg">
+            <div className="relative max-w-7xl mx-auto md:pl-[100px]">
+              <div className="px-4 py-3 text-center pr-12">
+                <p className="text-sm">
+                  Want to auto-respond to reviews directly on TripAdvisor and Booking.com? 
+                  <a 
+                    href="https://chromewebstore.google.com/detail/replai/dgdhioopdabddaifmlbjpabdlegpkepn?authuser=0&hl=it"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline ml-1 hover:text-blue-100"
+                  >
+                    Get our Chrome extension here
+                  </a>
+                </p>
+              </div>
               <button 
                 onClick={() => setShowBanner(false)}
-                className="text-white/80 hover:text-white"
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-white/80 hover:text-white"
               >
                 <X className="w-4 h-4" />
               </button>
