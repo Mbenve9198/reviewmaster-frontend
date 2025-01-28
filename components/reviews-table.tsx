@@ -325,40 +325,15 @@ export const ReviewsTable = ({
                 <ExternalLink className="h-4 w-4 text-gray-500" />
               </Button>
             )}
-            <ButtonGroup>
-              <Button
-                variant="default"
-                size="sm"
-                onClick={() => handleGenerateResponse(row.original)}
-                className="rounded-xl flex items-center gap-2 bg-primary text-primary-foreground shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all"
-              >
-                <MessageSquare className="h-4 w-4" />
-                Generate
-              </Button>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="default"
-                    size="sm"
-                    className="rounded-xl bg-primary text-primary-foreground shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all"
-                  >
-                    <ChevronDown className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent 
-                  align="end" 
-                  className="w-[160px] bg-white rounded-xl border border-gray-200"
-                >
-                  <DropdownMenuItem
-                    onClick={() => handleDeleteReview(row.original._id)}
-                    className="text-red-600 focus:text-red-600 focus:bg-red-50 rounded-lg mx-1 my-1"
-                  >
-                    <Trash2 className="mr-2 h-4 w-4" />
-                    Delete Review
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </ButtonGroup>
+            <Button
+              variant="default"
+              size="sm"
+              onClick={() => handleGenerateResponse(row.original)}
+              className="rounded-xl flex items-center gap-2 bg-primary text-primary-foreground shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all"
+            >
+              <MessageSquare className="h-4 w-4" />
+              Generate
+            </Button>
           </div>
         )
       },
@@ -637,8 +612,8 @@ export const ReviewsTable = ({
   return (
     <div className="w-full flex justify-center">
       <div className="w-fit">
-        <div className="rounded-xl border border-gray-200 bg-white">
-          <Table>
+        <div className="rounded-xl border border-gray-200 bg-white overflow-hidden">
+          <Table className="overflow-hidden">
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow 
