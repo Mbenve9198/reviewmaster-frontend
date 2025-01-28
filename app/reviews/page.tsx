@@ -186,7 +186,7 @@ export default function ReviewsPage() {
   return (
     <>
       <Tiles 
-        className="fixed inset-0 -z-10 opacity-[0.15]" 
+        className="fixed inset-0 -z-10" 
         rows={50} 
         cols={8}
         tileSize="md"
