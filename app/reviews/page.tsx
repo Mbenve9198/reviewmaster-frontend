@@ -199,13 +199,13 @@ export default function ReviewsPage() {
         <Toaster position="top-right" />
         
         <div className="flex flex-col">
-          <div className="mb-8 w-fit">
-            <div className="flex items-center justify-between px-6">
+          <div className="mb-8">
+            <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                   <Input
-                    placeholder="Search reviews..."
+                    placeholder="Search"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="pl-10 w-[140px] rounded-full border-gray-200 focus:border-primary focus:ring-primary bg-white text-sm"
@@ -274,29 +274,31 @@ export default function ReviewsPage() {
                   </SelectContent>
                 </Select>
               </div>
-
-              <div className="flex items-center gap-2">
-                <BulkActionsDropdown 
-                  selectedRows={selectedRows} 
-                  onRefresh={handleRefresh} 
-                />
-                {tableInstance && <ColumnsDropdown table={tableInstance} />}
-              </div>
             </div>
           </div>
 
-          <ReviewsTable
-            searchQuery={searchQuery}
-            property={hotel}
-            responseStatus={responseStatus}
-            platform={platform}
-            ratingFilter={ratingFilter}
-            resultsPerPage={resultsPerPage}
-            onRefresh={handleRefresh}
-            onResultsPerPageChange={handleResultsPerPageChange}
-            onSelectionChange={setSelectedRows}
-            onTableReady={handleTableReady}
-          />
+          <div className="relative">
+            <div className="absolute right-0 -top-14 flex items-center gap-2">
+              <BulkActionsDropdown 
+                selectedRows={selectedRows} 
+                onRefresh={handleRefresh} 
+              />
+              {tableInstance && <ColumnsDropdown table={tableInstance} />}
+            </div>
+
+            <ReviewsTable
+              searchQuery={searchQuery}
+              property={hotel}
+              responseStatus={responseStatus}
+              platform={platform}
+              ratingFilter={ratingFilter}
+              resultsPerPage={resultsPerPage}
+              onRefresh={handleRefresh}
+              onResultsPerPageChange={handleResultsPerPageChange}
+              onSelectionChange={setSelectedRows}
+              onTableReady={handleTableReady}
+            />
+          </div>
         </div>
       </div>
     </>
