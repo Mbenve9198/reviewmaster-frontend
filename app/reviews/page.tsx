@@ -187,8 +187,8 @@ export default function ReviewsPage() {
     <>
       <Tiles 
         className="fixed inset-0 -z-10" 
-        rows={50} 
-        cols={8}
+        rows={100}
+        cols={20}
         tileSize="md"
       />
       <div className="flex flex-col px-10 md:pl-[96px]">
