@@ -31,6 +31,7 @@ import { ChatMessageList } from "@/components/ui/chat-message-list"
 import { ChatBubble, ChatBubbleAvatar, ChatBubbleMessage } from "@/components/ui/chat-bubble"
 import { Tiles } from "@/components/ui/tiles"
 import { HandDrawnArrow } from "@/components/ui/hand-drawn-arrow"
+import { HandWrittenTitle } from "@/components/ui/hand-writing-text"
 
 interface Hotel {
   _id: string
@@ -335,16 +336,11 @@ export default function HomePage() {
       />
       
       <div className="relative">
-        <HandDrawnArrow
-          className="absolute -right-24 top-24 rotate-[60deg] hidden xl:block text-blue-500"
-          width={150}
+        <HandWrittenTitle 
+          title="Manual Responses"
+          subtitle="Create personalized responses with AI"
         />
         
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-800 mb-4">Manual Responses</h1>
-          <p className="text-xl text-gray-600">Create personalized responses with AI</p>
-        </div>
-
         <div className="max-w-4xl mx-auto px-6">
           <div className="flex items-center justify-center gap-4 mb-12">
             <Select value={selectedHotel} onValueChange={handleHotelChange}>
