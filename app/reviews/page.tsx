@@ -5,7 +5,7 @@ import { ReviewsTable } from "@/components/reviews-table"
 import { Input } from "@/components/ui/input"
 import { ReviewTabs } from "@/components/ui/review-tabs"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Search, Filter } from "lucide-react"
+import { Search, Filter, BarChart2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Toaster } from "sonner"
 import { getCookie } from "@/lib/utils"
@@ -18,6 +18,7 @@ import { AddPropertyModal } from "@/components/add-property-modal"
 import { AuroraBackground } from "@/components/ui/aurora-background"
 import { HandWrittenTitle } from "@/components/ui/hand-writing-text"
 import { Tiles } from "@/components/ui/tiles"
+import { toast } from "react-hot-toast"
 
 interface Hotel {
   _id: string
@@ -273,17 +274,30 @@ export default function ReviewsPage() {
                     <SelectItem value="1" className="text-sm">1 Star & Up</SelectItem>
                   </SelectContent>
                 </Select>
+
+                {tableInstance && <ColumnsDropdown table={tableInstance} />}
               </div>
             </div>
           </div>
 
           <div className="relative">
             <div className="absolute right-0 -top-14 flex items-center gap-2">
-              <BulkActionsDropdown 
-                selectedRows={selectedRows} 
-                onRefresh={handleRefresh} 
-              />
-              {tableInstance && <ColumnsDropdown table={tableInstance} />}
+              <Button
+                variant="default"
+                size="sm"
+                onClick={() => {
+                  if (selectedRows.length === 0) {
+                    toast.error("Please select at least one review to analyze")
+                    return
+                  }
+                  // Qui andrà la logica per aprire il dialog dell'analisi
+                }}
+                className="rounded-full bg-blue-500 hover:bg-blue-600 text-white"
+                disabled={selectedRows.length === 0}
+              >
+                <BarChart2 className="w-4 h-4 mr-2" />
+                Analyze Reviews
+              </Button>
             </div>
 
             <ReviewsTable

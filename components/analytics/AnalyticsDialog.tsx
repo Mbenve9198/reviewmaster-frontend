@@ -27,10 +27,10 @@ const getPromptIcon = (prompt: string) => {
   if (prompt.includes('problemi')) {
     return <BarChart2 className="w-5 h-5 text-blue-500" />
   }
-  if (prompt.includes('forza')) {
+  if (prompt.includes('positivi') || prompt.includes('marketing')) {
     return <Star className="w-5 h-5 text-yellow-500" />
   }
-  if (prompt.includes('trend')) {
+  if (prompt.includes('evoluta') || prompt.includes('mesi')) {
     return <TrendingUp className="w-5 h-5 text-green-500" />
   }
   return <Lightbulb className="w-5 h-5 text-purple-500" />
@@ -74,11 +74,19 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
     scrollToBottom()
   }, [messages])
 
+  // Esegui l'analisi iniziale quando il dialog viene aperto
+  useEffect(() => {
+    if (isOpen && selectedReviews.length > 0) {
+      handleAnalysis("Analizza queste recensioni")
+    }
+  }, [isOpen, selectedReviews])
+
+  // Modificati i suggerimenti per essere domande di follow-up
   const suggestedPrompts = [
-    "Analizza i problemi più ricorrenti e suggerisci soluzioni concrete",
-    "Identifica i punti di forza più apprezzati dai clienti",
-    "Mostra il trend delle valutazioni e analizza i periodi critici",
-    "Suggerisci azioni di miglioramento basate sui feedback"
+    "Quali sono i 3 problemi più urgenti da risolvere?",
+    "Quali aspetti positivi possiamo utilizzare nel marketing?",
+    "Come si è evoluta la soddisfazione dei clienti negli ultimi mesi?",
+    "Quali azioni concrete possiamo implementare subito?"
   ]
 
   const handleAnalysis = async (prompt: string) => {
