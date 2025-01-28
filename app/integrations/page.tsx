@@ -10,6 +10,8 @@ import { PlusCircle, Settings } from 'lucide-react'
 import { AddIntegrationModal } from "@/components/add-integration-modal"
 import { getCookie } from "@/lib/utils"
 import { toast } from "react-hot-toast"
+import { Tiles } from "@/components/ui/tiles"
+import { HandWrittenTitle } from "@/components/ui/hand-writing-text"
 
 interface Hotel {
   id: string
@@ -201,19 +203,26 @@ export default function IntegrationsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white py-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header Section */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-800 mb-4">Manage Your Integrations</h1>
-          <p className="text-xl text-gray-600 mb-8">
-            Connect and sync your reviews from multiple platforms for each of your hotels
-          </p>
+    <>
+      <Tiles 
+        className="fixed inset-0 -z-10" 
+        rows={100}
+        cols={20}
+        tileSize="md"
+      />
+      
+      <div className="min-h-screen py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Header Section */}
+          <HandWrittenTitle 
+            title="Integrations"
+            subtitle="Connect and sync your reviews"
+          />
           
           {/* Hotel Selection and Controls */}
           <div className="flex items-center justify-center gap-4 mb-8">
             <Select value={selectedHotel || undefined} onValueChange={setSelectedHotel}>
-              <SelectTrigger className="w-[250px] text-lg border-2 border-gray-200 rounded-xl">
+              <SelectTrigger className="w-[250px] rounded-xl">
                 <SelectValue placeholder="Select hotel" />
               </SelectTrigger>
               <SelectContent>
@@ -232,29 +241,34 @@ export default function IntegrationsPage() {
             <Button
               onClick={handleSettingsClick}
               disabled={!selectedHotel}
-              className="text-xl p-4 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground"
+              className="rounded-xl bg-primary text-primary-foreground shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all"
               aria-label="Hotel Settings"
             >
-              <Settings className="w-6 h-6" />
+              <Settings className="w-4 h-4" />
             </Button>
 
             <Button
               onClick={handleAddIntegration}
               disabled={!selectedHotel}
-              className="text-xl py-6 px-8 rounded-2xl bg-primary hover:bg-primary/90 text-primary-foreground flex items-center gap-2"
+              className="rounded-xl bg-primary text-primary-foreground shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all flex items-center gap-2"
             >
-              <PlusCircle className="w-6 h-6" />
+              <PlusCircle className="w-4 h-4" />
               Add Integration
             </Button>
           </div>
 
           {selectedHotelData && (
-            <div className="flex justify-center">
-              <div>
-                <p className="text-sm text-gray-500">Total Reviews Synced</p>
-                <p className="text-2xl font-bold text-primary">
-                  {totalReviewsSynced}
-                </p>
+            <div className="flex justify-center mb-12">
+              <div className="bg-white rounded-xl shadow-[0_4px_16px_-3px_rgb(0,0,0,0.15)] px-8 py-4">
+                <div className="text-center">
+                  <p className="text-sm text-gray-500 mb-1">Total Reviews Synced</p>
+                  <div className="flex items-center gap-1 justify-center">
+                    <p className="text-3xl font-bold text-primary">
+                      {totalReviewsSynced}
+                    </p>
+                    <span className="text-sm text-gray-400 mt-2">/ {totalReviewsAvailable}</span>
+                  </div>
+                </div>
               </div>
             </div>
           )}
@@ -299,6 +313,6 @@ export default function IntegrationsPage() {
         hotelId={selectedHotel || ''}
         onSuccess={handleIntegrationAdded}
       />
-    </div>
+    </>
   )
 } 
