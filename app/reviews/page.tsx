@@ -17,6 +17,7 @@ import { type Table as TableType } from "@tanstack/react-table"
 import { AddPropertyModal } from "@/components/add-property-modal"
 import { AuroraBackground } from "@/components/ui/aurora-background"
 import { HandWrittenTitle } from "@/components/ui/hand-writing-text"
+import { Tiles } from "@/components/ui/tiles"
 
 interface Hotel {
   _id: string
@@ -184,7 +185,12 @@ export default function ReviewsPage() {
 
   return (
     <>
-      <AuroraBackground className="fixed inset-0 -z-10" />
+      <Tiles 
+        className="fixed inset-0 -z-10 opacity-10" 
+        rows={50} 
+        cols={8}
+        tileSize="md"
+      />
       <div className="flex flex-col px-10 md:pl-[96px]">
         <HandWrittenTitle 
           title="Reviews" 
