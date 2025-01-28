@@ -208,7 +208,7 @@ export default function ReviewsPage() {
                     placeholder="Search reviews..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 w-[280px] rounded-full border-gray-200 focus:border-primary focus:ring-primary bg-white text-sm"
+                    className="pl-10 w-[140px] rounded-full border-gray-200 focus:border-primary focus:ring-primary bg-white text-sm"
                   />
                 </div>
 
