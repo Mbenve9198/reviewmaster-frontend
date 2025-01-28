@@ -203,15 +203,15 @@ export default function ReviewsPage() {
         
         <div className="flex flex-col">
           <div className="mb-8">
-            <div className="flex items-center justify-between px-6">
-              <div className="flex items-center gap-4">
+            <div className="flex items-center justify-center px-6">
+              <div className="flex items-center gap-4 max-w-[1200px] w-full">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                   <Input
                     placeholder="Search"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 w-[140px] rounded-full border-gray-200 focus:border-primary focus:ring-primary bg-white text-sm"
+                    className="pl-10 w-[140px] rounded-xl border-gray-200 focus:border-primary focus:ring-primary bg-white text-sm"
                   />
                 </div>
 
@@ -219,7 +219,7 @@ export default function ReviewsPage() {
                   value={hotel}
                   onValueChange={(value) => handleFilterChange('hotel', value)}
                 >
-                  <SelectTrigger className="h-9 w-[160px] rounded-full border-gray-200 focus:border-primary focus:ring-primary bg-white text-sm">
+                  <SelectTrigger className="h-9 w-[160px] rounded-xl border-gray-200 focus:border-primary focus:ring-primary bg-white text-sm">
                     <SelectValue placeholder="Property" className="text-sm" />
                   </SelectTrigger>
                   <SelectContent>
@@ -235,7 +235,7 @@ export default function ReviewsPage() {
                   value={responseStatus}
                   onValueChange={(value) => handleFilterChange('responseStatus', value)}
                 >
-                  <SelectTrigger className="h-9 w-[160px] rounded-full border-gray-200 focus:border-primary focus:ring-primary bg-white text-sm">
+                  <SelectTrigger className="h-9 w-[160px] rounded-xl border-gray-200 focus:border-primary focus:ring-primary bg-white text-sm">
                     <SelectValue placeholder="Response Status" className="text-sm" />
                   </SelectTrigger>
                   <SelectContent>
@@ -249,7 +249,7 @@ export default function ReviewsPage() {
                   value={platform}
                   onValueChange={(value) => handleFilterChange('platform', value)}
                 >
-                  <SelectTrigger className="h-9 w-[160px] rounded-full border-gray-200 focus:border-primary focus:ring-primary bg-white text-sm">
+                  <SelectTrigger className="h-9 w-[160px] rounded-xl border-gray-200 focus:border-primary focus:ring-primary bg-white text-sm">
                     <SelectValue placeholder="Platform" className="text-sm" />
                   </SelectTrigger>
                   <SelectContent>
@@ -264,7 +264,7 @@ export default function ReviewsPage() {
                   value={ratingFilter}
                   onValueChange={(value) => handleFilterChange('rating', value)}
                 >
-                  <SelectTrigger className="h-9 w-[160px] rounded-full border-gray-200 focus:border-primary focus:ring-primary bg-white text-sm">
+                  <SelectTrigger className="h-9 w-[160px] rounded-xl border-gray-200 focus:border-primary focus:ring-primary bg-white text-sm">
                     <SelectValue placeholder="Rating" className="text-sm" />
                   </SelectTrigger>
                   <SelectContent>
@@ -289,10 +289,10 @@ export default function ReviewsPage() {
                     }
                     setIsAnalyticsDialogOpen(true)
                   }}
-                  className="rounded-full bg-blue-500 hover:bg-blue-600 text-white"
+                  className="rounded-xl flex items-center gap-2 bg-primary text-primary-foreground shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all"
                   disabled={selectedRows.length === 0}
                 >
-                  <BarChart2 className="w-4 h-4 mr-2" />
+                  <BarChart2 className="h-4 w-4" />
                   Analyze Reviews
                 </Button>
               </div>
