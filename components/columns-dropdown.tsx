@@ -5,7 +5,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Settings2, Check } from "lucide-react"
+import { Settings2, Check, Columns2 } from "lucide-react"
 import { type Table as TableType } from "@tanstack/react-table"
 import { useState, useEffect } from "react"
 
@@ -55,12 +55,13 @@ export function ColumnsDropdown({ table }: ColumnsDropdownProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button
-          variant="default"
-          size="sm"
-          className="rounded-xl bg-primary text-primary-foreground shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all"
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="h-9 rounded-full border-gray-200 bg-white hover:bg-gray-50 hover:text-gray-900"
         >
-          <Settings2 className="h-4 w-4" />
+          <Columns2 className="h-4 w-4 mr-2" />
+          Columns
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent 

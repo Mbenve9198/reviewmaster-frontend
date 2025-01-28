@@ -19,6 +19,7 @@ import { AuroraBackground } from "@/components/ui/aurora-background"
 import { HandWrittenTitle } from "@/components/ui/hand-writing-text"
 import { Tiles } from "@/components/ui/tiles"
 import { toast } from "react-hot-toast"
+import { AnalyticsDialog } from "@/components/analytics/AnalyticsDialog"
 
 interface Hotel {
   _id: string
@@ -67,6 +68,7 @@ export default function ReviewsPage() {
   const [selectedRows, setSelectedRows] = useState<Review[]>([])
   const [tableInstance, setTableInstance] = useState<TableType<any> | null>(null);
   const [isAddPropertyModalOpen, setIsAddPropertyModalOpen] = useState(false)
+  const [isAnalyticsDialogOpen, setIsAnalyticsDialogOpen] = useState(false)
 
   useEffect(() => {
     const fetchHotels = async () => {
@@ -276,29 +278,28 @@ export default function ReviewsPage() {
                 </Select>
 
                 {tableInstance && <ColumnsDropdown table={tableInstance} />}
+
+                <Button
+                  variant="default"
+                  size="sm"
+                  onClick={() => {
+                    if (selectedRows.length === 0) {
+                      toast.error("Please select at least one review to analyze")
+                      return
+                    }
+                    setIsAnalyticsDialogOpen(true)
+                  }}
+                  className="rounded-full bg-blue-500 hover:bg-blue-600 text-white"
+                  disabled={selectedRows.length === 0}
+                >
+                  <BarChart2 className="w-4 h-4 mr-2" />
+                  Analyze Reviews
+                </Button>
               </div>
             </div>
           </div>
 
           <div className="relative">
-            <div className="absolute right-6 -top-14 flex items-center gap-2">
-              <Button
-                variant="default"
-                size="sm"
-                onClick={() => {
-                  if (selectedRows.length === 0) {
-                    toast.error("Please select at least one review to analyze")
-                    return
-                  }
-                }}
-                className="rounded-full bg-blue-500 hover:bg-blue-600 text-white"
-                disabled={selectedRows.length === 0}
-              >
-                <BarChart2 className="w-4 h-4 mr-2" />
-                Analyze Reviews
-              </Button>
-            </div>
-
             <ReviewsTable
               searchQuery={searchQuery}
               property={hotel}
@@ -310,6 +311,12 @@ export default function ReviewsPage() {
               onResultsPerPageChange={handleResultsPerPageChange}
               onSelectionChange={setSelectedRows}
               onTableReady={handleTableReady}
+            />
+
+            <AnalyticsDialog 
+              isOpen={isAnalyticsDialogOpen}
+              onClose={() => setIsAnalyticsDialogOpen(false)}
+              selectedReviews={selectedRows}
             />
           </div>
         </div>
