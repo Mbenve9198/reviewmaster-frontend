@@ -211,9 +211,8 @@ export default function IntegrationsPage() {
         tileSize="md"
       />
       
-      <div className="min-h-screen py-12">
+      <div className="min-h-screen py-12 md:pl-[80px] md:hover:pl-[320px] transition-all duration-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Header Section */}
           <HandWrittenTitle 
             title="Integrations"
             subtitle="Connect and sync your reviews"
@@ -262,12 +261,9 @@ export default function IntegrationsPage() {
               <div className="bg-white rounded-xl shadow-[0_4px_16px_-3px_rgb(0,0,0,0.15)] px-8 py-4">
                 <div className="text-center">
                   <p className="text-sm text-gray-500 mb-1">Total Reviews Synced</p>
-                  <div className="flex items-center gap-1 justify-center">
-                    <p className="text-3xl font-bold text-primary">
-                      {totalReviewsSynced}
-                    </p>
-                    <span className="text-sm text-gray-400 mt-2">/ {totalReviewsAvailable}</span>
-                  </div>
+                  <p className="text-3xl font-bold text-primary">
+                    {totalReviewsSynced}
+                  </p>
                 </div>
               </div>
             </div>

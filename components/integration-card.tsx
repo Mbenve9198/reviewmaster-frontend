@@ -35,7 +35,7 @@ import { getCookie } from "@/lib/utils"
 import { format } from 'date-fns'
 import { toast } from "sonner"
 
-const buttonBaseStyles = "transition-all shadow-[0_4px_0_0_#2563eb] active:shadow-[0_0_0_0_#2563eb] active:translate-y-1"
+const buttonBaseStyles = "bg-primary text-primary-foreground shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all"
 const inputBaseStyles = "border-2 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
 
 interface IntegrationCardProps {
@@ -209,7 +209,7 @@ export function IntegrationCard({ integration, onSync, onDelete }: IntegrationCa
                 onClick={() => setIsSettingsOpen(true)}
                 className="hover:bg-gray-100 rounded-xl"
               >
-                <Settings className="w-5 h-5" />
+                <Settings className="w-4 h-4" />
               </Button>
               <Button
                 variant="ghost"
@@ -217,7 +217,7 @@ export function IntegrationCard({ integration, onSync, onDelete }: IntegrationCa
                 onClick={() => setIsDeleteDialogOpen(true)}
                 className="hover:bg-red-50 text-red-500 rounded-xl"
               >
-                <Trash2 className="w-5 h-5" />
+                <Trash2 className="w-4 h-4" />
               </Button>
             </div>
           </div>
@@ -283,7 +283,7 @@ export function IntegrationCard({ integration, onSync, onDelete }: IntegrationCa
           <Button 
             onClick={handleSync}
             disabled={isSyncing || integration.status === 'disconnected'}
-            className={`w-full ${buttonBaseStyles} rounded-xl h-12`}
+            className={`w-full ${buttonBaseStyles} rounded-xl`}
           >
             {isSyncing ? (
               <>
@@ -301,15 +301,7 @@ export function IntegrationCard({ integration, onSync, onDelete }: IntegrationCa
       </Card>
 
       {/* Settings Dialog */}
-      <Dialog open={isSettingsOpen} onOpenChange={(open) => {
-        if (open) {
-          setTempSettings({
-            type: integration.syncConfig.type,
-            frequency: integration.syncConfig.frequency
-          })
-        }
-        setIsSettingsOpen(open)
-      }}>
+      <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
         <DialogContent className="bg-white sm:max-w-[425px] p-6 rounded-3xl border-0">
           <DialogHeader className="space-y-3">
             <DialogTitle className="text-2xl font-bold text-gray-800">
@@ -364,14 +356,14 @@ export function IntegrationCard({ integration, onSync, onDelete }: IntegrationCa
               <Button
                 variant="outline"
                 onClick={() => setIsSettingsOpen(false)}
-                className="flex-1 h-12 rounded-xl border-2 hover:bg-gray-50"
+                className="flex-1 rounded-xl border-2 hover:bg-gray-50"
               >
                 Cancel
               </Button>
               <Button
                 onClick={handleSaveSettings}
                 disabled={isUpdating}
-                className={`flex-1 h-12 rounded-xl font-medium ${buttonBaseStyles}`}
+                className={`flex-1 rounded-xl ${buttonBaseStyles}`}
               >
                 {isUpdating ? (
                   <>
@@ -388,7 +380,7 @@ export function IntegrationCard({ integration, onSync, onDelete }: IntegrationCa
               <Button
                 variant="destructive"
                 onClick={() => setIsDeleteDialogOpen(true)}
-                className="w-full h-12 rounded-xl font-medium"
+                className="w-full rounded-xl"
               >
                 Delete Integration
               </Button>
@@ -413,7 +405,7 @@ export function IntegrationCard({ integration, onSync, onDelete }: IntegrationCa
             <Button
               variant="outline"
               onClick={() => setIsDeleteDialogOpen(false)}
-              className="flex-1 h-12 rounded-xl border-2 hover:bg-gray-50"
+              className="flex-1 rounded-xl border-2 hover:bg-gray-50"
             >
               Cancel
             </Button>
@@ -421,7 +413,7 @@ export function IntegrationCard({ integration, onSync, onDelete }: IntegrationCa
               variant="destructive"
               onClick={handleDelete}
               disabled={isDeleting}
-              className="flex-1 h-12 rounded-xl font-medium"
+              className="flex-1 rounded-xl"
             >
               {isDeleting ? (
                 <>
