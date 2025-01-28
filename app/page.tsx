@@ -382,7 +382,7 @@ export default function HomePage() {
                 value={review}
                 onChange={(e) => setReview(e.target.value)}
                 placeholder="Paste your review here..."
-                className="min-h-[200px] rounded-xl bg-white border-gray-200 focus:border-primary focus:ring-primary resize-none"
+                className="min-h-[200px] rounded-xl bg-white border-gray-200 focus:border-primary focus:ring-primary resize-none shadow-[0_4px_16px_-3px_rgb(0,0,0,0.15)]"
               />
               
               <div className="absolute bottom-3 left-3 flex items-center gap-2 text-sm text-gray-500">
