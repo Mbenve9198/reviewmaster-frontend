@@ -31,6 +31,11 @@ import { ChatMessageList } from "@/components/ui/chat-message-list"
 import { ChatBubble, ChatBubbleAvatar, ChatBubbleMessage } from "@/components/ui/chat-bubble"
 import { Tiles } from "@/components/ui/tiles"
 import { HandWrittenTitle } from "@/components/ui/hand-writing-text"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
 
 interface Hotel {
   _id: string
@@ -373,62 +378,69 @@ export default function HomePage() {
 
           <div className="flex flex-col gap-4 w-full max-w-3xl">
             <div className="space-y-4">
-              <h2 className="text-2xl font-bold">Enter Guest Review</h2>
-              
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <p className="text-sm text-gray-500 font-medium">Tone of voice</p>
-                  <div className="flex gap-3">
-                    <Button
-                      onClick={() => setResponseStyle('professional')}
-                      className={`rounded-xl transition-all flex items-center gap-2 ${
-                        responseStyle === 'professional'
-                          ? 'bg-primary text-primary-foreground shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px]'
-                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                      }`}
-                    >
-                      Professional
-                    </Button>
-                    <Button
-                      onClick={() => setResponseStyle('friendly')}
-                      className={`rounded-xl transition-all flex items-center gap-2 ${
-                        responseStyle === 'friendly'
-                          ? 'bg-primary text-primary-foreground shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px]'
-                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                      }`}
-                    >
-                      Friendly
-                    </Button>
-                  </div>
-                </div>
+              <div className="relative">
+                <Textarea
+                  value={review}
+                  onChange={(e) => setReview(e.target.value)}
+                  placeholder="Paste your review here..."
+                  className="min-h-[200px] rounded-xl bg-white border-gray-200 focus:border-primary focus:ring-primary resize-none"
+                />
+                
+                <div className="absolute bottom-3 left-3 flex items-center gap-2 text-sm text-gray-500">
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <button className="hover:text-gray-900 transition-colors">
+                        {responseLength} length
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-32 p-1">
+                      <div className="flex flex-col gap-1">
+                        {['short', 'medium', 'long'].map((length) => (
+                          <button
+                            key={length}
+                            onClick={() => setResponseLength(length as ResponseLength)}
+                            className={`px-2 py-1 text-sm rounded-lg transition-colors ${
+                              responseLength === length
+                                ? 'bg-primary text-white'
+                                : 'hover:bg-gray-100'
+                            }`}
+                          >
+                            {length}
+                          </button>
+                        ))}
+                      </div>
+                    </PopoverContent>
+                  </Popover>
 
-                <div className="space-y-2">
-                  <p className="text-sm text-gray-500 font-medium">Length</p>
-                  <div className="flex gap-3">
-                    {['short', 'medium', 'long'].map((length) => (
-                      <Button
-                        key={length}
-                        onClick={() => setResponseLength(length as ResponseLength)}
-                        className={`rounded-xl transition-all flex items-center gap-2 ${
-                          responseLength === length
-                            ? 'bg-primary text-primary-foreground shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px]'
-                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                        }`}
-                      >
-                        {length.charAt(0).toUpperCase() + length.slice(1)}
-                      </Button>
-                    ))}
-                  </div>
+                  <span>•</span>
+
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <button className="hover:text-gray-900 transition-colors">
+                        {responseStyle} tone
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-32 p-1">
+                      <div className="flex flex-col gap-1">
+                        {['professional', 'friendly'].map((style) => (
+                          <button
+                            key={style}
+                            onClick={() => setResponseStyle(style as ResponseStyle)}
+                            className={`px-2 py-1 text-sm rounded-lg transition-colors ${
+                              responseStyle === style
+                                ? 'bg-primary text-white'
+                                : 'hover:bg-gray-100'
+                            }`}
+                          >
+                            {style}
+                          </button>
+                        ))}
+                      </div>
+                    </PopoverContent>
+                  </Popover>
                 </div>
               </div>
 
-              <Textarea
-                value={review}
-                onChange={(e) => setReview(e.target.value)}
-                className="p-6 text-xl rounded-2xl border-2 border-gray-200 focus:border-primary focus:ring-primary min-h-[200px]"
-                placeholder="Paste the guest review here..."
-              />
-              
               <Button
                 onClick={handleGenerateResponse}
                 disabled={!selectedHotel || !review.trim() || isGenerating}
