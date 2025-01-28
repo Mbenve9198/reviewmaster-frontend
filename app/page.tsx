@@ -339,16 +339,16 @@ export default function HomePage() {
         tileSize="md"
       />
       
-      <div className="relative">
-        <HandWrittenTitle 
-          title="Manual Responses"
-          subtitle="Create personalized responses to your guest reviews with AI assistance"
-        />
-        
-        <div className="max-w-4xl mx-auto px-6">
-          <div className="flex items-center justify-center gap-4 mb-12">
+      <div className="min-h-screen flex flex-col items-center px-6">
+        <div className="w-full max-w-3xl pt-12">
+          <HandWrittenTitle 
+            title="Manual Reply"
+            subtitle="Create personalized replies with AI"
+          />
+
+          <div className="flex items-center justify-center gap-4 mb-8">
             <Select value={selectedHotel} onValueChange={handleHotelChange}>
-              <SelectTrigger className="w-full rounded-xl">
+              <SelectTrigger className="w-[200px] rounded-xl">
                 <SelectValue placeholder="Select a hotel" />
               </SelectTrigger>
               <SelectContent>
@@ -376,314 +376,312 @@ export default function HomePage() {
             </Button>
           </div>
 
-          <div className="flex flex-col gap-4 w-full max-w-3xl">
-            <div className="space-y-4">
-              <div className="relative">
-                <Textarea
-                  value={review}
-                  onChange={(e) => setReview(e.target.value)}
-                  placeholder="Paste your review here..."
-                  className="min-h-[200px] rounded-xl bg-white border-gray-200 focus:border-primary focus:ring-primary resize-none"
-                />
-                
-                <div className="absolute bottom-3 left-3 flex items-center gap-2 text-sm text-gray-500">
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <button className="hover:text-gray-900 transition-colors">
-                        {responseLength} length
-                      </button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-32 p-1">
-                      <div className="flex flex-col gap-1">
-                        {['short', 'medium', 'long'].map((length) => (
-                          <button
-                            key={length}
-                            onClick={() => setResponseLength(length as ResponseLength)}
-                            className={`px-2 py-1 text-sm rounded-lg transition-colors ${
-                              responseLength === length
-                                ? 'bg-primary text-white'
-                                : 'hover:bg-gray-100'
-                            }`}
-                          >
-                            {length}
-                          </button>
-                        ))}
-                      </div>
-                    </PopoverContent>
-                  </Popover>
+          <div className="space-y-4">
+            <div className="relative">
+              <Textarea
+                value={review}
+                onChange={(e) => setReview(e.target.value)}
+                placeholder="Paste your review here..."
+                className="min-h-[200px] rounded-xl bg-white border-gray-200 focus:border-primary focus:ring-primary resize-none"
+              />
+              
+              <div className="absolute bottom-3 left-3 flex items-center gap-2 text-sm text-gray-500">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button className="hover:text-gray-900 transition-colors">
+                      {responseLength} length
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-32 p-1 bg-white border border-gray-200 shadow-md">
+                    <div className="flex flex-col gap-1">
+                      {['short', 'medium', 'long'].map((length) => (
+                        <button
+                          key={length}
+                          onClick={() => setResponseLength(length as ResponseLength)}
+                          className={`px-2 py-1 text-sm rounded-lg transition-colors ${
+                            responseLength === length
+                              ? 'bg-primary text-white'
+                              : 'hover:bg-gray-100'
+                          }`}
+                        >
+                          {length}
+                        </button>
+                      ))}
+                    </div>
+                  </PopoverContent>
+                </Popover>
 
-                  <span>•</span>
+                <span>•</span>
 
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <button className="hover:text-gray-900 transition-colors">
-                        {responseStyle} tone
-                      </button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-32 p-1">
-                      <div className="flex flex-col gap-1">
-                        {['professional', 'friendly'].map((style) => (
-                          <button
-                            key={style}
-                            onClick={() => setResponseStyle(style as ResponseStyle)}
-                            className={`px-2 py-1 text-sm rounded-lg transition-colors ${
-                              responseStyle === style
-                                ? 'bg-primary text-white'
-                                : 'hover:bg-gray-100'
-                            }`}
-                          >
-                            {style}
-                          </button>
-                        ))}
-                      </div>
-                    </PopoverContent>
-                  </Popover>
-                </div>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button className="hover:text-gray-900 transition-colors">
+                      {responseStyle} tone
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-32 p-1 bg-white border border-gray-200 shadow-md">
+                    <div className="flex flex-col gap-1">
+                      {['professional', 'friendly'].map((style) => (
+                        <button
+                          key={style}
+                          onClick={() => setResponseStyle(style as ResponseStyle)}
+                          className={`px-2 py-1 text-sm rounded-lg transition-colors ${
+                            responseStyle === style
+                              ? 'bg-primary text-white'
+                              : 'hover:bg-gray-100'
+                          }`}
+                        >
+                          {style}
+                        </button>
+                      ))}
+                    </div>
+                  </PopoverContent>
+                </Popover>
               </div>
+            </div>
 
-              <Button
-                onClick={handleGenerateResponse}
-                disabled={!selectedHotel || !review.trim() || isGenerating}
-                className="w-full rounded-xl bg-primary text-primary-foreground shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all flex items-center justify-center gap-2"
-              >
-                {isGenerating ? (
-                  <>
-                    <motion.div
-                      animate={{ rotate: 360 }}
-                      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                    >
-                      <Send className="w-4 h-4" />
-                    </motion.div>
-                    Generating...
-                  </>
-                ) : (
-                  <>
+            <Button
+              onClick={handleGenerateResponse}
+              disabled={!selectedHotel || !review.trim() || isGenerating}
+              className="w-full rounded-xl bg-primary text-primary-foreground shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all flex items-center justify-center gap-2"
+            >
+              {isGenerating ? (
+                <>
+                  <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                  >
                     <Send className="w-4 h-4" />
-                    Generate AI Response
-                  </>
+                  </motion.div>
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <Send className="w-4 h-4" />
+                  Generate AI Response
+                </>
+              )}
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      <ResponseModal
+        isOpen={isResponseModalOpen}
+        onClose={() => setIsResponseModalOpen(false)}
+        response={error || aiResponse}
+        isError={!!error}
+      />
+
+      <AddHotelModal
+        isOpen={isAddHotelModalOpen}
+        onClose={() => setIsAddHotelModalOpen(false)}
+        onHotelAdded={handleHotelAdded}
+      />
+
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="bg-white max-w-4xl h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-4xl font-bold text-center">Add New Hotel</DialogTitle>
+            <DialogDescription className="text-xl text-center">
+              Let's set up your new property
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="mt-8">
+            <div className="max-w-3xl mx-auto">
+              <Progress value={(step / totalSteps) * 100} className="h-3 mb-8" />
+
+              {step === 1 && (
+                <div className="space-y-6">
+                  <div className="space-y-2">
+                    <label className="text-xl font-bold">Property Name</label>
+                    <Input
+                      value={newHotelName}
+                      onChange={(e) => setNewHotelName(e.target.value)}
+                      className="p-6 text-xl rounded-2xl border-2 border-gray-200 focus:border-[#58CC02] focus:ring-[#58CC02]"
+                      placeholder="Enter your property name"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xl font-bold">Property Type</label>
+                    <Select value={newHotelType} onValueChange={setNewHotelType}>
+                      <SelectTrigger className="p-6 text-xl rounded-2xl border-2">
+                        <SelectValue placeholder="Select property type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="hotel">Hotel</SelectItem>
+                        <SelectItem value="b&b">B&B</SelectItem>
+                        <SelectItem value="resort">Resort</SelectItem>
+                        <SelectItem value="apartment">Apartment</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              )}
+
+              {step === 2 && (
+                <div className="space-y-6">
+                  <div className="space-y-2">
+                    <label className="text-xl font-bold">Property Description</label>
+                    <Textarea
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
+                      className="p-6 text-xl rounded-2xl border-2 min-h-[200px]"
+                      placeholder="Describe your property..."
+                    />
+                  </div>
+                </div>
+              )}
+
+              {step === 3 && (
+                <div className="space-y-6">
+                  <div className="space-y-2">
+                    <label className="text-xl font-bold">Manager Signature</label>
+                    <Input
+                      value={managerSignature}
+                      onChange={(e) => setManagerSignature(e.target.value)}
+                      className="p-6 text-xl rounded-2xl border-2"
+                      placeholder="Your name and title"
+                    />
+                  </div>
+                </div>
+              )}
+
+              <div className="flex justify-end mt-8 gap-4">
+                {step > 1 && (
+                  <Button onClick={() => setStep(step - 1)} variant="outline" className="text-xl py-6 px-8">
+                    Back
+                  </Button>
                 )}
-              </Button>
+                <Button
+                  onClick={step === totalSteps ? handleAddHotel : () => setStep(step + 1)}
+                  className="text-xl py-6 px-8"
+                  disabled={!isStepValid()}
+                >
+                  {step === totalSteps ? "Complete" : "Continue"}
+                </Button>
+              </div>
             </div>
           </div>
+        </DialogContent>
+      </Dialog>
 
-          <ResponseModal
-            isOpen={isResponseModalOpen}
-            onClose={() => setIsResponseModalOpen(false)}
-            response={error || aiResponse}
-            isError={!!error}
-          />
-        </div>
-        
-        <AddHotelModal
-          isOpen={isAddHotelModalOpen}
-          onClose={() => setIsAddHotelModalOpen(false)}
-          onHotelAdded={handleHotelAdded}
-        />
-
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogContent className="bg-white max-w-4xl h-[80vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle className="text-4xl font-bold text-center">Add New Hotel</DialogTitle>
-              <DialogDescription className="text-xl text-center">
-                Let's set up your new property
-              </DialogDescription>
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent className="sm:max-w-[500px] w-[95vw] max-h-[90vh] p-0 bg-white rounded-2xl border shadow-lg">
+          <div className="h-full max-h-[90vh] flex flex-col">
+            <DialogHeader className="px-6 py-4 border-b bg-gray-50/80 rounded-t-2xl">
+              <DialogTitle className="text-lg font-semibold">Generated Response</DialogTitle>
             </DialogHeader>
-
-            <div className="mt-8">
-              <div className="max-w-3xl mx-auto">
-                <Progress value={(step / totalSteps) * 100} className="h-3 mb-8" />
-
-                {step === 1 && (
-                  <div className="space-y-6">
-                    <div className="space-y-2">
-                      <label className="text-xl font-bold">Property Name</label>
-                      <Input
-                        value={newHotelName}
-                        onChange={(e) => setNewHotelName(e.target.value)}
-                        className="p-6 text-xl rounded-2xl border-2 border-gray-200 focus:border-[#58CC02] focus:ring-[#58CC02]"
-                        placeholder="Enter your property name"
+            
+            <div className="flex-1 overflow-y-auto bg-white px-6" ref={chatContainerRef}>
+              <div className="py-6">
+                <ChatMessageList>
+                  {messages.map((message) => (
+                    <ChatBubble 
+                      key={message.id} 
+                      variant={message.sender === "user" ? "sent" : "received"}
+                      className="rounded-2xl shadow-sm"
+                    >
+                      <ChatBubbleAvatar
+                        className="h-8 w-8 shrink-0 rounded-full border-2 border-white shadow-sm"
+                        src={message.sender === "user" ? "https://github.com/shadcn.png" : "https://github.com/vercel.png"}
+                        fallback={message.sender === "user" ? "US" : "AI"}
                       />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-xl font-bold">Property Type</label>
-                      <Select value={newHotelType} onValueChange={setNewHotelType}>
-                        <SelectTrigger className="p-6 text-xl rounded-2xl border-2">
-                          <SelectValue placeholder="Select property type" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="hotel">Hotel</SelectItem>
-                          <SelectItem value="b&b">B&B</SelectItem>
-                          <SelectItem value="resort">Resort</SelectItem>
-                          <SelectItem value="apartment">Apartment</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                )}
+                      <div className="flex flex-col">
+                        <ChatBubbleMessage 
+                          variant={message.sender === "user" ? "sent" : "received"}
+                          className="rounded-2xl relative pr-10"
+                        >
+                          {message.content}
+                          {message.sender === "ai" && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => {
+                                navigator.clipboard.writeText(message.content)
+                                toast.success("Response copied to clipboard")
+                              }}
+                              className="absolute bottom-1 right-1 h-7 w-7 rounded-full bg-primary/10 hover:bg-primary/20 text-primary shadow-sm"
+                            >
+                              <Copy className="h-3.5 w-3.5" />
+                              <span className="sr-only">Copy response</span>
+                            </Button>
+                          )}
+                        </ChatBubbleMessage>
+                      </div>
+                    </ChatBubble>
+                  ))}
 
-                {step === 2 && (
-                  <div className="space-y-6">
-                    <div className="space-y-2">
-                      <label className="text-xl font-bold">Property Description</label>
-                      <Textarea
-                        value={description}
-                        onChange={(e) => setDescription(e.target.value)}
-                        className="p-6 text-xl rounded-2xl border-2 min-h-[200px]"
-                        placeholder="Describe your property..."
+                  {isGenerating && (
+                    <ChatBubble variant="received" className="rounded-2xl shadow-sm">
+                      <ChatBubbleAvatar 
+                        className="h-8 w-8 shrink-0 rounded-full border-2 border-white shadow-sm" 
+                        src="https://github.com/vercel.png" 
+                        fallback="AI" 
                       />
-                    </div>
-                  </div>
-                )}
-
-                {step === 3 && (
-                  <div className="space-y-6">
-                    <div className="space-y-2">
-                      <label className="text-xl font-bold">Manager Signature</label>
-                      <Input
-                        value={managerSignature}
-                        onChange={(e) => setManagerSignature(e.target.value)}
-                        className="p-6 text-xl rounded-2xl border-2"
-                        placeholder="Your name and title"
-                      />
-                    </div>
-                  </div>
-                )}
-
-                <div className="flex justify-end mt-8 gap-4">
-                  {step > 1 && (
-                    <Button onClick={() => setStep(step - 1)} variant="outline" className="text-xl py-6 px-8">
-                      Back
-                    </Button>
+                      <ChatBubbleMessage isLoading className="rounded-2xl" />
+                    </ChatBubble>
                   )}
-                  <Button
-                    onClick={step === totalSteps ? handleAddHotel : () => setStep(step + 1)}
-                    className="text-xl py-6 px-8"
-                    disabled={!isStepValid()}
-                  >
-                    {step === totalSteps ? "Complete" : "Continue"}
-                  </Button>
-                </div>
+                </ChatMessageList>
               </div>
             </div>
-          </DialogContent>
-        </Dialog>
 
-        <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-          <DialogContent className="sm:max-w-[500px] w-[95vw] max-h-[90vh] p-0 bg-white rounded-2xl border shadow-lg">
-            <div className="h-full max-h-[90vh] flex flex-col">
-              <DialogHeader className="px-6 py-4 border-b bg-gray-50/80 rounded-t-2xl">
-                <DialogTitle className="text-lg font-semibold">Generated Response</DialogTitle>
-              </DialogHeader>
-              
-              <div className="flex-1 overflow-y-auto bg-white px-6" ref={chatContainerRef}>
-                <div className="py-6">
-                  <ChatMessageList>
-                    {messages.map((message) => (
-                      <ChatBubble 
-                        key={message.id} 
-                        variant={message.sender === "user" ? "sent" : "received"}
-                        className="rounded-2xl shadow-sm"
-                      >
-                        <ChatBubbleAvatar
-                          className="h-8 w-8 shrink-0 rounded-full border-2 border-white shadow-sm"
-                          src={message.sender === "user" ? "https://github.com/shadcn.png" : "https://github.com/vercel.png"}
-                          fallback={message.sender === "user" ? "US" : "AI"}
-                        />
-                        <div className="flex flex-col">
-                          <ChatBubbleMessage 
-                            variant={message.sender === "user" ? "sent" : "received"}
-                            className="rounded-2xl relative pr-10"
-                          >
-                            {message.content}
-                            {message.sender === "ai" && (
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => {
-                                  navigator.clipboard.writeText(message.content)
-                                  toast.success("Response copied to clipboard")
-                                }}
-                                className="absolute bottom-1 right-1 h-7 w-7 rounded-full bg-primary/10 hover:bg-primary/20 text-primary shadow-sm"
-                              >
-                                <Copy className="h-3.5 w-3.5" />
-                                <span className="sr-only">Copy response</span>
-                              </Button>
-                            )}
-                          </ChatBubbleMessage>
-                        </div>
-                      </ChatBubble>
-                    ))}
-
-                    {isGenerating && (
-                      <ChatBubble variant="received" className="rounded-2xl shadow-sm">
-                        <ChatBubbleAvatar 
-                          className="h-8 w-8 shrink-0 rounded-full border-2 border-white shadow-sm" 
-                          src="https://github.com/vercel.png" 
-                          fallback="AI" 
-                        />
-                        <ChatBubbleMessage isLoading className="rounded-2xl" />
-                      </ChatBubble>
-                    )}
-                  </ChatMessageList>
-                </div>
-              </div>
-
-              <div className="border-t px-6 py-4 bg-gray-50">
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    handleChatSubmit(input);
-                  }}
-                  className="relative flex items-center gap-4"
-                >
-                  <div className="relative flex-1">
-                    <textarea
-                      value={input}
-                      onChange={(e) => {
-                        setInput(e.target.value);
-                        e.target.style.height = 'inherit';
-                        const height = e.target.scrollHeight;
-                        e.target.style.height = `${height}px`;
-                      }}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' && !e.shiftKey) {
-                          e.preventDefault();
-                          handleChatSubmit(input);
-                        }
-                      }}
-                      placeholder="Type your message..."
-                      className="w-full min-h-[48px] max-h-[200px] resize-none rounded-xl bg-white border-gray-200 p-3 pr-14 shadow-none focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary"
-                      style={{ overflow: 'hidden' }}
-                    />
-                    <Button 
-                      type="submit" 
-                      size="sm" 
-                      className="absolute right-2 top-[50%] -translate-y-1/2 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground shadow-[0_4px_0_0_#1e40af] hover:shadow-[0_2px_0_0_#1e40af] hover:translate-y-[calc(-50%+2px)] transition-all"
-                    >
-                      <CornerDownLeft className="h-4 w-4" />
-                    </Button>
-                  </div>
-                  <Button
-                    onClick={() => {
-                      if (messages.length > 0) {
-                        const lastAiMessage = [...messages].reverse().find(m => m.sender === "ai");
-                        if (lastAiMessage) {
-                          setAiResponse(lastAiMessage.content);
-                          setIsModalOpen(false);
-                        }
+            <div className="border-t px-6 py-4 bg-gray-50">
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleChatSubmit(input);
+                }}
+                className="relative flex items-center gap-4"
+              >
+                <div className="relative flex-1">
+                  <textarea
+                    value={input}
+                    onChange={(e) => {
+                      setInput(e.target.value);
+                      e.target.style.height = 'inherit';
+                      const height = e.target.scrollHeight;
+                      e.target.style.height = `${height}px`;
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        handleChatSubmit(input);
                       }
                     }}
-                    disabled={isGenerating || !messages.length}
-                    className="relative bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-2 rounded-xl shadow-[0_4px_0_0_#1e40af] hover:shadow-[0_2px_0_0_#1e40af] hover:translate-y-[2px] transition-all"
+                    placeholder="Type your message..."
+                    className="w-full min-h-[48px] max-h-[200px] resize-none rounded-xl bg-white border-gray-200 p-3 pr-14 shadow-none focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary"
+                    style={{ overflow: 'hidden' }}
+                  />
+                  <Button 
+                    type="submit" 
+                    size="sm" 
+                    className="absolute right-2 top-[50%] -translate-y-1/2 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground shadow-[0_4px_0_0_#1e40af] hover:shadow-[0_2px_0_0_#1e40af] hover:translate-y-[calc(-50%+2px)] transition-all"
                   >
-                    Save Response
+                    <CornerDownLeft className="h-4 w-4" />
                   </Button>
-                </form>
-              </div>
+                </div>
+                <Button
+                  onClick={() => {
+                    if (messages.length > 0) {
+                      const lastAiMessage = [...messages].reverse().find(m => m.sender === "ai");
+                      if (lastAiMessage) {
+                        setAiResponse(lastAiMessage.content);
+                        setIsModalOpen(false);
+                      }
+                    }
+                  }}
+                  disabled={isGenerating || !messages.length}
+                  className="relative bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-2 rounded-xl shadow-[0_4px_0_0_#1e40af] hover:shadow-[0_2px_0_0_#1e40af] hover:translate-y-[2px] transition-all"
+                >
+                  Save Response
+                </Button>
+              </form>
             </div>
-          </DialogContent>
-        </Dialog>
-      </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   )
 }
