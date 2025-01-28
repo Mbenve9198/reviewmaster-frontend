@@ -201,7 +201,7 @@ export default function ReviewsPage() {
         
         <div className="flex flex-col">
           <div className="mb-8">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between px-6">
               <div className="flex items-center gap-4">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
@@ -281,7 +281,7 @@ export default function ReviewsPage() {
           </div>
 
           <div className="relative">
-            <div className="absolute right-0 -top-14 flex items-center gap-2">
+            <div className="absolute right-6 -top-14 flex items-center gap-2">
               <Button
                 variant="default"
                 size="sm"
@@ -290,7 +290,6 @@ export default function ReviewsPage() {
                     toast.error("Please select at least one review to analyze")
                     return
                   }
-                  // Qui andrà la logica per aprire il dialog dell'analisi
                 }}
                 className="rounded-full bg-blue-500 hover:bg-blue-600 text-white"
                 disabled={selectedRows.length === 0}
