@@ -55,7 +55,6 @@ const PaymentForm = ({ clientSecret, amount, onSuccess, onError }: PaymentFormPr
       <PaymentElement 
         options={{
           layout: 'tabs',
-          theme: 'stripe',
           variables: {
             colorPrimary: '#0F172A',
             colorBackground: '#FFFFFF',
