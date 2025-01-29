@@ -105,10 +105,10 @@ const CreditPurchaseSlider = ({ open, onClose }: CreditPurchaseSliderProps) => {
   const potentialActions = calculatePotentialActions(credits)
 
   const appearance = {
-    theme: 'stripe',
+    theme: 'stripe' as const,
     variables: {
-      colorPrimary: '#0F172A',
-      colorBackground: '#FFFFFF',
+      colorPrimary: '#3b82f6',
+      colorBackground: '#ffffff',
       borderRadius: '0.5rem'
     }
   }
