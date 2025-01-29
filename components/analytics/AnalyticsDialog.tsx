@@ -1,3 +1,5 @@
+"use client"
+
 import { useState, useRef, useEffect } from "react"
 import {
   Dialog,
@@ -7,7 +9,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import { Loader2, Bot, X, Copy, BarChart2, TrendingUp, Star, Lightbulb, SendHorizonal, Download } from "lucide-react"
+import { Loader2, Bot, X, Copy, BarChart2, TrendingUp, Star, Lightbulb, SendHorizonal, Download, MessageSquare } from "lucide-react"
 import { SentimentChart } from "./charts/SentimentChart"
 import { api } from "@/services/api"
 import { toast } from "sonner"
@@ -15,6 +17,9 @@ import { ChatBubble, ChatBubbleMessage, ChatBubbleAvatar } from "@/components/ui
 import { Input } from "@/components/ui/input"
 import { FormattedMessage } from "./FormattedMessage"
 import dynamic from 'next/dynamic'
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { cn } from "@/lib/utils"
 
 interface AnalyticsDialogProps {
   isOpen: boolean
@@ -34,6 +39,103 @@ const getPromptIcon = (prompt: string) => {
     return <TrendingUp className="w-5 h-5 text-green-500" />
   }
   return <Lightbulb className="w-5 h-5 text-purple-500" />
+}
+
+interface Message {
+  sender: "user" | "ai"
+  content: string
+}
+
+interface AIChatHistoryProps {
+  messages: Message[]
+  onSendMessage: (message: string) => void
+  isLoading?: boolean
+  className?: string
+}
+
+export function AIChatHistory({ messages, onSendMessage, isLoading, className }: AIChatHistoryProps) {
+  const [isOpen, setIsOpen] = useState(false)
+  const [input, setInput] = useState("")
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (input.trim() && !isLoading) {
+      onSendMessage(input)
+      setInput("")
+    }
+  }
+
+  return (
+    <Sheet open={isOpen} onOpenChange={setIsOpen}>
+      <SheetTrigger asChild>
+        <Button 
+          variant="outline" 
+          size="icon"
+          className="fixed bottom-4 right-4 h-14 w-14 rounded-full shadow-lg bg-primary text-white hover:bg-primary/90"
+        >
+          <MessageSquare className="h-6 w-6" />
+        </Button>
+      </SheetTrigger>
+      <SheetContent 
+        side="right" 
+        className={cn("w-full sm:w-[400px] p-0 bg-white", className)}
+      >
+        <div className="flex flex-col h-full">
+          {/* Header */}
+          <div className="flex items-center justify-between p-4 border-b">
+            <h3 className="font-semibold text-lg">Chat History</h3>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={() => setIsOpen(false)}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+
+          {/* Messages */}
+          <ScrollArea className="flex-1 p-4">
+            <div className="space-y-4">
+              {messages.map((message, i) => (
+                <div
+                  key={i}
+                  className={cn(
+                    "flex w-max max-w-[80%] rounded-lg px-4 py-2",
+                    message.sender === "user"
+                      ? "ml-auto bg-primary text-primary-foreground"
+                      : "bg-muted"
+                  )}
+                >
+                  {message.content}
+                </div>
+              ))}
+            </div>
+          </ScrollArea>
+
+          {/* Input */}
+          <form onSubmit={handleSubmit} className="p-4 border-t">
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="Type your message..."
+                className="flex-1 px-4 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                disabled={isLoading}
+              />
+              <Button 
+                type="submit" 
+                disabled={isLoading || !input.trim()}
+                className="bg-primary text-white hover:bg-primary/90"
+              >
+                Send
+              </Button>
+            </div>
+          </form>
+        </div>
+      </SheetContent>
+    </Sheet>
+  )
 }
 
 export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsDialogProps) {
