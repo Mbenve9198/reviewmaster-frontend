@@ -1,3 +1,4 @@
+// components/billing/PaymentForm.tsx
 import { useState } from 'react'
 import {
   PaymentElement,
@@ -14,7 +15,7 @@ interface PaymentFormProps {
   onError: (error: string) => void;
 }
 
-export default function PaymentForm({ clientSecret, amount, onSuccess, onError }: PaymentFormProps) {
+const PaymentForm = ({ clientSecret, amount, onSuccess, onError }: PaymentFormProps) => {
   const stripe = useStripe()
   const elements = useElements()
   const [isLoading, setIsLoading] = useState(false)
