@@ -305,10 +305,10 @@ const CreditPurchaseSlider = ({ open, onClose }: CreditPurchaseSliderProps) => {
                       <Button
                         onClick={handleStartPurchase}
                         disabled={isLoading || isProcessing}
-                        className="bg-primary hover:bg-primary/90 text-white font-medium 
-                        px-8 py-2 rounded-xl relative
-                        before:absolute before:inset-0 before:bg-black/10 before:opacity-0 hover:before:opacity-100
-                        before:transition-opacity before:rounded-xl
+                        className="bg-gradient-to-b from-primary to-primary/90 text-white font-medium 
+                        px-8 py-2 rounded-xl relative overflow-hidden
+                        after:absolute after:inset-0 after:bg-gradient-to-t after:from-black/20 after:to-transparent 
+                        after:opacity-0 hover:after:opacity-100 after:transition-opacity
                         transform transition-all duration-200
                         inline-flex items-center gap-2 w-auto min-w-[200px]"
                       >
