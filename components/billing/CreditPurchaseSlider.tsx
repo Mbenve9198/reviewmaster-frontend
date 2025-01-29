@@ -306,8 +306,10 @@ const CreditPurchaseSlider = ({ open, onClose }: CreditPurchaseSliderProps) => {
                         onClick={handleStartPurchase}
                         disabled={isLoading || isProcessing}
                         className="bg-primary hover:bg-primary/90 text-white font-medium 
-                        px-8 py-2 rounded-xl shadow-lg transform transition-all duration-200
-                        hover:shadow-primary/25 hover:-translate-y-0.5 active:translate-y-0
+                        px-8 py-2 rounded-xl relative
+                        before:absolute before:inset-0 before:bg-black/10 before:opacity-0 hover:before:opacity-100
+                        before:transition-opacity before:rounded-xl
+                        transform transition-all duration-200
                         inline-flex items-center gap-2 w-auto min-w-[200px]"
                       >
                         {isLoading ? (
