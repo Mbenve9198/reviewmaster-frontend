@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { PlusCircle, Send, Settings, Copy, CornerDownLeft } from 'lucide-react'
+import { PlusCircle, Send, Settings, Copy, CornerDownLeft, X } from 'lucide-react'
 import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import { useRouter } from 'next/navigation'
@@ -79,6 +79,7 @@ export default function HomePage() {
   const [isGenerating, setIsGenerating] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const chatContainerRef = useRef<HTMLDivElement>(null)
+  const [showBanner, setShowBanner] = useState(true)
 
   useEffect(() => {
     const checkAuthAndFetchData = async () => {
@@ -332,6 +333,34 @@ export default function HomePage() {
 
   return (
     <>
+      {showBanner && (
+        <div className="fixed top-0 left-0 right-0 z-20">
+          <div className="bg-gradient-to-r from-blue-600/85 via-blue-500/85 via-blue-400/85 to-blue-500/85 backdrop-blur-sm text-white shadow-lg">
+            <div className="relative max-w-7xl mx-auto md:pl-[100px]">
+              <div className="px-4 py-3 text-center pr-12">
+                <p className="text-sm">
+                  Want to auto-respond to reviews directly on TripAdvisor and Booking.com? 
+                  <a 
+                    href="https://chromewebstore.google.com/detail/replai/dgdhioopdabddaifmlbjpabdlegpkepn?authuser=0&hl=it"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline ml-1 hover:text-blue-100"
+                  >
+                    Get our Chrome extension here
+                  </a>
+                </p>
+              </div>
+              <button 
+                onClick={() => setShowBanner(false)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-white/80 hover:text-white"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <Tiles 
         className="fixed inset-0 -z-10" 
         rows={100}
