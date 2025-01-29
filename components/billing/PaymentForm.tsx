@@ -20,6 +20,7 @@ const PaymentForm = ({ clientSecret, amount, onSuccess, onError, onReady }: Paym
   const stripe = useStripe()
   const elements = useElements()
   const [isLoading, setIsLoading] = useState(false)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   useEffect(() => {
     if (elements) {
@@ -29,6 +30,7 @@ const PaymentForm = ({ clientSecret, amount, onSuccess, onError, onReady }: Paym
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setErrorMessage(null)
 
     if (!stripe || !elements) {
       return
@@ -43,6 +45,7 @@ const PaymentForm = ({ clientSecret, amount, onSuccess, onError, onReady }: Paym
       })
 
       if (error) {
+        setErrorMessage(error.message || 'Payment failed')
         onError(error.message || 'Payment failed')
         return
       }
@@ -52,16 +55,20 @@ const PaymentForm = ({ clientSecret, amount, onSuccess, onError, onReady }: Paym
           onSuccess()
           break
         case 'requires_payment_method':
+          setErrorMessage('Your payment was not successful, please try again.')
           onError('Your payment was not successful, please try again.')
           break
         case 'requires_action':
+          setErrorMessage('Please complete the authentication.')
           onError('Please complete the authentication.')
           break
         default:
+          setErrorMessage('Something went wrong.')
           onError('Something went wrong.')
           break
       }
     } catch (e) {
+      setErrorMessage('An unexpected error occurred')
       onError('An unexpected error occurred')
     } finally {
       setIsLoading(false)
@@ -70,20 +77,14 @@ const PaymentForm = ({ clientSecret, amount, onSuccess, onError, onReady }: Paym
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <PaymentElement 
-        options={{
-          layout: 'tabs',
-          defaultValues: {
-            billingDetails: {
-              name: '',
-              email: '',
-            }
-          },
-          business: {
-            name: 'Replai'
-          }
-        }} 
-      />
+      <PaymentElement options={{ layout: 'tabs' }} />
+      
+      {errorMessage && (
+        <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
+          {errorMessage}
+        </div>
+      )}
+
       <div className="flex justify-center">
         <Button
           type="submit"
