@@ -2,212 +2,141 @@
 
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
-import { CreditCard } from 'lucide-react'
-import { useUserStats } from "@/hooks/useUserStats"
+import { CreditCard, Coins, Download } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useUser } from "@/hooks/use-user"
 import { toast } from "sonner"
 import { getCookie } from "@/lib/utils"
+import { useWallet } from "@/hooks/useWallet"
+import { useEffect, useState } from "react"
+import CreditPurchaseSlider from "@/components/billing/CreditPurchaseSlider"
 
 export default function BillingPage() {
-  const { 
-    responsesUsed, 
-    responsesLimit, 
-    hotelsCount, 
-    hotelsLimit,
-    subscriptionPlan,
-    nextResetDate,
-    isLoading 
-  } = useUserStats()
   const router = useRouter()
   const { user } = useUser()
+  const { credits, freeScrapingRemaining, recentTransactions, isLoading } = useWallet()
+  const [isSliderOpen, setIsSliderOpen] = useState(false)
 
-  const formatDate = (dateString: string) => {
-    if (!dateString) return "...";
-    try {
-      const date = new Date(dateString);
-      return date.toLocaleDateString('it-IT', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric'
-      });
-    } catch {
-      return "Data non disponibile";
-    }
-  }
-
-  const handleManagePlan = async () => {
-    if (subscriptionPlan === 'trial') {
-      router.push('/billing/plans');
-    } else {
-      try {
-        console.log('Creating portal session...', {
-          subscriptionPlan,
-          user: user?.email
-        });
-
-        const token = getCookie('token');
-        if (!token) {
-          toast.error('Authentication token not found. Please log in again.');
-          router.push('/login');
-          return;
-        }
-
-        console.log('Token found, making request...');
-
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/create-portal-session`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          },
-          credentials: 'include'
-        });
-        
-        console.log('Response status:', response.status);
-        
-        if (!response.ok) {
-          const errorData = await response.text();
-          console.error('Error response:', errorData);
-          
-          if (response.status === 403) {
-            toast.error('Authentication failed. Please log in again.');
-            router.push('/login');
-            return;
-          }
-          
-          throw new Error(`Failed to create portal session: ${errorData}`);
-        }
-        
-        const data = await response.json();
-        console.log('Portal session created:', data);
-        
-        if (!data.url) {
-          throw new Error('No URL returned from portal session');
-        }
-
-        window.location.href = data.url;
-      } catch (error) {
-        console.error('Detailed error:', {
-          message: error instanceof Error ? error.message : 'Unknown error',
-          stack: error instanceof Error ? error.stack : undefined
-        });
-        toast.error('Failed to open customer portal. Please try again later.');
-      }
-    }
-  };
-
-  const getButtonText = () => {
-    if (isLoading) return "...";
-    return subscriptionPlan === 'trial' ? 'Upgrade Your Plan' : 'Manage Plan';
+  const handleBuyCredits = () => {
+    setIsSliderOpen(true)
   }
 
   return (
     <div className="min-h-screen bg-white py-12">
       {/* Header Section */}
       <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold text-gray-800 mb-4">Billing & Subscription</h1>
-        <p className="text-xl text-gray-600">Manage your plan and usage</p>
+        <h1 className="text-4xl font-bold text-gray-800 mb-4">Wallet & Credits</h1>
+        <p className="text-xl text-gray-600">Manage your credits and usage</p>
       </div>
 
       <div className="max-w-4xl mx-auto px-6">
-        {/* Current Plan Section */}
+        {/* Current Credits Section */}
         <div className="bg-white border-2 border-gray-200 rounded-3xl p-8 mb-8">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center">
-              <CreditCard className="w-8 h-8 text-primary mr-4" />
-              <h2 className="text-2xl font-bold text-gray-800">Current Plan</h2>
+              <Coins className="w-8 h-8 text-primary mr-4" />
+              <h2 className="text-2xl font-bold text-gray-800">Available Credits</h2>
             </div>
-            <span className="text-3xl font-bold text-primary capitalize">
-              {isLoading ? "..." : subscriptionPlan}
+            <span className="text-3xl font-bold text-primary">
+              {isLoading ? "..." : credits.toFixed(1)}
             </span>
           </div>
           <div className="flex items-center justify-between mb-6">
-            <span className="text-gray-600">Next reset date</span>
-            <span className="text-primary font-medium">
-              {isLoading ? "..." : formatDate(nextResetDate)}
+            <span className="text-gray-600">Free Reviews Remaining</span>
+            <span className="text-primary font-medium flex items-center">
+              <Download className="w-4 h-4 mr-2" />
+              {isLoading ? "..." : freeScrapingRemaining}
             </span>
           </div>
-          <p className="text-gray-600 mb-6">
-            You are currently on the {isLoading ? "..." : subscriptionPlan} plan. 
-            {subscriptionPlan === 'trial' 
-              ? ' Upgrade now to access more features and benefits.'
-              : ' Manage your subscription and billing information.'}
-          </p>
           <Button
-            onClick={handleManagePlan}
-            className={`w-full ${
-              subscriptionPlan === 'trial' 
-                ? 'bg-green-600 hover:bg-green-700' 
-                : 'bg-primary hover:bg-primary/90'
-            } text-white font-bold text-xl py-6 rounded-xl transition-all shadow-[0_4px_0_0_#1d4ed8]`}
+            onClick={handleBuyCredits}
+            className="w-full bg-primary hover:bg-primary/90 text-white font-bold text-xl py-6 rounded-xl transition-all shadow-[0_4px_0_0_#1d4ed8]"
           >
-            {getButtonText()}
+            Buy More Credits
           </Button>
         </div>
 
-        {/* Usage Section */}
+        {/* Recent Transactions */}
         <div className="bg-white border-2 border-gray-200 rounded-3xl p-8">
-          <h2 className="text-2xl font-bold text-gray-800 mb-6">Usage</h2>
-          
-          {/* Responses Counter */}
-          <div className="mb-8">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center">
-                <CreditCard className="w-6 h-6 text-primary mr-2" />
-                <span className="text-lg font-medium text-gray-700">Responses Generated</span>
-              </div>
-              <span className="text-lg font-medium text-primary">
-                {isLoading ? "..." : `${responsesUsed}/${responsesLimit}`}
-              </span>
-            </div>
-            <Progress 
-              value={isLoading ? 0 : (responsesUsed / responsesLimit) * 100} 
-              className="h-3 bg-primary/20"
-            />
+          <h2 className="text-2xl font-bold text-gray-800 mb-6">Recent Transactions</h2>
+          <div className="space-y-4">
+            {isLoading ? (
+              <div className="text-center py-4">Loading...</div>
+            ) : recentTransactions.length === 0 ? (
+              <div className="text-center py-4 text-gray-500">No recent transactions</div>
+            ) : (
+              recentTransactions.map((transaction) => (
+                <div 
+                  key={transaction.id} 
+                  className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
+                >
+                  <div>
+                    <p className="font-medium text-gray-800">{transaction.description}</p>
+                    <p className="text-sm text-gray-500">
+                      {new Date(transaction.createdAt).toLocaleDateString('it-IT')}
+                    </p>
+                  </div>
+                  <div className={`font-bold ${
+                    transaction.credits > 0 ? 'text-green-600' : 'text-red-600'
+                  }`}>
+                    {transaction.credits > 0 ? '+' : ''}{transaction.credits.toFixed(1)}
+                  </div>
+                </div>
+              ))
+            )}
           </div>
-
-          {/* Hotels Counter */}
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center">
-                <CreditCard className="w-6 h-6 text-primary mr-2" />
-                <span className="text-lg font-medium text-gray-700">Hotels Connected</span>
-              </div>
-              <span className="text-lg font-medium text-primary">
-                {isLoading ? "..." : `${hotelsCount}/${hotelsLimit}`}
-              </span>
-            </div>
-            <Progress 
-              value={isLoading ? 0 : (hotelsCount / hotelsLimit) * 100} 
-              className="h-3 bg-primary/20"
-            />
-          </div>
+          <Button 
+            variant="outline" 
+            className="w-full mt-6"
+            onClick={() => router.push('/billing/transactions')}
+          >
+            View All Transactions
+          </Button>
         </div>
 
-        {/* Plan Benefits */}
+        {/* Credit Costs */}
         <div className="mt-12">
-          <h2 className="text-2xl font-bold text-gray-800 mb-6">Plan Benefits</h2>
-          <ul className="space-y-4">
-            <li className="flex items-center">
-              <span className="text-2xl mr-4">💬</span>
-              <span className="text-gray-700">
-                Up to {isLoading ? "..." : responsesLimit} AI-generated responses per month
-              </span>
-            </li>
-            <li className="flex items-center">
-              <span className="text-2xl mr-4">🏨</span>
-              <span className="text-gray-700">
-                Connect up to {isLoading ? "..." : hotelsLimit} hotels
-              </span>
-            </li>
-            <li className="flex items-center">
-              <span className="text-2xl mr-4">🎖️</span>
-              <span className="text-gray-700">Priority customer support</span>
-            </li>
-          </ul>
+          <h2 className="text-2xl font-bold text-gray-800 mb-6">Credit Usage</h2>
+          <div className="grid gap-4">
+            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+              <div className="flex items-center">
+                <Download className="w-5 h-5 mr-3 text-primary" />
+                <span>Download Review</span>
+              </div>
+              <span className="font-medium">0.1 credits</span>
+            </div>
+            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+              <div className="flex items-center">
+                <CreditCard className="w-5 h-5 mr-3 text-primary" />
+                <span>Generate Response</span>
+              </div>
+              <span className="font-medium">2 credits</span>
+            </div>
+            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+              <div className="flex items-center">
+                <CreditCard className="w-5 h-5 mr-3 text-primary" />
+                <span>Edit Response</span>
+              </div>
+              <span className="font-medium">1 credit</span>
+            </div>
+            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+              <div className="flex items-center">
+                <CreditCard className="w-5 h-5 mr-3 text-primary" />
+                <span>Analysis Report</span>
+              </div>
+              <span className="font-medium">10-30 credits</span>
+            </div>
+          </div>
         </div>
       </div>
+
+      {/* TODO: Aggiungere il componente Slider per l'acquisto dei crediti */}
+      {isSliderOpen && (
+        <CreditPurchaseSlider 
+          open={isSliderOpen} 
+          onClose={() => setIsSliderOpen(false)} 
+        />
+      )}
     </div>
   )
 }
