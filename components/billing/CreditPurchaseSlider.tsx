@@ -27,6 +27,7 @@ const CreditPurchaseSlider = ({ open, onClose }: CreditPurchaseSliderProps) => {
   const [credits, setCredits] = useState<number>(100)
   const [isLoading, setIsLoading] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
+  const [isStripeLoading, setIsStripeLoading] = useState(false)
   const [clientSecret, setClientSecret] = useState<string>('')
   const [showPaymentForm, setShowPaymentForm] = useState(false)
   const { refresh } = useWallet()
@@ -76,7 +77,7 @@ const CreditPurchaseSlider = ({ open, onClose }: CreditPurchaseSliderProps) => {
         },
         body: JSON.stringify({ 
           credits,
-          amount: Math.round(totalPrice * 100) // Stripe wants amount in cents
+          amount: Math.round(totalPrice * 100)
         })
       })
 
@@ -86,12 +87,14 @@ const CreditPurchaseSlider = ({ open, onClose }: CreditPurchaseSliderProps) => {
 
       const { clientSecret } = await response.json()
       setClientSecret(clientSecret)
+      setIsStripeLoading(true)
       setShowPaymentForm(true)
     } catch (error) {
       console.error('Purchase setup error:', error)
       toast.error('Failed to initialize payment. Please try again.')
     } finally {
       setIsLoading(false)
+      setIsProcessing(false)
     }
   }
 
@@ -102,6 +105,7 @@ const CreditPurchaseSlider = ({ open, onClose }: CreditPurchaseSliderProps) => {
     setClientSecret('')
     setCredits(100)
     setIsProcessing(false)
+    setIsStripeLoading(false)
     onClose()
   }
 
@@ -111,6 +115,7 @@ const CreditPurchaseSlider = ({ open, onClose }: CreditPurchaseSliderProps) => {
     setClientSecret('')
     setIsLoading(false)
     setIsProcessing(false)
+    setIsStripeLoading(false)
   }
 
   const potentialActions = calculatePotentialActions(credits)
@@ -128,8 +133,8 @@ const CreditPurchaseSlider = ({ open, onClose }: CreditPurchaseSliderProps) => {
     <Sheet 
       open={open} 
       onOpenChange={(isOpen) => {
-        if (isProcessing) {
-          toast.warning('Please wait while we process your payment')
+        if (isProcessing || isStripeLoading) {
+          toast.warning('Please wait...')
           return
         }
         if (!isOpen) {
@@ -138,6 +143,7 @@ const CreditPurchaseSlider = ({ open, onClose }: CreditPurchaseSliderProps) => {
           setCredits(100)
           setIsLoading(false)
           setIsProcessing(false)
+          setIsStripeLoading(false)
         }
         onClose()
       }}
@@ -151,7 +157,7 @@ const CreditPurchaseSlider = ({ open, onClose }: CreditPurchaseSliderProps) => {
             </SheetDescription>
           </SheetHeader>
 
-          <div className="flex-1 overflow-y-auto">
+          <div className="flex-1 overflow-y-auto space-y-6 relative">
             <div className="space-y-8">
               {!showPaymentForm ? (
                 <>
@@ -245,16 +251,15 @@ const CreditPurchaseSlider = ({ open, onClose }: CreditPurchaseSliderProps) => {
                     </p>
                   </div>
                   
-                  {clientSecret && (
-                    <Elements stripe={stripePromise} options={{ clientSecret, appearance }}>
-                      <PaymentForm
-                        clientSecret={clientSecret}
-                        amount={Math.round(totalPrice * 100)}
-                        onSuccess={handlePaymentSuccess}
-                        onError={handlePaymentError}
-                      />
-                    </Elements>
-                  )}
+                  <Elements stripe={stripePromise} options={{ clientSecret, appearance }}>
+                    <PaymentForm
+                      clientSecret={clientSecret}
+                      amount={Math.round(totalPrice * 100)}
+                      onSuccess={handlePaymentSuccess}
+                      onError={handlePaymentError}
+                      onReady={() => setIsStripeLoading(false)}
+                    />
+                  </Elements>
 
                   <Button
                     variant="ghost"
@@ -266,18 +271,18 @@ const CreditPurchaseSlider = ({ open, onClose }: CreditPurchaseSliderProps) => {
                 </>
               )}
             </div>
-          </div>
 
-          {isProcessing && (
-            <div className="absolute inset-0 bg-white/80 flex items-center justify-center z-50">
-              <div className="flex flex-col items-center gap-4">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                <p className="text-sm text-muted-foreground">
-                  Processing your payment...
-                </p>
+            {isStripeLoading && (
+              <div className="absolute inset-0 bg-white/80 flex items-center justify-center">
+                <div className="flex flex-col items-center gap-4">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                  <p className="text-sm text-muted-foreground">
+                    Loading payment form...
+                  </p>
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </SheetContent>
     </Sheet>
