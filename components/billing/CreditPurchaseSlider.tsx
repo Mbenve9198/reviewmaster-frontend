@@ -295,26 +295,31 @@ const CreditPurchaseSlider = ({ open, onClose }: CreditPurchaseSliderProps) => {
                         group-hover:opacity-100 transition-opacity duration-300" />
                     </motion.div>
 
-                    {/* Continue to Payment Button */}
+                    {/* Purchase Button */}
                     <motion.div
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.5 }}
+                      className="flex justify-center"
                     >
                       <Button
                         onClick={handleStartPurchase}
-                        disabled={isLoading}
-                        className="w-full rounded-xl bg-primary text-white shadow-[0_4px_0_0_rgb(0,0,0,0.25)] active:translate-y-0.5 active:shadow-[0_2px_0_0_rgb(0,0,0,0.25)]
-                        hover:opacity-90 transition-all"
-                        size="lg"
+                        disabled={isLoading || isProcessing}
+                        className="bg-primary hover:bg-primary/90 text-white font-medium 
+                        px-8 py-2 rounded-xl shadow-lg transform transition-all duration-200
+                        hover:shadow-primary/25 hover:-translate-y-0.5 active:translate-y-0
+                        inline-flex items-center gap-2 w-auto min-w-[200px]"
                       >
                         {isLoading ? (
                           <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            <Loader2 className="h-4 w-4 animate-spin" />
                             Processing...
                           </>
                         ) : (
-                          `Purchase ${credits} credits for ${formatPrice(totalPrice)}`
+                          <>
+                            <CreditCard className="h-4 w-4" />
+                            Purchase {formatPrice(totalPrice)}
+                          </>
                         )}
                       </Button>
                     </motion.div>
