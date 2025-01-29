@@ -14,6 +14,7 @@ import { loadStripe } from '@stripe/stripe-js'
 import { getCookie } from '@/lib/utils'
 import { toast } from 'sonner'
 import PaymentForm from './PaymentForm'
+import { useWallet } from '@/hooks/useWallet'
 
 interface CreditPurchaseSliderProps {
   open: boolean
@@ -25,8 +26,10 @@ const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
 const CreditPurchaseSlider = ({ open, onClose }: CreditPurchaseSliderProps) => {
   const [credits, setCredits] = useState<number>(100)
   const [isLoading, setIsLoading] = useState(false)
+  const [isProcessing, setIsProcessing] = useState(false)
   const [clientSecret, setClientSecret] = useState<string>('')
   const [showPaymentForm, setShowPaymentForm] = useState(false)
+  const { mutate: mutateWallet } = useWallet()
 
   const calculatePricePerCredit = (amount: number) => {
     if (amount < 200) return 0.30
@@ -57,6 +60,7 @@ const CreditPurchaseSlider = ({ open, onClose }: CreditPurchaseSliderProps) => {
   const handleStartPurchase = async () => {
     try {
       setIsLoading(true)
+      setIsProcessing(true)
       const token = getCookie('token')
       
       if (!token) {
@@ -93,6 +97,11 @@ const CreditPurchaseSlider = ({ open, onClose }: CreditPurchaseSliderProps) => {
 
   const handlePaymentSuccess = () => {
     toast.success('Credits purchased successfully!')
+    mutateWallet()
+    setShowPaymentForm(false)
+    setClientSecret('')
+    setCredits(100)
+    setIsProcessing(false)
     onClose()
   }
 
@@ -100,6 +109,8 @@ const CreditPurchaseSlider = ({ open, onClose }: CreditPurchaseSliderProps) => {
     toast.error(error || 'Payment failed. Please try again.')
     setShowPaymentForm(false)
     setClientSecret('')
+    setIsLoading(false)
+    setIsProcessing(false)
   }
 
   const potentialActions = calculatePotentialActions(credits)
@@ -114,7 +125,23 @@ const CreditPurchaseSlider = ({ open, onClose }: CreditPurchaseSliderProps) => {
   }
 
   return (
-    <Sheet open={open} onOpenChange={onClose}>
+    <Sheet 
+      open={open} 
+      onOpenChange={(isOpen) => {
+        if (isProcessing) {
+          toast.warning('Please wait while we process your payment')
+          return
+        }
+        if (!isOpen) {
+          setShowPaymentForm(false)
+          setClientSecret('')
+          setCredits(100)
+          setIsLoading(false)
+          setIsProcessing(false)
+        }
+        onClose()
+      }}
+    >
       <SheetContent className="bg-white w-full sm:max-w-[540px]">
         <SheetHeader className="mb-6">
           <SheetTitle>Purchase Credits</SheetTitle>
@@ -239,6 +266,17 @@ const CreditPurchaseSlider = ({ open, onClose }: CreditPurchaseSliderProps) => {
             </>
           )}
         </div>
+
+        {isProcessing && (
+          <div className="absolute inset-0 bg-white/80 flex items-center justify-center z-50">
+            <div className="flex flex-col items-center gap-4">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              <p className="text-sm text-muted-foreground">
+                Processing your payment...
+              </p>
+            </div>
+          </div>
+        )}
       </SheetContent>
     </Sheet>
   )

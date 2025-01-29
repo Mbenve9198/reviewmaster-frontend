@@ -40,8 +40,19 @@ const PaymentForm = ({ clientSecret, amount, onSuccess, onError }: PaymentFormPr
         return
       }
 
-      if (paymentIntent.status === 'succeeded') {
-        onSuccess()
+      switch(paymentIntent.status) {
+        case 'succeeded':
+          onSuccess()
+          break
+        case 'requires_payment_method':
+          onError('Your payment was not successful, please try again.')
+          break
+        case 'requires_action':
+          onError('Please complete the authentication.')
+          break
+        default:
+          onError('Something went wrong.')
+          break
       }
     } catch (e) {
       onError('An unexpected error occurred')
