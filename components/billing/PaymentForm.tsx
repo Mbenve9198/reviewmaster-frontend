@@ -55,10 +55,14 @@ const PaymentForm = ({ clientSecret, amount, onSuccess, onError }: PaymentFormPr
       <PaymentElement 
         options={{
           layout: 'tabs',
-          variables: {
-            colorPrimary: '#0F172A',
-            colorBackground: '#FFFFFF',
-            borderRadius: '0.5rem'
+          defaultValues: {
+            billingDetails: {
+              name: '',
+              email: '',
+            }
+          },
+          business: {
+            name: 'Replai'
           }
         }} 
       />
