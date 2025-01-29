@@ -115,11 +115,11 @@ const CreditPurchaseSlider = ({ open, onClose }: CreditPurchaseSliderProps) => {
 
   return (
     <Sheet open={open} onOpenChange={onClose}>
-      <SheetContent className="w-full sm:max-w-xl">
+      <SheetContent className="bg-white w-full sm:max-w-[540px]">
         <SheetHeader className="mb-6">
           <SheetTitle>Purchase Credits</SheetTitle>
           <SheetDescription>
-            Select the amount of credits you want to purchase
+            Add credits to your wallet to continue using our services
           </SheetDescription>
         </SheetHeader>
 
