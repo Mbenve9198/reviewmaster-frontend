@@ -29,7 +29,7 @@ const CreditPurchaseSlider = ({ open, onClose }: CreditPurchaseSliderProps) => {
   const [isProcessing, setIsProcessing] = useState(false)
   const [clientSecret, setClientSecret] = useState<string>('')
   const [showPaymentForm, setShowPaymentForm] = useState(false)
-  const { mutate: mutateWallet } = useWallet()
+  const { refresh } = useWallet()
 
   const calculatePricePerCredit = (amount: number) => {
     if (amount < 200) return 0.30
@@ -97,7 +97,7 @@ const CreditPurchaseSlider = ({ open, onClose }: CreditPurchaseSliderProps) => {
 
   const handlePaymentSuccess = () => {
     toast.success('Credits purchased successfully!')
-    mutateWallet()
+    refresh()
     setShowPaymentForm(false)
     setClientSecret('')
     setCredits(100)
@@ -142,141 +142,143 @@ const CreditPurchaseSlider = ({ open, onClose }: CreditPurchaseSliderProps) => {
         onClose()
       }}
     >
-      <SheetContent className="bg-white w-full sm:max-w-[540px]">
-        <SheetHeader className="mb-6">
-          <SheetTitle>Purchase Credits</SheetTitle>
-          <SheetDescription>
-            Add credits to your wallet to continue using our services
-          </SheetDescription>
-        </SheetHeader>
+      <SheetContent className="bg-white w-full sm:max-w-[540px] h-full overflow-y-auto">
+        <div className="h-full flex flex-col">
+          <SheetHeader className="mb-6 flex-shrink-0">
+            <SheetTitle>Purchase Credits</SheetTitle>
+            <SheetDescription>
+              Add credits to your wallet to continue using our services
+            </SheetDescription>
+          </SheetHeader>
 
-        <div className="space-y-8">
-          {!showPaymentForm ? (
-            <>
-              {/* Credits Slider */}
-              <div className="space-y-4">
-                <div className="flex justify-between items-baseline">
-                  <label className="text-sm font-medium">Credits Amount</label>
-                  <span className="text-2xl font-bold text-primary">{credits}</span>
-                </div>
-                <Slider
-                  defaultValue={[100]}
-                  min={34}
-                  max={5000}
-                  step={1}
-                  value={[credits]}
-                  onValueChange={([value]) => setCredits(value)}
-                />
-                <div className="flex justify-between text-sm text-muted-foreground">
-                  <span>34</span>
-                  <span>5000</span>
-                </div>
-              </div>
+          <div className="flex-1 overflow-y-auto">
+            <div className="space-y-8">
+              {!showPaymentForm ? (
+                <>
+                  {/* Credits Slider */}
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-baseline">
+                      <label className="text-sm font-medium">Credits Amount</label>
+                      <span className="text-2xl font-bold text-primary">{credits}</span>
+                    </div>
+                    <Slider
+                      defaultValue={[100]}
+                      min={34}
+                      max={5000}
+                      step={1}
+                      value={[credits]}
+                      onValueChange={([value]) => setCredits(value)}
+                    />
+                    <div className="flex justify-between text-sm text-muted-foreground">
+                      <span>34</span>
+                      <span>5000</span>
+                    </div>
+                  </div>
 
-              {/* Pricing Info */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="bg-primary/5 p-4 rounded-lg">
-                  <div className="text-sm font-medium mb-1">Price per Credit</div>
-                  <div className="text-2xl font-bold">{formatPrice(pricePerCredit)}</div>
-                </div>
-                <div className="bg-primary/5 p-4 rounded-lg">
-                  <div className="text-sm font-medium mb-1">Total Price</div>
-                  <div className="text-2xl font-bold">{formatPrice(totalPrice)}</div>
-                </div>
-                <div className="bg-green-50 p-4 rounded-lg">
-                  <div className="text-sm font-medium mb-1">You Save</div>
-                  <div className="text-2xl font-bold text-green-600">{formatPrice(savings)}</div>
-                </div>
-              </div>
+                  {/* Pricing Info */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div className="bg-primary/5 p-4 rounded-lg">
+                      <div className="text-sm font-medium mb-1">Price per Credit</div>
+                      <div className="text-2xl font-bold">{formatPrice(pricePerCredit)}</div>
+                    </div>
+                    <div className="bg-primary/5 p-4 rounded-lg">
+                      <div className="text-sm font-medium mb-1">Total Price</div>
+                      <div className="text-2xl font-bold">{formatPrice(totalPrice)}</div>
+                    </div>
+                    <div className="bg-green-50 p-4 rounded-lg">
+                      <div className="text-sm font-medium mb-1">You Save</div>
+                      <div className="text-2xl font-bold text-green-600">{formatPrice(savings)}</div>
+                    </div>
+                  </div>
 
-              {/* What You Can Do */}
-              <div className="bg-primary/5 p-4 rounded-lg">
-                <h3 className="font-medium mb-3">With {credits} credits you can:</h3>
-                <ul className="space-y-2">
-                  <li className="flex justify-between">
-                    <span>Download reviews</span>
-                    <span className="font-medium">{potentialActions.reviews.toLocaleString()}</span>
-                  </li>
-                  <li className="flex justify-between">
-                    <span>Generate AI responses</span>
-                    <span className="font-medium">{potentialActions.responses.toLocaleString()}</span>
-                  </li>
-                  <li className="flex justify-between">
-                    <span>Run analysis reports</span>
-                    <span className="font-medium">{potentialActions.analysis.toLocaleString()}</span>
-                  </li>
-                </ul>
-              </div>
+                  {/* What You Can Do */}
+                  <div className="bg-primary/5 p-4 rounded-lg">
+                    <h3 className="font-medium mb-3">With {credits} credits you can:</h3>
+                    <ul className="space-y-2">
+                      <li className="flex justify-between">
+                        <span>Download reviews</span>
+                        <span className="font-medium">{potentialActions.reviews.toLocaleString()}</span>
+                      </li>
+                      <li className="flex justify-between">
+                        <span>Generate AI responses</span>
+                        <span className="font-medium">{potentialActions.responses.toLocaleString()}</span>
+                      </li>
+                      <li className="flex justify-between">
+                        <span>Run analysis reports</span>
+                        <span className="font-medium">{potentialActions.analysis.toLocaleString()}</span>
+                      </li>
+                    </ul>
+                  </div>
 
-              {/* Continue to Payment Button */}
-              <Button 
-                className="w-full" 
-                size="lg"
-                onClick={handleStartPurchase}
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Processing...
-                  </>
-                ) : (
-                  <>
-                    <CreditCard className="mr-2 h-4 w-4" />
-                    Continue to Payment
-                  </>
-                )}
-              </Button>
+                  {/* Continue to Payment Button */}
+                  <Button
+                    onClick={handleStartPurchase}
+                    disabled={isLoading}
+                    className="w-full rounded-xl bg-primary text-white shadow-[0_4px_0_0_rgb(0,0,0,0.25)] active:translate-y-0.5 active:shadow-[0_2px_0_0_rgb(0,0,0,0.25)]
+                    hover:opacity-90 transition-all"
+                    size="lg"
+                  >
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Processing...
+                      </>
+                    ) : (
+                      `Purchase ${credits} credits for ${formatPrice(totalPrice)}`
+                    )}
+                  </Button>
 
-              {/* Special Offer */}
-              {credits >= 1000 && (
-                <div className="flex items-center justify-center text-sm text-green-600">
-                  <Sparkles className="h-4 w-4 mr-2" />
-                  Best value: {formatPrice(0.30 - pricePerCredit)} savings per credit!
-                </div>
+                  {/* Special Offer */}
+                  {credits >= 1000 && (
+                    <div className="flex items-center justify-center text-sm text-green-600">
+                      <Sparkles className="h-4 w-4 mr-2" />
+                      Best value: {formatPrice(0.30 - pricePerCredit)} savings per credit!
+                    </div>
+                  )}
+                </>
+              ) : (
+                <>
+                  <div className="mb-6">
+                    <h3 className="text-lg font-medium mb-2">Payment Details</h3>
+                    <p className="text-sm text-muted-foreground">
+                      You are purchasing {credits} credits for {formatPrice(totalPrice)}
+                    </p>
+                  </div>
+                  
+                  {clientSecret && (
+                    <Elements stripe={stripePromise} options={{ clientSecret, appearance }}>
+                      <PaymentForm
+                        clientSecret={clientSecret}
+                        amount={Math.round(totalPrice * 100)}
+                        onSuccess={handlePaymentSuccess}
+                        onError={handlePaymentError}
+                      />
+                    </Elements>
+                  )}
+
+                  <Button
+                    variant="ghost"
+                    onClick={() => setShowPaymentForm(false)}
+                    className="w-full mt-4"
+                  >
+                    Back to Credit Selection
+                  </Button>
+                </>
               )}
-            </>
-          ) : (
-            <>
-              <div className="mb-6">
-                <h3 className="text-lg font-medium mb-2">Payment Details</h3>
-                <p className="text-sm text-muted-foreground">
-                  You are purchasing {credits} credits for {formatPrice(totalPrice)}
-                </p>
-              </div>
-              
-              {clientSecret && (
-                <Elements stripe={stripePromise} options={{ clientSecret, appearance }}>
-                  <PaymentForm
-                    clientSecret={clientSecret}
-                    amount={Math.round(totalPrice * 100)}
-                    onSuccess={handlePaymentSuccess}
-                    onError={handlePaymentError}
-                  />
-                </Elements>
-              )}
-
-              <Button
-                variant="ghost"
-                onClick={() => setShowPaymentForm(false)}
-                className="w-full mt-4"
-              >
-                Back to Credit Selection
-              </Button>
-            </>
-          )}
-        </div>
-
-        {isProcessing && (
-          <div className="absolute inset-0 bg-white/80 flex items-center justify-center z-50">
-            <div className="flex flex-col items-center gap-4">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              <p className="text-sm text-muted-foreground">
-                Processing your payment...
-              </p>
             </div>
           </div>
-        )}
+
+          {isProcessing && (
+            <div className="absolute inset-0 bg-white/80 flex items-center justify-center z-50">
+              <div className="flex flex-col items-center gap-4">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <p className="text-sm text-muted-foreground">
+                  Processing your payment...
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
       </SheetContent>
     </Sheet>
   )
