@@ -7,6 +7,8 @@ import {
 } from '@stripe/react-stripe-js'
 import { Button } from '@/components/ui/button'
 import { Loader2 } from 'lucide-react'
+import { XCircle } from 'lucide-react'
+import { toast } from 'react-hot-toast'
 
 interface PaymentFormProps {
   clientSecret: string;
@@ -45,31 +47,59 @@ const PaymentForm = ({ clientSecret, amount, onSuccess, onError, onReady }: Paym
       })
 
       if (error) {
-        setErrorMessage(error.message || 'Payment failed')
-        onError(error.message || 'Payment failed')
+        // Gestione specifica degli errori di Stripe
+        let message = 'Payment failed. Please try again.'
+        
+        switch (error.type) {
+          case 'card_error':
+            message = error.message || 'Your card was declined.'
+            break
+          case 'validation_error':
+            message = 'Please check your card details.'
+            break
+          case 'authentication_required':
+            message = 'Authentication required. Please try again.'
+            break
+          default:
+            message = error.message || 'An unexpected error occurred.'
+        }
+        
+        setErrorMessage(message)
+        onError(message)
+        toast.error(message)
         return
+      }
+
+      if (!paymentIntent) {
+        throw new Error('Payment failed. Please try again.')
       }
 
       switch(paymentIntent.status) {
         case 'succeeded':
           onSuccess()
+          toast.success('Payment successful!')
           break
         case 'requires_payment_method':
-          setErrorMessage('Your payment was not successful, please try again.')
-          onError('Your payment was not successful, please try again.')
+          const msg = 'Your payment was not successful, please try again.'
+          setErrorMessage(msg)
+          onError(msg)
+          toast.error(msg)
           break
         case 'requires_action':
           setErrorMessage('Please complete the authentication.')
-          onError('Please complete the authentication.')
           break
         default:
-          setErrorMessage('Something went wrong.')
-          onError('Something went wrong.')
+          const errorMsg = 'Something went wrong with your payment.'
+          setErrorMessage(errorMsg)
+          onError(errorMsg)
+          toast.error(errorMsg)
           break
       }
     } catch (e) {
-      setErrorMessage('An unexpected error occurred')
-      onError('An unexpected error occurred')
+      const errorMsg = 'An unexpected error occurred. Please try again.'
+      setErrorMessage(errorMsg)
+      onError(errorMsg)
+      toast.error(errorMsg)
     } finally {
       setIsLoading(false)
     }
@@ -80,8 +110,11 @@ const PaymentForm = ({ clientSecret, amount, onSuccess, onError, onReady }: Paym
       <PaymentElement options={{ layout: 'tabs' }} />
       
       {errorMessage && (
-        <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
-          {errorMessage}
+        <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm mb-4">
+          <p className="flex items-center">
+            <XCircle className="h-4 w-4 mr-2" />
+            {errorMessage}
+          </p>
         </div>
       )}
 
