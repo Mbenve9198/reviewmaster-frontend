@@ -57,9 +57,6 @@ const PaymentForm = ({ clientSecret, amount, onSuccess, onError, onReady }: Paym
           case 'validation_error':
             message = 'Please check your card details.'
             break
-          case 'authentication_required':
-            message = 'Authentication required. Please try again.'
-            break
           default:
             message = error.message || 'An unexpected error occurred.'
         }
@@ -110,7 +107,7 @@ const PaymentForm = ({ clientSecret, amount, onSuccess, onError, onReady }: Paym
       <PaymentElement options={{ layout: 'tabs' }} />
       
       {errorMessage && (
-        <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm mb-4">
+        <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
           <p className="flex items-center">
             <XCircle className="h-4 w-4 mr-2" />
             {errorMessage}
