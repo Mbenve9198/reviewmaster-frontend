@@ -33,7 +33,7 @@ export function FormattedMessage({ content, variant = "received" }: FormattedMes
         <div className="prose prose-blue max-w-none text-gray-800 overflow-hidden">
           <ReactMarkdown
             components={{
-              p: ({ children }) => <p className="mb-3">{childrenToString(children)}</p>,
+              p: ({ children }) => <p className="mb-2">{childrenToString(children)}</p>,
               blockquote: ({ children }) => (
                 <div className="pl-4 border-l-2 border-gray-200 text-gray-600 my-2 italic">
                   {children}
@@ -41,9 +41,14 @@ export function FormattedMessage({ content, variant = "received" }: FormattedMes
               ),
               strong: ({ children }) => <strong className="font-semibold text-gray-900">{children}</strong>,
               li: ({ children }) => (
-                <div className="flex items-start gap-2 my-1">
-                  <span className="text-gray-400 mt-1">•</span>
-                  <span>{children}</span>
+                <div className="flex items-start gap-2 my-0.5">
+                  <span className="text-gray-400 mt-0.5 flex-shrink-0">•</span>
+                  <span className="flex-1">{children}</span>
+                </div>
+              ),
+              ul: ({ children }) => (
+                <div className="space-y-0.5 my-1">
+                  {children}
                 </div>
               )
             }}
@@ -84,13 +89,41 @@ export function FormattedMessage({ content, variant = "received" }: FormattedMes
             // Sezioni principali
             h2: ({ children }) => {
               const text = childrenToString(children);
+              const isPositive = text.includes('STRENGTHS') || text.includes('GROWTH');
+              const isNegative = text.includes('IMPROVEMENT');
+              
               return (
                 <div className="mt-6 mb-4">
-                  <h2 className="font-semibold text-lg text-gray-900">
+                  <h2 className={`font-bold text-lg ${
+                    isPositive ? 'text-green-600' : 
+                    isNegative ? 'text-red-600' : 
+                    'text-gray-900'
+                  }`}>
                     {text.replace(/━+/g, '').trim()}
                   </h2>
-                  <div className="border-b-2 border-gray-200 mt-1"></div>
+                  <div className={`border-b-2 mt-1 ${
+                    isPositive ? 'border-green-200' : 
+                    isNegative ? 'border-red-200' : 
+                    'border-gray-200'
+                  }`}></div>
                 </div>
+              );
+            },
+
+            // Sottotitoli e altre sezioni
+            h3: ({ children }) => {
+              const text = childrenToString(children);
+              const isPositive = text.includes('STRENGTH') || text.includes('positive');
+              const isNegative = text.includes('ISSUE') || text.includes('negative');
+              
+              return (
+                <h3 className={`font-bold mt-4 mb-2 ${
+                  isPositive ? 'text-green-600' : 
+                  isNegative ? 'text-red-600' : 
+                  'text-gray-900'
+                }`}>
+                  {children}
+                </h3>
               );
             },
 
@@ -149,9 +182,12 @@ export function FormattedMessage({ content, variant = "received" }: FormattedMes
                 );
               }
 
-              // Numeri e percentuali
-              if (text.includes('%') || text.match(/[+-]\d+(\.\d+)?/)) {
-                return <span className="text-blue-600 font-medium">{text}</span>;
+              // Numeri positivi/negativi
+              if (text.match(/[+]\d+/)) {
+                return <span className="text-green-600 font-medium">{text}</span>;
+              }
+              if (text.match(/[-]\d+/)) {
+                return <span className="text-red-600 font-medium">{text}</span>;
               }
 
               return <strong className="font-semibold text-gray-900">{text}</strong>;
