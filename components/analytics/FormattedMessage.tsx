@@ -2,11 +2,21 @@ import { ChatBubbleMessage } from "@/components/ui/chat-bubble"
 import ReactMarkdown from 'react-markdown'
 import { Badge } from "@/components/ui/badge"
 import { Card } from "@/components/ui/card"
+import { ReactNode } from "react"
 
 interface FormattedMessageProps {
   content: string
   variant?: "sent" | "received"
 }
+
+// Helper function per convertire children in stringa in modo sicuro
+const childrenToString = (children: ReactNode): string => {
+  if (children === null || children === undefined) return '';
+  if (typeof children === 'string') return children;
+  if (typeof children === 'number') return children.toString();
+  if (Array.isArray(children)) return children.join('');
+  return '';
+};
 
 export function FormattedMessage({ content, variant = "received" }: FormattedMessageProps) {
   // Rimuovi i tag detailed_analysis se presenti
@@ -15,7 +25,7 @@ export function FormattedMessage({ content, variant = "received" }: FormattedMes
   // Verifica se è un'analisi strutturata o una risposta di follow-up
   const isStructuredAnalysis = cleanContent.includes("✦") || 
                               cleanContent.includes("PERFORMANCE ANALYSIS") ||
-                              cleanContent.includes("━━━━");
+                              cleanContent.includes("━━━");
 
   // Per le risposte di follow-up, usa uno stile più semplice
   if (!isStructuredAnalysis) {
@@ -27,7 +37,7 @@ export function FormattedMessage({ content, variant = "received" }: FormattedMes
         <div className="prose prose-blue max-w-none text-gray-800">
           <ReactMarkdown
             components={{
-              p: ({ children }) => <p className="mb-3">{children}</p>,
+              p: ({ children }) => <p className="mb-3">{childrenToString(children)}</p>,
               blockquote: ({ children }) => (
                 <div className="pl-4 border-l-2 border-gray-200 text-gray-600 my-2 italic">
                   {children}
@@ -60,7 +70,7 @@ export function FormattedMessage({ content, variant = "received" }: FormattedMes
           components={{
             // Titolo principale con stile speciale
             h1: ({ children }) => {
-              const text = children.toString();
+              const text = childrenToString(children);
               if (text.includes('✦')) {
                 return (
                   <div className="text-xl font-bold mb-4 pb-2 border-b-2 border-gray-200">
@@ -73,7 +83,7 @@ export function FormattedMessage({ content, variant = "received" }: FormattedMes
             
             // Header delle sezioni con linee decorative
             h2: ({ children }) => {
-              const text = children.toString();
+              const text = childrenToString(children);
               if (text.includes('━━━')) {
                 return (
                   <div className="mt-6 mb-4">
@@ -91,7 +101,7 @@ export function FormattedMessage({ content, variant = "received" }: FormattedMes
 
             // Box per le soluzioni raccomandate
             pre: ({ children }) => {
-              const text = children.toString();
+              const text = childrenToString(children);
               if (text.includes('┌') && text.includes('┐')) {
                 return (
                   <Card className="bg-gray-50 p-4 my-4 border-2">
@@ -115,7 +125,7 @@ export function FormattedMessage({ content, variant = "received" }: FormattedMes
             // Statistiche e metriche
             strong: ({ children }) => {
               if (!children) return null;
-              const text = children.toString();
+              const text = childrenToString(children);
               
               // Badge per priorità e impatto
               if (text.includes('⚠️') || text.includes('HIGH') || text.includes('MEDIUM') || text.includes('LOW')) {
@@ -153,7 +163,7 @@ export function FormattedMessage({ content, variant = "received" }: FormattedMes
 
             // Lista con icone e spaziatura migliorata
             li: ({ children }) => {
-              const text = children.toString();
+              const text = childrenToString(children);
               if (text.startsWith('▸')) {
                 return (
                   <div className="flex items-start gap-2 my-2 text-blue-600">
