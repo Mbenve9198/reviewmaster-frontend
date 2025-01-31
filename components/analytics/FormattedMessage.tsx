@@ -9,7 +9,6 @@ interface FormattedMessageProps {
   variant?: "sent" | "received"
 }
 
-// Helper function per convertire children in stringa in modo sicuro
 const childrenToString = (children: ReactNode): string => {
   if (children === null || children === undefined) return '';
   if (typeof children === 'string') return children;
@@ -19,22 +18,19 @@ const childrenToString = (children: ReactNode): string => {
 };
 
 export function FormattedMessage({ content, variant = "received" }: FormattedMessageProps) {
-  // Rimuovi i tag detailed_analysis se presenti
   const cleanContent = content.replace(/<detailed_analysis>[\s\S]*?<\/detailed_analysis>/g, '');
   
-  // Verifica se è un'analisi strutturata o una risposta di follow-up
   const isStructuredAnalysis = cleanContent.includes("✦") || 
                               cleanContent.includes("PERFORMANCE ANALYSIS") ||
                               cleanContent.includes("━━━");
 
-  // Per le risposte di follow-up, usa uno stile più semplice
   if (!isStructuredAnalysis) {
     return (
       <ChatBubbleMessage 
         variant={variant}
-        className="text-lg rounded-2xl"
+        className="text-lg rounded-2xl whitespace-pre-wrap break-words"
       >
-        <div className="prose prose-blue max-w-none text-gray-800">
+        <div className="prose prose-blue max-w-none text-gray-800 overflow-hidden">
           <ReactMarkdown
             components={{
               p: ({ children }) => <p className="mb-3">{childrenToString(children)}</p>,
@@ -59,75 +55,79 @@ export function FormattedMessage({ content, variant = "received" }: FormattedMes
     );
   }
 
-  // Per l'analisi strutturata, usa il nuovo stile grafico
   return (
     <ChatBubbleMessage 
       variant={variant}
-      className="text-lg rounded-2xl"
+      className="text-lg rounded-2xl w-full overflow-hidden"
     >
-      <div className="prose prose-blue max-w-none">
+      <div className="prose prose-blue max-w-none break-words w-full overflow-x-hidden">
         <ReactMarkdown
           components={{
-            // Titolo principale con stile speciale
+            // Titolo principale con logo hotel
             h1: ({ children }) => {
               const text = childrenToString(children);
               if (text.includes('✦')) {
                 return (
-                  <div className="text-xl font-bold mb-4 pb-2 border-b-2 border-gray-200">
-                    {text}
+                  <div className="flex flex-col gap-2 mb-6">
+                    <div className="text-xl font-bold text-gray-900">
+                      {text.split('|')[0].trim()}
+                    </div>
+                    <div className="text-lg text-gray-600">
+                      {text.split('|')[1].trim()}
+                    </div>
                   </div>
                 );
               }
-              return <h1>{children}</h1>;
+              return <h1 className="text-xl font-bold mb-4">{children}</h1>;
             },
-            
-            // Header delle sezioni con linee decorative
+
+            // Sezioni principali
             h2: ({ children }) => {
               const text = childrenToString(children);
-              if (text.includes('━━━')) {
-                return (
-                  <div className="mt-6 mb-4">
-                    <div className="font-semibold text-lg text-gray-900">{text.replace(/━/g, '')}</div>
-                    <div className="border-b-2 border-gray-200 mt-1"></div>
-                  </div>
-                );
-              }
               return (
-                <div className="flex items-center gap-2 mt-6 mb-4 font-semibold text-lg text-gray-900">
-                  {children}
+                <div className="mt-6 mb-4">
+                  <h2 className="font-semibold text-lg text-gray-900">
+                    {text.replace(/━+/g, '').trim()}
+                  </h2>
+                  <div className="border-b-2 border-gray-200 mt-1"></div>
                 </div>
               );
             },
 
-            // Box per le soluzioni raccomandate
+            // Box per le soluzioni
             pre: ({ children }) => {
               const text = childrenToString(children);
               if (text.includes('┌') && text.includes('┐')) {
+                const lines = text.split('\n').filter(line => 
+                  !line.includes('┌') && !line.includes('┐') && 
+                  !line.includes('└') && !line.includes('┘')
+                );
                 return (
-                  <Card className="bg-gray-50 p-4 my-4 border-2">
-                    <div className="font-medium mb-2">
-                      {text.split('\n').map((line, i) => (
-                        <div key={i} className={
-                          line.includes('┌') || line.includes('┐') || 
-                          line.includes('└') || line.includes('┘') ? 'hidden' : 
-                          line.includes('├') || line.includes('┤') ? 'border-b pb-2 mb-2' : ''
-                        }>
-                          {line.replace(/[├┤│]/g, '')}
+                  <Card className="bg-gray-50 p-4 my-4 overflow-hidden">
+                    <div className="space-y-2 break-words">
+                      {lines.map((line, i) => (
+                        <div key={i} className={`
+                          ${line.includes('├') || line.includes('┤') 
+                            ? 'font-semibold border-b pb-2' 
+                            : 'text-gray-600'}
+                          whitespace-pre-wrap break-words
+                        `}>
+                          {line.replace(/[├┤│]/g, '').trim()}
                         </div>
                       ))}
                     </div>
                   </Card>
                 );
               }
-              return <pre>{children}</pre>;
+              return <pre className="bg-gray-50 p-4 rounded-lg whitespace-pre-wrap break-words">{children}</pre>;
             },
 
-            // Statistiche e metriche
+            // Metriche e statistiche
             strong: ({ children }) => {
               if (!children) return null;
               const text = childrenToString(children);
               
-              // Badge per priorità e impatto
+              // Badge per priorità
               if (text.includes('⚠️') || text.includes('HIGH') || text.includes('MEDIUM') || text.includes('LOW')) {
                 return (
                   <Badge variant="outline" className={`ml-2 font-normal ${
@@ -140,7 +140,7 @@ export function FormattedMessage({ content, variant = "received" }: FormattedMes
                 );
               }
 
-              // Costi
+              // Badge per costi
               if (text.includes('€')) {
                 return (
                   <Badge variant="outline" className="ml-2 font-normal bg-blue-50 text-blue-700 border-blue-200">
@@ -149,42 +149,43 @@ export function FormattedMessage({ content, variant = "received" }: FormattedMes
                 );
               }
 
-              // ROI e altri indicatori numerici
+              // Numeri e percentuali
               if (text.includes('%') || text.match(/[+-]\d+(\.\d+)?/)) {
-                return (
-                  <span className="text-blue-600 font-semibold">
-                    {text}
-                  </span>
-                );
+                return <span className="text-blue-600 font-medium">{text}</span>;
               }
 
-              return <strong className="font-semibold text-gray-900">{children}</strong>;
+              return <strong className="font-semibold text-gray-900">{text}</strong>;
             },
 
-            // Lista con icone e spaziatura migliorata
+            // Liste con icone
             li: ({ children }) => {
               const text = childrenToString(children);
               if (text.startsWith('▸')) {
                 return (
-                  <div className="flex items-start gap-2 my-2 text-blue-600">
-                    <span className="mt-1">▸</span>
-                    <span>{text.substring(1)}</span>
+                  <div className="flex items-start gap-2 my-2">
+                    <span className="text-blue-500 flex-shrink-0">▸</span>
+                    <span className="flex-1">{text.substring(1)}</span>
                   </div>
                 );
               }
               return (
                 <div className="flex items-start gap-2 my-2">
-                  <span className="text-gray-400 mt-1">•</span>
-                  <span>{text}</span>
+                  <span className="text-gray-400 flex-shrink-0">•</span>
+                  <span className="flex-1">{text}</span>
                 </div>
               );
             },
 
-            // Citazioni dalle recensioni
+            // Citazioni
             blockquote: ({ children }) => (
               <div className="pl-4 border-l-2 border-blue-200 text-gray-600 my-2 italic bg-blue-50 p-2 rounded-r">
                 {children}
               </div>
+            ),
+
+            // Layout principale
+            p: ({ children }) => (
+              <p className="my-2 break-words">{children}</p>
             ),
           }}
         >

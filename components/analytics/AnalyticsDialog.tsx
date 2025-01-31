@@ -197,7 +197,14 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
       setMessages(prev => [...prev, { role: "user", content: prompt }])
       setInputValue("")
       
-      const { analysis } = await api.analytics.analyzeReviews(selectedReviews, prompt)
+      // Passa i messaggi precedenti solo se non è la prima analisi
+      const previousMessages = messages.length > 0 ? prompt : null
+      
+      const { analysis } = await api.analytics.analyzeReviews(
+        selectedReviews, 
+        prompt,
+        previousMessages  // Questo verrà usato dal backend per determinare se è un follow-up
+      )
       
       // Aggiungi messaggio vuoto per l'assistente
       setMessages(prev => [...prev, { role: "assistant", content: "" }])
