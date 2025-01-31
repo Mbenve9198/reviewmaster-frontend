@@ -194,23 +194,12 @@ export function FormattedMessage({ content, variant = "received" }: FormattedMes
             },
 
             // Liste con icone
-            li: ({ children }) => {
-              const text = childrenToString(children);
-              if (text.startsWith('▸')) {
-                return (
-                  <div className="flex items-start gap-2 my-2">
-                    <span className="text-blue-500 flex-shrink-0">▸</span>
-                    <span className="flex-1">{text.substring(1)}</span>
-                  </div>
-                );
-              }
-              return (
-                <div className="flex items-start gap-2 my-2">
-                  <span className="text-gray-400 flex-shrink-0">•</span>
-                  <span className="flex-1">{text}</span>
-                </div>
-              );
-            },
+            li: ({ children }) => (
+              <div className="flex items-baseline gap-2 mb-0.5">
+                <span className="text-gray-400 flex-shrink-0">•</span>
+                <span className="flex-1 -mt-1">{children}</span>
+              </div>
+            ),
 
             // Citazioni
             blockquote: ({ children }) => (
@@ -219,9 +208,24 @@ export function FormattedMessage({ content, variant = "received" }: FormattedMes
               </div>
             ),
 
-            // Layout principale
-            p: ({ children }) => (
-              <p className="my-2 break-words">{children}</p>
+            // Titoli numerati (es. "① Noise Insulation")
+            p: ({ children }) => {
+              const text = childrenToString(children);
+              if (text.match(/^[①②③]/)) {
+                return (
+                  <p className="font-bold text-lg text-gray-900 mb-2">
+                    {text}
+                  </p>
+                );
+              }
+              return <p className="mb-1">{text}</p>;
+            },
+
+            // Liste più compatte per i follow-up
+            ul: ({ children }) => (
+              <div className="space-y-0 my-1">
+                {children}
+              </div>
             ),
           }}
         >
