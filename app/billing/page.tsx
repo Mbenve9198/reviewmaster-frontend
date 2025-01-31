@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { CreditCard, Coins, Download, ArrowRight, TrendingUp, History, Plus, Minus } from 'lucide-react';
+import { Wallet, Sparkles, Download, ArrowRight, FileSpreadsheet, Clock, CirclePlus, CircleMinus, Rocket, PencilRuler } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useUser } from "@/hooks/use-user";
 import { useWallet } from "@/hooks/useWallet";
@@ -28,9 +28,9 @@ export default function BillingPage() {
 
   const creditUsageItems = [
     { icon: Download, label: "Download Review", cost: "0.1" },
-    { icon: CreditCard, label: "Generate Response", cost: "2" },
-    { icon: CreditCard, label: "Edit Response", cost: "1" },
-    { icon: TrendingUp, label: "Analysis Report", cost: "10-30" }
+    { icon: Rocket, label: "Generate Response", cost: "2" },
+    { icon: PencilRuler, label: "Edit Response", cost: "1" },
+    { icon: FileSpreadsheet, label: "Analysis Report", cost: "10-30" }
   ];
 
   return (
@@ -85,10 +85,10 @@ export default function BillingPage() {
 
                 <Button
                   onClick={() => setIsSliderOpen(true)}
-                  className="w-full bg-primary hover:bg-primary/90 text-white font-bold text-xl py-6 rounded-xl transition-all duration-300 transform hover:scale-[1.02] flex items-center justify-center gap-2"
+                  className="w-full bg-primary hover:bg-primary/90 text-white font-bold text-xl py-6 rounded-xl transition-all duration-300 transform hover:scale-[1.02] flex items-center justify-center gap-2 shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px]"
                 >
                   Buy More Credits
-                  <ArrowRight className="w-5 h-5" />
+                  <Sparkles className="w-5 h-5" />
                 </Button>
               </div>
             </div>
@@ -104,7 +104,7 @@ export default function BillingPage() {
               <div className="relative">
                 <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center">
                   <div className="p-3 bg-primary/10 rounded-xl mr-4">
-                    <CreditCard className="w-8 h-8 text-primary" />
+                    <Wallet className="w-8 h-8 text-primary" />
                   </div>
                   Credit Usage
                 </h2>
@@ -134,7 +134,7 @@ export default function BillingPage() {
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center">
                 <div className="p-3 bg-primary/10 rounded-xl">
-                  <History className="w-8 h-8 text-primary" />
+                  <Clock className="w-8 h-8 text-primary" />
                 </div>
                 <h2 className="text-2xl font-bold text-gray-800 ml-4">Recent Transactions</h2>
               </div>
@@ -156,9 +156,9 @@ export default function BillingPage() {
                         transaction.credits > 0 ? 'bg-green-100' : 'bg-red-100'
                       }`}>
                         {transaction.credits > 0 ? (
-                          <Plus className="w-5 h-5 text-green-600" />
+                          <CirclePlus className="w-5 h-5 text-green-600" />
                         ) : (
-                          <Minus className="w-5 h-5 text-red-600" />
+                          <CircleMinus className="w-5 h-5 text-red-600" />
                         )}
                       </div>
                       <div className="ml-3">
@@ -178,24 +178,16 @@ export default function BillingPage() {
               )}
             </div>
             
-            <div className="flex flex-col gap-3 mt-6">
-              {recentTransactions.length > 3 && (
+            {recentTransactions.length > 3 && (
+              <div className="mt-6">
                 <Button 
                   onClick={() => setIsTransactionsExpanded(!isTransactionsExpanded)}
                   className="w-full bg-primary hover:bg-primary/90 text-white font-bold text-xl py-6 rounded-xl transition-all duration-300 transform hover:scale-[1.02] flex items-center justify-center gap-2 shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px]"
                 >
-                  {isTransactionsExpanded ? 'Show Less' : 'Show More'}
+                  {isTransactionsExpanded ? 'Show Less' : `Show More (${recentTransactions.length - 3})`}
                 </Button>
-              )}
-              
-              <Button 
-                onClick={() => router.push('/billing/transactions')}
-                className="w-full bg-primary hover:bg-primary/90 text-white font-bold text-xl py-6 rounded-xl transition-all duration-300 transform hover:scale-[1.02] flex items-center justify-center gap-2 shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px]"
-              >
-                View All Transactions
-                <ArrowRight className="w-5 h-5" />
-              </Button>
-            </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -208,4 +200,3 @@ export default function BillingPage() {
       )}
     </div>
   );
-}
