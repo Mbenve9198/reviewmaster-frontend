@@ -138,7 +138,7 @@ export const authApi = {
 
 // Funzioni per l'analytics
 export const analyticsApi = {
-  analyzeReviews: async (reviews: any[], prompt: string) => {
+  analyzeReviews: async (reviews: any[], prompt: string, previousMessages?: string | null) => {
     const token = getCookie('token');
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/analytics/analyze`, {
       method: 'POST',
@@ -146,7 +146,7 @@ export const analyticsApi = {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ reviews, prompt })
+      body: JSON.stringify({ reviews, prompt, previousMessages })
     });
 
     if (!response.ok) {
