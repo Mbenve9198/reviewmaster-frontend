@@ -55,6 +55,25 @@ interface Review {
   };
 }
 
+interface FiltersAndTableProps {
+  searchQuery: string;
+  setSearchQuery: (value: string) => void;
+  hotel: string;
+  hotels: Hotel[];
+  handleFilterChange: (type: string, value: string) => void;
+  responseStatus: string;
+  platform: string;
+  ratingFilter: string;
+  resultsPerPage: number;
+  handleRefresh: () => void;
+  handleResultsPerPageChange: (value: number) => void;
+  setSelectedRows: (rows: Review[]) => void;
+  handleTableReady: (table: TableType<any>) => void;
+  tableInstance: TableType<any> | null;
+  selectedRows: Review[];
+  setIsAnalyticsDialogOpen: (value: boolean) => void;
+}
+
 const FiltersAndTable = ({ 
   searchQuery, 
   setSearchQuery, 
@@ -72,7 +91,7 @@ const FiltersAndTable = ({
   tableInstance,
   selectedRows,
   setIsAnalyticsDialogOpen
-}) => {
+}: FiltersAndTableProps) => {
   return (
     <div className="bg-white rounded-3xl border border-gray-200 shadow-lg overflow-hidden">
       <div className="p-6 border-b border-gray-100">
