@@ -9,13 +9,15 @@ import { useUser } from "@/hooks/use-user";
 import { useWallet } from "@/hooks/useWallet";
 import { HandWrittenTitle } from "@/components/ui/hand-writing-text";
 
+type CardType = 'credits' | 'usage' | null;
+
 export default function BillingPage() {
   const router = useRouter();
   const { user } = useUser();
   const { credits, freeScrapingRemaining, recentTransactions, isLoading } = useWallet();
   const [isSliderOpen, setIsSliderOpen] = useState(false);
   const [isTransactionsExpanded, setIsTransactionsExpanded] = useState(false);
-  const [activeCard, setActiveCard] = useState(null);
+  const [activeCard, setActiveCard] = useState<CardType>(null);
 
   const displayedTransactions = isTransactionsExpanded 
     ? recentTransactions 
