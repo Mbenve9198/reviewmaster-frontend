@@ -23,19 +23,17 @@ export default function BillingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[url('/tiles.png')] bg-repeat py-12">
+    <div className="min-h-screen bg-[url('/grain.svg')] bg-repeat py-12">
       {/* Header Section */}
       <div className="text-center mb-12">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           transition={{ duration: 0.5 }}
-          className="relative"
         >
-          <h1 className="text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-800 via-gray-500 to-gray-800 py-4">
-            Wallet
+          <h1 className="text-6xl font-bold text-gray-800 [text-shadow:_2px_2px_0_rgb(0_0_0_/_20%)]">
+            Wallet & Credits
           </h1>
-          <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-44 h-1 bg-gradient-to-r from-transparent via-gray-800 to-transparent" />
         </motion.div>
         <motion.p 
           className="text-xl text-gray-600 mt-4"
