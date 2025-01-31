@@ -197,26 +197,33 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
       setMessages(prev => [...prev, { role: "user", content: prompt }])
       setInputValue("")
       
-      // Passa i messaggi precedenti solo se non è la prima analisi
       const previousMessages = messages.length > 0 ? prompt : null
       
       const { analysis } = await api.analytics.analyzeReviews(
         selectedReviews, 
         prompt,
-        previousMessages  // Questo verrà usato dal backend per determinare se è un follow-up
+        previousMessages
       )
       
-      // Aggiungi messaggio vuoto per l'assistente
-      setMessages(prev => [...prev, { role: "assistant", content: "" }])
-      
-      // Avvia l'effetto di digitazione
-      await typeMessage(analysis)
-      
-      // Aggiorna il messaggio con il contenuto completo
-      setMessages(prev => [
-        ...prev.slice(0, -1),
-        { role: "assistant", content: analysis }
-      ])
+      // Se è la prima analisi (non ci sono messaggi precedenti), mostra subito il risultato
+      if (!previousMessages) {
+        setMessages(prev => [...prev, { role: "assistant", content: analysis }])
+      } else {
+        // Per i follow-up, usa l'animazione di typing
+        setCurrentTypingContent(analysis)
+        const words = analysis.split(' ')
+        let currentText = ''
+        
+        for (let i = 0; i < words.length; i++) {
+          currentText += words[i] + ' '
+          setCurrentTypingContent(currentText)
+          await new Promise(resolve => setTimeout(resolve, 50))
+        }
+        
+        setMessages(prev => [...prev, { role: "assistant", content: analysis }])
+        setCurrentTypingContent('')
+      }
+
     } catch (error: any) {
       console.error("Analysis error:", error)
       toast.error(error.message || "Errore durante l'analisi")
