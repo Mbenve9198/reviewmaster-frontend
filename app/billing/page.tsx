@@ -10,6 +10,7 @@ import { getCookie } from "@/lib/utils"
 import { useWallet } from "@/hooks/useWallet"
 import { useEffect, useState } from "react"
 import CreditPurchaseSlider from "@/components/billing/CreditPurchaseSlider"
+import { motion } from "framer-motion"
 
 export default function BillingPage() {
   const router = useRouter()
@@ -22,11 +23,28 @@ export default function BillingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white py-12">
+    <div className="min-h-screen bg-[url('/tiles.png')] bg-repeat py-12">
       {/* Header Section */}
       <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold text-gray-800 mb-4">Wallet & Credits</h1>
-        <p className="text-xl text-gray-600">Manage your credits and usage</p>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="relative"
+        >
+          <h1 className="text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-800 via-gray-500 to-gray-800 py-4">
+            Wallet
+          </h1>
+          <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-44 h-1 bg-gradient-to-r from-transparent via-gray-800 to-transparent" />
+        </motion.div>
+        <motion.p 
+          className="text-xl text-gray-600 mt-4"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+        >
+          Manage your credits and usage
+        </motion.p>
       </div>
 
       <div className="max-w-4xl mx-auto px-6">
