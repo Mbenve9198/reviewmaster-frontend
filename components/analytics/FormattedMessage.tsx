@@ -1,236 +1,283 @@
 import { ChatBubbleMessage } from "@/components/ui/chat-bubble"
-import ReactMarkdown from 'react-markdown'
-import { Badge } from "@/components/ui/badge"
 import { Card } from "@/components/ui/card"
-import { ReactNode } from "react"
+import { Badge } from "@/components/ui/badge"
+import { ArrowDown, ArrowUp, Minus } from "lucide-react"
 
 interface FormattedMessageProps {
   content: string
   variant?: "sent" | "received"
 }
 
-const childrenToString = (children: ReactNode): string => {
-  if (children === null || children === undefined) return '';
-  if (typeof children === 'string') return children;
-  if (typeof children === 'number') return children.toString();
-  if (Array.isArray(children)) return children.join('');
-  return '';
-};
+interface AnalysisData {
+  meta: {
+    hotelName: string
+    reviewCount: number
+    avgRating: number
+    platforms: string
+  }
+  sentiment: {
+    excellent: string
+    average: string
+    needsImprovement: string
+    distribution: {
+      rating5: string
+      rating4: string
+      rating3: string
+      rating2: string
+      rating1: string
+    }
+  }
+  strengths: Array<{
+    title: string
+    impact: string
+    mentions: number
+    quote: string
+    details: string
+    marketingTips: Array<{
+      action: string
+      cost: string
+      roi: string
+    }>
+  }>
+  issues: Array<{
+    title: string
+    priority: "HIGH" | "MEDIUM" | "LOW"
+    impact: string
+    mentions: number
+    quote: string
+    details: string
+    solution: {
+      title: string
+      timeline: string
+      cost: string
+      roi: string
+      steps: string[]
+    }
+  }>
+  quickWins: Array<{
+    action: string
+    timeline: string
+    cost: string
+    impact: string
+  }>
+  trends: Array<{
+    metric: string
+    change: string
+    period: string
+  }>
+}
+
+const StatsCard = ({ label, value, trend }: { label: string; value: string; trend?: string }) => (
+  <div className="text-center p-3 bg-gray-50 rounded-lg">
+    <div className="text-sm text-gray-500 mb-1">{label}</div>
+    <div className="text-xl font-bold">{value}</div>
+    {trend && (
+      <div className={`text-sm flex items-center justify-center gap-1 ${
+        trend.startsWith('+') ? 'text-green-600' : 
+        trend.startsWith('-') ? 'text-red-600' : 
+        'text-gray-600'
+      }`}>
+        {trend.startsWith('+') ? <ArrowUp className="w-3 h-3" /> :
+         trend.startsWith('-') ? <ArrowDown className="w-3 h-3" /> :
+         <Minus className="w-3 h-3" />}
+        {trend}
+      </div>
+    )}
+  </div>
+);
+
+const StrengthCard = ({ strength }: { strength: AnalysisData['strengths'][0] }) => (
+  <Card className="bg-gradient-to-br from-green-50 to-green-100/50 p-4 space-y-2">
+    <div className="flex justify-between items-start">
+      <h3 className="font-semibold text-green-800">{strength.title}</h3>
+      <Badge variant="outline" className="bg-white">+{strength.impact} impact</Badge>
+    </div>
+    <blockquote className="border-l-2 border-green-200 pl-3 py-1 text-sm italic text-gray-600">
+      "{strength.quote}"
+    </blockquote>
+    <div className="text-sm text-gray-600">{strength.details}</div>
+    {strength.marketingTips.length > 0 && (
+      <div className="border-t border-green-200/50 pt-2 mt-2 space-y-1">
+        <div className="text-sm font-medium text-green-800">Marketing Opportunities:</div>
+        {strength.marketingTips.map((tip, i) => (
+          <div key={i} className="flex items-center justify-between text-sm">
+            <span>{tip.action}</span>
+            <div className="flex items-center gap-2">
+              <Badge variant="outline" className="bg-white">{tip.cost}</Badge>
+              <Badge variant="outline" className="bg-white">ROI: {tip.roi}</Badge>
+            </div>
+          </div>
+        ))}
+      </div>
+    )}
+  </Card>
+);
+
+const IssueCard = ({ issue }: { issue: AnalysisData['issues'][0] }) => (
+  <Card className="bg-gradient-to-br from-red-50 to-red-100/50 p-4 space-y-2">
+    <div className="flex justify-between items-start">
+      <h3 className="font-semibold text-red-800">{issue.title}</h3>
+      <div className="flex items-center gap-2">
+        <Badge variant="outline" className={`
+          ${issue.priority === 'HIGH' ? 'bg-red-100 text-red-800 border-red-200' :
+            issue.priority === 'MEDIUM' ? 'bg-yellow-100 text-yellow-800 border-yellow-200' :
+            'bg-green-100 text-green-800 border-green-200'}
+        `}>
+          {issue.priority}
+        </Badge>
+        <Badge variant="outline" className="bg-white">{issue.impact} impact</Badge>
+      </div>
+    </div>
+    <blockquote className="border-l-2 border-red-200 pl-3 py-1 text-sm italic text-gray-600">
+      "{issue.quote}"
+    </blockquote>
+    <div className="text-sm text-gray-600">{issue.details}</div>
+    <Card className="bg-white p-3">
+      <div className="font-medium text-red-800 mb-2">{issue.solution.title}</div>
+      <div className="grid grid-cols-3 gap-2 text-sm mb-3">
+        <div className="text-center p-2 bg-gray-50 rounded">
+          <div className="text-gray-500 text-xs mb-1">Timeline</div>
+          <div>{issue.solution.timeline}</div>
+        </div>
+        <div className="text-center p-2 bg-gray-50 rounded">
+          <div className="text-gray-500 text-xs mb-1">Cost</div>
+          <div>{issue.solution.cost}</div>
+        </div>
+        <div className="text-center p-2 bg-gray-50 rounded">
+          <div className="text-gray-500 text-xs mb-1">ROI</div>
+          <div>{issue.solution.roi}</div>
+        </div>
+      </div>
+      <div className="space-y-1">
+        {issue.solution.steps.map((step, i) => (
+          <div key={i} className="flex items-start gap-2 text-sm">
+            <span className="text-red-400 mt-1">•</span>
+            <span>{step}</span>
+          </div>
+        ))}
+      </div>
+    </Card>
+  </Card>
+);
+
+const QuickWinsCard = ({ quickWins }: { quickWins: AnalysisData['quickWins'] }) => (
+  <Card className="bg-gradient-to-br from-purple-50 to-purple-100/50 p-4">
+    <h3 className="font-semibold text-purple-800 mb-3">Quick Wins</h3>
+    <div className="space-y-2">
+      {quickWins.map((win, i) => (
+        <div key={i} className="flex items-center justify-between text-sm">
+          <div className="flex items-center gap-2">
+            <span className="text-purple-400">▸</span>
+            <span>{win.action}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Badge variant="outline" className="bg-white">{win.timeline}</Badge>
+            <Badge variant="outline" className="bg-white">{win.cost}</Badge>
+          </div>
+        </div>
+      ))}
+    </div>
+  </Card>
+);
 
 export function FormattedMessage({ content, variant = "received" }: FormattedMessageProps) {
-  const cleanContent = content.replace(/<detailed_analysis>[\s\S]*?<\/detailed_analysis>/g, '');
-  
-  const isStructuredAnalysis = cleanContent.includes("✦") || 
-                              cleanContent.includes("PERFORMANCE ANALYSIS") ||
-                              cleanContent.includes("━━━");
+  // Verifica se il contenuto è JSON
+  let analysisData: AnalysisData | null = null;
+  try {
+    const parsed = JSON.parse(content);
+    if (parsed.meta && parsed.sentiment && parsed.strengths) {
+      analysisData = parsed;
+    }
+  } catch (e) {
+    // Non è JSON, lo trattiamo come testo normale
+  }
 
-  if (!isStructuredAnalysis) {
+  // Se non è JSON strutturato, mostra come messaggio normale
+  if (!analysisData) {
     return (
       <ChatBubbleMessage 
         variant={variant}
-        className="text-lg rounded-2xl whitespace-pre-wrap break-words"
+        className="text-base rounded-2xl whitespace-pre-wrap"
       >
-        <div className="prose prose-blue max-w-none text-gray-800 overflow-hidden">
-          <ReactMarkdown
-            components={{
-              p: ({ children }) => <p className="mb-2">{childrenToString(children)}</p>,
-              blockquote: ({ children }) => (
-                <div className="pl-4 border-l-2 border-gray-200 text-gray-600 my-2 italic">
-                  {children}
-                </div>
-              ),
-              strong: ({ children }) => <strong className="font-semibold text-gray-900">{children}</strong>,
-              li: ({ children }) => (
-                <div className="flex items-start gap-2 my-0.5">
-                  <span className="text-gray-400 mt-0.5 flex-shrink-0">•</span>
-                  <span className="flex-1">{children}</span>
-                </div>
-              ),
-              ul: ({ children }) => (
-                <div className="space-y-0.5 my-1">
-                  {children}
-                </div>
-              )
-            }}
-          >
-            {cleanContent}
-          </ReactMarkdown>
-        </div>
+        {content}
       </ChatBubbleMessage>
     );
   }
 
+  // Rendering dell'analisi strutturata
   return (
     <ChatBubbleMessage 
       variant={variant}
-      className="text-lg rounded-2xl w-full overflow-hidden"
+      className="rounded-2xl overflow-hidden p-0"
     >
-      <div className="prose prose-blue max-w-none break-words w-full overflow-x-hidden">
-        <ReactMarkdown
-          components={{
-            // Titolo principale con logo hotel
-            h1: ({ children }) => {
-              const text = childrenToString(children);
-              if (text.includes('✦')) {
-                return (
-                  <div className="flex flex-col gap-2 mb-6">
-                    <div className="text-xl font-bold text-gray-900">
-                      {text.split('|')[0].trim()}
-                    </div>
-                    <div className="text-lg text-gray-600">
-                      {text.split('|')[1].trim()}
-                    </div>
-                  </div>
-                );
-              }
-              return <h1 className="text-xl font-bold mb-4">{children}</h1>;
-            },
+      <div className="space-y-6 p-4">
+        {/* Header con meta info */}
+        <div className="text-center pb-4 border-b">
+          <h2 className="text-xl font-bold text-gray-900">{analysisData.meta.hotelName}</h2>
+          <p className="text-sm text-gray-500 mt-1">
+            Analysis based on {analysisData.meta.reviewCount} reviews from {analysisData.meta.platforms}
+          </p>
+        </div>
 
-            // Sezioni principali
-            h2: ({ children }) => {
-              const text = childrenToString(children);
-              const isPositive = text.includes('STRENGTHS') || text.includes('GROWTH');
-              const isNegative = text.includes('IMPROVEMENT');
-              
-              return (
-                <div className="mt-6 mb-4">
-                  <h2 className={`font-bold text-lg ${
-                    isPositive ? 'text-green-600' : 
-                    isNegative ? 'text-red-600' : 
-                    'text-gray-900'
-                  }`}>
-                    {text.replace(/━+/g, '').trim()}
-                  </h2>
-                  <div className={`border-b-2 mt-1 ${
-                    isPositive ? 'border-green-200' : 
-                    isNegative ? 'border-red-200' : 
-                    'border-gray-200'
-                  }`}></div>
-                </div>
-              );
-            },
+        {/* Stats Overview */}
+        <div className="grid grid-cols-4 gap-4">
+          <StatsCard 
+            label="Average Rating" 
+            value={analysisData.meta.avgRating.toString()}
+          />
+          <StatsCard 
+            label="Excellent" 
+            value={analysisData.sentiment.excellent}
+          />
+          <StatsCard 
+            label="Average" 
+            value={analysisData.sentiment.average}
+          />
+          <StatsCard 
+            label="Needs Work" 
+            value={analysisData.sentiment.needsImprovement}
+          />
+        </div>
 
-            // Sottotitoli e altre sezioni
-            h3: ({ children }) => {
-              const text = childrenToString(children);
-              const isPositive = text.includes('STRENGTH') || text.includes('positive');
-              const isNegative = text.includes('ISSUE') || text.includes('negative');
-              
-              return (
-                <h3 className={`font-bold mt-4 mb-2 ${
-                  isPositive ? 'text-green-600' : 
-                  isNegative ? 'text-red-600' : 
-                  'text-gray-900'
-                }`}>
-                  {children}
-                </h3>
-              );
-            },
+        {/* Key Strengths */}
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold flex items-center gap-2">
+            <span>💪</span> Key Strengths
+          </h3>
+          {analysisData.strengths.map((strength, i) => (
+            <StrengthCard key={i} strength={strength} />
+          ))}
+        </div>
 
-            // Box per le soluzioni
-            pre: ({ children }) => {
-              const text = childrenToString(children);
-              if (text.includes('┌') && text.includes('┐')) {
-                const lines = text.split('\n').filter(line => 
-                  !line.includes('┌') && !line.includes('┐') && 
-                  !line.includes('└') && !line.includes('┘')
-                );
-                return (
-                  <Card className="bg-gray-50 p-4 my-4 overflow-hidden">
-                    <div className="space-y-2 break-words">
-                      {lines.map((line, i) => (
-                        <div key={i} className={`
-                          ${line.includes('├') || line.includes('┤') 
-                            ? 'font-semibold border-b pb-2' 
-                            : 'text-gray-600'}
-                          whitespace-pre-wrap break-words
-                        `}>
-                          {line.replace(/[├┤│]/g, '').trim()}
-                        </div>
-                      ))}
-                    </div>
-                  </Card>
-                );
-              }
-              return <pre className="bg-gray-50 p-4 rounded-lg whitespace-pre-wrap break-words">{children}</pre>;
-            },
+        {/* Critical Issues */}
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold flex items-center gap-2">
+            <span>⚠️</span> Critical Issues
+          </h3>
+          {analysisData.issues.map((issue, i) => (
+            <IssueCard key={i} issue={issue} />
+          ))}
+        </div>
 
-            // Metriche e statistiche
-            strong: ({ children }) => {
-              if (!children) return null;
-              const text = childrenToString(children);
-              
-              // Badge per priorità
-              if (text.includes('⚠️') || text.includes('HIGH') || text.includes('MEDIUM') || text.includes('LOW')) {
-                return (
-                  <Badge variant="outline" className={`ml-2 font-normal ${
-                    text.includes('HIGH') ? 'bg-red-50 text-red-700 border-red-200' :
-                    text.includes('MEDIUM') ? 'bg-yellow-50 text-yellow-700 border-yellow-200' :
-                    'bg-green-50 text-green-700 border-green-200'
-                  }`}>
-                    {text}
-                  </Badge>
-                );
-              }
+        {/* Quick Wins */}
+        {analysisData.quickWins.length > 0 && (
+          <QuickWinsCard quickWins={analysisData.quickWins} />
+        )}
 
-              // Badge per costi
-              if (text.includes('€')) {
-                return (
-                  <Badge variant="outline" className="ml-2 font-normal bg-blue-50 text-blue-700 border-blue-200">
-                    {text}
-                  </Badge>
-                );
-              }
-
-              // Numeri positivi/negativi
-              if (text.match(/[+]\d+/)) {
-                return <span className="text-green-600 font-medium">{text}</span>;
-              }
-              if (text.match(/[-]\d+/)) {
-                return <span className="text-red-600 font-medium">{text}</span>;
-              }
-
-              return <strong className="font-semibold text-gray-900">{text}</strong>;
-            },
-
-            // Liste con icone
-            li: ({ children }) => (
-              <div className="flex items-baseline gap-2 mb-0.5">
-                <span className="text-gray-400 flex-shrink-0">•</span>
-                <span className="flex-1 -mt-1">{children}</span>
-              </div>
-            ),
-
-            // Citazioni
-            blockquote: ({ children }) => (
-              <div className="pl-4 border-l-2 border-blue-200 text-gray-600 my-2 italic bg-blue-50 p-2 rounded-r">
-                {children}
-              </div>
-            ),
-
-            // Titoli numerati (es. "① Noise Insulation")
-            p: ({ children }) => {
-              const text = childrenToString(children);
-              if (text.match(/^[①②③]/)) {
-                return (
-                  <p className="font-bold text-lg text-gray-900 mb-2">
-                    {text}
-                  </p>
-                );
-              }
-              return <p className="mb-1">{text}</p>;
-            },
-
-            // Liste più compatte per i follow-up
-            ul: ({ children }) => (
-              <div className="space-y-0 my-1">
-                {children}
-              </div>
-            ),
-          }}
-        >
-          {cleanContent}
-        </ReactMarkdown>
+        {/* Trends */}
+        <Card className="bg-gradient-to-br from-gray-50 to-gray-100/50 p-4">
+          <h3 className="font-semibold text-gray-800 mb-3">Recent Trends</h3>
+          <div className="grid grid-cols-3 gap-4">
+            {analysisData.trends.map((trend, i) => (
+              <StatsCard
+                key={i}
+                label={trend.metric}
+                value={trend.change}
+                trend={trend.change}
+              />
+            ))}
+          </div>
+        </Card>
       </div>
     </ChatBubbleMessage>
   );
