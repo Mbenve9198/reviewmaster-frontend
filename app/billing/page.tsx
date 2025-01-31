@@ -9,6 +9,8 @@ import { useUser } from "@/hooks/use-user";
 import { useWallet } from "@/hooks/useWallet";
 import CreditPurchaseSlider from "@/components/billing/CreditPurchaseSlider";
 import { HandWrittenTitle } from "@/components/ui/hand-writing-text";
+import { Tiles } from "@/components/ui/tiles";
+import Image from "next/image"
 
 type CardType = 'credits' | 'usage' | null;
 
@@ -32,7 +34,14 @@ export default function BillingPage() {
   ];
 
   return (
-    <div className="min-h-screen py-12 md:pl-[100px] bg-gradient-to-br from-blue-50 to-indigo-50">
+    <div className="min-h-screen py-12 md:pl-[100px]">
+      <Tiles 
+        className="fixed inset-0 -z-10" 
+        rows={100}
+        cols={20}
+        tileSize="md"
+      />
+      
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <HandWrittenTitle 
           title="Wallet"
@@ -52,9 +61,13 @@ export default function BillingPage() {
               <div className="relative">
                 <div className="flex items-center justify-between mb-8">
                   <div className="flex items-center">
-                    <div className="p-3 bg-primary/10 rounded-xl">
-                      <Coins className="w-8 h-8 text-primary" />
-                    </div>
+                    <Image
+                      src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/billing-Y6wfuqXGbZ7TIpFrhCoDQMjXShiPgI.png"
+                      alt=""
+                      width={48}
+                      height={48}
+                      className="w-9 h-9 flex-shrink-0"
+                    />
                     <h2 className="text-2xl font-bold text-gray-800 ml-4">Available Credits</h2>
                   </div>
                   <span className="text-4xl font-bold text-primary">
@@ -168,20 +181,19 @@ export default function BillingPage() {
             <div className="flex flex-col gap-3 mt-6">
               {recentTransactions.length > 3 && (
                 <Button 
-                  variant="outline" 
-                  className="w-full hover:bg-gray-50 transition-colors duration-200"
                   onClick={() => setIsTransactionsExpanded(!isTransactionsExpanded)}
+                  className="w-full bg-primary hover:bg-primary/90 text-white font-bold text-xl py-6 rounded-xl transition-all duration-300 transform hover:scale-[1.02] flex items-center justify-center gap-2 shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px]"
                 >
                   {isTransactionsExpanded ? 'Show Less' : 'Show More'}
                 </Button>
               )}
               
               <Button 
-                variant="outline" 
-                className="w-full hover:bg-gray-50 transition-colors duration-200"
                 onClick={() => router.push('/billing/transactions')}
+                className="w-full bg-primary hover:bg-primary/90 text-white font-bold text-xl py-6 rounded-xl transition-all duration-300 transform hover:scale-[1.02] flex items-center justify-center gap-2 shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px]"
               >
                 View All Transactions
+                <ArrowRight className="w-5 h-5" />
               </Button>
             </div>
           </div>
