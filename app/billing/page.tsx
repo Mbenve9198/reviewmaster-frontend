@@ -3,7 +3,18 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Wallet, Sparkles, Download, ArrowRight, FileSpreadsheet, Clock, CirclePlus, CircleMinus, Rocket, PencilRuler } from 'lucide-react';
+import { 
+  Wallet, 
+  Sparkles, 
+  Download, 
+  ArrowRight, 
+  FileSpreadsheet, 
+  Clock, 
+  PlusCircle, 
+  MinusCircle, 
+  Rocket, 
+  PencilRuler 
+} from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useUser } from "@/hooks/use-user";
 import { useWallet } from "@/hooks/useWallet";
@@ -156,9 +167,9 @@ export default function BillingPage() {
                         transaction.credits > 0 ? 'bg-green-100' : 'bg-red-100'
                       }`}>
                         {transaction.credits > 0 ? (
-                          <CirclePlus className="w-5 h-5 text-green-600" />
+                          <PlusCircle className="w-5 h-5 text-green-600" />
                         ) : (
-                          <CircleMinus className="w-5 h-5 text-red-600" />
+                          <MinusCircle className="w-5 h-5 text-red-600" />
                         )}
                       </div>
                       <div className="ml-3">
