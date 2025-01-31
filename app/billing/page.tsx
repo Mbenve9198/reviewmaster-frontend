@@ -7,6 +7,7 @@ import { CreditCard, Coins, Download, ArrowRight, TrendingUp, History, Plus, Min
 import { useRouter } from 'next/navigation';
 import { useUser } from "@/hooks/use-user";
 import { useWallet } from "@/hooks/useWallet";
+import CreditPurchaseSlider from "@/components/billing/CreditPurchaseSlider";
 import { HandWrittenTitle } from "@/components/ui/hand-writing-text";
 
 type CardType = 'credits' | 'usage' | null;
