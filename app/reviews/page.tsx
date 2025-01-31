@@ -55,6 +55,141 @@ interface Review {
   };
 }
 
+const FiltersAndTable = ({ 
+  searchQuery, 
+  setSearchQuery, 
+  hotel, 
+  hotels,
+  handleFilterChange,
+  responseStatus,
+  platform,
+  ratingFilter,
+  resultsPerPage,
+  handleRefresh,
+  handleResultsPerPageChange,
+  setSelectedRows,
+  handleTableReady,
+  tableInstance,
+  selectedRows,
+  setIsAnalyticsDialogOpen
+}) => {
+  return (
+    <div className="bg-white rounded-3xl border border-gray-200 shadow-lg overflow-hidden">
+      <div className="p-6 border-b border-gray-100">
+        <div className="flex flex-wrap items-center gap-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <Input
+              placeholder="Search reviews..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 w-[200px] rounded-xl border-gray-200 focus:border-primary focus:ring-primary bg-white/50 text-sm"
+            />
+          </div>
+
+          <Select
+            value={hotel}
+            onValueChange={(value) => handleFilterChange('hotel', value)}
+          >
+            <SelectTrigger className="h-9 w-[180px] rounded-xl border-gray-200 focus:border-primary focus:ring-primary bg-white/50 text-sm">
+              <SelectValue placeholder="Select property" className="text-sm" />
+            </SelectTrigger>
+            <SelectContent>
+              {hotels.map((h) => (
+                <SelectItem key={h._id} value={h._id} className="text-sm">
+                  {h.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select
+            value={responseStatus}
+            onValueChange={(value) => handleFilterChange('responseStatus', value)}
+          >
+            <SelectTrigger className="h-9 w-[180px] rounded-xl border-gray-200 focus:border-primary focus:ring-primary bg-white/50 text-sm">
+              <SelectValue placeholder="Response Status" className="text-sm" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all" className="text-sm">All Reviews</SelectItem>
+              <SelectItem value="responded" className="text-sm">Responded</SelectItem>
+              <SelectItem value="not_responded" className="text-sm">Not Responded</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select
+            value={platform}
+            onValueChange={(value) => handleFilterChange('platform', value)}
+          >
+            <SelectTrigger className="h-9 w-[180px] rounded-xl border-gray-200 focus:border-primary focus:ring-primary bg-white/50 text-sm">
+              <SelectValue placeholder="Platform" className="text-sm" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all" className="text-sm">All Platforms</SelectItem>
+              <SelectItem value="google" className="text-sm">Google</SelectItem>
+              <SelectItem value="booking" className="text-sm">Booking.com</SelectItem>
+              <SelectItem value="tripadvisor" className="text-sm">TripAdvisor</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select
+            value={ratingFilter}
+            onValueChange={(value) => handleFilterChange('rating', value)}
+          >
+            <SelectTrigger className="h-9 w-[180px] rounded-xl border-gray-200 focus:border-primary focus:ring-primary bg-white/50 text-sm">
+              <SelectValue placeholder="Rating" className="text-sm" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all" className="text-sm">All Ratings</SelectItem>
+              <SelectItem value="5" className="text-sm">5 Stars & Up</SelectItem>
+              <SelectItem value="4" className="text-sm">4 Stars & Up</SelectItem>
+              <SelectItem value="3" className="text-sm">3 Stars & Up</SelectItem>
+              <SelectItem value="2" className="text-sm">2 Stars & Up</SelectItem>
+              <SelectItem value="1" className="text-sm">1 Star & Up</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <div className="ml-auto flex items-center gap-3">
+            {tableInstance && <ColumnsDropdown table={tableInstance} />}
+
+            <Button
+              variant="default"
+              size="sm"
+              onClick={() => {
+                if (selectedRows.length === 0) {
+                  toast.error("Please select at least one review");
+                  return;
+                }
+                setIsAnalyticsDialogOpen(true);
+              }}
+              className="rounded-xl flex items-center gap-2 bg-primary text-primary-foreground shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all"
+              disabled={selectedRows.length === 0}
+            >
+              <BarChart2 className="h-4 w-4" />
+              Analyze Reviews
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      <div className="p-6">
+        <ReviewsTable
+          searchQuery={searchQuery}
+          property={hotel}
+          responseStatus={responseStatus}
+          platform={platform}
+          ratingFilter={ratingFilter}
+          resultsPerPage={resultsPerPage}
+          onRefresh={handleRefresh}
+          onResultsPerPageChange={handleResultsPerPageChange}
+          onSelectionChange={setSelectedRows}
+          onTableReady={handleTableReady}
+        />
+      </div>
+    </div>
+  );
+};
+
 export default function ReviewsPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [hotel, setHotel] = useState("all")
@@ -230,125 +365,32 @@ export default function ReviewsPage() {
         />
         <Toaster position="top-right" />
         
-        <div className="flex flex-col">
-          <div className="mb-8">
-            <div className="flex items-center justify-center px-6">
-              <div className="flex items-center gap-4 max-w-[1200px] w-full">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                  <Input
-                    placeholder="Search"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 w-[140px] rounded-xl border-gray-200 focus:border-primary focus:ring-primary bg-white text-sm"
-                  />
-                </div>
-
-                <Select
-                  value={hotel}
-                  onValueChange={(value) => handleFilterChange('hotel', value)}
-                >
-                  <SelectTrigger className="h-9 w-[160px] rounded-xl border-gray-200 focus:border-primary focus:ring-primary bg-white text-sm">
-                    <SelectValue placeholder="Property" className="text-sm" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {hotels.map((h) => (
-                      <SelectItem key={h._id} value={h._id} className="text-sm">
-                        {h.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-
-                <Select
-                  value={responseStatus}
-                  onValueChange={(value) => handleFilterChange('responseStatus', value)}
-                >
-                  <SelectTrigger className="h-9 w-[160px] rounded-xl border-gray-200 focus:border-primary focus:ring-primary bg-white text-sm">
-                    <SelectValue placeholder="Response Status" className="text-sm" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all" className="text-sm">All Reviews</SelectItem>
-                    <SelectItem value="responded" className="text-sm">Responded</SelectItem>
-                    <SelectItem value="not_responded" className="text-sm">Not Responded</SelectItem>
-                  </SelectContent>
-                </Select>
-
-                <Select
-                  value={platform}
-                  onValueChange={(value) => handleFilterChange('platform', value)}
-                >
-                  <SelectTrigger className="h-9 w-[160px] rounded-xl border-gray-200 focus:border-primary focus:ring-primary bg-white text-sm">
-                    <SelectValue placeholder="Platform" className="text-sm" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all" className="text-sm">All Platforms</SelectItem>
-                    <SelectItem value="google" className="text-sm">Google</SelectItem>
-                    <SelectItem value="booking" className="text-sm">Booking.com</SelectItem>
-                    <SelectItem value="tripadvisor" className="text-sm">TripAdvisor</SelectItem>
-                  </SelectContent>
-                </Select>
-
-                <Select
-                  value={ratingFilter}
-                  onValueChange={(value) => handleFilterChange('rating', value)}
-                >
-                  <SelectTrigger className="h-9 w-[160px] rounded-xl border-gray-200 focus:border-primary focus:ring-primary bg-white text-sm">
-                    <SelectValue placeholder="Rating" className="text-sm" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all" className="text-sm">All Ratings</SelectItem>
-                    <SelectItem value="5" className="text-sm">5 Stars & Up</SelectItem>
-                    <SelectItem value="4" className="text-sm">4 Stars & Up</SelectItem>
-                    <SelectItem value="3" className="text-sm">3 Stars & Up</SelectItem>
-                    <SelectItem value="2" className="text-sm">2 Stars & Up</SelectItem>
-                    <SelectItem value="1" className="text-sm">1 Star & Up</SelectItem>
-                  </SelectContent>
-                </Select>
-
-                {tableInstance && <ColumnsDropdown table={tableInstance} />}
-
-                <Button
-                  variant="default"
-                  size="sm"
-                  onClick={() => {
-                    if (selectedRows.length === 0) {
-                      toast.error("Please select at least one review to analyze")
-                      return
-                    }
-                    setIsAnalyticsDialogOpen(true)
-                  }}
-                  className="rounded-xl flex items-center gap-2 bg-primary text-primary-foreground shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all"
-                  disabled={selectedRows.length === 0}
-                >
-                  <BarChart2 className="h-4 w-4" />
-                  Analyze Reviews
-                </Button>
-              </div>
-            </div>
-          </div>
-
-          <div className="relative">
-            <ReviewsTable
-              searchQuery={searchQuery}
-              property={hotel}
-              responseStatus={responseStatus}
-              platform={platform}
-              ratingFilter={ratingFilter}
-              resultsPerPage={resultsPerPage}
-              onRefresh={handleRefresh}
-              onResultsPerPageChange={handleResultsPerPageChange}
-              onSelectionChange={setSelectedRows}
-              onTableReady={handleTableReady}
-            />
-
-            <AnalyticsDialog 
-              isOpen={isAnalyticsDialogOpen}
-              onClose={() => setIsAnalyticsDialogOpen(false)}
-              selectedReviews={selectedRows}
-            />
-          </div>
+        <div className="flex flex-col max-w-[1400px] mx-auto w-full">
+          <FiltersAndTable 
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            hotel={hotel}
+            hotels={hotels}
+            handleFilterChange={handleFilterChange}
+            responseStatus={responseStatus}
+            platform={platform}
+            ratingFilter={ratingFilter}
+            resultsPerPage={resultsPerPage}
+            handleRefresh={handleRefresh}
+            handleResultsPerPageChange={handleResultsPerPageChange}
+            setSelectedRows={setSelectedRows}
+            handleTableReady={handleTableReady}
+            tableInstance={tableInstance}
+            selectedRows={selectedRows}
+            setIsAnalyticsDialogOpen={setIsAnalyticsDialogOpen}
+          />
         </div>
+
+        <AnalyticsDialog 
+          isOpen={isAnalyticsDialogOpen}
+          onClose={() => setIsAnalyticsDialogOpen(false)}
+          selectedReviews={selectedRows}
+        />
       </div>
     </>
   )
