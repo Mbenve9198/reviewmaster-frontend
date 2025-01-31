@@ -1,7 +1,6 @@
 import { ChatBubbleMessage } from "@/components/ui/chat-bubble"
 import ReactMarkdown from 'react-markdown'
 import { Badge } from "@/components/ui/badge"
-import { Card } from "@/components/ui/card"
 
 interface FormattedMessageProps {
   content: string
@@ -9,50 +8,48 @@ interface FormattedMessageProps {
 }
 
 export function FormattedMessage({ content, variant = "received" }: FormattedMessageProps) {
-  // Verifica se il contenuto è un'analisi strutturata o una risposta di follow-up
-  const isStructuredAnalysis = content.includes("====================") || 
-                              content.includes("📊 PANORAMICA") || 
-                              content.includes("⚠️ PROBLEMI CHIAVE") ||
-                              content.includes("💪 PUNTI DI FORZA");
+  // Rimuovi i tag detailed_analysis se presenti
+  const cleanContent = content.replace(/<detailed_analysis>[\s\S]*?<\/detailed_analysis>/g, '');
+  
+  // Verifica se è un'analisi strutturata o una risposta di follow-up
+  const isStructuredAnalysis = cleanContent.includes("====================") || 
+                              cleanContent.includes("📊 PANORAMICA") ||
+                              cleanContent.includes("⚠️ PROBLEMI CHIAVE") ||
+                              cleanContent.includes("💪 PUNTI DI FORZA");
 
+  // Per le risposte di follow-up, usa uno stile più semplice
   if (!isStructuredAnalysis) {
-    // Per i messaggi di follow-up, applica uno stile più semplice e conversazionale
     return (
       <ChatBubbleMessage 
         variant={variant}
         className="text-lg rounded-2xl"
       >
-        <div className="prose prose-blue max-w-none">
+        <div className="prose prose-blue max-w-none text-gray-800">
           <ReactMarkdown
             components={{
-              // Stile base per il testo normale
-              p: ({ children }) => <p className="text-gray-800">{children}</p>,
-              // Manteniamo solo alcuni stili di base per eventuali elementi di formattazione
-              strong: ({ children }) => <strong className="font-semibold text-gray-900">{children}</strong>,
-              em: ({ children }) => <em className="italic text-gray-700">{children}</em>,
-              // Citazioni più semplici per i messaggi di follow-up
+              p: ({ children }) => <p className="mb-3">{children}</p>,
               blockquote: ({ children }) => (
                 <div className="pl-4 border-l-2 border-gray-200 text-gray-600 my-2 italic">
                   {children}
                 </div>
               ),
-              // Liste più semplici
+              strong: ({ children }) => <strong className="font-semibold text-gray-900">{children}</strong>,
               li: ({ children }) => (
                 <div className="flex items-start gap-2 my-1">
-                  <span className="text-gray-400">•</span>
+                  <span className="text-gray-400 mt-1">•</span>
                   <span>{children}</span>
                 </div>
               )
             }}
           >
-            {content}
+            {cleanContent}
           </ReactMarkdown>
         </div>
       </ChatBubbleMessage>
     );
   }
 
-  // Per l'analisi strutturata, manteniamo la formattazione originale completa
+  // Per l'analisi strutturata, mantieni la formattazione originale
   return (
     <ChatBubbleMessage 
       variant={variant}
@@ -61,19 +58,16 @@ export function FormattedMessage({ content, variant = "received" }: FormattedMes
       <div className="prose prose-blue max-w-none">
         <ReactMarkdown
           components={{
-            // Sezioni principali
             h2: ({ children }) => (
               <div className="flex items-center gap-2 mt-6 mb-4 font-semibold text-lg text-gray-900 border-b pb-2">
                 {children}
               </div>
             ),
-            // Citazioni dalle recensioni
             blockquote: ({ children }) => (
               <div className="pl-4 border-l-2 border-blue-200 text-gray-600 my-2 italic">
                 {children}
               </div>
             ),
-            // Metriche e badge
             strong: ({ children }) => {
               if (!children) return null;
               const text = children.toString();
@@ -86,7 +80,6 @@ export function FormattedMessage({ content, variant = "received" }: FormattedMes
               }
               return <strong className="font-semibold text-gray-900">{children}</strong>;
             },
-            // Card per problemi/soluzioni
             li: ({ children }) => (
               <div className="flex items-start gap-2 my-2">
                 <span className="text-blue-500">•</span>
@@ -95,9 +88,9 @@ export function FormattedMessage({ content, variant = "received" }: FormattedMes
             )
           }}
         >
-          {content}
+          {cleanContent}
         </ReactMarkdown>
       </div>
     </ChatBubbleMessage>
-  )
+  );
 }
