@@ -148,43 +148,15 @@ export function Sidebar() {
           >
             <div className="space-y-2">
               <div className="flex justify-between text-sm font-medium">
-                <span className="text-gray-600">Responses generated</span>
+                <span className="text-gray-600">Available Credits</span>
                 <span className="text-primary">
-                  {isLoading ? "..." : `${responsesUsed}/${responsesLimit}`}
+                  {isLoading ? "..." : responseCredits.toFixed(1)}
                 </span>
               </div>
               <Progress 
-                value={isLoading ? 0 : (responsesUsed / responsesLimit) * 100} 
+                value={isLoading ? 0 : (responseCredits / 100) * 100} 
                 className="h-3 bg-primary/20"
               />
-            </div>
-
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm font-medium">
-                <span className="text-gray-600">Hotels connected</span>
-                <span className="text-primary">
-                  {isLoading ? "..." : `${hotelsCount}/${hotelsLimit}`}
-                </span>
-              </div>
-              <Progress 
-                value={isLoading ? 0 : (hotelsCount / hotelsLimit) * 100} 
-                className="h-3 bg-primary/20"
-              />
-            </div>
-
-            <div className="pt-4 border-t space-y-3">
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Current plan</span>
-                <span className="text-primary font-medium capitalize">
-                  {isLoading ? "..." : subscriptionPlan}
-                </span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Next reset</span>
-                <span className="text-primary font-medium">
-                  {isLoading ? "..." : formatDate(nextResetDate)}
-                </span>
-              </div>
             </div>
 
             <Button
