@@ -519,14 +519,18 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
                     <ChatBubble variant={msg.role === "user" ? "sent" : "received"}>
                       {msg.role === "assistant" && (
                         <ChatBubbleAvatar>
-                          <div className="bg-black rounded-full p-1">
-                            <Bot className="h-4 w-4 text-white" />
+                          <div className="rounded-full overflow-hidden w-8 h-8">
+                            <img 
+                              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/ai_profile-image-5cGMUYt7uIe4gJLlE9iHrTqpTtVwOS.png"
+                              alt="AI Assistant"
+                              className="w-full h-full object-cover"
+                            />
                           </div>
                         </ChatBubbleAvatar>
                       )}
                       
                       {msg.role === "user" ? (
-                        <ChatBubbleMessage variant="sent" className="text-lg rounded-2xl">
+                        <ChatBubbleMessage variant="sent" className="text-base rounded-2xl">
                           {msg.content}
                         </ChatBubbleMessage>
                       ) : (
@@ -540,8 +544,12 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
                   <div className="relative group">
                     <ChatBubble variant="received">
                       <ChatBubbleAvatar>
-                        <div className="bg-black rounded-full p-1">
-                          <Bot className="h-4 w-4 text-white" />
+                        <div className="rounded-full overflow-hidden w-8 h-8">
+                          <img 
+                            src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/ai_profile-image-5cGMUYt7uIe4gJLlE9iHrTqpTtVwOS.png"
+                            alt="AI Assistant"
+                            className="w-full h-full object-cover"
+                          />
                         </div>
                       </ChatBubbleAvatar>
                       <FormattedMessage content={currentTypingContent} />
