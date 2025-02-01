@@ -30,43 +30,45 @@ export function useWallet() {
     recentTransactions: []
   })
   const [isLoading, setIsLoading] = useState(true)
+  const [refreshTrigger, setRefreshTrigger] = useState(0)
+
+  const fetchWalletInfo = async () => {
+    try {
+      setIsLoading(true)
+      const token = getCookie('token')
+      if (!token) {
+        toast.error('Session expired. Please login again.')
+        return
+      }
+
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/wallet`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch wallet info')
+      }
+
+      const data = await response.json()
+      setWalletInfo(data)
+    } catch (error) {
+      console.error('Error fetching wallet info:', error)
+      toast.error('Failed to load wallet information')
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   useEffect(() => {
-    const fetchWalletInfo = async () => {
-      try {
-        const token = getCookie('token')
-        if (!token) {
-          toast.error('Session expired. Please login again.')
-          return
-        }
-
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/wallet`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        })
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch wallet info')
-        }
-
-        const data = await response.json()
-        setWalletInfo(data)
-      } catch (error) {
-        console.error('Error fetching wallet info:', error)
-        toast.error('Failed to load wallet information')
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
     fetchWalletInfo()
-  }, [])
+  }, [refreshTrigger]) // Ricarica quando refreshTrigger cambia
 
   return {
     ...walletInfo,
     isLoading,
-    refresh: () => setIsLoading(true) // Trigger a refresh
+    refresh: () => setRefreshTrigger(prev => prev + 1) // Incrementa il trigger per forzare il refresh
   }
 }
 

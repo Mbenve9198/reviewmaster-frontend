@@ -24,8 +24,24 @@ interface CreditPurchaseSliderProps {
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
 
+const calculatePricePerCredit = (credits: number) => {
+  if (credits >= 1000) return 0.10
+  if (credits >= 100) return 0.15
+  return 0.30
+}
+
+const calculateTotalPrice = (credits: number) => {
+  return credits * calculatePricePerCredit(credits)
+}
+
+const calculateSavings = (credits: number) => {
+  const regularPrice = credits * 0.30 // prezzo senza sconti
+  const actualPrice = calculateTotalPrice(credits)
+  return regularPrice - actualPrice
+}
+
 const CreditPurchaseSlider = ({ open, onClose }: CreditPurchaseSliderProps) => {
-  const [credits, setCredits] = useState<number>(100)
+  const [credits, setCredits] = useState<number>(1000)
   const [isLoading, setIsLoading] = useState(false)
   const [clientSecret, setClientSecret] = useState<string>("")
   const [isStripeLoading, setIsStripeLoading] = useState(true)
@@ -45,27 +61,40 @@ const CreditPurchaseSlider = ({ open, onClose }: CreditPurchaseSliderProps) => {
     setIsStripeLoading(false)
   }
 
-  const createPaymentIntent = async (amount: number) => {
+  const createPaymentIntent = async (credits: number) => {
     try {
       setIsLoading(true)
       const token = getCookie('token')
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/create-payment-intent`, {
+      
+      if (!token) {
+        throw new Error('No authentication token found')
+      }
+
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/wallet/payment-intent`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({ amount: amount * 100 }),
+        body: JSON.stringify({ credits })
       })
       
       if (!response.ok) {
-        throw new Error('Failed to create payment intent')
+        const errorData = await response.json().catch(() => ({}))
+        console.error('Payment intent error:', errorData)
+        throw new Error(errorData.message || 'Failed to create payment intent')
       }
       
       const data = await response.json()
+      
+      if (!data.clientSecret) {
+        throw new Error('No client secret received')
+      }
+
       setClientSecret(data.clientSecret)
     } catch (error) {
-      toast.error('Failed to initialize payment')
+      console.error('Create payment intent error:', error)
+      toast.error(error instanceof Error ? error.message : 'Failed to initialize payment')
     } finally {
       setIsLoading(false)
     }
@@ -78,10 +107,10 @@ const CreditPurchaseSlider = ({ open, onClose }: CreditPurchaseSliderProps) => {
   }, [credits, open])
 
   const creditOptions = [
-    { credits: 100, price: 10 },
-    { credits: 500, price: 45 },
-    { credits: 1000, price: 80 },
-    { credits: 2000, price: 150 },
+    { credits: 50, label: "Starter" },
+    { credits: 100, label: "Basic" },
+    { credits: 1000, label: "Pro" },
+    { credits: 2000, label: "Enterprise" },
   ]
 
   return (
@@ -105,48 +134,77 @@ const CreditPurchaseSlider = ({ open, onClose }: CreditPurchaseSliderProps) => {
             transition={{ duration: 0.3 }}
           >
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-              {creditOptions.map((option) => (
-                <button
-                  key={option.credits}
-                  onClick={() => setCredits(option.credits)}
-                  className={`group relative overflow-hidden bg-white rounded-2xl p-6 border-2 transition-all duration-200 hover:scale-[1.02] ${
-                    credits === option.credits 
-                      ? 'border-primary shadow-lg' 
-                      : 'border-gray-200 hover:border-primary/50'
-                  }`}
-                >
-                  <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-primary/10 to-primary/5 rounded-bl-full transform transition-transform duration-300 group-hover:scale-110" />
-                  <div className="relative space-y-2">
-                    <div className="text-2xl font-bold text-primary">
-                      {option.credits}
+              {creditOptions.map((option) => {
+                const price = calculateTotalPrice(option.credits)
+                const pricePerCredit = calculatePricePerCredit(option.credits)
+                const savings = calculateSavings(option.credits)
+                
+                return (
+                  <button
+                    key={option.credits}
+                    onClick={() => setCredits(option.credits)}
+                    className={`group relative overflow-hidden bg-white rounded-2xl p-6 border-2 transition-all duration-200 hover:scale-[1.02] ${
+                      credits === option.credits 
+                        ? 'border-primary shadow-lg' 
+                        : 'border-gray-200 hover:border-primary/50'
+                    }`}
+                  >
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-primary/10 to-primary/5 rounded-bl-full transform transition-transform duration-300 group-hover:scale-110" />
+                    <div className="relative space-y-2">
+                      <div className="text-sm font-medium text-gray-500">
+                        {option.label}
+                      </div>
+                      <div className="text-2xl font-bold text-primary">
+                        {option.credits}
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        credits
+                      </div>
+                      <div className="text-lg font-semibold">
+                        €{price.toFixed(2)}
+                      </div>
+                      <div className="text-sm text-green-600">
+                        €{pricePerCredit.toFixed(2)}/credit
+                      </div>
+                      {savings > 0 && (
+                        <div className="text-sm text-green-600 font-medium">
+                          Save €{savings.toFixed(2)}
+                        </div>
+                      )}
                     </div>
-                    <div className="text-sm text-gray-500">
-                      credits
-                    </div>
-                    <div className="text-lg font-semibold">
-                      €{option.price}
-                    </div>
-                  </div>
-                </button>
-              ))}
+                  </button>
+                )
+              })}
             </div>
 
             <div className="space-y-4">
-              <div className="flex justify-between text-sm font-medium">
-                <span>Custom Amount</span>
-                <span className="text-primary">{credits} credits</span>
+              <div className="flex justify-between items-center">
+                <span className="text-sm font-medium">Custom Amount</span>
+                <div className="text-right">
+                  <div className="text-primary font-semibold">
+                    {credits} credits
+                  </div>
+                  <div className="text-sm text-gray-500">
+                    €{calculateTotalPrice(credits).toFixed(2)} total
+                  </div>
+                  <div className="text-sm text-green-600">
+                    €{calculatePricePerCredit(credits).toFixed(2)}/credit
+                  </div>
+                  {calculateSavings(credits) > 0 && (
+                    <div className="text-sm text-green-600 font-medium">
+                      Save €{calculateSavings(credits).toFixed(2)}
+                    </div>
+                  )}
+                </div>
               </div>
               <Slider
                 value={[credits]}
                 onValueChange={(value) => setCredits(value[0])}
-                min={10}
+                min={5}
                 max={5000}
-                step={10}
+                step={5}
                 className="w-full"
               />
-              <div className="text-sm text-gray-500 text-center">
-                €{(credits * 0.1).toFixed(2)}
-              </div>
             </div>
 
             {clientSecret ? (
