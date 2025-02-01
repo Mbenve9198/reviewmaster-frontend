@@ -303,28 +303,32 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
         <div className="flex flex-1 overflow-hidden">
           {/* Analysis Panel - Left Side */}
           <div className="w-[60%] border-r overflow-y-auto bg-gray-50 p-6">
-            {messages.length > 0 && messages[0].role === "assistant" && (
+            {isLoading && messages.length === 1 ? (
+              <div className="bg-white rounded-xl shadow-sm p-8 flex items-center justify-center">
+                <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+              </div>
+            ) : messages.length >= 2 && (
               <div className="bg-white rounded-xl shadow-sm">
-                <FormattedMessage content={messages[0].content} />
+                <FormattedMessage 
+                  content={messages[1].content} 
+                  variant="received" 
+                />
               </div>
             )}
           </div>
 
           {/* Chat Panel - Right Side */}
           <div className="w-[40%] flex flex-col">
-            {/* Chat Messages */}
-            <div 
-              ref={chatContainerRef}
-              className="flex-1 overflow-y-auto bg-white will-change-scroll"
-            >
+            <div className="p-4 border-b bg-white">
+              <h3 className="text-sm font-medium text-gray-500">
+                Domande sull'analisi
+              </h3>
+            </div>
+            <div ref={chatContainerRef} className="flex-1 overflow-y-auto bg-white will-change-scroll">
               <div className="p-6 space-y-6">
-                {/* Show only follow-up messages (skip first message) */}
-                {messages.slice(1).map((msg, i) => (
-                  <div 
-                    key={i} 
-                    className="relative group"
-                    style={{ willChange: 'transform' }}
-                  >
+                {/* Mostra solo i messaggi di follow-up (dal terzo messaggio in poi) */}
+                {messages.slice(2).map((msg, i) => (
+                  <div key={i} className="relative group" style={{ willChange: 'transform' }}>
                     <ChatBubble variant={msg.role === "user" ? "sent" : "received"}>
                       {msg.role === "assistant" && (
                         <ChatBubbleAvatar>
@@ -345,6 +349,7 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
                   </div>
                 ))}
                 
+                {/* Typing indicator */}
                 {currentTypingContent && (
                   <div className="relative group">
                     <ChatBubble variant="received">
