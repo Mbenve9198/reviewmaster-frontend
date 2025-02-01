@@ -11,7 +11,7 @@ import { useUserStats } from "@/hooks/useUserStats"
 import { useEffect, useState } from "react"
 import { SidebarContainer, SidebarBody, SidebarLink } from "@/components/ui/sidebar"
 import { motion } from "framer-motion"
-import { CreditPurchaseSlider } from "@/components/billing/CreditPurchaseSlider"
+import CreditPurchaseSlider from "@/components/billing/CreditPurchaseSlider"
 
 const navigation = [
   { 
