@@ -204,6 +204,10 @@ export function FormattedMessage({ content, variant = "received" }: FormattedMes
     );
   }
 
+  const formatMentions = (mentions: number, total: number) => {
+    return `mentioned in ${mentions} reviews on ${total} analyzed reviews (${Math.round((mentions/total) * 100)}%)`;
+  };
+
   // Rendering dell'analisi strutturata
   return (
     <ChatBubbleMessage 
@@ -250,7 +254,7 @@ export function FormattedMessage({ content, variant = "received" }: FormattedMes
                 <div className="flex items-center justify-between mb-2">
                   <h4 className="font-medium text-gray-900">{strength.title}</h4>
                   <span className="text-sm text-gray-600">
-                    Menzionato in {strength.mentions} recensioni
+                    {formatMentions(strength.mentions, analysisData.meta.reviewCount)}
                   </span>
                 </div>
                 <p className="text-sm text-gray-600 mb-2">{strength.details}</p>
@@ -273,7 +277,7 @@ export function FormattedMessage({ content, variant = "received" }: FormattedMes
                 <div className="flex items-center justify-between mb-2">
                   <h4 className="font-medium text-gray-900">{issue.title}</h4>
                   <span className="text-sm text-gray-600">
-                    Menzionato in {issue.mentions} recensioni
+                    {formatMentions(issue.mentions, analysisData.meta.reviewCount)}
                   </span>
                 </div>
                 <p className="text-sm text-gray-600 mb-2">{issue.details}</p>

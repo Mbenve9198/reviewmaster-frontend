@@ -421,50 +421,48 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="w-screen h-screen p-0 bg-white max-w-none m-0 rounded-none">
-        <div className="flex flex-1 overflow-hidden h-screen">
+        <div className="sticky top-0 z-10 bg-white shadow-sm">
+          <div className="flex items-center justify-between p-6 border-b">
+            <div className="flex items-center gap-4">
+              <h2 className="text-2xl font-semibold">Reviews Analysis</h2>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleDownloadPDF}
+                className="rounded-full border-gray-200 hover:bg-gray-50 hover:text-gray-900"
+                disabled={!messages.some(msg => msg.role === "assistant")}
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Download PDF
+              </Button>
+            </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onClose}
+              className="rounded-full hover:bg-gray-100"
+            >
+              <X className="h-5 w-5" />
+            </Button>
+          </div>
+        </div>
+
+        <div className="flex flex-1 overflow-hidden h-[calc(100vh-80px)]">
           {/* Left panel */}
-          <div className="w-[65%] border-r overflow-y-auto bg-gray-50">
-            <div className="sticky top-0 z-10 bg-white shadow-sm">
-              <div className="flex items-center justify-between p-6 border-b">
-                <div className="flex items-center gap-4">
-                  <h2 className="text-2xl font-semibold">Analisi Recensioni</h2>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleDownloadPDF}
-                    className="rounded-full border-gray-200 hover:bg-gray-50 hover:text-gray-900"
-                    disabled={!messages.some(msg => msg.role === "assistant")}
-                  >
-                    <Download className="h-4 w-4 mr-2" />
-                    Scarica PDF
-                  </Button>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={onClose}
-                  className="rounded-full hover:bg-gray-100"
-                >
-                  <X className="h-5 w-5" />
-                </Button>
+          <div className="w-[65%] border-r overflow-y-auto bg-gray-50 p-8">
+            {isLoading && messages.length === 1 ? (
+              <div className="bg-white rounded-xl shadow-sm p-12 flex flex-col items-center justify-center gap-4">
+                <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+                <p className="text-gray-500">Analyzing reviews...</p>
               </div>
-            </div>
-            
-            <div className="p-8">
-              {isLoading && messages.length === 1 ? (
-                <div className="bg-white rounded-xl shadow-sm p-12 flex flex-col items-center justify-center gap-4">
-                  <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
-                  <p className="text-gray-500">Analizzando le recensioni...</p>
-                </div>
-              ) : messages.length >= 2 && (
-                <div className="bg-white rounded-xl shadow-sm">
-                  <FormattedMessage 
-                    content={messages[1].content} 
-                    variant="received" 
-                  />
-                </div>
-              )}
-            </div>
+            ) : messages.length >= 2 && (
+              <div className="bg-white rounded-xl shadow-sm">
+                <FormattedMessage 
+                  content={messages[1].content} 
+                  variant="received" 
+                />
+              </div>
+            )}
           </div>
 
           {/* Right panel */}
@@ -473,11 +471,11 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
               <div className="flex items-center gap-2 p-4">
                 <MessageSquare className="h-4 w-4 text-gray-500" />
                 <h3 className="text-sm font-medium text-gray-500">
-                  Domande sull'analisi
+                  Questions about the analysis
                 </h3>
               </div>
               
-              {/* Suggestions grid with tooltips */}
+              {/* Suggestions grid */}
               <div className="p-4 grid grid-cols-2 gap-2 bg-gray-50">
                 {suggestions.map((suggestion, index) => (
                   <TooltipProvider key={index}>
@@ -489,8 +487,8 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
                           onClick={() => handleAnalysis(suggestion)}
                           disabled={isLoading}
                           className="bg-white hover:bg-blue-50 border border-gray-200 
-                                   rounded-full h-auto py-2 px-3 flex items-center gap-2
-                                   text-left w-full"
+                                  rounded-full h-auto py-2 px-3 flex items-center gap-2
+                                  text-left w-full"
                         >
                           {getPromptIcon(suggestion)}
                           <span className="text-sm truncate">{suggestion}</span>
@@ -550,7 +548,7 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && inputValue.trim() && handleAnalysis(inputValue)}
-                  placeholder={isLoading ? "Analisi in corso..." : "Fai domande sull'analisi..."}
+                  placeholder={isLoading ? "Analysis in progress..." : "Ask questions about the analysis..."}
                   disabled={isLoading}
                   className="pr-24 bg-white border-2 border-gray-100 rounded-xl h-12
                             text-base focus:border-blue-500 focus:ring-0"
