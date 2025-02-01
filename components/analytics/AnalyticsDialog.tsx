@@ -42,12 +42,14 @@ interface Analysis {
     impact: string;
     quote: string;
     details: string;
+    mentions: number;
   }>;
   issues: Array<{
     title: string;
     priority: string;
     quote: string;
     details: string;
+    mentions: number;
     solution: {
       title: string;
       timeline: string;
@@ -178,6 +180,7 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
   const [currentTypingContent, setCurrentTypingContent] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [inputValue, setInputValue] = useState("")
+  const [suggestions, setSuggestions] = useState<string[]>([])
   const chatContainerRef = useRef<HTMLDivElement>(null)
 
   // Effetto di digitazione
@@ -218,14 +221,6 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
     }
   }, [isOpen, selectedReviews])
 
-  // Modificati i suggerimenti per essere domande di follow-up
-  const suggestedPrompts = [
-    "Quali sono i 3 problemi più urgenti da risolvere?",
-    "Quali aspetti positivi possiamo utilizzare nel marketing?",
-    "Come si è evoluta la soddisfazione dei clienti negli ultimi mesi?",
-    "Quali azioni concrete possiamo implementare subito?"
-  ]
-
   const handleAnalysis = async (prompt: string) => {
     try {
       setIsLoading(true)
@@ -234,7 +229,7 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
       
       const previousMessages = messages.length > 0 ? prompt : null
       
-      const { analysis } = await api.analytics.analyzeReviews(
+      const { analysis, suggestions } = await api.analytics.analyzeReviews(
         selectedReviews, 
         prompt,
         previousMessages
@@ -243,6 +238,7 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
       // Se è la prima analisi (non ci sono messaggi precedenti), mostra subito il risultato
       if (!previousMessages) {
         setMessages(prev => [...prev, { role: "assistant", content: analysis }])
+        setSuggestions(suggestions)
       } else {
         // Per i follow-up, usa l'animazione di typing
         setCurrentTypingContent(analysis)
@@ -320,7 +316,12 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
               ${analysis.strengths.map(strength => `
                 <div style="background: #f0fdf4; padding: 16px; border-radius: 8px; margin-bottom: 16px;">
                   <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                    <strong style="color: #166534;">${strength.title}</strong>
+                    <div>
+                      <strong style="color: #166534;">${strength.title}</strong>
+                      <span style="color: #166534; margin-left: 8px; font-size: 14px;">
+                        ${strength.mentions} menzioni
+                      </span>
+                    </div>
                     <span style="color: #166534;">Impact: ${strength.impact}</span>
                   </div>
                   <blockquote style="margin: 8px 0; padding-left: 12px; border-left: 3px solid #86efac; font-style: italic; color: #374151;">
@@ -336,7 +337,12 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
               ${analysis.issues.map(issue => `
                 <div style="background: #fef2f2; padding: 16px; border-radius: 8px; margin-bottom: 16px;">
                   <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                    <strong style="color: #991b1b;">${issue.title}</strong>
+                    <div>
+                      <strong style="color: #991b1b;">${issue.title}</strong>
+                      <span style="color: #991b1b; margin-left: 8px; font-size: 14px;">
+                        ${issue.mentions} menzioni
+                      </span>
+                    </div>
                     <span style="color: #991b1b;">Priority: ${issue.priority}</span>
                   </div>
                   <blockquote style="margin: 8px 0; padding-left: 12px; border-left: 3px solid #fca5a5; font-style: italic; color: #374151;">
@@ -532,19 +538,18 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
               {/* Suggerimenti */}
               <div className="relative">
                 <div className="flex gap-2 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-200 pb-2">
-                  {suggestedPrompts.map(prompt => (
+                  {suggestions.map((suggestion, index) => (
                     <Button
-                      key={prompt}
+                      key={index}
                       variant="outline"
                       size="sm"
-                      onClick={() => handleAnalysis(prompt)}
+                      onClick={() => handleAnalysis(suggestion)}
                       disabled={isLoading}
                       className="flex-shrink-0 bg-white hover:bg-blue-50 
                                 border border-gray-200 rounded-full h-9
                                 flex items-center gap-2 whitespace-nowrap"
                     >
-                      {getPromptIcon(prompt)}
-                      <span className="text-sm">{prompt}</span>
+                      <span className="text-sm">{suggestion}</span>
                     </Button>
                   ))}
                 </div>

@@ -154,7 +154,16 @@ export const analyticsApi = {
       throw new Error(error.message || 'Failed to analyze reviews');
     }
 
-    return response.json();
+    const data = await response.json();
+    return {
+      analysis: data.analysis,
+      suggestions: data.suggestions,
+      reviewsAnalyzed: data.reviewsAnalyzed,
+      avgRating: data.avgRating,
+      platforms: data.platforms,
+      creditsRemaining: data.creditsRemaining,
+      provider: data.provider
+    };
   }
 };
 
