@@ -9,7 +9,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import { Loader2, Bot, X, Copy, BarChart2, TrendingUp, Star, Lightbulb, SendHorizonal, Download, MessageSquare } from "lucide-react"
+import { Loader2, Bot, X, Copy, BarChart2, TrendingUp, Star, Lightbulb, SendHorizonal, Download, MessageSquare, Send } from "lucide-react"
 import { SentimentChart } from "./charts/SentimentChart"
 import { api } from "@/services/api"
 import { toast } from "sonner"
@@ -413,11 +413,10 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-[90vw] h-[90vh] p-0 bg-white rounded-3xl overflow-hidden flex flex-col">
-        {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b">
+      <DialogContent className="w-screen h-screen p-0 bg-white max-w-none m-0 rounded-none">
+        <div className="flex items-center justify-between p-6 border-b bg-white shadow-sm">
           <div className="flex items-center gap-4">
-            <h2 className="text-xl font-semibold">Analisi Recensioni</h2>
+            <h2 className="text-2xl font-semibold">Analisi Recensioni</h2>
             <Button
               variant="outline"
               size="sm"
@@ -429,15 +428,22 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
               Scarica PDF
             </Button>
           </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onClose}
+            className="rounded-full hover:bg-gray-100"
+          >
+            <X className="h-5 w-5" />
+          </Button>
         </div>
 
-        {/* Split Layout Container */}
-        <div className="flex flex-1 overflow-hidden">
-          {/* Analysis Panel - Left Side */}
-          <div className="w-[60%] border-r overflow-y-auto bg-gray-50 p-6">
+        <div className="flex flex-1 overflow-hidden h-[calc(100vh-80px)]">
+          <div className="w-[65%] border-r overflow-y-auto bg-gray-50 p-8">
             {isLoading && messages.length === 1 ? (
-              <div className="bg-white rounded-xl shadow-sm p-8 flex items-center justify-center">
+              <div className="bg-white rounded-xl shadow-sm p-12 flex flex-col items-center justify-center gap-4">
                 <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+                <p className="text-gray-500">Analizzando le recensioni...</p>
               </div>
             ) : messages.length >= 2 && (
               <div className="bg-white rounded-xl shadow-sm">
@@ -449,16 +455,15 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
             )}
           </div>
 
-          {/* Chat Panel - Right Side */}
-          <div className="w-[40%] flex flex-col">
-            <div className="p-4 border-b bg-white">
+          <div className="w-[35%] flex flex-col">
+            <div className="p-4 border-b bg-white flex items-center gap-2">
+              <MessageSquare className="h-4 w-4 text-gray-500" />
               <h3 className="text-sm font-medium text-gray-500">
                 Domande sull'analisi
               </h3>
             </div>
             <div ref={chatContainerRef} className="flex-1 overflow-y-auto bg-white will-change-scroll">
               <div className="p-6 space-y-6">
-                {/* Mostra solo i messaggi di follow-up (dal terzo messaggio in poi) */}
                 {messages.slice(2).map((msg, i) => (
                   <div key={i} className="relative group" style={{ willChange: 'transform' }}>
                     <ChatBubble variant={msg.role === "user" ? "sent" : "received"}>
@@ -481,7 +486,6 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
                   </div>
                 ))}
                 
-                {/* Typing indicator */}
                 {currentTypingContent && (
                   <div className="relative group">
                     <ChatBubble variant="received">
@@ -497,8 +501,7 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
               </div>
             </div>
 
-            {/* Input Area - Bottom */}
-            <div className="border-t bg-white p-4 space-y-3">
+            <div className="border-t bg-white p-6 space-y-4">
               <div className="relative">
                 <Input
                   value={inputValue}
@@ -509,33 +512,22 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
                   className="pr-24 bg-white border-2 border-gray-100 rounded-xl h-12
                             text-base focus:border-blue-500 focus:ring-0"
                 />
-                <div className="absolute right-2 top-1/2 -translate-y-1/2 flex gap-2">
-                  {inputValue && (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => setInputValue("")}
-                      className="rounded-full h-8 w-8"
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  )}
+                {inputValue.trim() && (
                   <Button
-                    size="icon"
-                    className="rounded-full h-8 w-8 bg-blue-500 hover:bg-blue-600 text-white"
+                    size="sm"
                     onClick={() => handleAnalysis(inputValue)}
-                    disabled={!inputValue.trim() || isLoading}
+                    disabled={isLoading}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg"
                   >
                     {isLoading ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
                     ) : (
-                      <SendHorizonal className="h-4 w-4" />
+                      <Send className="h-4 w-4" />
                     )}
                   </Button>
-                </div>
+                )}
               </div>
 
-              {/* Suggerimenti */}
               <div className="relative">
                 <div className="flex gap-2 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-200 pb-2">
                   {suggestions.map((suggestion, index) => (
@@ -549,6 +541,7 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
                                 border border-gray-200 rounded-full h-9
                                 flex items-center gap-2 whitespace-nowrap"
                     >
+                      {getPromptIcon(suggestion)}
                       <span className="text-sm">{suggestion}</span>
                     </Button>
                   ))}
