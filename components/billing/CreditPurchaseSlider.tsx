@@ -162,14 +162,13 @@ const CreditPurchaseSlider = ({ open, onClose }: CreditPurchaseSliderProps) => {
                   <button
                     key={option.credits}
                     onClick={() => setCredits(option.credits)}
-                    className={`group relative overflow-hidden bg-white rounded-2xl p-6 border-2 transition-all duration-200 hover:scale-[1.02] ${
+                    className={`group relative overflow-hidden bg-white rounded-2xl border-2 transition-all duration-200 hover:scale-[1.02] ${
                       credits === option.credits 
                         ? 'border-primary shadow-lg' 
                         : 'border-gray-200 hover:border-primary/50'
                     }`}
                   >
-                    <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-primary/10 to-primary/5 rounded-bl-full transform transition-transform duration-300 group-hover:scale-110" />
-                    <div className="relative space-y-2">
+                    <div className="p-6 space-y-2">
                       <div className="text-sm font-medium text-gray-500">
                         {option.label}
                       </div>
@@ -185,14 +184,14 @@ const CreditPurchaseSlider = ({ open, onClose }: CreditPurchaseSliderProps) => {
                       <div className="text-sm text-gray-500">
                         €{pricePerCredit.toFixed(2)}/credit
                       </div>
-                      {savings > 0 && (
-                        <div className="mt-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white px-3 py-2 rounded-lg">
-                          <span className="text-sm font-bold">
-                            Save €{savings.toFixed(2)}
-                          </span>
-                        </div>
-                      )}
                     </div>
+                    {savings > 0 && (
+                      <div className="bg-gradient-to-r from-green-500 to-emerald-500 text-white p-4 text-center">
+                        <span className="text-sm font-bold">
+                          Save €{savings.toFixed(2)}
+                        </span>
+                      </div>
+                    )}
                   </button>
                 )
               })}
