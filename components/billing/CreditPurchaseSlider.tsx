@@ -214,7 +214,7 @@ const CreditPurchaseSlider = ({ open, onClose }: CreditPurchaseSliderProps) => {
                     €{calculatePricePerCredit(credits).toFixed(2)}/credit
                   </div>
                   {calculateSavings(credits) > 0 && (
-                    <div className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-4 py-2 rounded-lg mt-2">
+                    <div className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-4 py-2 rounded-xl mt-2">
                       <span className="text-sm font-bold">
                         Save €{calculateSavings(credits).toFixed(2)}
                       </span>
@@ -228,7 +228,7 @@ const CreditPurchaseSlider = ({ open, onClose }: CreditPurchaseSliderProps) => {
                 min={50}
                 max={20000}
                 step={50}
-                className="w-full relative [&_.relative]:z-0 [&_[role=slider]]:z-10"
+                className="w-full relative [&_.relative]:z-0 [&_[role=slider]]:z-10 [&_[role=slider]]:bg-white"
               />
             </div>
 
