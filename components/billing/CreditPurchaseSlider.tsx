@@ -27,7 +27,6 @@ const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
 const CreditPurchaseSlider = ({ open, onClose }: CreditPurchaseSliderProps) => {
   const [credits, setCredits] = useState<number>(100)
   const [isLoading, setIsLoading] = useState(false)
-  const [isProcessing, setIsProcessing] = useState(false)
   const [clientSecret, setClientSecret] = useState<string>("")
   const [isStripeLoading, setIsStripeLoading] = useState(true)
   const { refresh } = useWallet()
@@ -40,7 +39,6 @@ const CreditPurchaseSlider = ({ open, onClose }: CreditPurchaseSliderProps) => {
 
   const handleError = (error: string) => {
     toast.error(error)
-    setIsProcessing(false)
   }
 
   const handleStripeReady = () => {
@@ -48,8 +46,8 @@ const CreditPurchaseSlider = ({ open, onClose }: CreditPurchaseSliderProps) => {
   }
 
   const createPaymentIntent = async (amount: number) => {
-    setIsLoading(true)
     try {
+      setIsLoading(true)
       const token = getCookie('token')
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/create-payment-intent`, {
         method: 'POST',
@@ -59,6 +57,11 @@ const CreditPurchaseSlider = ({ open, onClose }: CreditPurchaseSliderProps) => {
         },
         body: JSON.stringify({ amount: amount * 100 }),
       })
+      
+      if (!response.ok) {
+        throw new Error('Failed to create payment intent')
+      }
+      
       const data = await response.json()
       setClientSecret(data.clientSecret)
     } catch (error) {
@@ -69,10 +72,10 @@ const CreditPurchaseSlider = ({ open, onClose }: CreditPurchaseSliderProps) => {
   }
 
   useEffect(() => {
-    if (credits > 0) {
+    if (open && credits > 0) {
       createPaymentIntent(credits)
     }
-  }, [credits])
+  }, [credits, open])
 
   const creditOptions = [
     { credits: 100, price: 10 },
@@ -83,9 +86,9 @@ const CreditPurchaseSlider = ({ open, onClose }: CreditPurchaseSliderProps) => {
 
   return (
     <Sheet open={open} onOpenChange={onClose}>
-      <SheetContent className="w-full sm:max-w-[600px] overflow-y-auto">
-        <div className="space-y-8">
-          <SheetHeader>
+      <SheetContent className="w-full sm:max-w-[600px] overflow-y-auto bg-white">
+        <div className="space-y-8 bg-white">
+          <SheetHeader className="bg-white">
             <SheetTitle className="text-3xl font-bold flex items-center gap-3">
               <Sparkles className="w-8 h-8 text-primary" />
               Purchase Credits
@@ -96,7 +99,7 @@ const CreditPurchaseSlider = ({ open, onClose }: CreditPurchaseSliderProps) => {
           </SheetHeader>
 
           <motion.div 
-            className="space-y-8"
+            className="space-y-8 bg-white"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
@@ -146,46 +149,35 @@ const CreditPurchaseSlider = ({ open, onClose }: CreditPurchaseSliderProps) => {
               </div>
             </div>
 
-            <AnimatePresence mode="wait">
+            {clientSecret ? (
               <motion.div
-                key={clientSecret}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 className="relative"
               >
-                {clientSecret && (
-                  <div className="group relative overflow-hidden bg-white rounded-2xl p-6 border-2 border-gray-200">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary/10 to-primary/5 rounded-bl-full" />
-                    <Elements stripe={stripePromise} options={{ clientSecret }}>
-                      <PaymentForm
-                        clientSecret={clientSecret}
-                        amount={credits * 100}
-                        onSuccess={handleSuccess}
-                        onError={handleError}
-                        onReady={handleStripeReady}
-                      />
-                    </Elements>
-                  </div>
-                )}
+                <div className="group relative overflow-hidden bg-white rounded-2xl p-6 border-2 border-gray-200">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary/10 to-primary/5 rounded-bl-full" />
+                  <Elements stripe={stripePromise} options={{ clientSecret }}>
+                    <PaymentForm
+                      clientSecret={clientSecret}
+                      amount={credits * 100}
+                      onSuccess={handleSuccess}
+                      onError={handleError}
+                      onReady={handleStripeReady}
+                    />
+                  </Elements>
+                </div>
               </motion.div>
-            </AnimatePresence>
-
-            {/* Loading overlay */}
-            {isStripeLoading && (
-              <motion.div 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="absolute inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center"
-              >
+            ) : (
+              <div className="flex items-center justify-center p-12">
                 <div className="flex flex-col items-center gap-4">
                   <Loader2 className="h-8 w-8 animate-spin text-primary" />
                   <p className="text-sm text-muted-foreground">
-                    Loading payment form...
+                    Initializing payment...
                   </p>
                 </div>
-              </motion.div>
+              </div>
             )}
           </motion.div>
         </div>
