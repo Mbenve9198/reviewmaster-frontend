@@ -11,6 +11,7 @@ import { useUserStats } from "@/hooks/useUserStats"
 import { useEffect, useState } from "react"
 import { SidebarContainer, SidebarBody, SidebarLink } from "@/components/ui/sidebar"
 import { motion } from "framer-motion"
+import { CreditPurchaseSlider } from "@/components/billing/CreditPurchaseSlider"
 
 const navigation = [
   { 
@@ -84,6 +85,7 @@ export function Sidebar() {
   const pathname = usePathname()
   const router = useRouter()
   const [open, setOpen] = useState(false)
+  const [showCreditSlider, setShowCreditSlider] = useState(false)
   const { 
     responsesUsed, 
     responsesLimit, 
@@ -124,53 +126,70 @@ export function Sidebar() {
   }
 
   return (
-    <SidebarContainer open={open} setOpen={setOpen}>
-      <SidebarBody className="justify-between bg-white shadow-lg">
-        <div className="flex flex-col flex-1">
-          <div className="flex flex-col gap-2 mt-4">
-            {navigation.map((link) => (
-              <SidebarLink 
-                key={link.href}
-                link={link}
-                className={cn(
-                  pathname === link.href && "bg-primary/10 text-primary"
-                )}
-              />
-            ))}
-          </div>
-
-          <motion.div 
-            className="mt-auto space-y-6"
-            animate={{
-              display: open ? "block" : "none",
-              opacity: open ? 1 : 0
-            }}
-          >
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm font-medium">
-                <span className="text-gray-600">Available Credits</span>
-                <span className="text-primary">
-                  {isLoading ? "..." : responseCredits.toFixed(1)}
-                </span>
-              </div>
-              <Progress 
-                value={isLoading ? 0 : (responseCredits / 100) * 100} 
-                className="h-3 bg-primary/20"
-              />
+    <>
+      <SidebarContainer open={open} setOpen={setOpen}>
+        <SidebarBody className="justify-between bg-white shadow-lg">
+          <div className="flex flex-col flex-1">
+            <div className="flex flex-col gap-2 mt-4">
+              {navigation.map((link) => (
+                <SidebarLink 
+                  key={link.href}
+                  link={link}
+                  className={cn(
+                    pathname === link.href && "bg-primary/10 text-primary"
+                  )}
+                />
+              ))}
             </div>
 
-            <Button
-              variant="default"
-              size="default"
-              className="w-full max-w-[150px] text-base py-3 rounded-xl shadow-[0_4px_0_0_#2563eb] flex items-center justify-center gap-2"
-              onClick={handleLogout}
+            <motion.div 
+              className="mt-auto space-y-6"
+              animate={{
+                display: open ? "block" : "none",
+                opacity: open ? 1 : 0
+              }}
             >
-              <LogOut className="w-4 h-4" />
-              Log out
-            </Button>
-          </motion.div>
-        </div>
-      </SidebarBody>
-    </SidebarContainer>
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm font-medium">
+                  <span className="text-gray-600">Available Credits</span>
+                  <span className="text-primary">
+                    {isLoading ? "..." : responseCredits.toFixed(1)}
+                  </span>
+                </div>
+                <Progress 
+                  value={isLoading ? 0 : (responseCredits)} 
+                  className="h-3 bg-primary/20"
+                />
+                {responseCredits < 20 && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowCreditSlider(true)}
+                    className="w-full mt-2 text-sm border-primary/20 hover:bg-primary/5 text-primary"
+                  >
+                    Add Credits
+                  </Button>
+                )}
+              </div>
+
+              <Button
+                variant="default"
+                size="default"
+                className="w-full max-w-[150px] text-base py-3 rounded-xl shadow-[0_4px_0_0_#2563eb] flex items-center justify-center gap-2"
+                onClick={handleLogout}
+              >
+                <LogOut className="w-4 h-4" />
+                Log out
+              </Button>
+            </motion.div>
+          </div>
+        </SidebarBody>
+      </SidebarContainer>
+
+      <CreditPurchaseSlider 
+        open={showCreditSlider}
+        onClose={() => setShowCreditSlider(false)}
+      />
+    </>
   )
 }

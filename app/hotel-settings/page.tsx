@@ -165,45 +165,47 @@ export default function HotelSettingsPage({ params }: { params: { id: string } }
           </div>
 
           <HandWrittenTitle 
-            title="Property Settings"
-            subtitle="Edit your property profile"
+            title="Settings"
+            subtitle="Edit your property"
           />
 
-          <div className="space-y-6 mt-12">
-            <div>
-              <label className="block text-sm font-medium mb-2">Hotel Name</label>
-              <Input
-                value={hotelData.name}
-                onChange={(e) => setHotelData({ ...hotelData, name: e.target.value })}
-                className="w-full"
-              />
-            </div>
+          <div className="mt-12 bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+            <div className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium mb-2">Hotel Name</label>
+                <Input
+                  value={hotelData.name}
+                  onChange={(e) => setHotelData({ ...hotelData, name: e.target.value })}
+                  className="w-full bg-white"
+                />
+              </div>
 
-            <div>
-              <label className="block text-sm font-medium mb-2">Description</label>
-              <Textarea
-                value={hotelData.description}
-                onChange={(e) => setHotelData({ ...hotelData, description: e.target.value })}
-                className="w-full min-h-[100px]"
-              />
-            </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Description</label>
+                <Textarea
+                  value={hotelData.description}
+                  onChange={(e) => setHotelData({ ...hotelData, description: e.target.value })}
+                  className="w-full min-h-[100px] bg-white"
+                />
+              </div>
 
-            <div>
-              <label className="block text-sm font-medium mb-2">Manager Signature</label>
-              <Input
-                value={hotelData.managerSignature}
-                onChange={(e) => setHotelData({ ...hotelData, managerSignature: e.target.value })}
-                className="w-full"
-              />
-            </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Manager Signature</label>
+                <Input
+                  value={hotelData.managerSignature}
+                  onChange={(e) => setHotelData({ ...hotelData, managerSignature: e.target.value })}
+                  className="w-full bg-white"
+                />
+              </div>
 
-            <Button
-              onClick={handleSave}
-              className={`${buttonClasses} w-full`}
-            >
-              <Save className="w-4 h-4 mr-2" />
-              Save Changes
-            </Button>
+              <Button
+                onClick={handleSave}
+                className="w-full bg-primary hover:bg-primary/90 text-white px-6 py-2 rounded-xl shadow-[0_4px_0_0_#1e40af] transition-all active:top-[2px] active:shadow-[0_0_0_0_#1e40af] relative"
+              >
+                <Save className="w-4 h-4 mr-2" />
+                Save Changes
+              </Button>
+            </div>
           </div>
         </div>
       </div>
