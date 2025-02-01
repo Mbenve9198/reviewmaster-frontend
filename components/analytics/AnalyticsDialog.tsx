@@ -238,10 +238,8 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
   }
 
   const handleDownloadPDF = async () => {
-    const analysisContent = messages
-      .filter(msg => msg.role === "assistant")
-      .map(msg => msg.content)
-      .join("\n\n");
+    // Prendiamo solo il contenuto dell'analisi iniziale (il secondo messaggio)
+    const analysisContent = messages.length >= 2 ? messages[1].content : null;
 
     if (!analysisContent) {
       toast.error("Nessuna analisi da scaricare");
@@ -249,33 +247,129 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
     }
 
     try {
-      // Import dinamico di html2pdf solo quando necessario
       const html2pdfModule = await import('html2pdf.js');
       const html2pdf = html2pdfModule.default;
 
+      // Proviamo a parsare il JSON dell'analisi
+      let formattedContent;
+      try {
+        const analysis = JSON.parse(analysisContent);
+        formattedContent = `
+          <div style="font-family: system-ui, sans-serif; max-width: 800px; margin: 0 auto;">
+            <h1 style="font-size: 24px; color: #1a1a1a; margin-bottom: 24px;">
+              ${analysis.meta.hotelName} - Analisi Recensioni
+            </h1>
+            
+            <div style="background: #f8fafc; padding: 20px; border-radius: 8px; margin-bottom: 24px;">
+              <h2 style="font-size: 18px; color: #334155; margin-bottom: 16px;">Panoramica</h2>
+              <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;">
+                <div style="text-align: center;">
+                  <div style="font-size: 24px; font-weight: bold; color: #1e40af;">${analysis.meta.avgRating}</div>
+                  <div style="font-size: 14px; color: #64748b;">Rating Medio</div>
+                </div>
+                <div style="text-align: center;">
+                  <div style="font-size: 24px; font-weight: bold; color: #15803d;">${analysis.sentiment.excellent}</div>
+                  <div style="font-size: 14px; color: #64748b;">Eccellente</div>
+                </div>
+                <div style="text-align: center;">
+                  <div style="font-size: 24px; font-weight: bold; color: #854d0e;">${analysis.sentiment.average}</div>
+                  <div style="font-size: 14px; color: #64748b;">Nella Media</div>
+                </div>
+                <div style="text-align: center;">
+                  <div style="font-size: 24px; font-weight: bold; color: #991b1b;">${analysis.sentiment.needsImprovement}</div>
+                  <div style="font-size: 14px; color: #64748b;">Da Migliorare</div>
+                </div>
+              </div>
+            </div>
+
+            <div style="margin-bottom: 24px;">
+              <h2 style="font-size: 18px; color: #15803d; margin-bottom: 16px;">Punti di Forza</h2>
+              ${analysis.strengths.map(strength => `
+                <div style="background: #f0fdf4; padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+                  <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                    <strong style="color: #166534;">${strength.title}</strong>
+                    <span style="color: #166534;">Impact: ${strength.impact}</span>
+                  </div>
+                  <blockquote style="margin: 8px 0; padding-left: 12px; border-left: 3px solid #86efac; font-style: italic; color: #374151;">
+                    "${strength.quote}"
+                  </blockquote>
+                  <p style="margin: 8px 0; color: #374151;">${strength.details}</p>
+                </div>
+              `).join('')}
+            </div>
+
+            <div style="margin-bottom: 24px;">
+              <h2 style="font-size: 18px; color: #991b1b; margin-bottom: 16px;">Problemi Critici</h2>
+              ${analysis.issues.map(issue => `
+                <div style="background: #fef2f2; padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+                  <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                    <strong style="color: #991b1b;">${issue.title}</strong>
+                    <span style="color: #991b1b;">Priority: ${issue.priority}</span>
+                  </div>
+                  <blockquote style="margin: 8px 0; padding-left: 12px; border-left: 3px solid #fca5a5; font-style: italic; color: #374151;">
+                    "${issue.quote}"
+                  </blockquote>
+                  <p style="margin: 8px 0; color: #374151;">${issue.details}</p>
+                  <div style="background: white; padding: 12px; border-radius: 6px; margin-top: 12px;">
+                    <strong style="color: #991b1b;">${issue.solution.title}</strong>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 8px;">
+                      <div style="text-align: center;">
+                        <div style="font-size: 12px; color: #64748b;">Timeline</div>
+                        <div>${issue.solution.timeline}</div>
+                      </div>
+                      <div style="text-align: center;">
+                        <div style="font-size: 12px; color: #64748b;">Cost</div>
+                        <div>${issue.solution.cost}</div>
+                      </div>
+                      <div style="text-align: center;">
+                        <div style="font-size: 12px; color: #64748b;">ROI</div>
+                        <div>${issue.solution.roi}</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+
+            <div style="margin-bottom: 24px;">
+              <h2 style="font-size: 18px; color: #334155; margin-bottom: 16px;">Trend Recenti</h2>
+              <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
+                ${analysis.trends.map(trend => `
+                  <div style="text-align: center; background: #f8fafc; padding: 16px; border-radius: 8px;">
+                    <div style="font-size: 14px; color: #64748b;">${trend.metric}</div>
+                    <div style="font-size: 20px; font-weight: bold; color: ${
+                      trend.change.startsWith('+') ? '#15803d' : 
+                      trend.change.startsWith('-') ? '#991b1b' : 
+                      '#334155'
+                    };">${trend.change}</div>
+                    <div style="font-size: 12px; color: #64748b;">${trend.period}</div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+        `;
+      } catch (e) {
+        // Se il parsing JSON fallisce, usa il testo raw
+        formattedContent = analysisContent;
+      }
+
       const element = document.createElement("div");
-      element.innerHTML = `
-        <div style="font-family: system-ui, sans-serif; padding: 2rem;">
-          <h1 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1rem;">
-            Analisi Recensioni
-          </h1>
-          <div style="white-space: pre-wrap;">${analysisContent}</div>
-        </div>
-      `;
+      element.innerHTML = formattedContent;
 
       const opt = {
-        margin: 1,
+        margin: [10, 10],
         filename: 'analisi-recensioni.pdf',
         image: { type: 'jpeg', quality: 0.98 },
         html2canvas: { scale: 2 },
-        jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
       };
 
       await html2pdf().set(opt).from(element).save();
       toast.success("PDF scaricato con successo");
     } catch (error) {
+      console.error("Errore durante il download del PDF:", error);
       toast.error("Errore durante il download del PDF");
-      console.error(error);
     }
   };
 
