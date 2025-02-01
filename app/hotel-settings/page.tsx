@@ -11,13 +11,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { ChevronLeft, Save } from 'lucide-react'
+import { Save } from 'lucide-react'
 import Image from "next/image"
 import { useRouter } from 'next/navigation'
 import { motion } from "framer-motion"
 import { getCookie } from "@/lib/utils"
 import { HandWrittenTitle } from "@/components/ui/hand-writing-text"
 import { Tiles } from "@/components/ui/tiles"
+import { toast } from "sonner"
 
 // Aggiungiamo l'interfaccia per il tipo Hotel
 interface Hotel {
@@ -28,121 +29,113 @@ interface Hotel {
   signature: string;
 }
 
-export default function HotelSettingsPage({ params }: { params: { id: string } }) {
+export default function HotelSettingsPage() {
   const router = useRouter()
-  const [selectedHotel, setSelectedHotel] = useState("")
+  const [hotels, setHotels] = useState<Hotel[]>([])
+  const [selectedHotel, setSelectedHotel] = useState<string>("")
   const [hotelData, setHotelData] = useState({
     name: "",
     type: "",
     description: "",
-    managerSignature: ""
+    signature: ""
   })
-  const [hotels, setHotels] = useState<Hotel[]>([])
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     const fetchHotels = async () => {
       try {
+        const token = getCookie('token')
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/hotels`, {
           headers: {
-            'Authorization': `Bearer ${getCookie('token')}`,
-            'Content-Type': 'application/json'
-          },
-          credentials: 'include'
+            'Authorization': `Bearer ${token}`,
+          }
         })
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch hotels')
-        }
-
-        const data: Hotel[] = await response.json()
+        const data = await response.json()
         setHotels(data)
         
-        // Se c'è un hotel selezionato nella home page, selezionalo qui
-        const selectedHotelFromHome = localStorage.getItem('selectedHotel')
-        if (selectedHotelFromHome) {
-          setSelectedHotel(selectedHotelFromHome)
-          const hotel = data.find((h: Hotel) => h._id === selectedHotelFromHome)
-          if (hotel) {
-            setHotelData({
-              name: hotel.name,
-              type: hotel.type,
-              description: hotel.description,
-              managerSignature: hotel.signature
-            })
-          }
+        // Seleziona il primo hotel di default o l'ultimo selezionato
+        const lastSelectedHotel = localStorage.getItem('lastSelectedHotel')
+        if (lastSelectedHotel && data.some((hotel: Hotel) => hotel._id === lastSelectedHotel)) {
+          setSelectedHotel(lastSelectedHotel)
+          const hotel = data.find((h: Hotel) => h._id === lastSelectedHotel)
+          setHotelData({
+            name: hotel.name,
+            type: hotel.type,
+            description: hotel.description || "",
+            signature: hotel.signature || ""
+          })
+        } else if (data.length > 0) {
+          setSelectedHotel(data[0]._id)
+          setHotelData({
+            name: data[0].name,
+            type: data[0].type,
+            description: data[0].description || "",
+            signature: data[0].signature || ""
+          })
         }
-      } catch (err) {
-        console.error('Error fetching hotels:', err)
+      } catch (error) {
+        console.error('Error fetching hotels:', error)
+        toast.error('Failed to load hotels')
+      } finally {
+        setIsLoading(false)
       }
     }
 
     fetchHotels()
   }, [])
 
-  const handleHotelSelect = (hotelId: string) => {
+  const handleHotelChange = async (hotelId: string) => {
     setSelectedHotel(hotelId)
+    localStorage.setItem('lastSelectedHotel', hotelId)
     const hotel = hotels.find(h => h._id === hotelId)
     if (hotel) {
       setHotelData({
         name: hotel.name,
         type: hotel.type,
-        description: hotel.description,
-        managerSignature: hotel.signature
+        description: hotel.description || "",
+        signature: hotel.signature || ""
       })
     }
   }
 
-  const handleInputChange = (field: string, value: string) => {
-    setHotelData(prev => ({ ...prev, [field]: value }))
-  }
-
   const handleSave = async () => {
+    if (!selectedHotel) {
+      toast.error('Please select a hotel first')
+      return
+    }
+
+    setIsLoading(true)
     try {
+      const token = getCookie('token')
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/hotels/${selectedHotel}`, {
         method: 'PUT',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${getCookie('token')}`
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
         },
-        credentials: 'include',
-        body: JSON.stringify({
-          name: hotelData.name,
-          type: hotelData.type,
-          description: hotelData.description,
-          managerName: hotelData.managerSignature.split(',')[0].trim(),
-          signature: hotelData.managerSignature,
-          responseSettings: {
-            style: 'professional',
-            length: 'medium'
-          }
-        })
+        body: JSON.stringify(hotelData)
       })
 
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.message || 'Error updating hotel')
-      }
-
-      // Aggiorna la lista degli hotel dopo il salvataggio
-      const updatedHotelsResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/hotels`, {
-        headers: {
-          'Authorization': `Bearer ${getCookie('token')}`
-        },
-        credentials: 'include'
-      })
+      if (!response.ok) throw new Error('Failed to update hotel')
       
-      if (updatedHotelsResponse.ok) {
-        const updatedHotels = await updatedHotelsResponse.json()
-        setHotels(updatedHotels)
-      }
-
-      router.push('/')
+      toast.success('Hotel settings updated successfully')
     } catch (error) {
-      console.error('Error saving hotel:', error)
+      console.error('Error updating hotel:', error)
+      toast.error('Failed to update hotel settings')
+    } finally {
+      setIsLoading(false)
     }
   }
 
   const buttonClasses = "relative bg-primary hover:bg-primary/90 text-primary-foreground font-bold transition-all active:top-[2px] active:shadow-[0_0_0_0_#2563eb] disabled:opacity-50 disabled:hover:bg-primary disabled:active:top-0 disabled:active:shadow-[0_4px_0_0_#2563eb]"
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    )
+  }
 
   return (
     <>
@@ -155,58 +148,69 @@ export default function HotelSettingsPage({ params }: { params: { id: string } }
       
       <div className="min-h-screen py-12 md:pl-[100px]">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-4 mb-8">
-            <Button
-              onClick={() => router.push('/')}
-              className={buttonClasses}
-            >
-              <ChevronLeft className="w-6 h-6" />
-            </Button>
-          </div>
-
           <HandWrittenTitle 
             title="Settings"
             subtitle="Edit your property"
           />
 
-          <div className="mt-12 bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
-            <div className="space-y-6">
-              <div>
-                <label className="block text-sm font-medium mb-2">Hotel Name</label>
-                <Input
-                  value={hotelData.name}
-                  onChange={(e) => setHotelData({ ...hotelData, name: e.target.value })}
-                  className="w-full bg-white"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-2">Description</label>
-                <Textarea
-                  value={hotelData.description}
-                  onChange={(e) => setHotelData({ ...hotelData, description: e.target.value })}
-                  className="w-full min-h-[100px] bg-white"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-2">Manager Signature</label>
-                <Input
-                  value={hotelData.managerSignature}
-                  onChange={(e) => setHotelData({ ...hotelData, managerSignature: e.target.value })}
-                  className="w-full bg-white"
-                />
-              </div>
-
-              <Button
-                onClick={handleSave}
-                className="w-full bg-primary hover:bg-primary/90 text-white px-6 py-2 rounded-xl shadow-[0_4px_0_0_#1e40af] transition-all active:top-[2px] active:shadow-[0_0_0_0_#1e40af] relative"
-              >
-                <Save className="w-4 h-4 mr-2" />
-                Save Changes
-              </Button>
-            </div>
+          <div className="mt-8 mb-12">
+            <Select value={selectedHotel} onValueChange={handleHotelChange}>
+              <SelectTrigger className="w-full p-6 text-xl rounded-xl border-2">
+                <SelectValue placeholder="Select a hotel" />
+              </SelectTrigger>
+              <SelectContent>
+                {hotels.map((hotel) => (
+                  <SelectItem key={hotel._id} value={hotel._id}>
+                    {hotel.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
+
+          {selectedHotel && (
+            <div className="group relative overflow-hidden bg-white rounded-3xl p-8 border border-indigo-100 shadow-lg hover:shadow-xl transition-all duration-300">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary/10 to-primary/5 rounded-bl-full transform transition-transform duration-300 group-hover:scale-110" />
+              
+              <div className="relative space-y-6">
+                <div>
+                  <label className="text-xl font-bold text-gray-800 mb-2 block">Hotel Name</label>
+                  <Input
+                    value={hotelData.name}
+                    onChange={(e) => setHotelData({ ...hotelData, name: e.target.value })}
+                    className="w-full p-6 text-xl rounded-xl border-2 border-gray-200 focus:border-primary focus:ring-primary bg-white"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xl font-bold text-gray-800 mb-2 block">Description</label>
+                  <Textarea
+                    value={hotelData.description}
+                    onChange={(e) => setHotelData({ ...hotelData, description: e.target.value })}
+                    className="w-full p-6 text-xl rounded-xl border-2 border-gray-200 focus:border-primary focus:ring-primary min-h-[200px] bg-white"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xl font-bold text-gray-800 mb-2 block">Manager Signature</label>
+                  <Input
+                    value={hotelData.signature}
+                    onChange={(e) => setHotelData({ ...hotelData, signature: e.target.value })}
+                    className="w-full p-6 text-xl rounded-xl border-2 border-gray-200 focus:border-primary focus:ring-primary bg-white"
+                  />
+                </div>
+
+                <Button
+                  onClick={handleSave}
+                  disabled={isLoading}
+                  className="w-full bg-primary hover:bg-primary/90 text-white font-bold text-xl py-6 rounded-xl transition-all duration-300 transform hover:scale-[1.02] flex items-center justify-center gap-2 shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px]"
+                >
+                  <Save className="w-5 h-5" />
+                  Save Changes
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </>

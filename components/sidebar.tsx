@@ -1,6 +1,6 @@
 "use client"
 
-import { LogOut } from 'lucide-react'
+import { LogOut, Sparkles } from 'lucide-react'
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import Image from "next/image"
@@ -153,23 +153,37 @@ export function Sidebar() {
                 <div className="flex justify-between text-sm font-medium">
                   <span className="text-gray-600">Available Credits</span>
                   <span className="text-primary">
-                    {isLoading ? "..." : responseCredits.toFixed(1)}
+                    {isLoading ? "..." : responseCredits >= 1000 
+                      ? "1000+" 
+                      : responseCredits.toFixed(1)
+                    }
                   </span>
                 </div>
                 <Progress 
-                  value={isLoading ? 0 : (responseCredits)} 
+                  value={responseCredits >= 1000 
+                    ? 100 
+                    : (responseCredits / 1000) * 100
+                  } 
+                  max={100}
                   className="h-3 bg-primary/20"
                 />
-                {responseCredits < 20 && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setShowCreditSlider(true)}
-                    className="w-full mt-2 text-sm border-primary/20 hover:bg-primary/5 text-primary"
-                  >
-                    Add Credits
-                  </Button>
-                )}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowCreditSlider(true)}
+                  className={cn(
+                    "w-full mt-2 text-sm border-primary/20 hover:bg-primary/5 flex items-center justify-center gap-2",
+                    responseCredits < 20 
+                      ? "text-red-500 border-red-200 hover:bg-red-50" 
+                      : "text-primary"
+                  )}
+                >
+                  <Sparkles className="w-4 h-4" />
+                  {responseCredits < 20 
+                    ? "Credits Running Low!" 
+                    : "Add More Credits"
+                  }
+                </Button>
               </div>
 
               <Button
