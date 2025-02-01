@@ -25,8 +25,8 @@ interface CreditPurchaseSliderProps {
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
 
 const calculatePricePerCredit = (credits: number) => {
-  if (credits >= 1000) return 0.10
-  if (credits >= 100) return 0.15
+  if (credits >= 10000) return 0.10
+  if (credits >= 500) return 0.15
   return 0.30
 }
 
@@ -38,6 +38,24 @@ const calculateSavings = (credits: number) => {
   const regularPrice = credits * 0.30 // prezzo senza sconti
   const actualPrice = calculateTotalPrice(credits)
   return regularPrice - actualPrice
+}
+
+const ACTIVITY_COSTS = {
+  aiResponse: 2,      // generate ai response for review
+  editResponse: 1,    // edit response generated
+  importReview: 0.1,  // import reviews from google, booking, trip
+  createAnalysis: 10, // create analysis with AI
+  askAnalysis: 1,     // ask ai about analysis
+}
+
+const calculatePossibleActivities = (credits: number) => {
+  return {
+    aiResponses: Math.floor(credits / ACTIVITY_COSTS.aiResponse),
+    editResponses: Math.floor(credits / ACTIVITY_COSTS.editResponse),
+    importReviews: Math.floor(credits / ACTIVITY_COSTS.importReview),
+    createAnalyses: Math.floor(credits / ACTIVITY_COSTS.createAnalysis),
+    askAnalyses: Math.floor(credits / ACTIVITY_COSTS.askAnalysis),
+  }
 }
 
 const CreditPurchaseSlider = ({ open, onClose }: CreditPurchaseSliderProps) => {
@@ -108,10 +126,12 @@ const CreditPurchaseSlider = ({ open, onClose }: CreditPurchaseSliderProps) => {
 
   const creditOptions = [
     { credits: 50, label: "Starter" },
-    { credits: 100, label: "Basic" },
-    { credits: 1000, label: "Pro" },
-    { credits: 2000, label: "Enterprise" },
+    { credits: 500, label: "Basic" },
+    { credits: 10000, label: "Pro" },
+    { credits: 20000, label: "Enterprise" },
   ]
+
+  const possibleActivities = calculatePossibleActivities(credits)
 
   return (
     <Sheet open={open} onOpenChange={onClose}>
@@ -167,8 +187,10 @@ const CreditPurchaseSlider = ({ open, onClose }: CreditPurchaseSliderProps) => {
                         €{pricePerCredit.toFixed(2)}/credit
                       </div>
                       {savings > 0 && (
-                        <div className="text-sm text-green-600 font-medium">
-                          Save €{savings.toFixed(2)}
+                        <div className="absolute -top-2 -right-2 bg-gradient-to-r from-green-500 to-emerald-500 text-white px-3 py-1 rounded-full transform rotate-12 shadow-lg">
+                          <span className="text-sm font-bold whitespace-nowrap">
+                            Save €{savings.toFixed(2)}
+                          </span>
                         </div>
                       )}
                     </div>
@@ -191,8 +213,10 @@ const CreditPurchaseSlider = ({ open, onClose }: CreditPurchaseSliderProps) => {
                     €{calculatePricePerCredit(credits).toFixed(2)}/credit
                   </div>
                   {calculateSavings(credits) > 0 && (
-                    <div className="text-sm text-green-600 font-medium">
-                      Save €{calculateSavings(credits).toFixed(2)}
+                    <div className="inline-block bg-gradient-to-r from-green-500 to-emerald-500 text-white px-4 py-2 rounded-full shadow-lg">
+                      <span className="text-sm font-bold">
+                        Save €{calculateSavings(credits).toFixed(2)}
+                      </span>
                     </div>
                   )}
                 </div>
@@ -200,11 +224,64 @@ const CreditPurchaseSlider = ({ open, onClose }: CreditPurchaseSliderProps) => {
               <Slider
                 value={[credits]}
                 onValueChange={(value) => setCredits(value[0])}
-                min={5}
-                max={5000}
-                step={5}
+                min={50}
+                max={50000}
+                step={50}
                 className="w-full"
               />
+            </div>
+
+            <div className="mt-6 p-6 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl border border-blue-100">
+              <h3 className="text-lg font-semibold text-gray-800 mb-4">
+                What you can do with {credits} credits:
+              </h3>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-600">Generate AI responses</span>
+                  <span className="font-semibold text-primary">
+                    {possibleActivities.aiResponses.toLocaleString()} reviews
+                    <span className="text-gray-400 text-sm ml-2">
+                      (2 credits each)
+                    </span>
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-600">Edit generated responses</span>
+                  <span className="font-semibold text-primary">
+                    {possibleActivities.editResponses.toLocaleString()} edits
+                    <span className="text-gray-400 text-sm ml-2">
+                      (1 credit each)
+                    </span>
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-600">Import reviews</span>
+                  <span className="font-semibold text-primary">
+                    {possibleActivities.importReviews.toLocaleString()} reviews
+                    <span className="text-gray-400 text-sm ml-2">
+                      (0.1 credits each)
+                    </span>
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-600">Create AI analyses</span>
+                  <span className="font-semibold text-primary">
+                    {possibleActivities.createAnalyses.toLocaleString()} analyses
+                    <span className="text-gray-400 text-sm ml-2">
+                      (10 credits each)
+                    </span>
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-600">Ask about analyses</span>
+                  <span className="font-semibold text-primary">
+                    {possibleActivities.askAnalyses.toLocaleString()} questions
+                    <span className="text-gray-400 text-sm ml-2">
+                      (1 credit each)
+                    </span>
+                  </span>
+                </div>
+              </div>
             </div>
 
             {clientSecret ? (
@@ -219,7 +296,7 @@ const CreditPurchaseSlider = ({ open, onClose }: CreditPurchaseSliderProps) => {
                   <Elements stripe={stripePromise} options={{ clientSecret }}>
                     <PaymentForm
                       clientSecret={clientSecret}
-                      amount={credits * 100}
+                      amount={calculateTotalPrice(credits) * 100}
                       onSuccess={handleSuccess}
                       onError={handleError}
                       onReady={handleStripeReady}

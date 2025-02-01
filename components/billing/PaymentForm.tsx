@@ -104,7 +104,11 @@ const PaymentForm = ({ clientSecret, amount, onSuccess, onError, onReady }: Paym
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <PaymentElement options={{ layout: 'tabs' }} />
+      <PaymentElement options={{
+        layout: 'tabs',
+        paymentMethodOrder: ['card', 'paypal', 'sepa_debit'],
+        paymentMethodTypes: ['card', 'paypal', 'sepa_debit'],
+      }} />
       
       {errorMessage && (
         <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
