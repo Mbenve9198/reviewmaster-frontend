@@ -439,6 +439,14 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
                     Scarica PDF
                   </Button>
                 </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={onClose}
+                  className="rounded-full hover:bg-gray-100"
+                >
+                  <X className="h-5 w-5" />
+                </Button>
               </div>
             </div>
             
@@ -488,7 +496,7 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
                           <span className="text-sm truncate">{suggestion}</span>
                         </Button>
                       </TooltipTrigger>
-                      <TooltipContent>
+                      <TooltipContent className="bg-white border border-gray-200 text-gray-900 shadow-lg">
                         <p className="max-w-[300px] text-sm">{suggestion}</p>
                       </TooltipContent>
                     </Tooltip>
