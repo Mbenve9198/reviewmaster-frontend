@@ -27,6 +27,41 @@ interface AnalyticsDialogProps {
   selectedReviews: any[]
 }
 
+interface Analysis {
+  meta: {
+    hotelName: string;
+    avgRating: string;
+  };
+  sentiment: {
+    excellent: string;
+    average: string;
+    needsImprovement: string;
+  };
+  strengths: Array<{
+    title: string;
+    impact: string;
+    quote: string;
+    details: string;
+  }>;
+  issues: Array<{
+    title: string;
+    priority: string;
+    quote: string;
+    details: string;
+    solution: {
+      title: string;
+      timeline: string;
+      cost: string;
+      roi: string;
+    };
+  }>;
+  trends: Array<{
+    metric: string;
+    change: string;
+    period: string;
+  }>;
+}
+
 // Funzione per ottenere l'icona appropriata per ogni prompt
 const getPromptIcon = (prompt: string) => {
   if (prompt.includes('problemi')) {
@@ -238,7 +273,6 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
   }
 
   const handleDownloadPDF = async () => {
-    // Prendiamo solo il contenuto dell'analisi iniziale (il secondo messaggio)
     const analysisContent = messages.length >= 2 ? messages[1].content : null;
 
     if (!analysisContent) {
@@ -250,10 +284,9 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
       const html2pdfModule = await import('html2pdf.js');
       const html2pdf = html2pdfModule.default;
 
-      // Proviamo a parsare il JSON dell'analisi
       let formattedContent;
       try {
-        const analysis = JSON.parse(analysisContent);
+        const analysis: Analysis = JSON.parse(analysisContent);
         formattedContent = `
           <div style="font-family: system-ui, sans-serif; max-width: 800px; margin: 0 auto;">
             <h1 style="font-size: 24px; color: #1a1a1a; margin-bottom: 24px;">
@@ -350,7 +383,6 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
           </div>
         `;
       } catch (e) {
-        // Se il parsing JSON fallisce, usa il testo raw
         formattedContent = analysisContent;
       }
 
