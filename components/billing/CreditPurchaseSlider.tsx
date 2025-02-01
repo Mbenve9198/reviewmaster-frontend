@@ -182,20 +182,15 @@ const CreditPurchaseSlider = ({ open, onClose }: CreditPurchaseSliderProps) => {
                       <div className="text-lg font-semibold">
                         €{price.toFixed(2)}
                       </div>
-                      <div className="text-sm text-green-600">
+                      <div className="text-sm text-gray-500">
                         €{pricePerCredit.toFixed(2)}/credit
                       </div>
                       {savings > 0 && (
-                        <>
-                          <div className="absolute -top-3 -right-2 rotate-6 z-10">
-                            <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-8 h-4 bg-gradient-to-b from-gray-100/80 to-gray-200/60 rounded-sm transform -rotate-6" />
-                            <div className="relative bg-gradient-to-r from-green-500 to-emerald-500 text-white px-4 py-1 rounded-lg shadow-md">
-                              <span className="text-sm font-bold whitespace-nowrap">
-                                Save €{savings.toFixed(2)}
-                              </span>
-                            </div>
-                          </div>
-                        </>
+                        <div className="mt-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white px-3 py-2 rounded-lg">
+                          <span className="text-sm font-bold">
+                            Save €{savings.toFixed(2)}
+                          </span>
+                        </div>
                       )}
                     </div>
                   </button>
@@ -213,17 +208,14 @@ const CreditPurchaseSlider = ({ open, onClose }: CreditPurchaseSliderProps) => {
                   <div className="text-sm text-gray-500">
                     €{calculateTotalPrice(credits).toFixed(2)} total
                   </div>
-                  <div className="text-sm text-green-600">
+                  <div className="text-sm text-gray-500">
                     €{calculatePricePerCredit(credits).toFixed(2)}/credit
                   </div>
                   {calculateSavings(credits) > 0 && (
-                    <div className="relative inline-block">
-                      <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-8 h-4 bg-gradient-to-b from-gray-100/80 to-gray-200/60 rounded-sm transform -rotate-6" />
-                      <div className="relative bg-gradient-to-r from-green-500 to-emerald-500 text-white px-4 py-2 rounded-lg shadow-md rotate-6">
-                        <span className="text-sm font-bold">
-                          Save €{calculateSavings(credits).toFixed(2)}
-                        </span>
-                      </div>
+                    <div className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-4 py-2 rounded-lg mt-2">
+                      <span className="text-sm font-bold">
+                        Save €{calculateSavings(credits).toFixed(2)}
+                      </span>
                     </div>
                   )}
                 </div>
