@@ -246,7 +246,7 @@ export function FormattedMessage({ content, variant = "received" }: FormattedMes
         {/* Strengths Section */}
         <div>
           <h3 className="text-lg font-semibold text-gray-900 mb-3">
-            Punti di Forza
+            Key Strengths
           </h3>
           <div className="space-y-4">
             {analysisData.strengths.map((strength, i) => (
@@ -269,7 +269,7 @@ export function FormattedMessage({ content, variant = "received" }: FormattedMes
         {/* Issues Section */}
         <div>
           <h3 className="text-lg font-semibold text-gray-900 mb-3">
-            Problematiche
+            Critical Issues
           </h3>
           <div className="space-y-4">
             {analysisData.issues.map((issue, i) => (
@@ -286,7 +286,7 @@ export function FormattedMessage({ content, variant = "received" }: FormattedMes
                 </blockquote>
                 {issue.solution && (
                   <div className="mt-3 pt-3 border-t border-red-100">
-                    <p className="text-sm font-medium text-gray-900">Soluzione Proposta:</p>
+                    <p className="text-sm font-medium text-gray-900">Proposed Solution:</p>
                     <p className="text-sm text-gray-600">{issue.solution.title}</p>
                   </div>
                 )}
@@ -300,9 +300,11 @@ export function FormattedMessage({ content, variant = "received" }: FormattedMes
           <QuickWinsCard quickWins={analysisData.quickWins} />
         )}
 
-        {/* Trends */}
-        <Card className="bg-gradient-to-br from-gray-50 to-gray-100/50 p-4">
-          <h3 className="font-semibold text-gray-800 mb-3">Recent Trends</h3>
+        {/* Trends Section */}
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-3">
+            Recent Trends
+          </h3>
           <div className="grid grid-cols-3 gap-4">
             {analysisData.trends.map((trend, i) => (
               <StatsCard
@@ -313,7 +315,7 @@ export function FormattedMessage({ content, variant = "received" }: FormattedMes
               />
             ))}
           </div>
-        </Card>
+        </div>
       </div>
     </ChatBubbleMessage>
   );
