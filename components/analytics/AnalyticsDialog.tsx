@@ -281,7 +281,8 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl h-[80vh] p-0 bg-white rounded-3xl overflow-hidden flex flex-col">
+      <DialogContent className="max-w-[90vw] h-[90vh] p-0 bg-white rounded-3xl overflow-hidden flex flex-col">
+        {/* Header */}
         <div className="flex items-center justify-between p-4 border-b">
           <div className="flex items-center gap-4">
             <h2 className="text-xl font-semibold">Analisi Recensioni</h2>
@@ -296,129 +297,129 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
               Scarica PDF
             </Button>
           </div>
-          {/* Il DialogClose viene aggiunto automaticamente da Radix UI nell'angolo in alto a destra */}
         </div>
 
-        {/* Chat Area con ref e ottimizzazione del rendering */}
-        <div 
-          ref={chatContainerRef}
-          className="flex-1 overflow-y-auto bg-white will-change-scroll"
-        >
-          <div className="p-6 space-y-6">
-            {messages.map((msg, i) => (
-              <div 
-                key={i} 
-                className="relative group"
-                style={{ willChange: 'transform' }}
-              >
-                <ChatBubble variant={msg.role === "user" ? "sent" : "received"}>
-                  {msg.role === "assistant" && (
-                    <ChatBubbleAvatar>
-                      <div className="bg-black rounded-full p-1">
-                        <Bot className="h-4 w-4 text-white" />
-                      </div>
-                    </ChatBubbleAvatar>
-                  )}
-                  
-                  {msg.role === "user" ? (
-                    <ChatBubbleMessage variant="sent" className="text-lg rounded-2xl">
-                      {msg.content}
-                    </ChatBubbleMessage>
-                  ) : (
-                    <FormattedMessage content={msg.content} />
-                  )}
-
-                  {msg.role === "assistant" && (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
-                      onClick={() => handleCopy(msg.content)}
-                    >
-                      <Copy className="h-4 w-4" />
-                    </Button>
-                  )}
-                </ChatBubble>
-              </div>
-            ))}
-            
-            {/* Messaggio in digitazione */}
-            {currentTypingContent && (
-              <div className="relative group" style={{ willChange: 'transform' }}>
-                <ChatBubble variant="received">
-                  <ChatBubbleAvatar>
-                    <div className="bg-black rounded-full p-1">
-                      <Bot className="h-4 w-4 text-white" />
-                    </div>
-                  </ChatBubbleAvatar>
-                  <FormattedMessage content={currentTypingContent} />
-                </ChatBubble>
+        {/* Split Layout Container */}
+        <div className="flex flex-1 overflow-hidden">
+          {/* Analysis Panel - Left Side */}
+          <div className="w-[60%] border-r overflow-y-auto bg-gray-50 p-6">
+            {messages.length > 0 && messages[0].role === "assistant" && (
+              <div className="bg-white rounded-xl shadow-sm">
+                <FormattedMessage content={messages[0].content} />
               </div>
             )}
           </div>
-        </div>
 
-        {/* Input Area - fisso, più compatto */}
-        <div className="border-t bg-white p-4 space-y-3">
-          {/* Input con altezza fissa */}
-          <div className="relative">
-            <Input
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && inputValue.trim() && handleAnalysis(inputValue)}
-              placeholder={isLoading ? "Analisi in corso..." : "Fai domande sull'analisi..."}
-              disabled={isLoading}
-              className="pr-24 bg-white border-2 border-gray-100 rounded-xl h-12
-                        text-base focus:border-blue-500 focus:ring-0"
-            />
-            <div className="absolute right-2 top-1/2 -translate-y-1/2 flex gap-2">
-              {inputValue && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setInputValue("")}
-                  className="rounded-full h-8 w-8"
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              )}
-              <Button
-                size="icon"
-                className="rounded-full h-8 w-8 bg-blue-500 hover:bg-blue-600 text-white"
-                onClick={() => handleAnalysis(inputValue)}
-                disabled={!inputValue.trim() || isLoading}
-              >
-                {isLoading ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <SendHorizonal className="h-4 w-4" />
+          {/* Chat Panel - Right Side */}
+          <div className="w-[40%] flex flex-col">
+            {/* Chat Messages */}
+            <div 
+              ref={chatContainerRef}
+              className="flex-1 overflow-y-auto bg-white will-change-scroll"
+            >
+              <div className="p-6 space-y-6">
+                {/* Show only follow-up messages (skip first message) */}
+                {messages.slice(1).map((msg, i) => (
+                  <div 
+                    key={i} 
+                    className="relative group"
+                    style={{ willChange: 'transform' }}
+                  >
+                    <ChatBubble variant={msg.role === "user" ? "sent" : "received"}>
+                      {msg.role === "assistant" && (
+                        <ChatBubbleAvatar>
+                          <div className="bg-black rounded-full p-1">
+                            <Bot className="h-4 w-4 text-white" />
+                          </div>
+                        </ChatBubbleAvatar>
+                      )}
+                      
+                      {msg.role === "user" ? (
+                        <ChatBubbleMessage variant="sent" className="text-lg rounded-2xl">
+                          {msg.content}
+                        </ChatBubbleMessage>
+                      ) : (
+                        <FormattedMessage content={msg.content} />
+                      )}
+                    </ChatBubble>
+                  </div>
+                ))}
+                
+                {currentTypingContent && (
+                  <div className="relative group">
+                    <ChatBubble variant="received">
+                      <ChatBubbleAvatar>
+                        <div className="bg-black rounded-full p-1">
+                          <Bot className="h-4 w-4 text-white" />
+                        </div>
+                      </ChatBubbleAvatar>
+                      <FormattedMessage content={currentTypingContent} />
+                    </ChatBubble>
+                  </div>
                 )}
-              </Button>
+              </div>
             </div>
-          </div>
 
-          {/* Suggerimenti con scroll orizzontale */}
-          <div className="relative">
-            <div className="flex gap-2 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-200 pb-2">
-              {suggestedPrompts.map(prompt => (
-                <Button
-                  key={prompt}
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleAnalysis(prompt)}
+            {/* Input Area - Bottom */}
+            <div className="border-t bg-white p-4 space-y-3">
+              <div className="relative">
+                <Input
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && inputValue.trim() && handleAnalysis(inputValue)}
+                  placeholder={isLoading ? "Analisi in corso..." : "Fai domande sull'analisi..."}
                   disabled={isLoading}
-                  className="flex-shrink-0 bg-white hover:bg-blue-50 
-                            border border-gray-200 rounded-full h-9
-                            flex items-center gap-2 whitespace-nowrap"
-                >
-                  {getPromptIcon(prompt)}
-                  <span className="text-sm">{prompt}</span>
-                </Button>
-              ))}
+                  className="pr-24 bg-white border-2 border-gray-100 rounded-xl h-12
+                            text-base focus:border-blue-500 focus:ring-0"
+                />
+                <div className="absolute right-2 top-1/2 -translate-y-1/2 flex gap-2">
+                  {inputValue && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setInputValue("")}
+                      className="rounded-full h-8 w-8"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  )}
+                  <Button
+                    size="icon"
+                    className="rounded-full h-8 w-8 bg-blue-500 hover:bg-blue-600 text-white"
+                    onClick={() => handleAnalysis(inputValue)}
+                    disabled={!inputValue.trim() || isLoading}
+                  >
+                    {isLoading ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <SendHorizonal className="h-4 w-4" />
+                    )}
+                  </Button>
+                </div>
+              </div>
+
+              {/* Suggerimenti */}
+              <div className="relative">
+                <div className="flex gap-2 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-200 pb-2">
+                  {suggestedPrompts.map(prompt => (
+                    <Button
+                      key={prompt}
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleAnalysis(prompt)}
+                      disabled={isLoading}
+                      className="flex-shrink-0 bg-white hover:bg-blue-50 
+                                border border-gray-200 rounded-full h-9
+                                flex items-center gap-2 whitespace-nowrap"
+                    >
+                      {getPromptIcon(prompt)}
+                      <span className="text-sm">{prompt}</span>
+                    </Button>
+                  ))}
+                </div>
+                <div className="absolute right-0 top-0 h-full w-8 bg-gradient-to-l from-white pointer-events-none" />
+              </div>
             </div>
-            
-            {/* Fade effect per indicare lo scroll */}
-            <div className="absolute right-0 top-0 h-full w-8 bg-gradient-to-l from-white pointer-events-none" />
           </div>
         </div>
       </DialogContent>
