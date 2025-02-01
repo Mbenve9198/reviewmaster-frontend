@@ -107,7 +107,6 @@ const PaymentForm = ({ clientSecret, amount, onSuccess, onError, onReady }: Paym
       <PaymentElement options={{
         layout: 'tabs',
         paymentMethodOrder: ['card', 'paypal', 'sepa_debit'],
-        paymentMethodTypes: ['card', 'paypal', 'sepa_debit'],
       }} />
       
       {errorMessage && (
