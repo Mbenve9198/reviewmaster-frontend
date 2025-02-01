@@ -16,6 +16,8 @@ import Image from "next/image"
 import { useRouter } from 'next/navigation'
 import { motion } from "framer-motion"
 import { getCookie } from "@/lib/utils"
+import { HandWrittenTitle } from "@/components/ui/hand-writing-text"
+import { Tiles } from "@/components/ui/tiles"
 
 // Aggiungiamo l'interfaccia per il tipo Hotel
 interface Hotel {
@@ -26,7 +28,7 @@ interface Hotel {
   signature: string;
 }
 
-export default function HotelSettingsPage() {
+export default function HotelSettingsPage({ params }: { params: { id: string } }) {
   const router = useRouter()
   const [selectedHotel, setSelectedHotel] = useState("")
   const [hotelData, setHotelData] = useState({
@@ -143,117 +145,69 @@ export default function HotelSettingsPage() {
   const buttonClasses = "relative bg-primary hover:bg-primary/90 text-primary-foreground font-bold transition-all active:top-[2px] active:shadow-[0_0_0_0_#2563eb] disabled:opacity-50 disabled:hover:bg-primary disabled:active:top-0 disabled:active:shadow-[0_4px_0_0_#2563eb]"
 
   return (
-    <div className="min-h-screen bg-white py-12">
-      {/* Header Section */}
-      <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold text-gray-800 mb-4">Hotel Settings</h1>
-        <p className="text-xl text-gray-600">Update your hotel information and preferences</p>
-      </div>
+    <>
+      <Tiles 
+        className="fixed inset-0 -z-10" 
+        rows={100}
+        cols={20}
+        tileSize="md"
+      />
+      
+      <div className="min-h-screen py-12 md:pl-[100px]">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center gap-4 mb-8">
+            <Button
+              onClick={() => router.push('/')}
+              className={buttonClasses}
+            >
+              <ChevronLeft className="w-6 h-6" />
+            </Button>
+          </div>
 
-      <div className="max-w-4xl mx-auto px-6">
-        {/* Hotel Selection */}
-        <div className="flex items-center justify-center gap-4 mb-12">
-          <Button
-            onClick={() => router.push('/')}
-            className={`relative bg-primary hover:bg-primary/90 text-primary-foreground font-bold transition-all active:top-[2px] active:shadow-[0_0_0_0_#2563eb] disabled:opacity-50 disabled:hover:bg-primary disabled:active:top-0 disabled:active:shadow-[0_4px_0_0_#2563eb] text-xl p-4 rounded-full shadow-[0_4px_0_0_#1d6d05]`}
-          >
-            <ChevronLeft className="w-6 h-6" />
-          </Button>
-          <Select value={selectedHotel} onValueChange={handleHotelSelect}>
-            <SelectTrigger className="w-[300px] text-xl border-2">
-              <SelectValue placeholder="Select hotel to edit" />
-            </SelectTrigger>
-            <SelectContent>
-              {hotels.map((hotel) => (
-                <SelectItem key={hotel._id} value={hotel._id} className="text-lg">
-                  {hotel.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+          <HandWrittenTitle 
+            title="Property Settings"
+            subtitle="Edit your property profile"
+          />
 
-        {selectedHotel && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="flex justify-center"
-          >
-            <div className="flex items-start gap-8 w-full max-w-3xl">
-              <div className="w-48 h-48 flex-shrink-0 sticky top-8">
-                <Image
-                  src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Animation%20-%201735492269786-mKYfBdc9ahOzlN7orHkSTFifJ4H3MG.gif"
-                  alt="ReviewMaster Assistant"
-                  width={192}
-                  height={192}
-                  className="w-full h-full object-contain"
-                />
-              </div>
-              <div className="flex-1 space-y-8">
-                <div className="space-y-6">
-                  <div className="space-y-2">
-                    <label htmlFor="name" className="text-xl font-bold text-gray-800">Hotel Name</label>
-                    <Input
-                      id="name"
-                      value={hotelData.name}
-                      onChange={(e) => handleInputChange('name', e.target.value)}
-                      className="p-6 text-xl rounded-2xl border-2 border-gray-200 focus:border-[#58CC02] focus:ring-[#58CC02]"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <label htmlFor="type" className="text-xl font-bold text-gray-800">Property Type</label>
-                    <Select value={hotelData.type} onValueChange={(value) => handleInputChange('type', value)}>
-                      <SelectTrigger className="p-6 text-xl rounded-2xl border-2 border-gray-200 focus:border-[#58CC02] focus:ring-[#58CC02]">
-                        <SelectValue placeholder="Select property type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="hotel">Hotel</SelectItem>
-                        <SelectItem value="b&b">B&B</SelectItem>
-                        <SelectItem value="resort">Resort</SelectItem>
-                        <SelectItem value="apartment">Apartment</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <label htmlFor="description" className="text-xl font-bold text-gray-800">Description</label>
-                    <Textarea
-                      id="description"
-                      value={hotelData.description}
-                      onChange={(e) => handleInputChange('description', e.target.value)}
-                      className="p-6 text-xl rounded-2xl border-2 border-gray-200 focus:border-[#58CC02] focus:ring-[#58CC02] min-h-[200px]"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <label htmlFor="managerSignature" className="text-xl font-bold text-gray-800">Manager Signature</label>
-                    <Input
-                      id="managerSignature"
-                      value={hotelData.managerSignature}
-                      onChange={(e) => handleInputChange('managerSignature', e.target.value)}
-                      className="p-6 text-xl rounded-2xl border-2 border-gray-200 focus:border-[#58CC02] focus:ring-[#58CC02]"
-                    />
-                    <p className="text-sm text-gray-600 px-2">
-                      This signature will appear at the end of your review responses
-                    </p>
-                  </div>
-                </div>
-
-                <Button
-                  onClick={handleSave}
-                  className={`relative bg-primary hover:bg-primary/90 text-primary-foreground font-bold transition-all active:top-[2px] active:shadow-[0_0_0_0_#2563eb] disabled:opacity-50 disabled:hover:bg-primary disabled:active:top-0 disabled:active:shadow-[0_4px_0_0_#2563eb] w-full text-2xl py-8 rounded-2xl shadow-[0_4px_0_0_#1d6d05] flex items-center justify-center gap-2`}
-                >
-                  <Save className="w-6 h-6" />
-                  Save Changes
-                </Button>
-              </div>
+          <div className="space-y-6 mt-12">
+            <div>
+              <label className="block text-sm font-medium mb-2">Hotel Name</label>
+              <Input
+                value={hotelData.name}
+                onChange={(e) => setHotelData({ ...hotelData, name: e.target.value })}
+                className="w-full"
+              />
             </div>
-          </motion.div>
-        )}
+
+            <div>
+              <label className="block text-sm font-medium mb-2">Description</label>
+              <Textarea
+                value={hotelData.description}
+                onChange={(e) => setHotelData({ ...hotelData, description: e.target.value })}
+                className="w-full min-h-[100px]"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2">Manager Signature</label>
+              <Input
+                value={hotelData.managerSignature}
+                onChange={(e) => setHotelData({ ...hotelData, managerSignature: e.target.value })}
+                className="w-full"
+              />
+            </div>
+
+            <Button
+              onClick={handleSave}
+              className={`${buttonClasses} w-full`}
+            >
+              <Save className="w-4 h-4 mr-2" />
+              Save Changes
+            </Button>
+          </div>
+        </div>
       </div>
-    </div>
+    </>
   )
 }
 
