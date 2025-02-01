@@ -134,7 +134,10 @@ const CreditPurchaseSlider = ({ open, onClose }: CreditPurchaseSliderProps) => {
 
   return (
     <Sheet open={open} onOpenChange={onClose}>
-      <SheetContent className="w-full sm:max-w-[600px] overflow-y-auto bg-white">
+      <SheetContent 
+        side="right"
+        className="w-full sm:max-w-[600px] overflow-y-auto bg-white animate-in slide-in-from-right duration-300"
+      >
         <div className="space-y-8 bg-white">
           <SheetHeader className="bg-white">
             <SheetTitle className="text-3xl font-bold flex items-center gap-3">
@@ -223,9 +226,9 @@ const CreditPurchaseSlider = ({ open, onClose }: CreditPurchaseSliderProps) => {
                 value={[credits]}
                 onValueChange={(value) => setCredits(value[0])}
                 min={50}
-                max={50000}
+                max={20000}
                 step={50}
-                className="w-full"
+                className="w-full relative [&_.relative]:z-0 [&_[role=slider]]:z-10"
               />
             </div>
 
