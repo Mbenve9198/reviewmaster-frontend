@@ -30,10 +30,10 @@ const CreditPurchaseSlider = ({ open, onClose }: CreditPurchaseSliderProps) => {
   const [isProcessing, setIsProcessing] = useState(false)
   const [clientSecret, setClientSecret] = useState<string>("")
   const [isStripeLoading, setIsStripeLoading] = useState(true)
-  const { refetch } = useWallet()
+  const { refresh } = useWallet()
 
   const handleSuccess = async () => {
-    await refetch()
+    await refresh()
     onClose()
     toast.success('Payment successful! Credits added to your account.')
   }
