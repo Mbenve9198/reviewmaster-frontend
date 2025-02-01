@@ -414,55 +414,75 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="w-screen h-screen p-0 bg-white max-w-none m-0 rounded-none">
-        <div className="flex items-center justify-between p-6 border-b bg-white shadow-sm">
-          <div className="flex items-center gap-4">
-            <h2 className="text-2xl font-semibold">Analisi Recensioni</h2>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleDownloadPDF}
-              className="rounded-full border-gray-200 hover:bg-gray-50 hover:text-gray-900"
-              disabled={!messages.some(msg => msg.role === "assistant")}
-            >
-              <Download className="h-4 w-4 mr-2" />
-              Scarica PDF
-            </Button>
-          </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={onClose}
-            className="rounded-full hover:bg-gray-100"
-          >
-            <X className="h-5 w-5" />
-          </Button>
-        </div>
-
-        <div className="flex flex-1 overflow-hidden h-[calc(100vh-80px)]">
-          <div className="w-[65%] border-r overflow-y-auto bg-gray-50 p-8">
-            {isLoading && messages.length === 1 ? (
-              <div className="bg-white rounded-xl shadow-sm p-12 flex flex-col items-center justify-center gap-4">
-                <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
-                <p className="text-gray-500">Analizzando le recensioni...</p>
+        <div className="flex flex-1 overflow-hidden h-screen">
+          {/* Left panel */}
+          <div className="w-[65%] border-r overflow-y-auto bg-gray-50">
+            <div className="sticky top-0 z-10 bg-white shadow-sm">
+              <div className="flex items-center justify-between p-6 border-b">
+                <div className="flex items-center gap-4">
+                  <h2 className="text-2xl font-semibold">Analisi Recensioni</h2>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleDownloadPDF}
+                    className="rounded-full border-gray-200 hover:bg-gray-50 hover:text-gray-900"
+                    disabled={!messages.some(msg => msg.role === "assistant")}
+                  >
+                    <Download className="h-4 w-4 mr-2" />
+                    Scarica PDF
+                  </Button>
+                </div>
               </div>
-            ) : messages.length >= 2 && (
-              <div className="bg-white rounded-xl shadow-sm">
-                <FormattedMessage 
-                  content={messages[1].content} 
-                  variant="received" 
-                />
-              </div>
-            )}
-          </div>
-
-          <div className="w-[35%] flex flex-col">
-            <div className="p-4 border-b bg-white flex items-center gap-2">
-              <MessageSquare className="h-4 w-4 text-gray-500" />
-              <h3 className="text-sm font-medium text-gray-500">
-                Domande sull'analisi
-              </h3>
             </div>
-            <div ref={chatContainerRef} className="flex-1 overflow-y-auto bg-white will-change-scroll">
+            
+            <div className="p-8">
+              {isLoading && messages.length === 1 ? (
+                <div className="bg-white rounded-xl shadow-sm p-12 flex flex-col items-center justify-center gap-4">
+                  <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+                  <p className="text-gray-500">Analizzando le recensioni...</p>
+                </div>
+              ) : messages.length >= 2 && (
+                <div className="bg-white rounded-xl shadow-sm">
+                  <FormattedMessage 
+                    content={messages[1].content} 
+                    variant="received" 
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Right panel */}
+          <div className="w-[35%] flex flex-col">
+            <div className="sticky top-0 z-10 bg-white border-b">
+              <div className="flex items-center gap-2 p-4">
+                <MessageSquare className="h-4 w-4 text-gray-500" />
+                <h3 className="text-sm font-medium text-gray-500">
+                  Domande sull'analisi
+                </h3>
+              </div>
+              
+              {/* Suggestions grid instead of horizontal scroll */}
+              <div className="p-4 grid grid-cols-2 gap-2 bg-gray-50">
+                {suggestions.map((suggestion, index) => (
+                  <Button
+                    key={index}
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleAnalysis(suggestion)}
+                    disabled={isLoading}
+                    className="bg-white hover:bg-blue-50 border border-gray-200 
+                             rounded-full h-auto py-2 px-3 flex items-center gap-2
+                             text-left"
+                  >
+                    {getPromptIcon(suggestion)}
+                    <span className="text-sm line-clamp-2">{suggestion}</span>
+                  </Button>
+                ))}
+              </div>
+            </div>
+
+            <div ref={chatContainerRef} className="flex-1 overflow-y-auto bg-white">
               <div className="p-6 space-y-6">
                 {messages.slice(2).map((msg, i) => (
                   <div key={i} className="relative group" style={{ willChange: 'transform' }}>
@@ -501,7 +521,7 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
               </div>
             </div>
 
-            <div className="border-t bg-white p-6 space-y-4">
+            <div className="border-t bg-white p-6">
               <div className="relative">
                 <Input
                   value={inputValue}
@@ -526,27 +546,6 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
                     )}
                   </Button>
                 )}
-              </div>
-
-              <div className="relative">
-                <div className="flex gap-2 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-200 pb-2">
-                  {suggestions.map((suggestion, index) => (
-                    <Button
-                      key={index}
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleAnalysis(suggestion)}
-                      disabled={isLoading}
-                      className="flex-shrink-0 bg-white hover:bg-blue-50 
-                                border border-gray-200 rounded-full h-9
-                                flex items-center gap-2 whitespace-nowrap"
-                    >
-                      {getPromptIcon(suggestion)}
-                      <span className="text-sm">{suggestion}</span>
-                    </Button>
-                  ))}
-                </div>
-                <div className="absolute right-0 top-0 h-full w-8 bg-gradient-to-l from-white pointer-events-none" />
               </div>
             </div>
           </div>
