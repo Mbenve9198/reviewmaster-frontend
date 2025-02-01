@@ -20,6 +20,12 @@ import dynamic from 'next/dynamic'
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { cn } from "@/lib/utils"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 interface AnalyticsDialogProps {
   isOpen: boolean
@@ -232,7 +238,8 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
       const { analysis, suggestions } = await api.analytics.analyzeReviews(
         selectedReviews, 
         prompt,
-        previousMessages
+        previousMessages,
+        messages
       )
       
       // Se è la prima analisi (non ci sono messaggi precedenti), mostra subito il risultato
@@ -462,22 +469,30 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
                 </h3>
               </div>
               
-              {/* Suggestions grid instead of horizontal scroll */}
+              {/* Suggestions grid with tooltips */}
               <div className="p-4 grid grid-cols-2 gap-2 bg-gray-50">
                 {suggestions.map((suggestion, index) => (
-                  <Button
-                    key={index}
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleAnalysis(suggestion)}
-                    disabled={isLoading}
-                    className="bg-white hover:bg-blue-50 border border-gray-200 
-                             rounded-full h-auto py-2 px-3 flex items-center gap-2
-                             text-left"
-                  >
-                    {getPromptIcon(suggestion)}
-                    <span className="text-sm line-clamp-2">{suggestion}</span>
-                  </Button>
+                  <TooltipProvider key={index}>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleAnalysis(suggestion)}
+                          disabled={isLoading}
+                          className="bg-white hover:bg-blue-50 border border-gray-200 
+                                   rounded-full h-auto py-2 px-3 flex items-center gap-2
+                                   text-left w-full"
+                        >
+                          {getPromptIcon(suggestion)}
+                          <span className="text-sm truncate">{suggestion}</span>
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="max-w-[300px] text-sm">{suggestion}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 ))}
               </div>
             </div>
