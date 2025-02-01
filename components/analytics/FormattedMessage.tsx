@@ -239,24 +239,56 @@ export function FormattedMessage({ content, variant = "received" }: FormattedMes
           />
         </div>
 
-        {/* Key Strengths */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold flex items-center gap-2">
-            <span>💪</span> Key Strengths
+        {/* Strengths Section */}
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-3">
+            Punti di Forza
           </h3>
-          {analysisData.strengths.map((strength, i) => (
-            <StrengthCard key={i} strength={strength} />
-          ))}
+          <div className="space-y-4">
+            {analysisData.strengths.map((strength, i) => (
+              <div key={i} className="bg-green-50 rounded-lg p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="font-medium text-gray-900">{strength.title}</h4>
+                  <span className="text-sm text-gray-600">
+                    Menzionato in {strength.mentions} recensioni
+                  </span>
+                </div>
+                <p className="text-sm text-gray-600 mb-2">{strength.details}</p>
+                <blockquote className="text-sm italic text-gray-500 border-l-4 border-green-200 pl-3">
+                  "{strength.quote}"
+                </blockquote>
+              </div>
+            ))}
+          </div>
         </div>
 
-        {/* Critical Issues */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold flex items-center gap-2">
-            <span>⚠️</span> Critical Issues
+        {/* Issues Section */}
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-3">
+            Problematiche
           </h3>
-          {analysisData.issues.map((issue, i) => (
-            <IssueCard key={i} issue={issue} />
-          ))}
+          <div className="space-y-4">
+            {analysisData.issues.map((issue, i) => (
+              <div key={i} className="bg-red-50 rounded-lg p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="font-medium text-gray-900">{issue.title}</h4>
+                  <span className="text-sm text-gray-600">
+                    Menzionato in {issue.mentions} recensioni
+                  </span>
+                </div>
+                <p className="text-sm text-gray-600 mb-2">{issue.details}</p>
+                <blockquote className="text-sm italic text-gray-500 border-l-4 border-red-200 pl-3">
+                  "{issue.quote}"
+                </blockquote>
+                {issue.solution && (
+                  <div className="mt-3 pt-3 border-t border-red-100">
+                    <p className="text-sm font-medium text-gray-900">Soluzione Proposta:</p>
+                    <p className="text-sm text-gray-600">{issue.solution.title}</p>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Quick Wins */}
