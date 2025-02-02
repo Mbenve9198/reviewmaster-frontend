@@ -500,7 +500,7 @@ export function AddPropertyModal({ isOpen, onClose, onSuccess }: AddPropertyModa
             {step === totalSteps && setupCompleted && (
               <div className="space-y-6 text-center py-8">
                 <div className="text-4xl mb-4">
-                  🎉 🎊 ��
+                  🎉 🎊
                 </div>
                 <h2 className="text-2xl font-bold text-gray-800 mb-4">
                   Setup Completed Successfully!
