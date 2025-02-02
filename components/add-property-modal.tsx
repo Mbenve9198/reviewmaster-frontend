@@ -203,6 +203,26 @@ export function AddPropertyModal({ isOpen, onClose, onSuccess }: AddPropertyModa
           throw new Error(error.message || 'Error creating integration')
         }
 
+        const createdIntegration = await integrationResponse.json()
+
+        const syncResponse = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/integrations/${createdIntegration._id}/sync`,
+          {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              maxReviews: parseInt(syncConfig.maxReviews)
+            })
+          }
+        )
+
+        if (!syncResponse.ok) {
+          console.error('Initial sync request failed, but setup was successful')
+        }
+
         setSetupCompleted(true)
         setStep(totalSteps)
       } catch (error) {
