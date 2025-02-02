@@ -134,17 +134,17 @@ export function IntegrationCard({ integration, onSync, onDelete }: IntegrationCa
         }
       )
 
-      if (!response.ok && response.status !== 404) {
-        throw new Error('Failed to delete integration')
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.message || 'Failed to delete integration')
       }
 
-      toast.success("Integration deleted successfully")
-      
+      toast.success("Integration and associated reviews deleted successfully")
       setIsDeleteDialogOpen(false)
       onDelete?.()
     } catch (error) {
       console.error('Delete error:', error)
-      toast.error("Failed to delete integration")
+      toast.error(error instanceof Error ? error.message : "Failed to delete integration")
     } finally {
       setIsDeleting(false)
     }
