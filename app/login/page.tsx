@@ -71,26 +71,28 @@ export default function LoginPage() {
     const loadingToast = toast.loading('Sending reset link...')
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/reset-password-request`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email: resetEmail }),
-      })
+        console.log('Sending reset password request for:', resetEmail);
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/reset-password-request`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email: resetEmail }),
+        })
 
-      const data = await response.json()
-      
-      if (response.ok) {
-        toast.success('Check your email for reset instructions', { id: loadingToast })
-        setShowForgotPassword(false)
-      } else {
-        toast.error(data.message || 'Failed to send reset link', { id: loadingToast })
-      }
+        const data = await response.json()
+        
+        if (response.ok) {
+            toast.success(data.message, { id: loadingToast })
+            setShowForgotPassword(false)
+        } else {
+            toast.error(data.message || 'Failed to send reset link', { id: loadingToast })
+        }
     } catch (error) {
-      toast.error('Failed to send reset link', { id: loadingToast })
+        console.error('Reset password error:', error)
+        toast.error('Failed to send reset link', { id: loadingToast })
     } finally {
-      setIsResetting(false)
+        setIsResetting(false)
     }
   }
 
