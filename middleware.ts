@@ -8,6 +8,7 @@ export function middleware(request: NextRequest) {
   const isVerifyEmailPage = request.nextUrl.pathname === '/verify-email'
   const isResetPasswordPage = request.nextUrl.pathname.startsWith('/reset-password')
   const isPublicPage = isLoginPage || isRegisterPage || isVerifyEmailPage || isResetPasswordPage
+  const isHomePage = request.nextUrl.pathname === '/'
 
   // Se l'utente non è autenticato e sta cercando di accedere a una pagina protetta
   if (!token && !isPublicPage) {
@@ -16,7 +17,12 @@ export function middleware(request: NextRequest) {
 
   // Se l'utente è autenticato e sta cercando di accedere a login/register
   if (token && isPublicPage && !isVerifyEmailPage && !isResetPasswordPage) {
-    return NextResponse.redirect(new URL('/', request.url))
+    return NextResponse.redirect(new URL('/reviews', request.url))
+  }
+
+  // Reindirizza la home page a /reviews
+  if (isHomePage && token) {
+    return NextResponse.redirect(new URL('/reviews', request.url))
   }
 
   return NextResponse.next()
