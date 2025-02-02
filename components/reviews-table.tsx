@@ -132,6 +132,10 @@ export const ReviewsTable = ({
   const [pageIndex, setPageIndex] = useState(0)
   const [pageSize, setPageSize] = useState(resultsPerPage)
   const [isSaving, setIsSaving] = useState(false)
+  const [hotelSettings, setHotelSettings] = useState<{
+    style: 'professional' | 'friendly';
+    length: 'short' | 'medium' | 'long';
+  } | null>(null);
 
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
@@ -421,6 +425,36 @@ export const ReviewsTable = ({
     }
   }, [messages]);
 
+  // Aggiungi useEffect per recuperare i settings dell'hotel
+  useEffect(() => {
+    const fetchHotelSettings = async () => {
+      if (!selectedHotel) return;
+      
+      try {
+        const token = getCookie('token');
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/hotels/${selectedHotel}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          }
+        });
+        
+        if (!response.ok) throw new Error('Failed to fetch hotel settings');
+        
+        const hotel = await response.json();
+        if (hotel.responseSettings) {
+          setHotelSettings(hotel.responseSettings);
+          // Imposta i valori predefiniti dai settings dell'hotel
+          setResponseTone(hotel.responseSettings.style);
+          setResponseLength(hotel.responseSettings.length);
+        }
+      } catch (error) {
+        console.error('Error fetching hotel settings:', error);
+      }
+    };
+
+    fetchHotelSettings();
+  }, [selectedHotel]);
+
   const handleGenerateResponse = async (review: Review) => {
     setSelectedReview(review)
     setIsModalOpen(true)
@@ -433,8 +467,8 @@ export const ReviewsTable = ({
           review.hotelId,
           review.content.text,
           {
-            style: responseTone,
-            length: responseLength,
+            style: responseTone || hotelSettings?.style || 'professional',
+            length: responseLength || hotelSettings?.length || 'medium',
           },
           undefined,
           review._id
