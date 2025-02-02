@@ -431,6 +431,7 @@ export function AddPropertyModal({ isOpen, onClose, onSuccess }: AddPropertyModa
                         <SelectItem value="100">Last 100 reviews</SelectItem>
                         <SelectItem value="200">Last 200 reviews</SelectItem>
                         <SelectItem value="500">Last 500 reviews</SelectItem>
+                        <SelectItem value="1000">Last 1000 reviews</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
