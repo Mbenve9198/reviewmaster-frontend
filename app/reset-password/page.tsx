@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { motion, AnimatePresence } from "framer-motion"
@@ -17,6 +17,12 @@ export default function ResetPasswordPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const token = searchParams.get('token')
+
+  useEffect(() => {
+    if (!token) {
+      router.push('/login')
+    }
+  }, [token, router])
 
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault()

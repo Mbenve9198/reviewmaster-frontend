@@ -18,6 +18,14 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/', request.url))
   }
 
+  // Gestisci il percorso reset-password
+  if (request.nextUrl.pathname === '/reset-password') {
+    const token = request.nextUrl.searchParams.get('token')
+    if (!token) {
+      return NextResponse.redirect(new URL('/login', request.url))
+    }
+  }
+
   return NextResponse.next()
 }
 
@@ -32,5 +40,6 @@ export const config = {
      * - favicon.ico (favicon file)
      */
     '/((?!api|_next/static|_next/image|favicon.ico).*)',
+    '/reset-password'
   ],
 } 
