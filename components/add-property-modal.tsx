@@ -187,7 +187,7 @@ export function AddPropertyModal({ isOpen, onClose, onSuccess }: AddPropertyModa
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[600px] p-0 bg-white">
+      <DialogContent className="sm:min-w-[700px] md:min-w-[800px] lg:min-w-[900px] max-w-[90vw] max-h-[90vh] overflow-y-auto p-0 bg-white">
         <div className="p-8">
           <Progress 
             value={(step / totalSteps) * 100} 
