@@ -109,6 +109,32 @@ export function AddPropertyModal({ isOpen, onClose, onSuccess }: AddPropertyModa
 
   const handleContinue = async () => {
     if (step < totalSteps - 1) {
+      if (step === 1) {
+        if (!hotelData.name || !hotelData.type) {
+          setError('Please fill in all required fields')
+          return
+        }
+      }
+      if (step === 2) {
+        if (!hotelData.description) {
+          setError('Please provide a description for your property')
+          return
+        }
+      }
+      if (step === 3) {
+        if (!hotelData.managerSignature) {
+          setError('Please provide a manager signature')
+          return
+        }
+      }
+      if (step === 5) {
+        if (!platformUrl) {
+          setError('Please provide a valid platform URL')
+          return
+        }
+      }
+
+      setError(null)
       setStep(step + 1)
     } else if (step === totalSteps - 1) {
       try {
@@ -116,7 +142,11 @@ export function AddPropertyModal({ isOpen, onClose, onSuccess }: AddPropertyModa
         setError(null)
         const token = getCookie('token')
 
-        // First create the hotel
+        if (!hotelData.name || !hotelData.type || !hotelData.description || 
+            !hotelData.managerSignature || !platformUrl || !selectedPlatform) {
+          throw new Error('Missing required fields')
+        }
+
         const hotelPayload: HotelPayload = {
           name: hotelData.name,
           type: hotelData.type.toLowerCase(),
@@ -143,7 +173,6 @@ export function AddPropertyModal({ isOpen, onClose, onSuccess }: AddPropertyModa
           throw new Error(createdHotel.message || 'Error creating hotel')
         }
 
-        // Then create the integration
         const integrationPayload = {
           hotelId: createdHotel._id,
           platform: selectedPlatform,
