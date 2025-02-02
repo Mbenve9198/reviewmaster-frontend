@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { motion, AnimatePresence } from "framer-motion"
@@ -18,15 +18,14 @@ export default function ResetPasswordPage() {
   const searchParams = useSearchParams()
   const token = searchParams.get('token')
 
-  useEffect(() => {
-    if (!token) {
-      router.push('/login')
-    }
-  }, [token, router])
-
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault()
     
+    if (!token) {
+      setError("Invalid reset token")
+      return
+    }
+
     if (password !== confirmPassword) {
       setError("Passwords don't match")
       return
