@@ -16,6 +16,9 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
+  const [showForgotPassword, setShowForgotPassword] = useState(false)
+  const [resetEmail, setResetEmail] = useState("")
+  const [isResetting, setIsResetting] = useState(false)
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -61,6 +64,36 @@ export default function LoginPage() {
     }
   }
 
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsResetting(true)
+    
+    const loadingToast = toast.loading('Sending reset link...')
+
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/reset-password-request`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: resetEmail }),
+      })
+
+      const data = await response.json()
+      
+      if (response.ok) {
+        toast.success('Check your email for reset instructions', { id: loadingToast })
+        setShowForgotPassword(false)
+      } else {
+        toast.error(data.message || 'Failed to send reset link', { id: loadingToast })
+      }
+    } catch (error) {
+      toast.error('Failed to send reset link', { id: loadingToast })
+    } finally {
+      setIsResetting(false)
+    }
+  }
+
   const buttonClasses = "relative bg-primary hover:bg-primary/90 text-primary-foreground font-bold transition-all active:top-[2px] active:shadow-[0_0_0_0_#2563eb] disabled:opacity-50 disabled:hover:bg-primary disabled:active:top-0 disabled:active:shadow-[0_4px_0_0_#2563eb]"
 
   return (
@@ -76,90 +109,148 @@ export default function LoginPage() {
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
           <HandWrittenTitle 
             title="Replai"
-            subtitle="Sign in to your account"
+            subtitle={showForgotPassword ? "Reset your password" : "Sign in to your account"}
           />
         </div>
 
         <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
           <div className="bg-white py-8 px-4 shadow sm:rounded-3xl sm:px-10 border-2 border-gray-100">
-            <form className="space-y-6" onSubmit={handleLogin}>
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                  Email address
-                </label>
-                <div className="mt-1">
-                  <Input
-                    id="email"
-                    name="email"
-                    type="email"
-                    autoComplete="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="p-4 text-lg rounded-xl border-2 border-gray-200 focus:border-primary focus:ring-primary"
-                    disabled={isLoading}
-                  />
-                </div>
-              </div>
+            {!showForgotPassword ? (
+              <>
+                <form className="space-y-6" onSubmit={handleLogin}>
+                  <div>
+                    <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                      Email address
+                    </label>
+                    <div className="mt-1">
+                      <Input
+                        id="email"
+                        name="email"
+                        type="email"
+                        autoComplete="email"
+                        required
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="p-4 text-lg rounded-xl border-2 border-gray-200 focus:border-primary focus:ring-primary"
+                        disabled={isLoading}
+                      />
+                    </div>
+                  </div>
 
-              <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                  Password
-                </label>
-                <div className="mt-1">
-                  <Input
-                    id="password"
-                    name="password"
-                    type="password"
-                    autoComplete="current-password"
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="p-4 text-lg rounded-xl border-2 border-gray-200 focus:border-primary focus:ring-primary"
-                    disabled={isLoading}
-                  />
-                </div>
-              </div>
+                  <div>
+                    <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                      Password
+                    </label>
+                    <div className="mt-1">
+                      <Input
+                        id="password"
+                        name="password"
+                        type="password"
+                        autoComplete="current-password"
+                        required
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="p-4 text-lg rounded-xl border-2 border-gray-200 focus:border-primary focus:ring-primary"
+                        disabled={isLoading}
+                      />
+                    </div>
+                  </div>
 
-              <div>
-                <Button
-                  type="submit"
-                  disabled={isLoading}
-                  className={`${buttonClasses} w-full text-xl py-6 rounded-xl shadow-[0_4px_0_0_#2563eb] flex items-center justify-center`}
-                >
-                  {isLoading ? (
-                    <motion.div
-                      animate={{ rotate: 360 }}
-                      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                      className="w-6 h-6 border-2 border-white border-t-transparent rounded-full"
-                    />
-                  ) : (
-                    "Sign in"
-                  )}
-                </Button>
-              </div>
-            </form>
+                  <div>
+                    <Button
+                      type="submit"
+                      disabled={isLoading}
+                      className={`${buttonClasses} w-full text-xl py-6 rounded-xl shadow-[0_4px_0_0_#2563eb] flex items-center justify-center`}
+                    >
+                      {isLoading ? (
+                        <motion.div
+                          animate={{ rotate: 360 }}
+                          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                          className="w-6 h-6 border-2 border-white border-t-transparent rounded-full"
+                        />
+                      ) : (
+                        "Sign in"
+                      )}
+                    </Button>
+                  </div>
+                </form>
 
-            <div className="mt-6">
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-300" />
-                </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-white text-gray-500">Or</span>
-                </div>
-              </div>
+                <div className="mt-6">
+                  <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                      <div className="w-full border-t border-gray-300" />
+                    </div>
+                    <div className="relative flex justify-center text-sm">
+                      <span className="px-2 bg-white text-gray-500">Or</span>
+                    </div>
+                  </div>
 
-              <div className="mt-6">
-                <div className="flex items-center justify-center">
-                  <div className="text-sm">
-                    <Link href="/signup" className="font-medium text-primary hover:text-primary/90">
-                      Don't have an account? Sign up
-                    </Link>
+                  <div className="mt-6">
+                    <div className="flex items-center justify-center">
+                      <div className="text-sm">
+                        <Link href="/signup" className="font-medium text-primary hover:text-primary/90">
+                          Don't have an account? Sign up
+                        </Link>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
+
+                <div className="mt-4 text-sm text-center">
+                  <button
+                    onClick={() => setShowForgotPassword(true)}
+                    className="text-primary hover:text-primary/90 font-medium"
+                  >
+                    Forgot your password?
+                  </button>
+                </div>
+              </>
+            ) : (
+              <form onSubmit={handleResetPassword} className="space-y-6">
+                <div>
+                  <label htmlFor="reset-email" className="block text-sm font-medium text-gray-700">
+                    Email address
+                  </label>
+                  <div className="mt-1">
+                    <Input
+                      id="reset-email"
+                      name="email"
+                      type="email"
+                      required
+                      value={resetEmail}
+                      onChange={(e) => setResetEmail(e.target.value)}
+                      className="p-4 text-lg rounded-xl border-2 border-gray-200 focus:border-primary focus:ring-primary"
+                      disabled={isResetting}
+                    />
+                  </div>
+                </div>
+
+                <div className="flex gap-4">
+                  <Button
+                    type="button"
+                    onClick={() => setShowForgotPassword(false)}
+                    className="flex-1 bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  >
+                    Back
+                  </Button>
+                  <Button
+                    type="submit"
+                    disabled={isResetting}
+                    className="flex-1 bg-primary text-primary-foreground"
+                  >
+                    {isResetting ? (
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                        className="w-6 h-6 border-2 border-white border-t-transparent rounded-full"
+                      />
+                    ) : (
+                      "Reset Password"
+                    )}
+                  </Button>
+                </div>
+              </form>
+            )}
           </div>
         </div>
 
