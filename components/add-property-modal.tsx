@@ -233,11 +233,15 @@ export function AddPropertyModal({ isOpen, onClose, onSuccess }: AddPropertyModa
               <div className="space-y-6">
                 <div className="space-y-2">
                   <label className="text-xl font-bold text-gray-800">Description</label>
+                  <p className="text-sm text-gray-600 px-2">
+                    The more detailed information you provide about your property (number of rooms, stars, amenities, location highlights, etc.), 
+                    the more relevant and accurate the AI responses and analysis will be.
+                  </p>
                   <Textarea
                     value={hotelData.description}
                     onChange={(e) => setHotelData({ ...hotelData, description: e.target.value })}
                     className="p-6 text-xl rounded-2xl border-2 border-gray-200 focus:border-[#58CC02] focus:ring-[#58CC02] min-h-[200px]"
-                    placeholder="Describe your property..."
+                    placeholder="Example: Our 4-star boutique hotel features 45 rooms and suites, each uniquely designed with modern amenities. Located in the heart of the historic district, we're just steps away from major attractions. Our facilities include a rooftop restaurant, spa, fitness center, and a conference room. We pride ourselves on our personalized service and attention to detail, maintaining high cleanliness standards, and offering a blend of traditional hospitality with modern comfort."
                   />
                 </div>
               </div>
@@ -365,6 +369,28 @@ export function AddPropertyModal({ isOpen, onClose, onSuccess }: AddPropertyModa
                     <p className="text-sm text-gray-500">
                       Example: {PLATFORMS.find(p => p.id === selectedPlatform)?.example}
                     </p>
+                    {selectedPlatform === 'google' && (
+                      <div className="text-sm text-gray-600 space-y-2">
+                        <p>How to find your Google Maps URL:</p>
+                        <ol className="list-decimal pl-4 space-y-1">
+                          <li>
+                            Go to{" "}
+                            <a 
+                              href="https://www.google.com/maps" 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="text-primary hover:underline"
+                            >
+                              Google Maps
+                            </a>
+                          </li>
+                          <li>Search for your hotel/property name</li>
+                          <li>Click on your property from the search results</li>
+                          <li>Click the "Share" button</li>
+                          <li>Copy the link provided</li>
+                        </ol>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
