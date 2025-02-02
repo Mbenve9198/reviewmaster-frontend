@@ -25,9 +25,10 @@ export function ClientLayout({
         <main className={`flex-1 overflow-auto ${isAuthPage ? 'relative' : ''}`}>
           {isAuthPage && (
             <Particles
-              className="absolute inset-0"
-              quantity={100}
-              ease={80}
+              className="absolute inset-0 -z-10"
+              quantity={75}
+              ease={50}
+              size={0.8}
               color="#94a3b8"
               refresh={false}
             />
