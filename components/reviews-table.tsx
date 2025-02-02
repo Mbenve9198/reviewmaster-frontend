@@ -429,18 +429,12 @@ export const ReviewsTable = ({
     setTimeout(async () => {
       setIsGenerating(true)
       try {
-        // Usa i settings dell'hotel come default
-        const defaultSettings = review.hotel?.responseSettings || {
-          style: 'professional',
-          length: 'medium'
-        }
-
         const response = await generateResponse(
           review.hotelId,
           review.content.text,
           {
-            style: responseTone || defaultSettings.style,
-            length: responseLength || defaultSettings.length,
+            style: responseTone,
+            length: responseLength,
           },
           undefined,
           review._id
