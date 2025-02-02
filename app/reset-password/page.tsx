@@ -9,6 +9,10 @@ import { toast } from "react-hot-toast"
 import { HandWrittenTitle } from "@/components/ui/hand-writing-text"
 import { Tiles } from "@/components/ui/tiles"
 
+export const metadata = {
+  layout: 'auth'
+}
+
 export default function ResetPasswordPage() {
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
