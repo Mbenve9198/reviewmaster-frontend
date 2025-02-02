@@ -85,7 +85,8 @@ interface AddPropertyModalProps {
 
 export function AddPropertyModal({ isOpen, onClose, onSuccess }: AddPropertyModalProps) {
   const [step, setStep] = useState(1)
-  const totalSteps = 6
+  const totalSteps = 7
+  const [setupCompleted, setSetupCompleted] = useState(false)
   const [hotelData, setHotelData] = useState({
     name: "",
     type: "",
@@ -107,9 +108,9 @@ export function AddPropertyModal({ isOpen, onClose, onSuccess }: AddPropertyModa
   const [error, setError] = useState<string | null>(null)
 
   const handleContinue = async () => {
-    if (step < totalSteps) {
+    if (step < totalSteps - 1) {
       setStep(step + 1)
-    } else {
+    } else if (step === totalSteps - 1) {
       try {
         setIsLoading(true)
         setError(null)
@@ -173,15 +174,17 @@ export function AddPropertyModal({ isOpen, onClose, onSuccess }: AddPropertyModa
           throw new Error(error.message || 'Error creating integration')
         }
 
-        onSuccess()
-        onClose()
-        toast.success('Property and integration setup completed successfully')
+        setSetupCompleted(true)
+        setStep(totalSteps)
       } catch (error) {
         console.error('Setup error:', error)
         setError(error instanceof Error ? error.message : 'An unexpected error occurred')
       } finally {
         setIsLoading(false)
       }
+    } else {
+      onSuccess()
+      onClose()
     }
   }
 
@@ -386,8 +389,7 @@ export function AddPropertyModal({ isOpen, onClose, onSuccess }: AddPropertyModa
                           </li>
                           <li>Search for your hotel/property name</li>
                           <li>Click on your property from the search results</li>
-                          <li>Click the "Share" button</li>
-                          <li>Copy the link provided</li>
+                          <li>Copy the URL from your browser&apos;s address bar</li>
                         </ol>
                       </div>
                     )}
@@ -465,6 +467,36 @@ export function AddPropertyModal({ isOpen, onClose, onSuccess }: AddPropertyModa
               </div>
             )}
 
+            {/* Step 7: Success */}
+            {step === totalSteps && setupCompleted && (
+              <div className="space-y-6 text-center py-8">
+                <div className="text-4xl mb-4">
+                  🎉 🎊 ��
+                </div>
+                <h2 className="text-2xl font-bold text-gray-800 mb-4">
+                  Setup Completed Successfully!
+                </h2>
+                <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+                  Your property and {selectedPlatform} integration have been set up successfully! 
+                  You can now start managing your reviews.
+                </p>
+                <p className="text-gray-600 mt-4">
+                  Want to import reviews from other platforms? Visit the{" "}
+                  <span className="text-primary font-semibold">Integrations</span> section 
+                  to add more platforms like Google, Booking.com, or TripAdvisor.
+                </p>
+                <Button
+                  onClick={() => {
+                    onSuccess()
+                    onClose()
+                  }}
+                  className="mt-6 relative bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-6 px-8 text-xl rounded-2xl shadow-[0_4px_0_0_#1e40af] transition-all active:top-[2px] active:shadow-[0_0_0_0_#1e40af]"
+                >
+                  Get Started
+                </Button>
+              </div>
+            )}
+
             {error && (
               <div className="text-red-500 text-sm mt-2">
                 {error}
@@ -472,7 +504,7 @@ export function AddPropertyModal({ isOpen, onClose, onSuccess }: AddPropertyModa
             )}
 
             <div className="flex justify-end gap-4 mt-8">
-              {step > 1 && (
+              {step > 1 && step < totalSteps && (
                 <Button
                   onClick={() => setStep(step - 1)}
                   variant="outline"
@@ -481,20 +513,22 @@ export function AddPropertyModal({ isOpen, onClose, onSuccess }: AddPropertyModa
                   Back
                 </Button>
               )}
-              <Button
-                onClick={handleContinue}
-                disabled={isLoading}
-                className="relative bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-6 px-8 text-xl rounded-2xl shadow-[0_4px_0_0_#1e40af] transition-all active:top-[2px] active:shadow-[0_0_0_0_#1e40af]"
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Setting up property...
-                  </>
-                ) : (
-                  step === totalSteps ? "Complete Setup" : "Continue"
-                )}
-              </Button>
+              {step < totalSteps && (
+                <Button
+                  onClick={handleContinue}
+                  disabled={isLoading}
+                  className="relative bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-6 px-8 text-xl rounded-2xl shadow-[0_4px_0_0_#1e40af] transition-all active:top-[2px] active:shadow-[0_0_0_0_#1e40af]"
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Setting up property...
+                    </>
+                  ) : (
+                    step === totalSteps - 1 ? "Complete Setup" : "Continue"
+                  )}
+                </Button>
+              )}
             </div>
           </div>
         </div>
