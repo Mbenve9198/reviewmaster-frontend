@@ -425,14 +425,14 @@ export const ReviewsTable = ({
     }
   }, [messages]);
 
-  // Aggiungi useEffect per recuperare i settings dell'hotel
+  // Modifica useEffect per usare l'hotelId dalla review selezionata
   useEffect(() => {
     const fetchHotelSettings = async () => {
-      if (!selectedHotel) return;
+      if (!selectedReview?.hotelId) return;
       
       try {
         const token = getCookie('token');
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/hotels/${selectedHotel}`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/hotels/${selectedReview.hotelId}`, {
           headers: {
             'Authorization': `Bearer ${token}`,
           }
@@ -453,7 +453,7 @@ export const ReviewsTable = ({
     };
 
     fetchHotelSettings();
-  }, [selectedHotel]);
+  }, [selectedReview?.hotelId]);
 
   const handleGenerateResponse = async (review: Review) => {
     setSelectedReview(review)
