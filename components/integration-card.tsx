@@ -86,11 +86,33 @@ export function IntegrationCard({ integration, onSync, onDelete }: IntegrationCa
   const handleSync = async () => {
     try {
       setIsSyncing(true)
+      const token = getCookie('token')
+      
+      // Facciamo il sync passando l'ultima data di sincronizzazione
+      const syncResponse = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/integrations/${integration._id}/sync`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            lastSyncDate: integration.syncConfig.lastSync || null // Se null, è la prima sincronizzazione
+          })
+        }
+      )
+
+      if (!syncResponse.ok) {
+        const error = await syncResponse.json()
+        throw new Error(error.message || 'Failed to sync reviews')
+      }
+
       await onSync()
       toast.success("Sync completed successfully")
     } catch (error) {
       console.error('Sync error:', error)
-      toast.error("Failed to sync reviews")
+      toast.error(error instanceof Error ? error.message : "Failed to sync reviews")
     } finally {
       setIsSyncing(false)
     }
