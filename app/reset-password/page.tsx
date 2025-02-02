@@ -20,20 +20,21 @@ export default function ResetPasswordPage() {
 
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault()
+    console.log('Starting password reset with token:', token) // Debug log
     
     if (!token) {
-      setError("Invalid reset token")
-      return
+        setError("Reset token is missing")
+        return
     }
 
     if (password !== confirmPassword) {
-      setError("Passwords don't match")
-      return
+        setError("Passwords don't match")
+        return
     }
 
     if (password.length < 6) {
-      setError("Password must be at least 6 characters long")
-      return
+        setError("Password must be at least 6 characters long")
+        return
     }
     
     setError(null)
@@ -41,36 +42,41 @@ export default function ResetPasswordPage() {
     const loadingToast = toast.loading('Resetting password...')
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/reset-password`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-          token,
-          newPassword: password
+        console.log('Sending reset request to API') // Debug log
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/reset-password`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify({ 
+                token: token,
+                newPassword: password
+            })
         })
-      })
 
-      const data = await response.json()
+        console.log('Response status:', response.status) // Debug log
+        const data = await response.json()
+        console.log('Response data:', data) // Debug log
 
-      if (response.ok) {
-        toast.success('Password reset successful! Please login with your new password.', {
-          id: loadingToast,
-          duration: 5000
-        })
-        router.push('/login')
-      } else {
-        toast.error(data.message || 'Failed to reset password', { id: loadingToast })
-        setError(data.message || 'Failed to reset password')
-      }
-    } catch (error: any) {
-      console.error('Reset password error:', error)
-      const errorMessage = 'Failed to reset password. Please try again.'
-      toast.error(errorMessage, { id: loadingToast })
-      setError(errorMessage)
+        if (response.ok) {
+            toast.success('Password reset successful! Please login with your new password.', {
+                id: loadingToast,
+                duration: 5000
+            })
+            router.push('/login')
+        } else {
+            const errorMessage = data.message || 'Failed to reset password'
+            console.error('Reset failed:', errorMessage) // Debug log
+            toast.error(errorMessage, { id: loadingToast })
+            setError(errorMessage)
+        }
+    } catch (error) {
+        console.error('Reset password error:', error)
+        toast.error('Failed to reset password', { id: loadingToast })
+        setError('Failed to reset password. Please try again.')
     } finally {
-      setIsLoading(false)
+        setIsLoading(false)
     }
   }
 

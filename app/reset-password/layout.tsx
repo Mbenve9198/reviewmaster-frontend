@@ -21,7 +21,7 @@ export default function ResetPasswordLayout({
 
   // Se c'è il token, mostra la pagina di reset
   if (token) {
-    return <>{children}</>
+    return <div className="h-screen">{children}</div>
   }
 
   // Durante il reindirizzamento, mostra un loader
