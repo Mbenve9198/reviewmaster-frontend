@@ -3,6 +3,10 @@
 import { useSearchParams, useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 
+export const metadata = {
+  layout: 'auth'
+}
+
 export default function ResetPasswordLayout({
   children,
 }: {
