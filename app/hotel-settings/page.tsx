@@ -27,6 +27,10 @@ interface Hotel {
   type: string;
   description: string;
   signature: string;
+  responseSettings: {
+    style: 'professional' | 'friendly' | 'formal';
+    length: 'short' | 'medium' | 'long';
+  };
 }
 
 export default function HotelSettingsPage() {
@@ -37,7 +41,11 @@ export default function HotelSettingsPage() {
     name: "",
     type: "",
     description: "",
-    signature: ""
+    signature: "",
+    responseSettings: {
+      style: "professional",
+      length: "medium"
+    }
   })
   const [isLoading, setIsLoading] = useState(true)
 
@@ -62,7 +70,11 @@ export default function HotelSettingsPage() {
             name: hotel.name,
             type: hotel.type,
             description: hotel.description || "",
-            signature: hotel.signature || ""
+            signature: hotel.signature || "",
+            responseSettings: hotel.responseSettings || {
+              style: "professional",
+              length: "medium"
+            }
           })
         } else if (data.length > 0) {
           setSelectedHotel(data[0]._id)
@@ -70,7 +82,11 @@ export default function HotelSettingsPage() {
             name: data[0].name,
             type: data[0].type,
             description: data[0].description || "",
-            signature: data[0].signature || ""
+            signature: data[0].signature || "",
+            responseSettings: data[0].responseSettings || {
+              style: "professional",
+              length: "medium"
+            }
           })
         }
       } catch (error) {
@@ -93,7 +109,11 @@ export default function HotelSettingsPage() {
         name: hotel.name,
         type: hotel.type,
         description: hotel.description || "",
-        signature: hotel.signature || ""
+        signature: hotel.signature || "",
+        responseSettings: hotel.responseSettings || {
+          style: "professional",
+          length: "medium"
+        }
       })
     }
   }
@@ -198,6 +218,57 @@ export default function HotelSettingsPage() {
                     onChange={(e) => setHotelData({ ...hotelData, signature: e.target.value })}
                     className="w-full p-6 text-xl rounded-xl border-2 border-gray-200 focus:border-primary focus:ring-primary bg-white"
                   />
+                </div>
+
+                <div>
+                  <label className="text-xl font-bold text-gray-800 mb-2 block">Default Response Settings</label>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm font-medium text-gray-600 mb-1 block">Response Style</label>
+                      <Select
+                        value={hotelData.responseSettings.style}
+                        onValueChange={(value) => setHotelData({
+                          ...hotelData,
+                          responseSettings: {
+                            ...hotelData.responseSettings,
+                            style: value as 'professional' | 'friendly' | 'formal'
+                          }
+                        })}
+                      >
+                        <SelectTrigger className="w-full p-6 text-xl rounded-xl border-2 border-gray-200 focus:border-primary focus:ring-primary bg-white">
+                          <SelectValue placeholder="Select style" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="professional">Professional</SelectItem>
+                          <SelectItem value="friendly">Friendly</SelectItem>
+                          <SelectItem value="formal">Formal</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div>
+                      <label className="text-sm font-medium text-gray-600 mb-1 block">Response Length</label>
+                      <Select
+                        value={hotelData.responseSettings.length}
+                        onValueChange={(value) => setHotelData({
+                          ...hotelData,
+                          responseSettings: {
+                            ...hotelData.responseSettings,
+                            length: value as 'short' | 'medium' | 'long'
+                          }
+                        })}
+                      >
+                        <SelectTrigger className="w-full p-6 text-xl rounded-xl border-2 border-gray-200 focus:border-primary focus:ring-primary bg-white">
+                          <SelectValue placeholder="Select length" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="short">Short</SelectItem>
+                          <SelectItem value="medium">Medium</SelectItem>
+                          <SelectItem value="long">Long</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
                 </div>
 
                 <Button
