@@ -11,7 +11,6 @@ import { setCookie } from 'cookies-next'
 import { toast } from "react-hot-toast"
 import { HandWrittenTitle } from "@/components/ui/hand-writing-text"
 import { Tiles } from "@/components/ui/tiles"
-import { AuthLayout } from "@/components/auth-layout"
 
 export default function SignUpPage() {
   const [email, setEmail] = useState("")
@@ -76,7 +75,7 @@ export default function SignUpPage() {
   }
 
   return (
-    <AuthLayout>
+    <>
       <Tiles 
         className="fixed inset-0 -z-10" 
         rows={100}
@@ -210,6 +209,6 @@ export default function SignUpPage() {
           )}
         </AnimatePresence>
       </div>
-    </AuthLayout>
+    </>
   )
 }

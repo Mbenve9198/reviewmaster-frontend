@@ -9,7 +9,6 @@ import { useRouter } from 'next/navigation'
 import { toast } from "react-hot-toast"
 import { HandWrittenTitle } from "@/components/ui/hand-writing-text"
 import { Tiles } from "@/components/ui/tiles"
-import { AuthLayout } from "@/components/auth-layout"
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
@@ -100,7 +99,7 @@ export default function LoginPage() {
   const buttonClasses = "relative bg-primary hover:bg-primary/90 text-primary-foreground font-bold transition-all active:top-[2px] active:shadow-[0_0_0_0_#2563eb] disabled:opacity-50 disabled:hover:bg-primary disabled:active:top-0 disabled:active:shadow-[0_4px_0_0_#2563eb]"
 
   return (
-    <AuthLayout>
+    <>
       <Tiles 
         className="fixed inset-0 -z-10" 
         rows={100}
@@ -273,6 +272,6 @@ export default function LoginPage() {
           )}
         </AnimatePresence>
       </div>
-    </AuthLayout>
+    </>
   )
 }
