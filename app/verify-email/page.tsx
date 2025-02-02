@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { toast } from 'react-hot-toast'
-import Image from 'next/image'
 import { Button } from "@/components/ui/button"
 
 export default function VerifyEmailPage() {
@@ -89,15 +88,6 @@ export default function VerifyEmailPage() {
     <div className="min-h-screen bg-white flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <h1 className="text-4xl font-bold text-center text-[#3b82f6] mb-6">ReviewMaster</h1>
-        <div className="relative w-32 h-32 mx-auto mb-8">
-          <Image
-            src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Animation%20-%201735475353995%20(1)-gb0Iqm2o4UfOtqKV9ci6WaYC8gW8R8.gif"
-            alt="ReviewMaster Mascot"
-            layout="fill"
-            objectFit="contain"
-            priority
-          />
-        </div>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">

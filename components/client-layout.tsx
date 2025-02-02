@@ -14,9 +14,9 @@ export function ClientLayout({
   children: React.ReactNode
 }) {
   const pathname = usePathname()
-  const noSidebarPaths = ['/onboarding', '/login', '/signup', '/reset-password']
+  const noSidebarPaths = ['/onboarding', '/login', '/signup', '/reset-password', '/verify-email']
   const shouldShowSidebar = !noSidebarPaths.includes(pathname)
-  const isAuthPage = ['/login', '/signup', '/reset-password'].includes(pathname)
+  const isAuthPage = ['/login', '/signup', '/reset-password', '/verify-email'].includes(pathname)
 
   return (
     <Elements stripe={stripePromise}>
