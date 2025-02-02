@@ -3,9 +3,10 @@
 import { useSearchParams, useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 
-export const metadata = {
-  layout: 'auth'
-}
+// Rimuoviamo metadata poiché non può essere usato in un componente client
+// export const metadata = {
+//   layout: 'auth'
+// }
 
 export default function ResetPasswordLayout({
   children,

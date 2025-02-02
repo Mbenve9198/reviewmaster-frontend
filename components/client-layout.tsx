@@ -13,7 +13,7 @@ export function ClientLayout({
   children: React.ReactNode
 }) {
   const pathname = usePathname()
-  const noSidebarPaths = ['/onboarding', '/login', '/signup']
+  const noSidebarPaths = ['/onboarding', '/login', '/signup', '/reset-password']
   const shouldShowSidebar = !noSidebarPaths.includes(pathname)
 
   return (
