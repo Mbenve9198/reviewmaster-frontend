@@ -248,9 +248,9 @@ const OnboardingView = ({ onAddProperty }: { onAddProperty: () => void }) => (
             description: "Generate personalized responses in seconds with AI"
           },
           {
-            icon: "📊",
-            title: "Analytics",
-            description: "Get insights about your reviews and improve your service"
+            icon: "🧠",
+            title: "Smart Analytics",
+            description: "AI analyzes reviews to uncover insights, suggests improvements, and answers your questions"
           }
         ].map((feature, i) => (
           <div 
