@@ -61,8 +61,11 @@ export function useUserStats() {
   }, [])
 
   useEffect(() => {
+    const interval = setInterval(fetchStats, 5000)
     fetchStats()
-  }, [fetchStats])
+
+    return () => clearInterval(interval)
+  }, [])
 
   return { ...stats, refetch: fetchStats }
 }

@@ -136,163 +136,75 @@ const CreditPurchaseSlider = ({ open, onClose }: CreditPurchaseSliderProps) => {
 
   return (
     <Sheet open={open} onOpenChange={onClose}>
-      <SheetContent 
-        side="right"
-        className="w-full sm:max-w-[600px] overflow-y-auto bg-white animate-in slide-in-from-right duration-300"
-      >
-        <div className="space-y-8 bg-white">
-          <SheetHeader className="bg-white">
-            <SheetTitle className="text-3xl font-bold flex items-center gap-3">
-              <Sparkles className="w-8 h-8 text-primary" />
-              Purchase Credits
-            </SheetTitle>
-            <SheetDescription className="text-lg">
-              Choose the amount of credits you want to purchase
-            </SheetDescription>
-          </SheetHeader>
+      <SheetContent className="w-full sm:max-w-xl overflow-y-auto">
+        <SheetHeader className="mb-6">
+          <SheetTitle>Acquista Crediti</SheetTitle>
+          <SheetDescription>
+            Seleziona la quantità di crediti da acquistare
+          </SheetDescription>
+        </SheetHeader>
 
-          <motion.div 
-            className="space-y-8 bg-white"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              {creditOptions.map((option) => {
-                const price = calculateTotalPrice(option.credits)
-                const pricePerCredit = calculatePricePerCredit(option.credits)
-                const savings = calculateSavings(option.credits)
-                
-                return (
-                  <button
-                    key={option.credits}
-                    onClick={() => setCredits(option.credits)}
-                    className={`group relative overflow-hidden bg-white rounded-2xl border-2 transition-all duration-200 hover:scale-[1.02] ${
-                      credits === option.credits 
-                        ? 'border-primary shadow-lg' 
-                        : 'border-gray-200 hover:border-primary/50'
-                    }`}
-                  >
-                    <div className="p-6 space-y-2">
-                      <div className="text-sm font-medium text-gray-500">
-                        {option.label}
-                      </div>
-                      <div className="text-2xl font-bold text-primary">
-                        {option.credits}
-                      </div>
-                      <div className="text-sm text-gray-500">
-                        credits
-                      </div>
-                      <div className="text-lg font-semibold">
-                        €{price.toFixed(2)}
-                      </div>
-                      <div className="text-sm text-gray-500">
-                        €{pricePerCredit.toFixed(2)}/credit
-                      </div>
-                    </div>
-                    {savings > 0 && (
-                      <div className="bg-gradient-to-r from-green-500 to-emerald-500 text-white p-4 text-center">
-                        <span className="text-sm font-bold">
-                          Save €{savings.toFixed(2)}
-                        </span>
-                      </div>
-                    )}
-                  </button>
-                )
-              })}
+        <div className="space-y-8">
+          {/* Slider e informazioni sui crediti */}
+          <div className="space-y-4">
+            <Slider
+              value={[credits]}
+              onValueChange={([value]) => setCredits(value)}
+              min={34}
+              max={10000}
+              step={1}
+              className="w-full"
+            />
+            
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div className="space-y-1">
+                <p className="text-muted-foreground">Crediti selezionati</p>
+                <p className="text-2xl font-bold">{credits}</p>
+              </div>
+              <div className="space-y-1 text-right">
+                <p className="text-muted-foreground">Prezzo per credito</p>
+                <p className="text-2xl font-bold">€{calculatePricePerCredit(credits).toFixed(2)}</p>
+              </div>
             </div>
+          </div>
 
-            <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <span className="text-sm font-medium">Custom Amount</span>
+          {/* Riquadro del totale e pulsante di pagamento */}
+          <div className="rounded-lg border p-4 bg-muted/50">
+            <div className="flex items-center justify-between mb-4">
+              <div className="space-y-1">
+                <p className="text-sm text-muted-foreground">Totale da pagare</p>
+                <p className="text-3xl font-bold">€{calculateTotalPrice(credits).toFixed(2)}</p>
+              </div>
+              {calculateSavings(credits) > 0 && (
                 <div className="text-right">
-                  <div className="text-primary font-semibold">
-                    {credits} credits
+                  <div className="inline-flex items-center gap-1 bg-green-100 text-green-700 px-2 py-1 rounded-md">
+                    <Sparkles className="w-4 h-4" />
+                    <span className="text-sm font-medium">
+                      Risparmi €{calculateSavings(credits).toFixed(2)}
+                    </span>
                   </div>
-                  <div className="text-sm text-gray-500">
-                    €{calculateTotalPrice(credits).toFixed(2)} total
-                  </div>
-                  <div className="text-sm text-gray-500">
-                    €{calculatePricePerCredit(credits).toFixed(2)}/credit
-                  </div>
-                  {calculateSavings(credits) > 0 && (
-                    <div className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-4 py-2 rounded-xl mt-2">
-                      <span className="text-sm font-bold">
-                        Save €{calculateSavings(credits).toFixed(2)}
-                      </span>
-                    </div>
-                  )}
                 </div>
-              </div>
-              <Slider
-                value={[credits]}
-                onValueChange={(value) => setCredits(value[0])}
-                min={50}
-                max={20000}
-                step={50}
-                className="w-full relative [&_.relative]:z-0 [&_[role=slider]]:z-10 [&_[role=slider]]:bg-white"
-              />
-            </div>
-
-            <div className="mt-6 p-6 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl border border-blue-100">
-              <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                What you can do with {credits} credits:
-              </h3>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-600">Generate AI responses</span>
-                  <span className="font-semibold text-primary">
-                    {possibleActivities.aiResponses.toLocaleString()} reviews
-                    <span className="text-gray-400 text-sm ml-2">
-                      (2 credits each)
-                    </span>
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-600">Edit generated responses</span>
-                  <span className="font-semibold text-primary">
-                    {possibleActivities.editResponses.toLocaleString()} edits
-                    <span className="text-gray-400 text-sm ml-2">
-                      (1 credit each)
-                    </span>
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-600">Import reviews</span>
-                  <span className="font-semibold text-primary">
-                    {possibleActivities.importReviews.toLocaleString()} reviews
-                    <span className="text-gray-400 text-sm ml-2">
-                      (0.1 credits each)
-                    </span>
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-600">Create AI analyses</span>
-                  <span className="font-semibold text-primary">
-                    {possibleActivities.createAnalyses.toLocaleString()} analyses
-                    <span className="text-gray-400 text-sm ml-2">
-                      (10 credits each)
-                    </span>
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-600">Ask about analyses</span>
-                  <span className="font-semibold text-primary">
-                    {possibleActivities.askAnalyses.toLocaleString()} questions
-                    <span className="text-gray-400 text-sm ml-2">
-                      (1 credit each)
-                    </span>
-                  </span>
-                </div>
-              </div>
+              )}
             </div>
 
             {!clientSecret ? (
-              <Button 
+              <Button
                 onClick={handlePaymentClick}
                 disabled={isLoading}
+                className="w-full h-12 text-base font-medium"
+                size="lg"
               >
-                {isLoading ? 'Creating payment...' : 'Proceed to Payment'}
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Creazione pagamento...
+                  </>
+                ) : (
+                  <>
+                    <CreditCard className="mr-2 h-4 w-4" />
+                    Procedi al pagamento
+                  </>
+                )}
               </Button>
             ) : (
               <Elements stripe={stripePromise} options={{ clientSecret }}>
@@ -305,7 +217,15 @@ const CreditPurchaseSlider = ({ open, onClose }: CreditPurchaseSliderProps) => {
                 />
               </Elements>
             )}
-          </motion.div>
+          </div>
+
+          {/* Informazioni aggiuntive */}
+          <div className="text-sm text-muted-foreground">
+            <p>
+              I crediti verranno aggiunti immediatamente al tuo account dopo il pagamento.
+              Pagamento sicuro tramite Stripe.
+            </p>
+          </div>
         </div>
       </SheetContent>
     </Sheet>
