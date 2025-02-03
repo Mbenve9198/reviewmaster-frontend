@@ -682,9 +682,9 @@ export function ReviewsTable({
         <AddPropertyModal 
           isOpen={isAddPropertyModalOpen}
           onClose={() => setIsAddPropertyModalOpen(false)}
-          onSuccess={() => {
+          onSuccess={async () => {
             setIsAddPropertyModalOpen(false)
-            if (onRefresh) onRefresh()
+            if (onRefresh) await onRefresh()
           }}
         />
       </>

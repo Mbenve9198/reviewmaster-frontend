@@ -1,6 +1,6 @@
 "use client"
 
-import { LogOut, Sparkles } from 'lucide-react'
+import { LogOut, Sparkles, MessageSquareText, Star, Blocks, Building2, CreditCard } from 'lucide-react'
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import Image from "next/image"
@@ -18,67 +18,47 @@ const navigation = [
     label: "Manual Responses", 
     href: "/manual-response",
     icon: (
-      <Image
-        src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/manual%20response-O89S3zfgiDHVSo8aslEIqW3O8G9Q1n.png"
-        alt=""
-        width={48}
-        height={48}
-        className="w-9 h-9 flex-shrink-0"
+      <MessageSquareText 
+        className="w-6 h-6 text-gray-700 stroke-[1.5px]" 
       />
     )
   },
   { 
     label: "Reviews", 
-    href: "/reviews", 
+    href: "/reviews",
     icon: (
-      <Image
-        src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/reviews-l1OpTAuGJuHcOblMRfwhcgfLCeAwcL.png"
-        alt=""
-        width={48}
-        height={48}
-        className="w-9 h-9 flex-shrink-0"
+      <Star 
+        className="w-6 h-6 text-gray-700 stroke-[1.5px]" 
       />
     )
   },
   { 
     label: "Integrations", 
-    href: "/integrations", 
+    href: "/integrations",
     icon: (
-      <Image
-        src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/integrations-j6xc3UsKFO34cvJf9gb4RD4SCIVG4W.png"
-        alt=""
-        width={48}
-        height={48}
-        className="w-9 h-9 flex-shrink-0"
+      <Blocks 
+        className="w-6 h-6 text-gray-700 stroke-[1.5px]" 
       />
     )
   },
   { 
     label: "Hotel Settings", 
-    href: "/hotel-settings", 
+    href: "/hotel-settings",
     icon: (
-      <Image
-        src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/hotel%20settings-f5Dt1SvEcaRL6BkvvE2q78qgAeJXL4.png"
-        alt=""
-        width={48}
-        height={48}
-        className="w-9 h-9 flex-shrink-0"
+      <Building2 
+        className="w-6 h-6 text-gray-700 stroke-[1.5px]" 
       />
     )
   },
   { 
     label: "Billing", 
-    href: "/billing", 
+    href: "/billing",
     icon: (
-      <Image
-        src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/billing-Y6wfuqXGbZ7TIpFrhCoDQMjXShiPgI.png"
-        alt=""
-        width={48}
-        height={48}
-        className="w-9 h-9 flex-shrink-0"
+      <CreditCard 
+        className="w-6 h-6 text-gray-700 stroke-[1.5px]" 
       />
     )
-  },
+  }
 ]
 
 export function Sidebar() {
