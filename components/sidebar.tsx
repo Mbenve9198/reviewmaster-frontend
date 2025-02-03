@@ -1,6 +1,6 @@
 "use client"
 
-import { LogOut, Sparkles, MessageSquareText, Star, Blocks, Building2, CreditCard } from 'lucide-react'
+import { LogOut, Sparkles, MessageSquare, Star, Blocks, Building2, CreditCard } from 'lucide-react'
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import Image from "next/image"
@@ -18,7 +18,7 @@ const navigation = [
     label: "Manual Responses", 
     href: "/manual-response",
     icon: (
-      <MessageSquareText 
+      <MessageSquare 
         className="w-6 h-6 text-gray-700 stroke-[1.5px]" 
       />
     )
