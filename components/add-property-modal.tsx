@@ -16,7 +16,7 @@ import {
 import Image from "next/image"
 import { getCookie } from '@/lib/utils'
 import { toast } from "sonner"
-import { Loader2, ArrowLeft } from "lucide-react"
+import { Loader2, ArrowLeft, Lightbulb, CheckSquare, Info } from "lucide-react"
 
 const PLATFORMS = [
   {
@@ -282,19 +282,78 @@ export function AddPropertyModal({ isOpen, onClose, onSuccess }: AddPropertyModa
             )}
 
             {step === 2 && (
-              <div className="space-y-6">
-                <div className="space-y-2">
-                  <label className="text-xl font-bold text-gray-800">Description</label>
-                  <p className="text-sm text-gray-600 px-2">
-                    The more detailed information you provide about your property (number of rooms, stars, amenities, location highlights, etc.), 
-                    the more relevant and accurate the AI responses and analysis will be.
-                  </p>
-                  <Textarea
-                    value={hotelData.description}
-                    onChange={(e) => setHotelData({ ...hotelData, description: e.target.value })}
-                    className="p-6 text-xl rounded-2xl border-2 border-gray-200 focus:border-[#58CC02] focus:ring-[#58CC02] min-h-[200px]"
-                    placeholder="Example: Our 4-star boutique hotel features 45 rooms and suites, each uniquely designed with modern amenities. Located in the heart of the historic district, we're just steps away from major attractions. Our facilities include a rooftop restaurant, spa, fitness center, and a conference room. We pride ourselves on our personalized service and attention to detail, maintaining high cleanliness standards, and offering a blend of traditional hospitality with modern comfort."
-                  />
+              <div className="space-y-8">
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-800 mb-3">Property Description</h2>
+                  
+                  <div className="bg-blue-50 border-l-4 border-blue-500 rounded-xl p-6 mb-6">
+                    <div className="flex gap-3">
+                      <Lightbulb className="w-6 h-6 text-blue-500 flex-shrink-0 mt-1" />
+                      <div>
+                        <h3 className="text-lg font-semibold text-blue-800 mb-2">Why this matters?</h3>
+                        <p className="text-blue-700 leading-relaxed">
+                          A detailed description helps our AI understand your property's unique features 
+                          and generate more accurate, personalized responses to your reviews.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-6">
+                    <Textarea
+                      value={hotelData.description}
+                      onChange={(e) => setHotelData({ ...hotelData, description: e.target.value })}
+                      className="p-6 text-lg rounded-2xl border-2 border-gray-200 focus:border-[#58CC02] focus:ring-[#58CC02] min-h-[250px] transition-all duration-200"
+                      placeholder="Example: Our 4-star boutique hotel features 45 rooms and suites, each uniquely designed with modern amenities. Located in the heart of the historic district, we're just steps away from major attractions. Our facilities include a rooftop restaurant, spa, fitness center, and a conference room. We pride ourselves on our personalized service and attention to detail, maintaining high cleanliness standards, and offering a blend of traditional hospitality with modern comfort."
+                    />
+                    
+                    <div className="bg-gray-50 rounded-xl p-6">
+                      <h4 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                        <CheckSquare className="w-5 h-5 text-[#58CC02]" />
+                        Key Elements to Include:
+                      </h4>
+                      <div className="grid grid-cols-2 gap-4">
+                        {[
+                          {
+                            icon: "🏨",
+                            text: "Property size and room types"
+                          },
+                          {
+                            icon: "📍",
+                            text: "Location and nearby attractions"
+                          },
+                          {
+                            icon: "✨",
+                            text: "Unique amenities and services"
+                          },
+                          {
+                            icon: "👥",
+                            text: "Target guest profile"
+                          },
+                          {
+                            icon: "🌟",
+                            text: "Service standards and values"
+                          },
+                          {
+                            icon: "🎯",
+                            text: "Competitive advantages"
+                          }
+                        ].map((item, i) => (
+                          <div key={i} className="flex items-start gap-3 p-3 bg-white rounded-lg border border-gray-100">
+                            <span className="text-xl">{item.icon}</span>
+                            <span className="text-gray-700">{item.text}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 text-sm text-gray-500">
+                      <Info className="w-4 h-4" />
+                      <span>
+                        Minimum 100 characters recommended for better AI understanding
+                      </span>
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
