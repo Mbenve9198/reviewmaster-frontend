@@ -303,7 +303,7 @@ export function AddPropertyModal({ isOpen, onClose, onSuccess }: AddPropertyModa
                     <Textarea
                       value={hotelData.description}
                       onChange={(e) => setHotelData({ ...hotelData, description: e.target.value })}
-                      className="p-6 text-lg rounded-2xl border-2 border-gray-200 focus:border-[#58CC02] focus:ring-[#58CC02] min-h-[250px] transition-all duration-200"
+                      className="p-6 text-lg rounded-2xl border-2 border-gray-200 focus:border-[#58CC02] focus:ring-[#58CC02] min-h-[250px] transition-all duration-200 placeholder:text-gray-400 placeholder:italic"
                       placeholder="Example: Our 4-star boutique hotel features 45 rooms and suites, each uniquely designed with modern amenities. Located in the heart of the historic district, we're just steps away from major attractions. Our facilities include a rooftop restaurant, spa, fitness center, and a conference room. We pride ourselves on our personalized service and attention to detail, maintaining high cleanliness standards, and offering a blend of traditional hospitality with modern comfort."
                     />
                     
