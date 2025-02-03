@@ -468,18 +468,30 @@ export function ReviewsTable({
     setTimeout(async () => {
       setIsGenerating(true)
       try {
-        const response = await generateResponse(
-          review.hotelId,
-          review.content.text,
-          {
-            style: responseTone || hotelSettings?.style || 'professional',
-            length: responseLength || hotelSettings?.length || 'medium',
+        const token = getCookie('token');
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reviews/generate`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
           },
-          undefined,
-          review._id
-        )
+          body: JSON.stringify({
+            hotelId: review.hotelId,
+            review: {
+              text: review.content.text,
+              reviewer: review.content.reviewerName,
+              rating: review.content.rating
+            },
+            responseSettings: {
+              style: responseTone,
+              length: responseLength
+            },
+            previousMessages: messages.length > 0 ? messages : undefined
+          })
+        });
         
-        setMessages([{ id: 1, content: response, sender: "ai" }])
+        const data = await response.json();
+        setMessages([{ id: 1, content: data.response, sender: "ai" }])
       } catch (error) {
         toast.error("Error generating response")
       } finally {
