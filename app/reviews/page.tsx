@@ -211,6 +211,74 @@ const FiltersAndTable = ({
   );
 };
 
+// Aggiungiamo un componente per l'onboarding
+const OnboardingView = ({ onAddProperty }: { onAddProperty: () => void }) => (
+  <div className="min-h-[80vh] flex items-center justify-center px-10">
+    <div className="max-w-3xl w-full">
+      <div className="text-center space-y-6 mb-12">
+        <div className="flex justify-center">
+          <Image
+            src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/reviews-l1OpTAuGJuHcOblMRfwhcgfLCeAwcL.png"
+            alt="Reviews Icon"
+            width={120}
+            height={120}
+            className="animate-float"
+          />
+        </div>
+
+        <h1 className="text-5xl font-bold text-gray-800 mb-4 bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">
+          Welcome to Replai
+        </h1>
+        
+        <p className="text-xl text-gray-600 leading-relaxed max-w-2xl mx-auto">
+          Start managing your hotel reviews efficiently. Connect your first property to begin responding to reviews with AI-powered assistance.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+        {[
+          {
+            icon: "🎯",
+            title: "Centralize Reviews",
+            description: "Manage all your reviews from different platforms in one place"
+          },
+          {
+            icon: "⚡️",
+            title: "Quick Responses",
+            description: "Generate personalized responses in seconds with AI"
+          },
+          {
+            icon: "📊",
+            title: "Analytics",
+            description: "Get insights about your reviews and improve your service"
+          }
+        ].map((feature, i) => (
+          <div 
+            key={i}
+            className="bg-white/50 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+          >
+            <div className="text-4xl mb-4">{feature.icon}</div>
+            <h3 className="text-lg font-semibold text-gray-800 mb-2">{feature.title}</h3>
+            <p className="text-gray-600">{feature.description}</p>
+          </div>
+        ))}
+      </div>
+
+      <div className="flex flex-col items-center space-y-4">
+        <Button 
+          onClick={onAddProperty}
+          className="relative bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-6 px-12 text-xl rounded-2xl shadow-[0_4px_0_0_#1e40af] transition-all active:top-[2px] active:shadow-[0_0_0_0_#1e40af] hover:scale-105"
+        >
+          Add Your First Property
+        </Button>
+        <p className="text-sm text-gray-500">
+          It only takes a few minutes to get started
+        </p>
+      </div>
+    </div>
+  </div>
+)
+
 export default function ReviewsPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [hotel, setHotel] = useState("all")
@@ -295,27 +363,27 @@ export default function ReviewsPage() {
   };
 
   if (isLoading) {
-    return <div>Loading...</div>
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="space-y-4 text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <p className="text-gray-600">Loading your properties...</p>
+        </div>
+      </div>
+    )
   }
 
   if (hotels.length === 0) {
     return (
       <>
-        <div className="flex flex-col items-center justify-center min-h-[80vh] px-10">
-          <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold text-gray-800 mb-4">Welcome to Replai</h1>
-            <p className="text-xl text-gray-600">
-              Get started by adding your first property
-            </p>
-          </div>
-
-          <Button 
-            onClick={() => setIsAddPropertyModalOpen(true)}
-            className="relative bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-6 px-8 text-xl rounded-2xl shadow-[0_4px_0_0_#1e40af] transition-all active:top-[2px] active:shadow-[0_0_0_0_#1e40af]"
-          >
-            Add Your First Property
-          </Button>
-        </div>
+        <Tiles 
+          className="fixed inset-0 -z-10 opacity-50" 
+          rows={100}
+          cols={20}
+          tileSize="md"
+        />
+        
+        <OnboardingView onAddProperty={() => setIsAddPropertyModalOpen(true)} />
 
         <AddPropertyModal 
           isOpen={isAddPropertyModalOpen}
@@ -415,4 +483,23 @@ export default function ReviewsPage() {
       </div>
     </>
   )
+}
+
+// Aggiungiamo l'animazione float
+const styles = `
+  @keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-20px); }
+    100% { transform: translateY(0px); }
+  }
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+`
+
+// Aggiungiamo lo style al documento
+if (typeof document !== 'undefined') {
+  const styleSheet = document.createElement("style")
+  styleSheet.innerText = styles
+  document.head.appendChild(styleSheet)
 }
