@@ -297,7 +297,7 @@ const CreditPurchaseSlider = ({ open, onClose }: CreditPurchaseSliderProps) => {
                   <Elements stripe={stripePromise} options={{ clientSecret }}>
                     <PaymentForm
                       clientSecret={clientSecret}
-                      amount={calculateTotalPrice(credits) * 100}
+                      amount={calculateTotalPrice(credits)}
                       onSuccess={handleSuccess}
                       onError={handleError}
                       onReady={handleStripeReady}
