@@ -118,11 +118,13 @@ const CreditPurchaseSlider = ({ open, onClose }: CreditPurchaseSliderProps) => {
     }
   }
 
-  useEffect(() => {
-    if (open && credits > 0) {
-      createPaymentIntent(credits)
+  const handlePaymentClick = async () => {
+    try {
+      await createPaymentIntent(credits)
+    } catch (error) {
+      console.error('Error creating payment intent:', error)
     }
-  }, [credits, open])
+  }
 
   const creditOptions = [
     { credits: 50, label: "Starter" },
@@ -285,35 +287,23 @@ const CreditPurchaseSlider = ({ open, onClose }: CreditPurchaseSliderProps) => {
               </div>
             </div>
 
-            {clientSecret ? (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                className="relative"
+            {!clientSecret ? (
+              <Button 
+                onClick={handlePaymentClick}
+                disabled={isLoading}
               >
-                <div className="group relative overflow-hidden bg-white rounded-2xl p-6 border-2 border-gray-200">
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary/10 to-primary/5 rounded-bl-full" />
-                  <Elements stripe={stripePromise} options={{ clientSecret }}>
-                    <PaymentForm
-                      clientSecret={clientSecret}
-                      amount={calculateTotalPrice(credits)}
-                      onSuccess={handleSuccess}
-                      onError={handleError}
-                      onReady={handleStripeReady}
-                    />
-                  </Elements>
-                </div>
-              </motion.div>
+                {isLoading ? 'Creating payment...' : 'Proceed to Payment'}
+              </Button>
             ) : (
-              <div className="flex items-center justify-center p-12">
-                <div className="flex flex-col items-center gap-4">
-                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                  <p className="text-sm text-muted-foreground">
-                    Initializing payment...
-                  </p>
-                </div>
-              </div>
+              <Elements stripe={stripePromise} options={{ clientSecret }}>
+                <PaymentForm
+                  clientSecret={clientSecret}
+                  amount={calculateTotalPrice(credits)}
+                  onSuccess={handleSuccess}
+                  onError={handleError}
+                  onReady={handleStripeReady}
+                />
+              </Elements>
             )}
           </motion.div>
         </div>
