@@ -67,6 +67,7 @@ import { toast } from "sonner"
 import { getCookie } from "cookies-next"
 import { cn } from "@/lib/utils"
 import { useRouter } from "next/navigation"
+import { AddPropertyModal } from "@/components/add-property-modal"
 
 type Platform = 'google' | 'booking' | 'tripadvisor' | 'manual'
 
@@ -139,6 +140,7 @@ export function ReviewsTable({
     style: 'professional' | 'friendly';
     length: 'short' | 'medium' | 'long';
   } | null>(null);
+  const [isAddPropertyModalOpen, setIsAddPropertyModalOpen] = useState(false)
 
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
@@ -646,35 +648,46 @@ export function ReviewsTable({
 
   if (!reviews.length) {
     return (
-      <div className="min-h-[400px] flex flex-col items-center justify-center p-8 text-center">
-        <div className="w-64 h-64 mb-6 relative">
-          <Image
-            src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/reviews-l1OpTAuGJuHcOblMRfwhcgfLCeAwcL.png"
-            alt="No reviews"
-            layout="fill"
-            objectFit="contain"
-            className="opacity-50"
-          />
+      <>
+        <div className="min-h-[400px] flex flex-col items-center justify-center p-8 text-center">
+          <div className="w-64 h-64 mb-6 relative">
+            <Image
+              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/reviews-l1OpTAuGJuHcOblMRfwhcgfLCeAwcL.png"
+              alt="No reviews"
+              layout="fill"
+              objectFit="contain"
+              className="opacity-50"
+            />
+          </div>
+          
+          <h3 className="text-2xl font-semibold text-gray-800 mb-3">
+            No Reviews Yet
+          </h3>
+          
+          <p className="text-gray-600 max-w-md mb-6">
+            {!property 
+              ? "Add your first property to start managing your reviews" 
+              : "Connect your review platforms to start managing your reviews in one place"}
+          </p>
+          
+          <Button
+            onClick={() => setIsAddPropertyModalOpen(true)}
+            className="bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-2 rounded-xl shadow-[0_4px_0_0_#1e40af] hover:shadow-[0_2px_0_0_#1e40af] hover:translate-y-[2px] transition-all flex items-center gap-2"
+          >
+            <PlusCircle className="w-4 h-4" />
+            Add Property
+          </Button>
         </div>
-        
-        <h3 className="text-2xl font-semibold text-gray-800 mb-3">
-          No Reviews Yet
-        </h3>
-        
-        <p className="text-gray-600 max-w-md mb-6">
-          {!property 
-            ? "Select a property to view its reviews" 
-            : "Connect your review platforms to start managing your reviews in one place"}
-        </p>
-        
-        <Button
-          onClick={() => router.push('/integrations')}
-          className="bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-2 rounded-xl shadow-[0_4px_0_0_#1e40af] hover:shadow-[0_2px_0_0_#1e40af] hover:translate-y-[2px] transition-all flex items-center gap-2"
-        >
-          <PlusCircle className="w-4 h-4" />
-          Add Integration
-        </Button>
-      </div>
+
+        <AddPropertyModal 
+          isOpen={isAddPropertyModalOpen}
+          onClose={() => setIsAddPropertyModalOpen(false)}
+          onSuccess={() => {
+            setIsAddPropertyModalOpen(false)
+            if (onRefresh) onRefresh()
+          }}
+        />
+      </>
     )
   }
 

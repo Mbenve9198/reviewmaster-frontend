@@ -447,14 +447,15 @@ export default function ReviewsPage() {
         cols={20}
         tileSize="md"
       />
-      <div className="flex flex-col px-10 md:pl-[96px]">
-        <HandWrittenTitle 
-          title="Reviews" 
-          subtitle="Analyze and respond to your reviews"
-        />
-        <Toaster position="top-right" />
-        
-        <div className="flex flex-col max-w-[1400px] mx-auto w-full">
+      
+      <div className="flex flex-col px-10 md:pl-[96px] py-12 min-h-screen">
+        <div className="max-w-[1400px] mx-auto w-full space-y-12">
+          <HandWrittenTitle 
+            title="Reviews" 
+            subtitle="Analyze and respond to your reviews"
+          />
+          <Toaster position="top-right" />
+          
           <FiltersAndTable 
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
