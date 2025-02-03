@@ -147,25 +147,25 @@ export function AddPropertyModal({ isOpen, onClose, onSuccess }: AddPropertyModa
           throw new Error('Missing required fields')
         }
 
-        const hotelPayload: HotelPayload = {
-          name: hotelData.name,
-          type: hotelData.type.toLowerCase(),
-          description: hotelData.description,
-          managerSignature: hotelData.managerSignature,
+        const hotelPayload = {
+          ...hotelData,
           responseSettings: {
             style: responseSettings.style,
             length: responseSettings.length
           }
         }
 
-        const hotelResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/hotels`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify(hotelPayload)
-        })
+        const hotelResponse = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/hotels`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(hotelPayload)
+          }
+        )
 
         const createdHotel = await hotelResponse.json()
         
@@ -517,31 +517,42 @@ export function AddPropertyModal({ isOpen, onClose, onSuccess }: AddPropertyModa
 
             {/* Step 7: Success */}
             {step === totalSteps && setupCompleted && (
-              <div className="space-y-6 text-center py-8">
-                <div className="text-4xl mb-4">
-                  🎉 🎊
+              <div className="space-y-8 text-center py-12">
+                <div className="flex flex-col items-center gap-6">
+                  <div className="text-6xl animate-bounce">
+                    🎉
+                  </div>
+                  
+                  <h2 className="text-3xl font-bold text-gray-800">
+                    Setup Completed Successfully!
+                  </h2>
+                  
+                  <div className="space-y-4 max-w-2xl mx-auto">
+                    <p className="text-xl text-gray-600 leading-relaxed">
+                      Your property <span className="font-semibold text-primary">{hotelData.name}</span> has been set up successfully with {selectedPlatform} integration!
+                    </p>
+                    
+                    <div className="bg-primary/5 rounded-2xl p-6 mt-6">
+                      <h3 className="text-lg font-semibold text-gray-800 mb-3">
+                        Want to import reviews from other platforms?
+                      </h3>
+                      <p className="text-gray-600">
+                        Visit the <span className="text-primary font-semibold">Integrations</span> section 
+                        to add more platforms like Google, Booking.com, or TripAdvisor.
+                      </p>
+                    </div>
+                  </div>
+
+                  <Button
+                    onClick={() => {
+                      onSuccess()
+                      onClose()
+                    }}
+                    className="mt-8 relative bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-6 px-12 text-xl rounded-2xl shadow-[0_4px_0_0_#1e40af] transition-all active:top-[2px] active:shadow-[0_0_0_0_#1e40af]"
+                  >
+                    Get Started
+                  </Button>
                 </div>
-                <h2 className="text-2xl font-bold text-gray-800 mb-4">
-                  Setup Completed Successfully!
-                </h2>
-                <p className="text-gray-600 text-lg max-w-2xl mx-auto">
-                  Your property and {selectedPlatform} integration have been set up successfully! 
-                  You can now start managing your reviews.
-                </p>
-                <p className="text-gray-600 mt-4">
-                  Want to import reviews from other platforms? Visit the{" "}
-                  <span className="text-primary font-semibold">Integrations</span> section 
-                  to add more platforms like Google, Booking.com, or TripAdvisor.
-                </p>
-                <Button
-                  onClick={() => {
-                    onSuccess()
-                    onClose()
-                  }}
-                  className="mt-6 relative bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-6 px-8 text-xl rounded-2xl shadow-[0_4px_0_0_#1e40af] transition-all active:top-[2px] active:shadow-[0_0_0_0_#1e40af]"
-                >
-                  Get Started
-                </Button>
               </div>
             )}
 

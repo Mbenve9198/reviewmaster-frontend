@@ -11,9 +11,19 @@ const ChatInput = React.forwardRef<HTMLTextAreaElement, ChatInputProps>(
       ref={ref}
       name="message"
       className={cn(
-        "max-h-12 px-4 py-3 bg-background text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 w-full rounded-md flex items-center h-16 resize-none",
+        "min-h-[48px] max-h-[200px] px-4 py-3 bg-white text-base",
+        "placeholder:text-muted-foreground focus-visible:outline-none",
+        "focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary",
+        "disabled:cursor-not-allowed disabled:opacity-50",
+        "w-full rounded-xl border-2 border-gray-200",
+        "resize-none overflow-hidden",
         className,
       )}
+      onInput={(e) => {
+        const target = e.target as HTMLTextAreaElement;
+        target.style.height = 'auto';
+        target.style.height = `${target.scrollHeight}px`;
+      }}
       {...props}
     />
   ),
