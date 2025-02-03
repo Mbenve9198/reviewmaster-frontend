@@ -16,7 +16,7 @@ import CreditPurchaseSlider from "@/components/billing/CreditPurchaseSlider"
 const navigation = [
   { 
     label: "Manual Responses", 
-    href: "/", 
+    href: "/manual-response",
     icon: (
       <Image
         src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/manual%20response-O89S3zfgiDHVSo8aslEIqW3O8G9Q1n.png"

@@ -20,7 +20,7 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/reviews', request.url))
   }
 
-  // Reindirizza la home page a /reviews
+  // Reindirizza sempre la home page a /reviews quando l'utente è autenticato
   if (isHomePage && token) {
     return NextResponse.redirect(new URL('/reviews', request.url))
   }
