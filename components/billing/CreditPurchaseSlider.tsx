@@ -307,7 +307,7 @@ const CreditPurchaseSlider = ({ open, onClose }: CreditPurchaseSliderProps) => {
                   <Button 
                     onClick={handlePaymentClick}
                     disabled={isLoading}
-                    className="w-full h-12 text-base font-medium"
+                    className="w-full h-12 text-base font-medium bg-primary hover:bg-primary/90 text-white rounded-xl shadow-[0_1px_2px_rgba(0,0,0,0.16)] hover:shadow-[0_2px_4px_rgba(0,0,0,0.2)] transform transition-all duration-200 hover:-translate-y-0.5"
                     size="lg"
                   >
                     {isLoading ? (
