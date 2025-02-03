@@ -135,7 +135,7 @@ const PaymentForm = ({ clientSecret, amount, onSuccess, onError, onReady }: Paym
             `Pay ${new Intl.NumberFormat('it-IT', {
               style: 'currency',
               currency: 'EUR'
-            }).format(amount / 100)}`
+            }).format(amount)}`
           )}
         </Button>
       </div>
