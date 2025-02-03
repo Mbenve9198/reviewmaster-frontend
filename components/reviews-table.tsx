@@ -29,6 +29,7 @@ import {
   ExternalLink,
   Check,
   ListFilter,
+  PlusCircle,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -65,6 +66,7 @@ import { type Review } from "@/types/types"
 import { toast } from "sonner"
 import { getCookie } from "cookies-next"
 import { cn } from "@/lib/utils"
+import { useRouter } from "next/navigation"
 
 type Platform = 'google' | 'booking' | 'tripadvisor' | 'manual'
 
@@ -104,7 +106,7 @@ interface ReviewsTableProps {
   onTableReady: (table: TableType<any>) => void
 }
 
-export const ReviewsTable = ({
+export function ReviewsTable({
   searchQuery,
   responseStatus,
   platform,
@@ -115,8 +117,9 @@ export const ReviewsTable = ({
   onResultsPerPageChange,
   onSelectionChange,
   onTableReady
-}: ReviewsTableProps) => {
+}: ReviewsTableProps) {
   const { reviews, loading, error, fetchReviews, setFilters, generateResponse, updateReviewResponse } = useReviews()
+  const router = useRouter()
 
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
@@ -639,6 +642,40 @@ export const ReviewsTable = ({
   if (error) {
     console.error('Error loading reviews:', error)
     return <div>Error: {error}</div>
+  }
+
+  if (!reviews.length) {
+    return (
+      <div className="min-h-[400px] flex flex-col items-center justify-center p-8 text-center">
+        <div className="w-64 h-64 mb-6 relative">
+          <Image
+            src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/reviews-l1OpTAuGJuHcOblMRfwhcgfLCeAwcL.png"
+            alt="No reviews"
+            layout="fill"
+            objectFit="contain"
+            className="opacity-50"
+          />
+        </div>
+        
+        <h3 className="text-2xl font-semibold text-gray-800 mb-3">
+          No Reviews Yet
+        </h3>
+        
+        <p className="text-gray-600 max-w-md mb-6">
+          {!property 
+            ? "Select a property to view its reviews" 
+            : "Connect your review platforms to start managing your reviews in one place"}
+        </p>
+        
+        <Button
+          onClick={() => router.push('/integrations')}
+          className="bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-2 rounded-xl shadow-[0_4px_0_0_#1e40af] hover:shadow-[0_2px_0_0_#1e40af] hover:translate-y-[2px] transition-all flex items-center gap-2"
+        >
+          <PlusCircle className="w-4 h-4" />
+          Add Integration
+        </Button>
+      </div>
+    )
   }
 
   console.log('Rendering reviews:', reviews?.length || 0)
