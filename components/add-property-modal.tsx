@@ -492,21 +492,20 @@ export function AddPropertyModal({ isOpen, onClose, onSuccess }: AddPropertyModa
                     </div>
                   )}
 
-                  <div className="space-y-4">
+                  <div className="space-y-2">
                     <label className="text-sm font-medium">Initial Reviews to Sync</label>
                     <Select
                       value={syncConfig.maxReviews}
-                      onValueChange={(value: string) => 
+                      onValueChange={(value) => 
                         setSyncConfig(prev => ({ ...prev, maxReviews: value }))
                       }
                     >
-                      <SelectTrigger className="border-2 border-gray-200 focus:ring-primary focus:ring-offset-0">
+                      <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="50">Last 50 reviews</SelectItem>
                         <SelectItem value="100">Last 100 reviews</SelectItem>
-                        <SelectItem value="200">Last 200 reviews</SelectItem>
                         <SelectItem value="500">Last 500 reviews</SelectItem>
                         <SelectItem value="1000">Last 1000 reviews</SelectItem>
                       </SelectContent>
