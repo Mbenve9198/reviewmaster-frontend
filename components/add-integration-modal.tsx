@@ -163,7 +163,7 @@ export function AddIntegrationModal({
         syncConfig: {
           type: syncConfig.type,
           frequency: syncConfig.frequency,
-          maxReviews: String(syncConfig.maxReviews),
+          maxReviews: syncConfig.maxReviews,
           language: 'en'
         }
       }
@@ -188,6 +188,25 @@ export function AddIntegrationModal({
 
       if (!response.ok) {
         throw new Error(responseData.message || `Error setting up integration: ${response.status}`)
+      }
+
+      // Avvia la sincronizzazione immediata con il numero di recensioni selezionato
+      const syncResponse = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/integrations/${responseData._id}/sync`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            maxReviews: parseInt(syncConfig.maxReviews)
+          })
+        }
+      )
+
+      if (!syncResponse.ok) {
+        console.error('Initial sync request failed, but integration was created')
       }
 
       toast.success("Integration added successfully")
@@ -338,9 +357,10 @@ export function AddIntegrationModal({
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="50">Last 50 reviews</SelectItem>
                     <SelectItem value="100">Last 100 reviews</SelectItem>
-                    <SelectItem value="200">Last 200 reviews</SelectItem>
                     <SelectItem value="500">Last 500 reviews</SelectItem>
+                    <SelectItem value="1000">Last 1000 reviews</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
