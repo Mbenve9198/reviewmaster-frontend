@@ -131,29 +131,34 @@ export function IntegrationCard({ integration, onSync, onDelete }: IntegrationCa
     try {
       setIsDeleting(true)
       const token = getCookie('token')
+      
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/integrations/${integration._id}`,
         {
           method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          },
-          credentials: 'include'
+          }
         }
       )
 
       if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.message || 'Failed to delete integration')
+        throw new Error('Failed to delete integration')
       }
 
-      toast.success("Integration and associated reviews deleted successfully")
+      toast({
+        title: "Success",
+        description: "Integration and associated reviews deleted successfully",
+        variant: "default"
+      })
       setIsDeleteDialogOpen(false)
       onDelete?.()
     } catch (error) {
-      console.error('Delete error:', error)
-      toast.error(error instanceof Error ? error.message : "Failed to delete integration")
+      toast({
+        title: "Error",
+        description: "Failed to delete integration",
+        variant: "destructive"
+      })
     } finally {
       setIsDeleting(false)
     }
