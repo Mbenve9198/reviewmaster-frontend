@@ -164,19 +164,22 @@ export function IntegrationCard({ integration, onSync, onDelete }: IntegrationCa
     }
   }
 
-  const updateIntegrationSettings = async (settings: any) => {
+  const handleSettingsUpdate = async () => {
     try {
       setIsUpdating(true)
       const token = getCookie('token')
+      
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/integrations/${integration._id}`,
         {
-          method: 'PUT',
+          method: 'PATCH',
           headers: {
             'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
+            'Content-Type': 'application/json'
           },
-          body: JSON.stringify({ syncConfig: settings })
+          body: JSON.stringify({
+            syncConfig: tempSettings
+          })
         }
       )
 
@@ -184,10 +187,20 @@ export function IntegrationCard({ integration, onSync, onDelete }: IntegrationCa
         throw new Error('Failed to update settings')
       }
 
-      toast.success("Settings updated successfully")
+      toast({
+        title: "Success",
+        description: "Settings updated successfully",
+        variant: "default"
+      })
+      setIsSettingsOpen(false)
+      onSync?.()
     } catch (error) {
       console.error('Update settings error:', error)
-      toast.error("Failed to update settings")
+      toast({
+        title: "Error",
+        description: "Failed to update settings",
+        variant: "destructive"
+      })
     } finally {
       setIsUpdating(false)
     }
@@ -203,7 +216,7 @@ export function IntegrationCard({ integration, onSync, onDelete }: IntegrationCa
   const handleSaveSettings = async () => {
     try {
       setIsUpdating(true)
-      await updateIntegrationSettings(tempSettings)
+      await handleSettingsUpdate()
       
       // Aggiorna l'integrazione locale con i nuovi settings
       integration.syncConfig = {
