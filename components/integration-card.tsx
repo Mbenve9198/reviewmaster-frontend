@@ -34,6 +34,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { getCookie } from "@/lib/utils"
 import { format } from 'date-fns'
 import { toast } from "sonner"
+import { useToast } from "@/components/ui/use-toast"
 
 const buttonBaseStyles = "bg-primary text-primary-foreground shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all"
 const inputBaseStyles = "border-2 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
@@ -75,6 +76,7 @@ export function IntegrationCard({ integration, onSync, onDelete }: IntegrationCa
     type: integration.syncConfig.type,
     frequency: integration.syncConfig.frequency
   })
+  const { toast } = useToast()
 
   const statusIcons = {
     active: <CheckCircle2 className="w-5 h-5 text-green-500" />,
@@ -88,31 +90,38 @@ export function IntegrationCard({ integration, onSync, onDelete }: IntegrationCa
       setIsSyncing(true)
       const token = getCookie('token')
       
-      // Facciamo il sync passando l'ultima data di sincronizzazione
-      const syncResponse = await fetch(
+      const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/integrations/${integration._id}/sync`,
         {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            lastSyncDate: integration.syncConfig.lastSync || null // Se null, è la prima sincronizzazione
-          })
+          }
         }
       )
 
-      if (!syncResponse.ok) {
-        const error = await syncResponse.json()
-        throw new Error(error.message || 'Failed to sync reviews')
+      const data = await response.json()
+      
+      if (response.ok) {
+        toast({
+          title: "Sincronizzazione completata",
+          description: `Importate ${data.newReviews} nuove recensioni`,
+          duration: 5000
+        })
+        onSync()
+      } else {
+        toast({
+          title: "Errore",
+          description: data.message || "Errore durante la sincronizzazione",
+          variant: "destructive"
+        })
       }
-
-      await onSync()
-      toast.success("Sync completed successfully")
     } catch (error) {
-      console.error('Sync error:', error)
-      toast.error(error instanceof Error ? error.message : "Failed to sync reviews")
+      toast({
+        title: "Errore",
+        description: "Errore di rete durante la sincronizzazione",
+        variant: "destructive"
+      })
     } finally {
       setIsSyncing(false)
     }
