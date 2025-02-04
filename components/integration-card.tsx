@@ -104,7 +104,6 @@ export function IntegrationCard({ integration, onSync, onDelete }: IntegrationCa
 
       if (response.ok) {
         if (data.newReviews > 0) {
-          // Usa il valore totale dal server invece di incrementare localmente
           integration.stats.syncedReviews = data.totalSyncedReviews
           integration.syncConfig.lastSync = new Date()
           integration.syncConfig.nextScheduledSync = data.nextScheduledSync
@@ -118,7 +117,7 @@ export function IntegrationCard({ integration, onSync, onDelete }: IntegrationCa
           toast({
             title: "Sync completed",
             description: "No new reviews found",
-            variant: "secondary"
+            variant: "default"
           })
         }
         onSync()
