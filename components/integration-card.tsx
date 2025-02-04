@@ -93,20 +93,19 @@ export function IntegrationCard({ integration, onSync, onDelete }: IntegrationCa
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/integrations/${integration._id}/sync`,
         {
-          method: 'POST',
           headers: {
-            'Authorization': `Bearer ${token}`,
+            'Authorization': `Bearer ${token}`
           }
         }
       )
 
       const data = await response.json()
-      
+
       if (response.ok) {
         toast({
-          title: "Sincronizzazione completata",
-          description: `Importate ${data.newReviews} nuove recensioni`,
-          duration: 5000
+          title: "Sync completato",
+          description: `${data.newReviews} nuove recensioni importate`,
+          variant: data.newReviews > 0 ? "default" : "secondary"
         })
         onSync()
       } else {
