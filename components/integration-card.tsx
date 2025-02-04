@@ -232,7 +232,11 @@ export function IntegrationCard({ integration, onSync, onDelete }: IntegrationCa
       
     } catch (error) {
       console.error('Save settings error:', error)
-      toast.error("Failed to update settings")
+      toast({
+        title: "Error",
+        description: "Failed to update settings",
+        variant: "destructive"
+      })
     } finally {
       setIsUpdating(false)
     }
