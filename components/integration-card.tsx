@@ -93,6 +93,7 @@ export function IntegrationCard({ integration, onSync, onDelete }: IntegrationCa
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/integrations/${integration._id}/sync`,
         {
+          method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -102,23 +103,34 @@ export function IntegrationCard({ integration, onSync, onDelete }: IntegrationCa
       const data = await response.json()
 
       if (response.ok) {
-        toast({
-          title: "Sync completato",
-          description: `${data.newReviews} nuove recensioni importate`,
-          variant: data.newReviews > 0 ? "default" : "secondary"
-        })
+        if (data.newReviews > 0) {
+          toast({
+            title: "Sync completed",
+            description: `${data.newReviews} new reviews imported`,
+            variant: "default"
+          })
+        } else {
+          toast({
+            title: "Sync completed",
+            description: "No new reviews found",
+            variant: "secondary"
+          })
+        }
+        // Aggiorna l'integrazione locale con i nuovi dati
+        integration.syncConfig.lastSync = new Date()
+        integration.syncConfig.nextScheduledSync = data.nextScheduledSync
         onSync()
       } else {
         toast({
-          title: "Errore",
-          description: data.message || "Errore durante la sincronizzazione",
+          title: "Error",
+          description: data.message || "Error during synchronization",
           variant: "destructive"
         })
       }
     } catch (error) {
       toast({
-        title: "Errore",
-        description: "Errore di rete durante la sincronizzazione",
+        title: "Error",
+        description: "Network error during synchronization",
         variant: "destructive"
       })
     } finally {
