@@ -6,6 +6,7 @@ import { ArrowDown, ArrowUp, Minus } from "lucide-react"
 interface FormattedMessageProps {
   content: string
   variant?: "sent" | "received"
+  isLoading?: boolean
 }
 
 interface AnalysisData {
@@ -180,7 +181,20 @@ const QuickWinsCard = ({ quickWins }: { quickWins: AnalysisData['quickWins'] }) 
   </Card>
 );
 
-export function FormattedMessage({ content, variant = "received" }: FormattedMessageProps) {
+export function FormattedMessage({ content, variant = "received", isLoading = false }: FormattedMessageProps) {
+  // Se è in caricamento, mostra il feedback (spinner, ecc.)
+  if (isLoading) {
+    return (
+      <ChatBubbleMessage
+        variant={variant}
+        isLoading
+        className="text-base rounded-2xl whitespace-pre-wrap"
+      >
+        {content}
+      </ChatBubbleMessage>
+    );
+  }
+
   // Verifica se il contenuto è JSON
   let analysisData: AnalysisData | null = null;
   try {

@@ -47,19 +47,27 @@ export function ChatBubbleMessage({
   className,
   children,
 }: ChatBubbleMessageProps) {
+  // Base styling comune per i messaggi
+  const baseStyle = "text-sm whitespace-pre-wrap p-2 rounded-2xl"
+  // Stili differenti per input ("sent") e output ("received")
+  const variantStyle =
+    variant === "sent"
+      ? "bg-primary text-primary-foreground"   // Input: sfondo primario, testo chiaro
+      : "bg-gray-100 text-gray-700"              // Output: sfondo chiaro, testo scuro
+
   if (isLoading) {
-    // Mostra un feedback moderno con uno spinner animato per indicare che siamo in attesa di una risposta
+    // Feedback moderno: spinner + messaggio di attesa, applicando comunque gli stili in base al variant
     return (
-      <div className={cn("flex items-center gap-2 text-sm text-gray-600 whitespace-pre-wrap", className)}>
+      <div className={cn("flex items-center gap-2", baseStyle, variantStyle, className)}>
         <Loader2 className="h-5 w-5 animate-spin text-blue-500" />
         <span>Waiting for response...</span>
       </div>
     )
   }
   
-  // Se non è in stato di caricamento, mostra direttamente il contenuto
+  // Se non è in caricamento, mostra direttamente il contenuto con gli stili differenziati
   return (
-    <div className={cn("text-sm text-gray-600 whitespace-pre-wrap", className)}>
+    <div className={cn(baseStyle, variantStyle, className)}>
       {children}
     </div>
   )
