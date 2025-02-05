@@ -37,25 +37,28 @@ interface ChatBubbleMessageProps {
   variant?: "sent" | "received"
   isLoading?: boolean
   className?: string
-  children?: React.ReactNode
+  children?: string
 }
 
 export function ChatBubbleMessage({
   variant = "received",
   isLoading,
   className,
-  children,
+  children = "",
 }: ChatBubbleMessageProps) {
   const [displayText, setDisplayText] = useState("");
 
+  // Assicurati che il contenuto sia una stringa
+  const text = children;
+
   useEffect(() => {
-    if (!isLoading && children) {
+    if (!isLoading && text) {
       setDisplayText(""); // resetta il testo visualizzato per un nuovo messaggio
       let currentIndex = 0;
       const interval = setInterval(() => {
-        setDisplayText((prev) => prev + children[currentIndex]);
+        setDisplayText((prev) => prev + text[currentIndex]);
         currentIndex++;
-        if (currentIndex >= children.length) {
+        if (currentIndex >= text.length) {
           clearInterval(interval);
         }
       }, 50); // delay per l'effetto "digitazione"
@@ -63,7 +66,7 @@ export function ChatBubbleMessage({
     } else {
       setDisplayText("");
     }
-  }, [children, isLoading]);
+  }, [text, isLoading]);
 
   if (isLoading) {
     // Visualizza un placeholder con cursore lampeggiante
