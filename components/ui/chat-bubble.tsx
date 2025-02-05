@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { MessageLoading } from "@/components/ui/message-loading";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 interface ChatBubbleProps {
   variant?: "sent" | "received"
