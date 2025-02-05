@@ -49,9 +49,8 @@ export function ChatBubbleMessage({
   const [displayText, setDisplayText] = useState("");
 
   useEffect(() => {
-    // Se il children è una stringa, applica l'effetto digitazione
     if (!isLoading && typeof children === "string") {
-      setDisplayText(""); // resetta il testo visualizzato per un nuovo messaggio
+      setDisplayText(""); // resetta il testo visualizzato
       let currentIndex = 0;
       const interval = setInterval(() => {
         setDisplayText((prev) => prev + children[currentIndex]);
@@ -59,27 +58,31 @@ export function ChatBubbleMessage({
         if (currentIndex >= children.length) {
           clearInterval(interval);
         }
-      }, 50); // delay per l'effetto "digitazione"
+      }, 50); // modifica questo valore per velocizzare o rallentare la digitazione
       return () => clearInterval(interval);
     }
   }, [children, isLoading]);
 
   if (isLoading) {
-    // Visualizza un placeholder con cursore lampeggiante
+    // Durante il caricamento, mostra il placeholder in inglese con ritorni a capo preservati
     return (
-      <div className={cn("text-sm text-gray-600", className)}>
-        <span>Sto scrivendo</span>
+      <div className={cn("text-sm text-gray-600 whitespace-pre-wrap", className)}>
+        <span>Typing...</span>
         <span className="blinking-cursor">|</span>
       </div>
     );
   }
   
-  // Se children è una stringa, mostra il testo animato; altrimenti, renderizza direttamente children
+  // Se il contenuto è una stringa, mostra il testo animato; altrimenti, mostra direttamente children
   if (typeof children === "string") {
-    return <div className={cn("text-sm text-gray-600", className)}>{displayText}</div>;
+    return (
+      <div className={cn("text-sm text-gray-600 whitespace-pre-wrap", className)}>
+        {displayText}
+      </div>
+    );
   }
-
-  return <div className={cn("text-sm text-gray-600", className)}>{children}</div>;
+  
+  return <div className={cn("text-sm text-gray-600 whitespace-pre-wrap", className)}>{children}</div>;
 }
 
 interface ChatBubbleAvatarProps {
