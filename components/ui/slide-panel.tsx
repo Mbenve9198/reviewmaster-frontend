@@ -43,16 +43,16 @@ export function SlidePanel({
 
   return (
     <>
-      {/* Backdrop */}
+      {/* Backdrop - aumentiamo lo z-index */}
       <div 
-        className="fixed inset-0 bg-black/20 backdrop-blur-sm z-50"
+        className="fixed inset-0 bg-black/20 backdrop-blur-sm z-[100]"
         onClick={() => onOpenChange(false)}
       />
       
-      {/* Panel */}
+      {/* Panel - aumentiamo lo z-index */}
       <div
         className={cn(
-          "fixed top-0 right-0 h-screen w-full sm:w-[500px] bg-white shadow-2xl z-50",
+          "fixed top-0 right-0 h-screen w-full sm:w-[500px] bg-white shadow-2xl z-[100]",
           "transform transition-transform duration-300 ease-in-out",
           open ? "translate-x-0" : "translate-x-full",
           className
