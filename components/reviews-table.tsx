@@ -480,68 +480,36 @@ export function ReviewsTable({
     setTimeout(async () => {
       setIsGenerating(true)
       try {
-        // Determina la lingua della recensione
-        const token = getCookie('token')
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/ai/detect-language`, {
+        const token = getCookie('token');
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reviews/generate`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            text: review.content.text
+            hotelId: review.hotelId,
+            review: {
+              text: review.content.text,
+              reviewer: review.content.reviewerName,
+              rating: review.content.rating
+            },
+            responseSettings: {
+              style: responseTone,
+              length: responseLength
+            },
+            previousMessages: messages.length > 0 ? messages : undefined
           })
-        })
-
-        if (!response.ok) {
-          throw new Error('Failed to detect language')
-        }
-
-        const { language } = await response.json()
-
-        // Genera la risposta nella stessa lingua della recensione
-        const aiResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/ai/generate`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            review: review.content.text,
-            rating: review.content.rating,
-            platform: review.platform,
-            style: responseTone,
-            length: responseLength,
-            language: language // Passa la lingua rilevata
-          })
-        })
-
-        if (!aiResponse.ok) {
-          throw new Error('Failed to generate response')
-        }
-
-        const data = await aiResponse.json()
+        });
         
-        setMessages([
-          {
-            id: 1,
-            content: review.content.text,
-            sender: 'user'
-          },
-          {
-            id: 2,
-            content: data.response,
-            sender: 'ai'
-          }
-        ])
-
+        const data = await response.json();
+        setMessages([{ id: 1, content: data.response, sender: "ai" }])
       } catch (error) {
-        console.error('Generate response error:', error)
-        toast.error('Failed to generate response')
+        toast.error("Error generating response")
       } finally {
         setIsGenerating(false)
       }
-    }, 100)
+    }, 0)
   }
 
   const handleCustomResponse = (review: Review) => {
