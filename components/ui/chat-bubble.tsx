@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { MessageLoading } from "@/components/ui/message-loading";
 import { useEffect, useState } from "react";
+import { Loader2 } from "lucide-react"
 
 interface ChatBubbleProps {
   variant?: "sent" | "received"
@@ -47,21 +48,21 @@ export function ChatBubbleMessage({
   children,
 }: ChatBubbleMessageProps) {
   if (isLoading) {
-    // Durante il caricamento, mostra il placeholder "Typing..."
+    // Mostra un feedback moderno con uno spinner animato per indicare che siamo in attesa di una risposta
     return (
-      <div className={cn("text-sm text-gray-600 whitespace-pre-wrap", className)}>
-        <span>Typing...</span>
-        <span className="blinking-cursor">|</span>
+      <div className={cn("flex items-center gap-2 text-sm text-gray-600 whitespace-pre-wrap", className)}>
+        <Loader2 className="h-5 w-5 animate-spin text-blue-500" />
+        <span>Waiting for response...</span>
       </div>
-    );
+    )
   }
-
-  // Al termine del caricamento, mostra direttamente il contenuto (senza animazione)
+  
+  // Se non è in stato di caricamento, mostra direttamente il contenuto
   return (
     <div className={cn("text-sm text-gray-600 whitespace-pre-wrap", className)}>
       {children}
     </div>
-  );
+  )
 }
 
 interface ChatBubbleAvatarProps {
