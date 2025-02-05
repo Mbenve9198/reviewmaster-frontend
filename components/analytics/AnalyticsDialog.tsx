@@ -494,11 +494,10 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
                             onClick={() => handleAnalysis(suggestion)}
                             disabled={isLoading}
                             className="bg-white/80 hover:bg-blue-50 border border-gray-200 
-                                     rounded-full h-auto py-2 px-3 flex items-center gap-2
-                                     text-left w-full"
+                                     rounded-full h-auto py-2 px-3 flex items-center gap-2 text-left w-full"
                           >
                             {getPromptIcon(suggestion)}
-                            <span className="text-sm truncate">{suggestion}</span>
+                            <span className="text-base truncate">{suggestion}</span>
                           </Button>
                         </TooltipTrigger>
                         <TooltipContent className="bg-white border border-gray-200 text-gray-900 shadow-lg">

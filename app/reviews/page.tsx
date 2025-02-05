@@ -16,7 +16,6 @@ import { ColumnsDropdown } from "@/components/columns-dropdown"
 import { type Table as TableType } from "@tanstack/react-table"
 import { AddPropertyModal } from "@/components/add-property-modal"
 import { AuroraBackground } from "@/components/ui/aurora-background"
-import { HandWrittenTitle } from "@/components/ui/hand-writing-text"
 import { toast } from "react-hot-toast"
 import { AnalyticsDialog } from "@/components/analytics/AnalyticsDialog"
 
@@ -210,7 +209,7 @@ const FiltersAndTable = ({
   );
 };
 
-// Aggiungiamo un componente per l'onboarding
+// Componente per l'onboarding
 const OnboardingView = ({ onAddProperty }: { onAddProperty: () => void }) => (
   <div className="min-h-[80vh] flex items-center justify-center px-10">
     <div className="max-w-3xl w-full">
@@ -225,7 +224,7 @@ const OnboardingView = ({ onAddProperty }: { onAddProperty: () => void }) => (
           />
         </div>
 
-        <h1 className="text-5xl font-bold text-gray-800 mb-4 bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">
+        <h1 className="text-5xl font-bold text-gray-800 mb-4">
           Welcome to Replai
         </h1>
         
@@ -309,7 +308,7 @@ export default function ReviewsPage() {
         const data = await response.json()
         setHotels(data)
 
-        // If we have hotels, set the first one as selected
+        // Se ci sono hotel, imposta il primo come selezionato
         if (data.length > 0) {
           setHotel(data[0]._id)
           setFilters({ hotelId: data[0]._id })
@@ -354,7 +353,7 @@ export default function ReviewsPage() {
   }
 
   const handleRefresh = () => {
-    // Implement the refresh logic here
+    // Implementa la logica per il refresh qui
   }
 
   const handleTableReady = (table: TableType<any>) => {
@@ -375,7 +374,8 @@ export default function ReviewsPage() {
   if (hotels.length === 0) {
     return (
       <>
-        <div className="fixed inset-0 -z-10 bg-gradient-to-br from-blue-50/80 via-gray-100/90 to-blue-50/80 backdrop-blur-sm" />
+        {/* Sfondo aggiornato con gradiente */}
+        <div className="fixed inset-0 -z-10 bg-gradient-to-br from-[#FAFAFB] via-[#F0F0F2] to-[#FAFAFB] backdrop-blur-sm" />
         
         <OnboardingView onAddProperty={() => setIsAddPropertyModalOpen(true)} />
 
@@ -383,7 +383,7 @@ export default function ReviewsPage() {
           isOpen={isAddPropertyModalOpen}
           onClose={() => setIsAddPropertyModalOpen(false)}
           onSuccess={async () => {
-            // Refresh hotels list
+            // Aggiorna la lista degli hotel
             const token = getCookie('token')
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/hotels`, {
               headers: {
@@ -435,14 +435,21 @@ export default function ReviewsPage() {
         </div>
       )}
 
-      <div className="fixed inset-0 -z-10 bg-gradient-to-br from-blue-50/80 via-gray-100/90 to-blue-50/80 backdrop-blur-sm" />
+      {/* Sfondo aggiornato con gradiente */}
+      <div className="fixed inset-0 -z-10 bg-gradient-to-br from-[#FAFAFB] via-[#F0F0F2] to-[#FAFAFB] backdrop-blur-sm" />
       
       <div className="flex flex-col px-10 md:pl-[96px] py-12 min-h-screen">
         <div className="max-w-[1400px] mx-auto w-full space-y-12">
-          <HandWrittenTitle 
-            title="Reviews" 
-            subtitle="Analyze and respond to your reviews"
-          />
+          {/* Header del titolo aggiornato senza animazione */}
+          <div className="text-center mb-12">
+            <h1 className="text-4xl sm:text-6xl font-extrabold text-gray-900 bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
+              Reviews
+            </h1>
+            <p className="mt-4 text-lg text-gray-600">
+              Analyze and respond to your reviews
+            </p>
+          </div>
+
           <Toaster position="top-right" />
           
           <FiltersAndTable 
@@ -475,7 +482,7 @@ export default function ReviewsPage() {
   )
 }
 
-// Aggiungiamo l'animazione float
+// Aggiungiamo l'animazione float (utilizzata in OnboardingView)
 const styles = `
   @keyframes float {
     0% { transform: translateY(0px); }
