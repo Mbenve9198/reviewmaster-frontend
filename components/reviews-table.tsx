@@ -146,6 +146,7 @@ export function ReviewsTable({
     length: 'short' | 'medium' | 'long';
   } | null>(null);
   const [isAddPropertyModalOpen, setIsAddPropertyModalOpen] = useState(false)
+  const [isReviewExpanded, setIsReviewExpanded] = useState(false)
 
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
@@ -900,9 +901,23 @@ export function ReviewsTable({
                           )}
                         </div>
                       </div>
-                      <p className="text-sm text-gray-600 line-clamp-2">
-                        {selectedReview.content.text}
-                      </p>
+                      <div 
+                        className="relative cursor-pointer" 
+                        onClick={() => setIsReviewExpanded(!isReviewExpanded)}
+                      >
+                        <p className={cn(
+                          "text-sm text-gray-600 transition-all duration-200",
+                          isReviewExpanded ? "" : "line-clamp-2"
+                        )}>
+                          {selectedReview.content.text}
+                        </p>
+                        <div className={cn(
+                          "absolute bottom-0 left-0 right-0 text-xs text-primary font-medium pt-1",
+                          isReviewExpanded ? "hidden" : "bg-gradient-to-t from-white to-transparent"
+                        )}>
+                          Show more
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -916,7 +931,7 @@ export function ReviewsTable({
                   <SelectTrigger className="h-8 w-[130px] text-sm rounded-full">
                     <SelectValue placeholder="Style" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="z-[200]">
                     <SelectItem value="professional">Professional</SelectItem>
                     <SelectItem value="friendly">Friendly</SelectItem>
                   </SelectContent>
@@ -929,7 +944,7 @@ export function ReviewsTable({
                   <SelectTrigger className="h-8 w-[130px] text-sm rounded-full">
                     <SelectValue placeholder="Length" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="z-[200]">
                     <SelectItem value="short">Short</SelectItem>
                     <SelectItem value="medium">Medium</SelectItem>
                     <SelectItem value="long">Long</SelectItem>
