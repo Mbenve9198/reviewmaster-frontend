@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef, useMemo } from "react"
+import { useState, useEffect, useRef } from "react"
 import {
   type ColumnDef,
   type ColumnFiltersState,
@@ -145,7 +145,7 @@ export function ReviewsTable({
 
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
-  const columns = useMemo<ColumnDef<Review>[]>(() => [
+  const columns: ColumnDef<Review>[] = [
     {
       id: "select",
       header: ({ table }) => (
@@ -302,11 +302,19 @@ export function ReviewsTable({
       accessorFn: (row) => row.response?.text,
       header: "Generated Response",
       size: 1,
-      cell: ({ row }) => (
-        <div className="max-w-md truncate pr-2">
-          {row.original.response?.text || '-'}
-        </div>
-      ),
+      cell: ({ row }) => {
+        const response = row.original.response?.text
+        return (
+          <div className="w-[250px] group relative cursor-pointer">
+            <div className="truncate">
+              {response || "No response generated"}
+            </div>
+            <div className="invisible group-hover:visible absolute left-0 top-full mt-2 p-4 bg-white rounded-xl shadow-lg border z-10 max-w-[500px] min-w-[300px] break-words">
+              {response || "No response generated"}
+            </div>
+          </div>
+        )
+      },
     },
     {
       id: "actions",
@@ -340,7 +348,7 @@ export function ReviewsTable({
         )
       },
     },
-  ], [isGenerating, handleGenerateResponse])
+  ]
 
   const table = useReactTable({
     data: reviews,
