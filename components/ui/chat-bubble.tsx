@@ -46,27 +46,8 @@ export function ChatBubbleMessage({
   className,
   children,
 }: ChatBubbleMessageProps) {
-  const [displayText, setDisplayText] = useState("");
-
-  useEffect(() => {
-    // Se il messaggio è una stringa, esegue l'effetto typing velocemente
-    if (!isLoading && typeof children === "string") {
-      setDisplayText(""); // resetta il testo visualizzato
-      let currentIndex = 0;
-      const typingDelay = 10; // delay ridotto per un effetto "typing" veloce
-      const interval = setInterval(() => {
-        setDisplayText((prev) => prev + children[currentIndex]);
-        currentIndex++;
-        if (currentIndex >= children.length) {
-          clearInterval(interval);
-        }
-      }, typingDelay);
-      return () => clearInterval(interval);
-    }
-  }, [children, isLoading]);
-
   if (isLoading) {
-    // Mentre il messaggio è in caricamento, mostra "Typing..." (in inglese)
+    // Durante il caricamento, mostra il placeholder "Typing..."
     return (
       <div className={cn("text-sm text-gray-600 whitespace-pre-wrap", className)}>
         <span>Typing...</span>
@@ -74,17 +55,8 @@ export function ChatBubbleMessage({
       </div>
     );
   }
-  
-  // Se il messaggio è una stringa, mostra il testo con effetto typing
-  if (typeof children === "string") {
-    return (
-      <div className={cn("text-sm text-gray-600 whitespace-pre-wrap", className)}>
-        {displayText}
-      </div>
-    );
-  }
-  
-  // Altrimenti, renderizza direttamente il contenuto (senza effetto typing)
+
+  // Al termine del caricamento, mostra direttamente il contenuto (senza animazione)
   return (
     <div className={cn("text-sm text-gray-600 whitespace-pre-wrap", className)}>
       {children}
