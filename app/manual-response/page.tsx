@@ -29,7 +29,6 @@ import { getCookie } from "@/lib/utils"
 import { toast } from "react-hot-toast"
 import { ChatMessageList } from "@/components/ui/chat-message-list"
 import { ChatBubble, ChatBubbleAvatar, ChatBubbleMessage } from "@/components/ui/chat-bubble"
-import { Tiles } from "@/components/ui/tiles"
 import { HandWrittenTitle } from "@/components/ui/hand-writing-text"
 import {
   Popover,
@@ -361,12 +360,7 @@ export default function HomePage() {
         </div>
       )}
 
-      <Tiles 
-        className="fixed inset-0 -z-10" 
-        rows={100}
-        cols={20}
-        tileSize="md"
-      />
+      <div className="fixed inset-0 -z-10 bg-gradient-to-br from-[#FAFAFB] via-[#F0F0F2] to-[#FAFAFB] backdrop-blur-sm" />
       
       <div className="min-h-screen flex flex-col items-center px-6">
         <div className="w-full max-w-3xl pt-12">
