@@ -317,6 +317,17 @@ export function ReviewsTable({
       size: 1,
       cell: ({ row }) => {
         const content = row.original.content?.text
+        const platform = row.original.platform
+        
+        // Gestione specifica per Booking.com
+        if (platform === 'booking' && content?.toLowerCase().includes('liked: no comments')) {
+          return (
+            <div className="flex items-center gap-2 text-gray-400">
+              <Ban className="h-4 w-4" />
+              <span className="text-xs font-medium">No review text</span>
+            </div>
+          )
+        }
         
         if (!content) {
           return (
