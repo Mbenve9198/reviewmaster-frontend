@@ -473,12 +473,14 @@ export function ReviewsTable({
   }, [selectedReview?.hotelId]);
 
   const handleGenerateResponse = async (review: Review) => {
-    setSelectedReview(review)
-    setIsModalOpen(true)
-    setMessages([])
+    setMessages([]);
+    setInput('');
+    setIsGenerating(false);
+    setSelectedReview(review);
+    setIsModalOpen(true);
     
     setTimeout(async () => {
-      setIsGenerating(true)
+      setIsGenerating(true);
       try {
         const token = getCookie('token');
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reviews/generate`, {
@@ -491,25 +493,33 @@ export function ReviewsTable({
             hotelId: review.hotelId,
             review: {
               text: review.content.text,
-              reviewer: review.content.reviewerName,
-              rating: review.content.rating
+              name: review.content.reviewerName,
+              rating: review.content.rating,
+              platform: review.platform,
+              language: review.content.language
             },
             responseSettings: {
               style: responseTone,
               length: responseLength
-            },
-            previousMessages: messages.length > 0 ? messages : undefined
+            }
           })
         });
         
         const data = await response.json();
-        setMessages([{ id: 1, content: data.response, sender: "ai" }])
-      } catch (error) {
-        toast.error("Error generating response")
+        if (!response.ok) {
+          throw new Error(data.message || 'Failed to generate response');
+        }
+        
+        if (data.response) {
+          setMessages([{ id: 1, content: data.response, sender: "ai" }]);
+        }
+      } catch (error: any) {
+        console.error('Generate response error:', error);
+        toast.error(error.message || "Error generating response");
       } finally {
-        setIsGenerating(false)
+        setIsGenerating(false);
       }
-    }, 0)
+    }, 100);
   }
 
   const handleCustomResponse = (review: Review) => {
@@ -828,7 +838,19 @@ export function ReviewsTable({
         </div>
       </div>
 
-      <SlidePanel open={isModalOpen} onOpenChange={setIsModalOpen}>
+      <SlidePanel 
+        open={isModalOpen} 
+        onOpenChange={(open) => {
+          setIsModalOpen(open);
+          if (!open) {
+            // Reset dello stato quando si chiude il pannello
+            setMessages([]);
+            setInput('');
+            setIsGenerating(false);
+            setSelectedReview(null);
+          }
+        }}
+      >
         <div className="h-full flex flex-col">
           <div className="px-6 py-4 border-b bg-gray-50/80 backdrop-blur-sm sticky top-0 z-10">
             <div className="flex flex-col gap-2">
