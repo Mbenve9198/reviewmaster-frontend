@@ -17,7 +17,6 @@ import { type Table as TableType } from "@tanstack/react-table"
 import { AddPropertyModal } from "@/components/add-property-modal"
 import { AuroraBackground } from "@/components/ui/aurora-background"
 import { HandWrittenTitle } from "@/components/ui/hand-writing-text"
-import { Tiles } from "@/components/ui/tiles"
 import { toast } from "react-hot-toast"
 import { AnalyticsDialog } from "@/components/analytics/AnalyticsDialog"
 
@@ -376,12 +375,7 @@ export default function ReviewsPage() {
   if (hotels.length === 0) {
     return (
       <>
-        <Tiles 
-          className="fixed inset-0 -z-10 opacity-50" 
-          rows={100}
-          cols={20}
-          tileSize="md"
-        />
+        <div className="fixed inset-0 -z-10 bg-gradient-to-br from-blue-50 via-gray-50 to-blue-50" />
         
         <OnboardingView onAddProperty={() => setIsAddPropertyModalOpen(true)} />
 
@@ -441,12 +435,7 @@ export default function ReviewsPage() {
         </div>
       )}
 
-      <Tiles 
-        className="fixed inset-0 -z-10" 
-        rows={100}
-        cols={20}
-        tileSize="md"
-      />
+      <div className="fixed inset-0 -z-10 bg-gradient-to-br from-blue-50 via-gray-50 to-blue-50" />
       
       <div className="flex flex-col px-10 md:pl-[96px] py-12 min-h-screen">
         <div className="max-w-[1400px] mx-auto w-full space-y-12">
