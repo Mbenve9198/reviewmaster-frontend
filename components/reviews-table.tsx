@@ -349,10 +349,11 @@ export function ReviewsTable({
         
         if (!response) {
           return (
-            <div className="flex items-center gap-2">
-              <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-full bg-gray-50 border border-gray-200 text-gray-600">
-                <PenSquare className="h-3.5 w-3.5" />
-                <span className="text-xs font-medium">Ready for response</span>
+            <div className="flex items-center gap-2 text-gray-400">
+              <div className="flex items-center gap-1.5 text-xs">
+                <AlertCircle className="h-3.5 w-3.5 text-amber-500" />
+                <span className="font-medium text-gray-500">Awaiting response</span>
+                <span className="inline-flex h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse"></span>
               </div>
             </div>
           )
