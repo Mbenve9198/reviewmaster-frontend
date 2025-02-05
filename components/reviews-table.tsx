@@ -997,7 +997,7 @@ export function ReviewsTable({
                   variant="outline"
                   size="sm"
                   onClick={() => setInput("Could you make it more personal?")}
-                  className="rounded-full text-sm whitespace-nowrap hover:bg-primary hover:text-white"
+                  className="rounded-full text-sm whitespace-nowrap hover:bg-primary hover:text-white border-gray-200"
                 >
                   Make it more personal
                 </Button>
@@ -1005,7 +1005,7 @@ export function ReviewsTable({
                   variant="outline"
                   size="sm"
                   onClick={() => setInput("Can you address specific points from the review?")}
-                  className="rounded-full text-sm whitespace-nowrap hover:bg-primary hover:text-white"
+                  className="rounded-full text-sm whitespace-nowrap hover:bg-primary hover:text-white border-gray-200"
                 >
                   Address specific points
                 </Button>
@@ -1013,78 +1013,90 @@ export function ReviewsTable({
                   variant="outline"
                   size="sm"
                   onClick={() => setInput("Could you make it shorter?")}
-                  className="rounded-full text-sm whitespace-nowrap hover:bg-primary hover:text-white"
+                  className="rounded-full text-sm whitespace-nowrap hover:bg-primary hover:text-white border-gray-200"
                 >
                   Make it shorter
                 </Button>
               </div>
 
-              <div className="py-4 flex items-end gap-3">
-                <div className="relative flex-1">
-                  <textarea
-                    value={input}
-                    onChange={(e) => {
-                      setInput(e.target.value);
-                      e.target.style.height = 'inherit';
-                      const height = Math.min(e.target.scrollHeight, 120);
-                      e.target.style.height = `${height}px`;
-                    }}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        handleChatSubmit(input);
-                      }
-                    }}
-                    placeholder="Refine the response... (Press Enter to send)"
-                    className="w-full min-h-[52px] max-h-[120px] pe-12 ps-4 py-3
-                      bg-gray-50 rounded-full resize-none
-                      border border-gray-200 hover:border-gray-300
-                      focus:border-primary focus:ring-1 focus:ring-primary
-                      transition-colors text-base leading-relaxed
-                      scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent"
-                    style={{ 
-                      overflow: 'auto',
-                    }}
-                  />
-                  <div className="absolute right-2 bottom-[10px] flex items-center gap-2">
-                    {input.trim() && (
-                      <span className="text-xs text-gray-400">
-                        Press Enter ↵
-                      </span>
-                    )}
-                    <Button 
-                      type="submit" 
-                      size="sm"
-                      disabled={isGenerating || !input.trim()}
-                      onClick={() => handleChatSubmit(input)}
-                      className="h-8 w-8 rounded-full bg-primary hover:bg-primary/90 text-white shadow-sm"
-                    >
-                      <CornerDownLeft className="h-4 w-4" />
-                    </Button>
+              <form 
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleChatSubmit(input);
+                }}
+                className="relative py-4"
+              >
+                <div className="flex gap-3">
+                  <div className="relative flex-1">
+                    <textarea
+                      value={input}
+                      onChange={(e) => {
+                        setInput(e.target.value);
+                        e.target.style.height = 'inherit';
+                        const height = Math.min(e.target.scrollHeight, 120);
+                        e.target.style.height = `${height}px`;
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                          e.preventDefault();
+                          handleChatSubmit(input);
+                        }
+                      }}
+                      placeholder="Refine the response..."
+                      className="w-full min-h-[52px] max-h-[120px] pe-[120px] ps-4 py-3
+                        bg-gray-50 rounded-xl resize-none
+                        border border-gray-200 hover:border-gray-300
+                        focus:border-primary focus:ring-1 focus:ring-primary
+                        transition-colors text-base leading-relaxed
+                        scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent"
+                      style={{ 
+                        overflow: 'auto',
+                      }}
+                    />
+                    <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2 h-[40px] bg-white rounded-lg pr-1">
+                      <div className="w-[1px] h-5 bg-gray-200 mr-2" />
+                      
+                      {input.trim() && (
+                        <kbd className="hidden sm:inline-flex h-6 select-none items-center gap-1 rounded border border-gray-200 bg-gray-50 px-1.5 font-mono text-[10px] font-medium text-gray-400">
+                          <span className="text-xs">⏎</span>
+                          Enter
+                        </kbd>
+                      )}
+                      
+                      <Button 
+                        type="submit" 
+                        size="sm"
+                        disabled={isGenerating || !input.trim()}
+                        className="h-8 px-3 rounded-lg bg-primary hover:bg-primary/90 text-white shadow-sm flex items-center gap-2"
+                      >
+                        Send
+                        <CornerDownLeft className="h-3.5 w-3.5 opacity-70" />
+                      </Button>
+                    </div>
                   </div>
+
+                  <Button
+                    onClick={handleSaveResponse}
+                    disabled={isSaving || isGenerating || !messages.length}
+                    className="h-[52px] px-5 rounded-xl bg-primary hover:bg-primary/90 text-white
+                      shadow-sm transition-all duration-200 
+                      disabled:opacity-50 disabled:cursor-not-allowed
+                      flex items-center gap-2 min-w-[130px] justify-center"
+                  >
+                    {isSaving ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Saving...
+                      </>
+                    ) : (
+                      <>
+                        <Check className="h-[18px] w-[18px]" />
+                        Save
+                      </>
+                    )}
+                  </Button>
                 </div>
-                
-                <Button
-                  onClick={handleSaveResponse}
-                  disabled={isSaving || isGenerating || !messages.length}
-                  className="h-[52px] px-6 rounded-full bg-primary hover:bg-primary/90 text-white
-                    shadow-sm transition-all duration-200
-                    disabled:opacity-50 disabled:cursor-not-allowed
-                    flex items-center gap-2 shrink-0"
-                >
-                  {isSaving ? (
-                    <>
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      Saving...
-                    </>
-                  ) : (
-                    <>
-                      <Check className="h-4 w-4" />
-                      Save Response
-                    </>
-                  )}
-                </Button>
-              </div>
+              </form>
             </div>
           </div>
         </div>
