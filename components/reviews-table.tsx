@@ -86,11 +86,11 @@ const logoSizes: Record<Platform, { width: number; height: number }> = {
   manual: { width: 24, height: 24 }
 }
 
-// Definizione dei tipi
+// All'inizio del file, definiamo l'interfaccia una sola volta
 type MessageSender = "user" | "ai";
 
 interface ChatMessage {
-  id: string;
+  id: number;  // Manteniamo number come tipo per id
   content: string;
   sender: MessageSender;
 }
@@ -524,12 +524,12 @@ export function ReviewsTable({
         
         setMessages([
           {
-            id: '1',
+            id: 1,
             content: review.content.text,
             sender: 'user'
           },
           {
-            id: '2',
+            id: 2,
             content: data.response,
             sender: 'ai'
           }
@@ -555,23 +555,21 @@ export function ReviewsTable({
   }
 
   const handleChatSubmit = async (input: string) => {
-    if (!input.trim() || !selectedReview) return;
+    if (!input.trim() || isGenerating) return;
     
-    setIsGenerating(true);
-    setInput(''); // Clear input after sending
+    const newUserMessage: ChatMessage = {
+      id: messages.length + 1,
+      content: input,
+      sender: 'user'
+    };
+
+    setMessages(prev => [...prev, newUserMessage]);
+    setInput('');
     
     try {
-      const newUserMessage: ChatMessage = { 
-        id: '1', 
-        content: input, 
-        sender: "user" as MessageSender
-      };
-      
-      setMessages(prev => [...prev, newUserMessage]);
-      
       const response = await generateResponse(
-        selectedReview.hotelId,
-        selectedReview.content.text,
+        selectedReview!.hotelId,
+        selectedReview!.content.text,
         {
           style: responseTone as 'professional' | 'friendly',
           length: responseLength as 'short' | 'medium' | 'long',
@@ -580,15 +578,13 @@ export function ReviewsTable({
       );
       
       const aiMessage: ChatMessage = { 
-        id: '2', 
+        id: messages.length + 2, 
         content: response, 
         sender: "ai" as MessageSender
       };
       setMessages(prev => [...prev, aiMessage]);
     } catch (error) {
       toast.error("Error generating response");
-    } finally {
-      setIsGenerating(false);
     }
   };
 
