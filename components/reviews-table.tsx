@@ -30,6 +30,7 @@ import {
   Check,
   ListFilter,
   PlusCircle,
+  CalendarDays,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -247,7 +248,18 @@ export function ReviewsTable({
       cell: ({ row }) => {
         const dateStr = row.original.metadata?.originalCreatedAt
         if (!dateStr) return "No date"
-        return new Date(dateStr).toISOString().split('T')[0]
+        const date = new Date(dateStr)
+        const formattedDate = date.toLocaleString('en-US', { 
+          day: 'numeric',
+          month: 'short',
+          year: 'numeric'
+        })
+        return (
+          <div className="flex items-center gap-2">
+            <CalendarDays className="h-4 w-4 text-blue-500" />
+            <span>{formattedDate}</span>
+          </div>
+        )
       },
     },
     {
@@ -269,9 +281,21 @@ export function ReviewsTable({
       cell: ({ row }) => {
         const rating = row.original.content?.rating
         const platform = row.original.platform
+        const isBooking = platform === "booking"
+        
+        // Determina se il rating è positivo o negativo
+        const isPositive = isBooking ? rating >= 8 : rating >= 4
+        const isNegative = isBooking ? rating < 6 : rating < 3
+        
+        const colorClass = isPositive ? 'text-green-600 bg-green-50' : 
+                          isNegative ? 'text-red-600 bg-red-50' : 
+                          'text-gray-600 bg-gray-50'
+        
         return (
-          <div className="text-center">
-            {platform === "booking" ? `${rating}/10` : `${rating}/5`}
+          <div className="flex justify-center">
+            <span className={`px-2 py-1 rounded-full text-sm font-medium ${colorClass}`}>
+              {isBooking ? `${rating}/10` : `${rating}/5`}
+            </span>
           </div>
         )
       },
