@@ -31,7 +31,8 @@ import {
   ListFilter,
   PlusCircle,
   CalendarDays,
-  MessageSquareOff,
+  Ban,
+  AlertCircle,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -320,7 +321,7 @@ export function ReviewsTable({
         if (!content) {
           return (
             <div className="flex items-center gap-2 text-gray-400">
-              <MessageSquareOff className="h-4 w-4" />
+              <Ban className="h-4 w-4" />
               <span className="text-xs font-medium">No review text</span>
             </div>
           )
@@ -345,13 +346,25 @@ export function ReviewsTable({
       size: 1,
       cell: ({ row }) => {
         const response = row.original.response?.text
+        
+        if (!response) {
+          return (
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-full bg-gray-50 border border-gray-200 text-gray-600">
+                <PenSquare className="h-3.5 w-3.5" />
+                <span className="text-xs font-medium">Ready for response</span>
+              </div>
+            </div>
+          )
+        }
+
         return (
           <div className="w-[250px] group relative cursor-pointer">
             <div className="truncate">
-              {response || "No response generated"}
+              {response}
             </div>
             <div className="invisible group-hover:visible absolute left-0 top-full mt-2 p-4 bg-white rounded-xl shadow-lg border z-10 max-w-[500px] min-w-[300px] break-words">
-              {response || "No response generated"}
+              {response}
             </div>
           </div>
         )
