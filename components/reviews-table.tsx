@@ -68,6 +68,7 @@ import { getCookie } from "cookies-next"
 import { cn } from "@/lib/utils"
 import { useRouter } from "next/navigation"
 import { AddPropertyModal } from "@/components/add-property-modal"
+import { SlidePanel } from "@/components/ui/slide-panel"
 
 type Platform = 'google' | 'booking' | 'tripadvisor' | 'manual'
 
@@ -706,252 +707,248 @@ export function ReviewsTable({
   console.log('Rendering reviews:', reviews?.length || 0)
 
   return (
-    <div className="w-full flex justify-center">
-      <div className="w-fit">
-        <div className="rounded-xl border border-gray-200 bg-white overflow-hidden">
-          <Table className="overflow-hidden">
-            <TableHeader>
-              {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow 
-                  key={headerGroup.id} 
-                  className="bg-gray-50 hover:bg-gray-50 border-gray-200"
-                >
-                  {headerGroup.headers.map((header) => {
-                    return (
-                      <TableHead 
-                        key={header.id}
-                        className={cn(
-                          "text-gray-600 font-medium h-11 bg-gray-50",
-                          header.id === "select" && "[&_input[type='checkbox']]:rounded-lg [&_input[type='checkbox']]:border-gray-300"
-                        )}
-                      >
-                        {header.isPlaceholder
-                          ? null
-                          : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
-                      </TableHead>
-                    )
-                  })}
-                </TableRow>
-              ))}
-            </TableHeader>
-            <TableBody>
-              {table.getRowModel().rows?.length ? (
-                table.getRowModel().rows.map((row) => (
-                  <TableRow
-                    key={row.id}
-                    data-state={row.getIsSelected() && "selected"}
-                  >
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell 
-                        key={cell.id}
-                        className={cn(
-                          cell.column.id === "select" && "[&_input[type='checkbox']]:rounded-lg [&_input[type='checkbox']]:border-gray-300"
-                        )}
-                      >
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell
-                    colSpan={columns.length}
-                    className="h-24 text-center"
-                  >
-                    No results.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </div>
-        
-        <div className="mt-6 mb-4 px-2 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Select
-              value={pageSize.toString()}
-              onValueChange={handleResultsPerPageChange}
-            >
-              <SelectTrigger className="h-9 w-[160px] rounded-full border-gray-200 focus:border-primary focus:ring-primary bg-white text-sm">
-                <SelectValue placeholder="Results per page" />
-              </SelectTrigger>
-              <SelectContent>
-                {[10, 20, 30, 40, 50].map((value) => (
-                  <SelectItem 
-                    key={value} 
-                    value={value.toString()}
-                    className="text-sm"
-                  >
-                    {value} results
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-gray-500">
-              Page {pageIndex + 1} of {table.getPageCount()}
-            </span>
-            
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => table.previousPage()}
-                disabled={!table.getCanPreviousPage()}
-                className="rounded-full border-gray-200 hover:bg-gray-50 hover:text-gray-900 text-gray-600"
+    <div className="space-y-4">
+      <div className="rounded-xl border bg-white">
+        <Table className="overflow-hidden">
+          <TableHeader>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow 
+                key={headerGroup.id} 
+                className="bg-gray-50 hover:bg-gray-50 border-gray-200"
               >
-                Previous
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => table.nextPage()}
-                disabled={!table.getCanNextPage()}
-                className="rounded-full border-gray-200 hover:bg-gray-50 hover:text-gray-900 text-gray-600"
-              >
-                Next
-              </Button>
-            </div>
-          </div>
-        </div>
-
-        <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-          <DialogContent className="sm:max-w-[500px] w-[95vw] max-h-[90vh] p-0 bg-white rounded-2xl border shadow-lg">
-            <div className="h-full max-h-[90vh] flex flex-col">
-              <DialogHeader className="px-6 py-4 border-b bg-gray-50/80 rounded-t-2xl">
-                <div className="flex flex-col gap-2">
-                  <div className="flex items-center justify-between">
-                    <DialogTitle className="text-lg font-semibold">Generated Response</DialogTitle>
-                  </div>
-                  {selectedReview?.content?.originalUrl && (
-                    <div className="flex items-center gap-2 text-sm text-gray-500">
-                      <ExternalLink className="h-4 w-4" />
-                      <Button
-                        variant="link"
-                        className="h-auto p-0 text-gray-500 hover:text-primary"
-                        onClick={() => window.open(selectedReview.content.originalUrl, '_blank')}
-                      >
-                        View original review
-                      </Button>
-                    </div>
-                  )}
-                </div>
-              </DialogHeader>
-              
-              <div className="flex-1 overflow-y-auto bg-white px-6" ref={chatContainerRef}>
-                <div className="py-6">
-                  <ChatMessageList>
-                    {messages.map((message) => (
-                      <ChatBubble 
-                        key={message.id} 
-                        variant={message.sender === "user" ? "sent" : "received"}
-                        className="rounded-2xl shadow-sm"
-                      >
-                        <ChatBubbleAvatar
-                          className="h-8 w-8 shrink-0 rounded-full border-2 border-white shadow-sm"
-                          src={message.sender === "user" ? "https://github.com/shadcn.png" : "https://github.com/vercel.png"}
-                          fallback={message.sender === "user" ? "US" : "AI"}
-                        />
-                        <div className="flex flex-col">
-                          <ChatBubbleMessage 
-                            variant={message.sender === "user" ? "sent" : "received"}
-                            className="rounded-2xl relative pr-10"
-                          >
-                            {message.content}
-                            {message.sender === "ai" && (
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => {
-                                  navigator.clipboard.writeText(message.content)
-                                  toast.success("Response copied to clipboard")
-                                }}
-                                className="absolute bottom-1 right-1 h-7 w-7 rounded-full bg-white/80 hover:bg-white/90 shadow-sm"
-                              >
-                                <Copy className="h-3.5 w-3.5" />
-                                <span className="sr-only">Copy response</span>
-                              </Button>
-                            )}
-                          </ChatBubbleMessage>
-                        </div>
-                      </ChatBubble>
-                    ))}
-
-                    {isGenerating && (
-                      <ChatBubble variant="received" className="rounded-2xl shadow-sm">
-                        <ChatBubbleAvatar 
-                          className="h-8 w-8 shrink-0 rounded-full border-2 border-white shadow-sm" 
-                          src="https://github.com/vercel.png" 
-                          fallback="AI" 
-                        />
-                        <ChatBubbleMessage isLoading className="rounded-2xl" />
-                      </ChatBubble>
-                    )}
-                  </ChatMessageList>
-                </div>
-              </div>
-
-              <div className="border-t px-6 py-4 bg-gray-50">
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    handleChatSubmit(input);
-                  }}
-                  className="relative flex items-center gap-4"
-                >
-                  <div className="relative flex-1">
-                    <textarea
-                      value={input}
-                      onChange={(e) => {
-                        setInput(e.target.value);
-                        e.target.style.height = 'inherit';
-                        const height = e.target.scrollHeight;
-                        e.target.style.height = `${height}px`;
-                      }}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' && !e.shiftKey) {
-                          e.preventDefault();
-                          handleChatSubmit(input);
-                        }
-                      }}
-                      placeholder="Type your message..."
-                      className="w-full min-h-[48px] max-h-[200px] resize-none rounded-xl bg-white border-gray-200 p-3 pr-14 shadow-none focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary"
-                      style={{ overflow: 'hidden' }}
-                    />
-                    <Button 
-                      type="submit" 
-                      size="sm" 
-                      className="absolute right-2 top-[50%] -translate-y-1/2 rounded-xl shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[calc(-50%+2px)] transition-all"
+                {headerGroup.headers.map((header) => {
+                  return (
+                    <TableHead 
+                      key={header.id}
+                      className={cn(
+                        "text-gray-600 font-medium h-11 bg-gray-50",
+                        header.id === "select" && "[&_input[type='checkbox']]:rounded-lg [&_input[type='checkbox']]:border-gray-300"
+                      )}
                     >
-                      <CornerDownLeft className="h-4 w-4" />
-                    </Button>
-                  </div>
-                  <Button
-                    onClick={handleSaveResponse}
-                    disabled={isSaving || isGenerating || !messages.length}
-                    className="relative bg-primary hover:bg-primary/90 text-white px-6 py-2 rounded-xl shadow-[0_4px_0_0_#1e40af] transition-all active:top-[2px] active:shadow-[0_0_0_0_#1e40af]"
-                  >
-                    {isSaving ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Saving...
-                      </>
-                    ) : (
-                      "Save Response"
-                    )}
-                  </Button>
-                </form>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                    </TableHead>
+                  )
+                })}
+              </TableRow>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {table.getRowModel().rows?.length ? (
+              table.getRowModel().rows.map((row) => (
+                <TableRow
+                  key={row.id}
+                  data-state={row.getIsSelected() && "selected"}
+                >
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell 
+                      key={cell.id}
+                      className={cn(
+                        cell.column.id === "select" && "[&_input[type='checkbox']]:rounded-lg [&_input[type='checkbox']]:border-gray-300"
+                      )}
+                    >
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-24 text-center"
+                >
+                  No results.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
       </div>
+      
+      <div className="mt-6 mb-4 px-2 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Select
+            value={pageSize.toString()}
+            onValueChange={handleResultsPerPageChange}
+          >
+            <SelectTrigger className="h-9 w-[160px] rounded-full border-gray-200 focus:border-primary focus:ring-primary bg-white text-sm">
+              <SelectValue placeholder="Results per page" />
+            </SelectTrigger>
+            <SelectContent>
+              {[10, 20, 30, 40, 50].map((value) => (
+                <SelectItem 
+                  key={value} 
+                  value={value.toString()}
+                  className="text-sm"
+                >
+                  {value} results
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="flex items-center gap-4">
+          <span className="text-sm text-gray-500">
+            Page {pageIndex + 1} of {table.getPageCount()}
+          </span>
+          
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => table.previousPage()}
+              disabled={!table.getCanPreviousPage()}
+              className="rounded-full border-gray-200 hover:bg-gray-50 hover:text-gray-900 text-gray-600"
+            >
+              Previous
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => table.nextPage()}
+              disabled={!table.getCanNextPage()}
+              className="rounded-full border-gray-200 hover:bg-gray-50 hover:text-gray-900 text-gray-600"
+            >
+              Next
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      <SlidePanel open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <div className="h-full flex flex-col">
+          <div className="px-6 py-4 border-b bg-gray-50">
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-semibold">Generated Response</h2>
+              </div>
+              {selectedReview?.content?.originalUrl && (
+                <div className="flex items-center gap-2 text-sm text-gray-500">
+                  <ExternalLink className="h-4 w-4" />
+                  <Button
+                    variant="link"
+                    className="h-auto p-0 text-gray-500 hover:text-primary"
+                    onClick={() => window.open(selectedReview.content.originalUrl, '_blank')}
+                  >
+                    View original review
+                  </Button>
+                </div>
+              )}
+            </div>
+          </div>
+          
+          <div className="flex-1 overflow-y-auto bg-white px-6" ref={chatContainerRef}>
+            <div className="py-6">
+              <ChatMessageList>
+                {messages.map((message) => (
+                  <ChatBubble 
+                    key={message.id} 
+                    variant={message.sender === "user" ? "sent" : "received"}
+                    className="rounded-2xl shadow-sm"
+                  >
+                    <ChatBubbleAvatar
+                      className="h-8 w-8 shrink-0 rounded-full border-2 border-white shadow-sm"
+                      src={message.sender === "user" ? "https://github.com/shadcn.png" : "https://github.com/vercel.png"}
+                      fallback={message.sender === "user" ? "US" : "AI"}
+                    />
+                    <div className="flex flex-col">
+                      <ChatBubbleMessage 
+                        variant={message.sender === "user" ? "sent" : "received"}
+                        className="rounded-2xl relative pr-10"
+                      >
+                        {message.content}
+                        {message.sender === "ai" && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => {
+                              navigator.clipboard.writeText(message.content)
+                              toast.success("Response copied to clipboard")
+                            }}
+                            className="absolute bottom-1 right-1 h-7 w-7 rounded-full bg-white/80 hover:bg-white/90 shadow-sm"
+                          >
+                            <Copy className="h-3.5 w-3.5" />
+                            <span className="sr-only">Copy response</span>
+                          </Button>
+                        )}
+                      </ChatBubbleMessage>
+                    </div>
+                  </ChatBubble>
+                ))}
+
+                {isGenerating && (
+                  <ChatBubble variant="received" className="rounded-2xl shadow-sm">
+                    <ChatBubbleAvatar 
+                      className="h-8 w-8 shrink-0 rounded-full border-2 border-white shadow-sm" 
+                      src="https://github.com/vercel.png" 
+                      fallback="AI" 
+                    />
+                    <ChatBubbleMessage isLoading className="rounded-2xl" />
+                  </ChatBubble>
+                )}
+              </ChatMessageList>
+            </div>
+          </div>
+
+          <div className="border-t px-6 py-4 bg-gray-50">
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleChatSubmit(input);
+              }}
+              className="relative flex items-center gap-4"
+            >
+              <div className="relative flex-1">
+                <textarea
+                  value={input}
+                  onChange={(e) => {
+                    setInput(e.target.value);
+                    e.target.style.height = 'inherit';
+                    const height = e.target.scrollHeight;
+                    e.target.style.height = `${height}px`;
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      handleChatSubmit(input);
+                    }
+                  }}
+                  placeholder="Type your message..."
+                  className="w-full min-h-[48px] max-h-[200px] resize-none rounded-xl bg-white border-gray-200 p-3 pr-14 shadow-none focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary"
+                  style={{ overflow: 'hidden' }}
+                />
+                <Button 
+                  type="submit" 
+                  size="sm" 
+                  className="absolute right-2 top-[50%] -translate-y-1/2 rounded-xl shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[calc(-50%+2px)] transition-all"
+                >
+                  <CornerDownLeft className="h-4 w-4" />
+                </Button>
+              </div>
+              <Button
+                onClick={handleSaveResponse}
+                disabled={isSaving || isGenerating || !messages.length}
+                className="relative bg-primary hover:bg-primary/90 text-white px-6 py-2 rounded-xl shadow-[0_4px_0_0_#1e40af] transition-all active:top-[2px] active:shadow-[0_0_0_0_#1e40af]"
+              >
+                {isSaving ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  "Save Response"
+                )}
+              </Button>
+            </form>
+          </div>
+        </div>
+      </SlidePanel>
     </div>
   )
 }
