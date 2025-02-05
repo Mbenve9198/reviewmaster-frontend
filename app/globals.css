@@ -87,3 +87,15 @@
 .prose th {
   @apply bg-gray-50 font-semibold text-gray-700;
 }
+
+@keyframes blink {
+  0% { opacity: 1; }
+  50% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+.blinking-cursor {
+  display: inline-block;
+  margin-left: 2px;
+  animation: blink 1s step-start infinite;
+}

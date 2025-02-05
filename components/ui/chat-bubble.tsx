@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { MessageLoading } from "@/components/ui/message-loading";
+import React, { useEffect, useState } from "react";
 
 interface ChatBubbleProps {
   variant?: "sent" | "received"
@@ -45,26 +46,40 @@ export function ChatBubbleMessage({
   className,
   children,
 }: ChatBubbleMessageProps) {
+  const [displayText, setDisplayText] = useState("");
+
+  useEffect(() => {
+    if (!isLoading && children) {
+      setDisplayText(""); // resetta il testo visualizzato per un nuovo messaggio
+      let currentIndex = 0;
+      const interval = setInterval(() => {
+        setDisplayText((prev) => prev + children[currentIndex]);
+        currentIndex++;
+        if (currentIndex >= children.length) {
+          clearInterval(interval);
+        }
+      }, 50); // questo delay (50ms) controlla la velocità di "digitazione"
+      return () => clearInterval(interval);
+    } else {
+      setDisplayText("");
+    }
+  }, [children, isLoading]);
+
+  if (isLoading) {
+    // Visualizza un placeholder con cursore lampeggiante
+    return (
+      <div className={cn("text-sm font-medium", className)}>
+        <span>Sto scrivendo</span>
+        <span className="blinking-cursor">|</span>
+      </div>
+    );
+  }
+
   return (
-    <div
-      className={cn(
-        "rounded-2xl p-4",
-        variant === "sent" 
-          ? "bg-blue-500 text-white" 
-          : "bg-white border-2 border-gray-100",
-        "text-lg leading-relaxed",
-        className
-      )}
-    >
-      {isLoading ? (
-        <div className="flex items-center space-x-2">
-          <MessageLoading />
-        </div>
-      ) : (
-        children
-      )}
+    <div className={cn("text-sm font-medium", className)}>
+      {displayText}
     </div>
-  )
+  );
 }
 
 interface ChatBubbleAvatarProps {
