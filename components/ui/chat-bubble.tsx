@@ -58,7 +58,7 @@ export function ChatBubbleMessage({
         if (currentIndex >= children.length) {
           clearInterval(interval);
         }
-      }, 50); // questo delay (50ms) controlla la velocità di "digitazione"
+      }, 50); // delay per l'effetto "digitazione"
       return () => clearInterval(interval);
     } else {
       setDisplayText("");
@@ -68,7 +68,7 @@ export function ChatBubbleMessage({
   if (isLoading) {
     // Visualizza un placeholder con cursore lampeggiante
     return (
-      <div className={cn("text-sm font-medium", className)}>
+      <div className={cn("text-sm text-gray-600", className)}>
         <span>Sto scrivendo</span>
         <span className="blinking-cursor">|</span>
       </div>
@@ -76,7 +76,7 @@ export function ChatBubbleMessage({
   }
 
   return (
-    <div className={cn("text-sm font-medium", className)}>
+    <div className={cn("text-sm text-gray-600", className)}>
       {displayText}
     </div>
   );
