@@ -31,6 +31,7 @@ import {
   ListFilter,
   PlusCircle,
   CalendarDays,
+  MessageSquareOff,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -253,7 +254,8 @@ export function ReviewsTable({
           day: 'numeric',
           month: 'short',
           year: 'numeric'
-        })
+        }).replace(',', '').replace(/(\d+)\s+(\w+)\s+(\d+)/, '$1 $2, $3')
+        
         return (
           <div className="flex items-center gap-2">
             <CalendarDays className="h-4 w-4 text-blue-500" />
@@ -289,7 +291,7 @@ export function ReviewsTable({
         
         const colorClass = isPositive ? 'text-green-600 bg-green-50' : 
                           isNegative ? 'text-red-600 bg-red-50' : 
-                          'text-gray-600 bg-gray-50'
+                          'text-yellow-600 bg-yellow-50'
         
         return (
           <div className="flex justify-center">
@@ -314,13 +316,23 @@ export function ReviewsTable({
       size: 1,
       cell: ({ row }) => {
         const content = row.original.content?.text
+        
+        if (!content) {
+          return (
+            <div className="flex items-center gap-2 text-gray-400">
+              <MessageSquareOff className="h-4 w-4" />
+              <span className="text-xs font-medium">No review text</span>
+            </div>
+          )
+        }
+
         return (
           <div className="w-[250px] group relative cursor-pointer">
             <div className="truncate">
-              {content || "No content"}
+              {content}
             </div>
             <div className="invisible group-hover:visible absolute left-0 top-full mt-2 p-4 bg-white rounded-xl shadow-lg border z-10 max-w-[500px] min-w-[300px] break-words">
-              {content || "No content"}
+              {content}
             </div>
           </div>
         )
