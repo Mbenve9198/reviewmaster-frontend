@@ -90,7 +90,7 @@ const logoSizes: Record<Platform, { width: number; height: number }> = {
 type MessageSender = "user" | "ai";
 
 interface ChatMessage {
-  id: number;
+  id: string;
   content: string;
   sender: MessageSender;
 }
@@ -562,7 +562,7 @@ export function ReviewsTable({
     
     try {
       const newUserMessage: ChatMessage = { 
-        id: messages.length + 1, 
+        id: '1', 
         content: input, 
         sender: "user" as MessageSender
       };
@@ -580,7 +580,7 @@ export function ReviewsTable({
       );
       
       const aiMessage: ChatMessage = { 
-        id: messages.length + 2, 
+        id: '2', 
         content: response, 
         sender: "ai" as MessageSender
       };
