@@ -95,6 +95,10 @@ interface ChatMessage {
   sender: MessageSender;
 }
 
+// All'inizio del file, aggiungi questi tipi
+type ResponseTone = 'professional' | 'friendly'
+type ResponseLength = 'short' | 'medium' | 'long'
+
 interface ReviewsTableProps {
   searchQuery: string
   property: string
@@ -132,8 +136,8 @@ export function ReviewsTable({
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [input, setInput] = useState("")
   const [isGenerating, setIsGenerating] = useState(false)
-  const [responseLength, setResponseLength] = useState<'short' | 'medium' | 'long'>('medium')
-  const [responseTone, setResponseTone] = useState<'professional' | 'friendly'>('professional')
+  const [responseTone, setResponseTone] = useState<ResponseTone>('professional')
+  const [responseLength, setResponseLength] = useState<ResponseLength>('medium')
   const [pageIndex, setPageIndex] = useState(0)
   const [pageSize, setPageSize] = useState(resultsPerPage)
   const [isSaving, setIsSaving] = useState(false)
@@ -881,7 +885,10 @@ export function ReviewsTable({
               )}
 
               <div className="flex items-center gap-3 mt-2">
-                <Select value={responseTone} onValueChange={setResponseTone}>
+                <Select 
+                  value={responseTone} 
+                  onValueChange={(value: ResponseTone) => setResponseTone(value)}
+                >
                   <SelectTrigger className="h-8 w-[130px] text-sm rounded-full">
                     <SelectValue placeholder="Style" />
                   </SelectTrigger>
@@ -891,7 +898,10 @@ export function ReviewsTable({
                   </SelectContent>
                 </Select>
 
-                <Select value={responseLength} onValueChange={setResponseLength}>
+                <Select 
+                  value={responseLength} 
+                  onValueChange={(value: ResponseLength) => setResponseLength(value)}
+                >
                   <SelectTrigger className="h-8 w-[130px] text-sm rounded-full">
                     <SelectValue placeholder="Length" />
                   </SelectTrigger>
