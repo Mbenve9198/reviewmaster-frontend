@@ -37,36 +37,32 @@ interface ChatBubbleMessageProps {
   variant?: "sent" | "received"
   isLoading?: boolean
   className?: string
-  children?: string
+  children?: React.ReactNode
 }
 
 export function ChatBubbleMessage({
   variant = "received",
   isLoading,
   className,
-  children = "",
+  children,
 }: ChatBubbleMessageProps) {
   const [displayText, setDisplayText] = useState("");
 
-  // Assicurati che il contenuto sia una stringa
-  const text = children;
-
   useEffect(() => {
-    if (!isLoading && text) {
+    // Se il children è una stringa, applica l'effetto digitazione
+    if (!isLoading && typeof children === "string") {
       setDisplayText(""); // resetta il testo visualizzato per un nuovo messaggio
       let currentIndex = 0;
       const interval = setInterval(() => {
-        setDisplayText((prev) => prev + text[currentIndex]);
+        setDisplayText((prev) => prev + children[currentIndex]);
         currentIndex++;
-        if (currentIndex >= text.length) {
+        if (currentIndex >= children.length) {
           clearInterval(interval);
         }
       }, 50); // delay per l'effetto "digitazione"
       return () => clearInterval(interval);
-    } else {
-      setDisplayText("");
     }
-  }, [text, isLoading]);
+  }, [children, isLoading]);
 
   if (isLoading) {
     // Visualizza un placeholder con cursore lampeggiante
@@ -77,12 +73,13 @@ export function ChatBubbleMessage({
       </div>
     );
   }
+  
+  // Se children è una stringa, mostra il testo animato; altrimenti, renderizza direttamente children
+  if (typeof children === "string") {
+    return <div className={cn("text-sm text-gray-600", className)}>{displayText}</div>;
+  }
 
-  return (
-    <div className={cn("text-sm text-gray-600", className)}>
-      {displayText}
-    </div>
-  );
+  return <div className={cn("text-sm text-gray-600", className)}>{children}</div>;
 }
 
 interface ChatBubbleAvatarProps {
