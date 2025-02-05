@@ -49,22 +49,24 @@ export function ChatBubbleMessage({
   const [displayText, setDisplayText] = useState("");
 
   useEffect(() => {
+    // Se il messaggio è una stringa, esegue l'effetto typing velocemente
     if (!isLoading && typeof children === "string") {
       setDisplayText(""); // resetta il testo visualizzato
       let currentIndex = 0;
+      const typingDelay = 10; // delay ridotto per un effetto "typing" veloce
       const interval = setInterval(() => {
         setDisplayText((prev) => prev + children[currentIndex]);
         currentIndex++;
         if (currentIndex >= children.length) {
           clearInterval(interval);
         }
-      }, 50); // modifica questo valore per velocizzare o rallentare la digitazione
+      }, typingDelay);
       return () => clearInterval(interval);
     }
   }, [children, isLoading]);
 
   if (isLoading) {
-    // Durante il caricamento, mostra il placeholder in inglese con ritorni a capo preservati
+    // Mentre il messaggio è in caricamento, mostra "Typing..." (in inglese)
     return (
       <div className={cn("text-sm text-gray-600 whitespace-pre-wrap", className)}>
         <span>Typing...</span>
@@ -73,7 +75,7 @@ export function ChatBubbleMessage({
     );
   }
   
-  // Se il contenuto è una stringa, mostra il testo animato; altrimenti, mostra direttamente children
+  // Se il messaggio è una stringa, mostra il testo con effetto typing
   if (typeof children === "string") {
     return (
       <div className={cn("text-sm text-gray-600 whitespace-pre-wrap", className)}>
@@ -82,7 +84,12 @@ export function ChatBubbleMessage({
     );
   }
   
-  return <div className={cn("text-sm text-gray-600 whitespace-pre-wrap", className)}>{children}</div>;
+  // Altrimenti, renderizza direttamente il contenuto (senza effetto typing)
+  return (
+    <div className={cn("text-sm text-gray-600 whitespace-pre-wrap", className)}>
+      {children}
+    </div>
+  );
 }
 
 interface ChatBubbleAvatarProps {
