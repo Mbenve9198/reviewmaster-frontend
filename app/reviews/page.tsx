@@ -375,7 +375,7 @@ export default function ReviewsPage() {
   if (hotels.length === 0) {
     return (
       <>
-        <div className="fixed inset-0 -z-10 bg-gradient-to-br from-blue-50 via-gray-50 to-blue-50" />
+        <div className="fixed inset-0 -z-10 bg-gradient-to-br from-blue-50/80 via-gray-100/90 to-blue-50/80 backdrop-blur-sm" />
         
         <OnboardingView onAddProperty={() => setIsAddPropertyModalOpen(true)} />
 
@@ -435,7 +435,7 @@ export default function ReviewsPage() {
         </div>
       )}
 
-      <div className="fixed inset-0 -z-10 bg-gradient-to-br from-blue-50 via-gray-50 to-blue-50" />
+      <div className="fixed inset-0 -z-10 bg-gradient-to-br from-blue-50/80 via-gray-100/90 to-blue-50/80 backdrop-blur-sm" />
       
       <div className="flex flex-col px-10 md:pl-[96px] py-12 min-h-screen">
         <div className="max-w-[1400px] mx-auto w-full space-y-12">
