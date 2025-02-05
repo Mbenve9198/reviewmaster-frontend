@@ -440,14 +440,22 @@ export default function ReviewsPage() {
       
       <div className="flex flex-col px-10 md:pl-[96px] py-12 min-h-screen">
         <div className="max-w-[1400px] mx-auto w-full space-y-12">
-          {/* Header del titolo aggiornato senza animazione */}
-          <div className="text-center mb-12">
-            <h1 className="text-4xl sm:text-6xl font-extrabold text-gray-900 bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
-              Reviews
-            </h1>
-            <p className="mt-4 text-lg text-gray-600">
-              Analyze and respond to your reviews
-            </p>
+          {/* Header modernizzato e allineato a sinistra */}
+          <div className="flex flex-col items-start">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="h-8 w-1 rounded-full bg-gradient-to-b from-blue-600 to-blue-400" />
+              <h1 className="text-3xl sm:text-4xl font-semibold text-gray-900">
+                Review Management
+              </h1>
+            </div>
+            <div className="flex items-center gap-2 text-gray-500">
+              <p className="text-base">
+                Manage, analyze and respond to all your reviews in one place
+              </p>
+              <span className="inline-flex items-center rounded-full bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">
+                {hotels.length} Properties
+              </span>
+            </div>
           </div>
 
           <Toaster position="top-right" />
