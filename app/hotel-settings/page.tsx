@@ -28,7 +28,7 @@ interface Hotel {
   description: string;
   signature: string;
   responseSettings: {
-    style: 'professional' | 'friendly' | 'formal';
+    style: 'professional' | 'friendly';
     length: 'short' | 'medium' | 'long';
   };
 }
@@ -231,7 +231,7 @@ export default function HotelSettingsPage() {
                           ...hotelData,
                           responseSettings: {
                             ...hotelData.responseSettings,
-                            style: value as 'professional' | 'friendly' | 'formal'
+                            style: value as 'professional' | 'friendly'
                           }
                         })}
                       >
@@ -241,7 +241,6 @@ export default function HotelSettingsPage() {
                         <SelectContent>
                           <SelectItem value="professional">Professional</SelectItem>
                           <SelectItem value="friendly">Friendly</SelectItem>
-                          <SelectItem value="formal">Formal</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>

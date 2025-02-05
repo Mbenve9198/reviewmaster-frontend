@@ -453,12 +453,19 @@ export function ReviewsTable({
         const hotel = await response.json();
         if (hotel.responseSettings) {
           setHotelSettings(hotel.responseSettings);
-          // Imposta i valori predefiniti dai settings dell'hotel
-          setResponseTone(hotel.responseSettings.style);
-          setResponseLength(hotel.responseSettings.length);
+          // Imposta i valori dalle impostazioni dell'hotel o usa i valori predefiniti
+          setResponseTone(hotel.responseSettings.style || 'professional');
+          setResponseLength(hotel.responseSettings.length || 'medium');
+        } else {
+          // Se non ci sono impostazioni dell'hotel, usa i valori predefiniti
+          setResponseTone('professional');
+          setResponseLength('medium');
         }
       } catch (error) {
         console.error('Error fetching hotel settings:', error);
+        // In caso di errore, usa comunque i valori predefiniti
+        setResponseTone('professional');
+        setResponseLength('medium');
       }
     };
 
@@ -473,36 +480,68 @@ export function ReviewsTable({
     setTimeout(async () => {
       setIsGenerating(true)
       try {
-        const token = getCookie('token');
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reviews/generate`, {
+        // Determina la lingua della recensione
+        const token = getCookie('token')
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/ai/detect-language`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            hotelId: review.hotelId,
-            review: {
-              text: review.content.text,
-              reviewer: review.content.reviewerName,
-              rating: review.content.rating
-            },
-            responseSettings: {
-              style: responseTone,
-              length: responseLength
-            },
-            previousMessages: messages.length > 0 ? messages : undefined
+            text: review.content.text
           })
-        });
+        })
+
+        if (!response.ok) {
+          throw new Error('Failed to detect language')
+        }
+
+        const { language } = await response.json()
+
+        // Genera la risposta nella stessa lingua della recensione
+        const aiResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/ai/generate`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            review: review.content.text,
+            rating: review.content.rating,
+            platform: review.platform,
+            style: responseTone,
+            length: responseLength,
+            language: language // Passa la lingua rilevata
+          })
+        })
+
+        if (!aiResponse.ok) {
+          throw new Error('Failed to generate response')
+        }
+
+        const data = await aiResponse.json()
         
-        const data = await response.json();
-        setMessages([{ id: 1, content: data.response, sender: "ai" }])
+        setMessages([
+          {
+            id: '1',
+            content: review.content.text,
+            sender: 'user'
+          },
+          {
+            id: '2',
+            content: data.response,
+            sender: 'ai'
+          }
+        ])
+
       } catch (error) {
-        toast.error("Error generating response")
+        console.error('Generate response error:', error)
+        toast.error('Failed to generate response')
       } finally {
         setIsGenerating(false)
       }
-    }, 0)
+    }, 100)
   }
 
   const handleCustomResponse = (review: Review) => {
@@ -956,7 +995,7 @@ export function ReviewsTable({
                       >
                         {message.content}
                         {message.sender === "ai" && (
-                          <div className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <div className="absolute right-2 bottom-2 opacity-0 group-hover:opacity-100 transition-opacity">
                             <Button
                               variant="ghost"
                               size="icon"
@@ -1043,7 +1082,7 @@ export function ReviewsTable({
                         }
                       }}
                       placeholder="Refine the response..."
-                      className="w-full min-h-[52px] max-h-[120px] pe-[120px] ps-4 py-3
+                      className="w-full min-h-[52px] max-h-[120px] pe-[90px] ps-4 py-3
                         bg-gray-50 rounded-xl resize-none
                         border border-gray-200 hover:border-gray-300
                         focus:border-primary focus:ring-1 focus:ring-primary
@@ -1053,35 +1092,23 @@ export function ReviewsTable({
                         overflow: 'auto',
                       }}
                     />
-                    <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2 h-[40px] bg-white rounded-lg pr-1">
-                      <div className="w-[1px] h-5 bg-gray-200 mr-2" />
-                      
-                      {input.trim() && (
-                        <kbd className="hidden sm:inline-flex h-6 select-none items-center gap-1 rounded border border-gray-200 bg-gray-50 px-1.5 font-mono text-[10px] font-medium text-gray-400">
+                    {input.trim() && (
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                        <kbd className="inline-flex h-6 select-none items-center gap-1 rounded border border-gray-200 bg-gray-50 px-1.5 font-mono text-[10px] font-medium text-gray-400">
                           <span className="text-xs">⏎</span>
                           Enter
                         </kbd>
-                      )}
-                      
-                      <Button 
-                        type="submit" 
-                        size="sm"
-                        disabled={isGenerating || !input.trim()}
-                        className="h-8 px-3 rounded-lg bg-primary hover:bg-primary/90 text-white shadow-sm flex items-center gap-2"
-                      >
-                        Send
-                        <CornerDownLeft className="h-3.5 w-3.5 opacity-70" />
-                      </Button>
-                    </div>
+                      </div>
+                    )}
                   </div>
 
                   <Button
                     onClick={handleSaveResponse}
                     disabled={isSaving || isGenerating || !messages.length}
-                    className="h-[52px] px-5 rounded-xl bg-primary hover:bg-primary/90 text-white
+                    className="h-[52px] px-4 rounded-xl bg-white border border-gray-200 hover:bg-gray-50 hover:text-gray-900 text-gray-600
                       shadow-sm transition-all duration-200 
-                      disabled:opacity-50 disabled:cursor-not-allowed
-                      flex items-center gap-2 min-w-[130px] justify-center"
+                      disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-gray-600
+                      flex items-center gap-2"
                   >
                     {isSaving ? (
                       <>
@@ -1090,8 +1117,8 @@ export function ReviewsTable({
                       </>
                     ) : (
                       <>
-                        <Check className="h-[18px] w-[18px]" />
-                        Save
+                        <Check className="h-4 w-4" />
+                        Save Response
                       </>
                     )}
                   </Button>
