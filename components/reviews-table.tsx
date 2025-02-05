@@ -495,8 +495,7 @@ export function ReviewsTable({
               text: review.content.text,
               name: review.content.reviewerName,
               rating: review.content.rating,
-              platform: review.platform,
-              language: review.content.language
+              platform: review.platform
             },
             responseSettings: {
               style: responseTone,
@@ -520,7 +519,7 @@ export function ReviewsTable({
         setIsGenerating(false);
       }
     }, 100);
-  }
+  };
 
   const handleCustomResponse = (review: Review) => {
     // Implement custom response logic
