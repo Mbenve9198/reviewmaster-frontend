@@ -823,59 +823,143 @@ export function ReviewsTable({
 
       <SlidePanel open={isModalOpen} onOpenChange={setIsModalOpen}>
         <div className="h-full flex flex-col">
-          <div className="px-6 py-4 border-b bg-gray-50">
+          <div className="px-6 py-4 border-b bg-gray-50/80 backdrop-blur-sm sticky top-0 z-10">
             <div className="flex flex-col gap-2">
               <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold">Generated Response</h2>
+                <div className="flex items-center gap-3">
+                  <h2 className="text-lg font-semibold">Generated Response</h2>
+                  {isGenerating && (
+                    <div className="flex items-center gap-2 px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-sm">
+                      <Loader2 className="h-3 w-3 animate-spin" />
+                      Generating...
+                    </div>
+                  )}
+                </div>
               </div>
-              {selectedReview?.content?.originalUrl && (
-                <div className="flex items-center gap-2 text-sm text-gray-500">
-                  <ExternalLink className="h-4 w-4" />
-                  <Button
-                    variant="link"
-                    className="h-auto p-0 text-gray-500 hover:text-primary"
-                    onClick={() => window.open(selectedReview.content.originalUrl, '_blank')}
-                  >
-                    View original review
-                  </Button>
+              
+              {selectedReview && (
+                <div className="mt-2 p-3 bg-white rounded-xl border border-gray-200">
+                  <div className="flex items-start gap-3">
+                    <div className="shrink-0">
+                      <Image
+                        src={logoUrls[selectedReview.platform as Platform]}
+                        alt={selectedReview.platform}
+                        width={20}
+                        height={20}
+                        className="rounded-sm"
+                      />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-2 mb-1">
+                        <span className="font-medium text-sm truncate">
+                          {selectedReview.content.reviewerName || "Anonymous"}
+                        </span>
+                        <div className="flex items-center gap-1 text-sm">
+                          <span className="font-medium">
+                            {selectedReview.platform === "booking" 
+                              ? `${selectedReview.content.rating}/10` 
+                              : `${selectedReview.content.rating}/5`}
+                          </span>
+                          {selectedReview.content.originalUrl && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => window.open(selectedReview.content.originalUrl, '_blank')}
+                              className="h-6 w-6 p-0 hover:bg-gray-100 rounded-full"
+                            >
+                              <ExternalLink className="h-3 w-3" />
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                      <p className="text-sm text-gray-600 line-clamp-2">
+                        {selectedReview.content.text}
+                      </p>
+                    </div>
+                  </div>
                 </div>
               )}
+
+              <div className="flex items-center gap-3 mt-2">
+                <Select value={responseTone} onValueChange={setResponseTone}>
+                  <SelectTrigger className="h-8 w-[130px] text-sm rounded-full">
+                    <SelectValue placeholder="Style" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="professional">Professional</SelectItem>
+                    <SelectItem value="friendly">Friendly</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                <Select value={responseLength} onValueChange={setResponseLength}>
+                  <SelectTrigger className="h-8 w-[130px] text-sm rounded-full">
+                    <SelectValue placeholder="Length" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="short">Short</SelectItem>
+                    <SelectItem value="medium">Medium</SelectItem>
+                    <SelectItem value="long">Long</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setMessages([]);
+                    handleGenerateResponse(selectedReview!);
+                  }}
+                  disabled={isGenerating}
+                  className="h-8 rounded-full text-sm"
+                >
+                  Regenerate
+                </Button>
+              </div>
             </div>
           </div>
           
-          <div className="flex-1 overflow-y-auto bg-white px-6" ref={chatContainerRef}>
-            <div className="py-6">
+          <div 
+            className="flex-1 overflow-y-auto bg-gray-50/50 px-6" 
+            ref={chatContainerRef}
+            style={{ 
+              scrollbarWidth: 'thin',
+              scrollbarColor: '#E5E7EB transparent'
+            }}
+          >
+            <div className="py-6 max-w-3xl mx-auto">
               <ChatMessageList>
                 {messages.map((message) => (
                   <ChatBubble 
                     key={message.id} 
                     variant={message.sender === "user" ? "sent" : "received"}
-                    className="rounded-2xl shadow-sm"
+                    className="rounded-2xl group"
                   >
                     <ChatBubbleAvatar
                       className="h-8 w-8 shrink-0 rounded-full border-2 border-white shadow-sm"
                       src={message.sender === "user" ? "https://github.com/shadcn.png" : "https://github.com/vercel.png"}
                       fallback={message.sender === "user" ? "US" : "AI"}
                     />
-                    <div className="flex flex-col">
+                    <div className="flex flex-col flex-1">
                       <ChatBubbleMessage 
                         variant={message.sender === "user" ? "sent" : "received"}
-                        className="rounded-2xl relative pr-10"
+                        className="rounded-2xl relative pr-10 shadow-sm"
                       >
                         {message.content}
                         {message.sender === "ai" && (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => {
-                              navigator.clipboard.writeText(message.content)
-                              toast.success("Response copied to clipboard")
-                            }}
-                            className="absolute bottom-1 right-1 h-7 w-7 rounded-full bg-white/80 hover:bg-white/90 shadow-sm"
-                          >
-                            <Copy className="h-3.5 w-3.5" />
-                            <span className="sr-only">Copy response</span>
-                          </Button>
+                          <div className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => {
+                                navigator.clipboard.writeText(message.content)
+                                toast.success("Response copied to clipboard")
+                              }}
+                              className="h-7 w-7 rounded-full bg-white/90 hover:bg-white shadow-sm"
+                            >
+                              <Copy className="h-3.5 w-3.5" />
+                              <span className="sr-only">Copy response</span>
+                            </Button>
+                          </div>
                         )}
                       </ChatBubbleMessage>
                     </div>
@@ -883,69 +967,84 @@ export function ReviewsTable({
                 ))}
 
                 {isGenerating && (
-                  <ChatBubble variant="received" className="rounded-2xl shadow-sm">
+                  <ChatBubble variant="received" className="rounded-2xl">
                     <ChatBubbleAvatar 
                       className="h-8 w-8 shrink-0 rounded-full border-2 border-white shadow-sm" 
                       src="https://github.com/vercel.png" 
                       fallback="AI" 
                     />
-                    <ChatBubbleMessage isLoading className="rounded-2xl" />
+                    <ChatBubbleMessage isLoading className="rounded-2xl shadow-sm" />
                   </ChatBubble>
                 )}
               </ChatMessageList>
             </div>
           </div>
 
-          <div className="border-t px-6 py-4 bg-gray-50">
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                handleChatSubmit(input);
-              }}
-              className="relative flex items-center gap-4"
-            >
-              <div className="relative flex-1">
-                <textarea
-                  value={input}
-                  onChange={(e) => {
-                    setInput(e.target.value);
-                    e.target.style.height = 'inherit';
-                    const height = e.target.scrollHeight;
-                    e.target.style.height = `${height}px`;
-                  }}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                      e.preventDefault();
-                      handleChatSubmit(input);
-                    }
-                  }}
-                  placeholder="Type your message..."
-                  className="w-full min-h-[48px] max-h-[200px] resize-none rounded-xl bg-white border-gray-200 p-3 pr-14 shadow-none focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary"
-                  style={{ overflow: 'hidden' }}
-                />
-                <Button 
-                  type="submit" 
-                  size="sm" 
-                  className="absolute right-2 top-[50%] -translate-y-1/2 rounded-xl shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[calc(-50%+2px)] transition-all"
-                >
-                  <CornerDownLeft className="h-4 w-4" />
-                </Button>
-              </div>
-              <Button
-                onClick={handleSaveResponse}
-                disabled={isSaving || isGenerating || !messages.length}
-                className="relative bg-primary hover:bg-primary/90 text-white px-6 py-2 rounded-xl shadow-[0_4px_0_0_#1e40af] transition-all active:top-[2px] active:shadow-[0_0_0_0_#1e40af]"
+          <div className="border-t px-6 py-4 bg-white sticky bottom-0">
+            <div className="max-w-3xl mx-auto">
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleChatSubmit(input);
+                }}
+                className="relative flex items-end gap-4"
               >
-                {isSaving ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Saving...
-                  </>
-                ) : (
-                  "Save Response"
-                )}
-              </Button>
-            </form>
+                <div className="relative flex-1">
+                  <textarea
+                    value={input}
+                    onChange={(e) => {
+                      setInput(e.target.value);
+                      e.target.style.height = 'inherit';
+                      const height = Math.min(e.target.scrollHeight, 200);
+                      e.target.style.height = `${height}px`;
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        handleChatSubmit(input);
+                      }
+                    }}
+                    placeholder="Type your message... (Press Enter to send)"
+                    className="w-full min-h-[48px] max-h-[200px] resize-none rounded-xl bg-gray-50 border-gray-200 p-3 pr-12 
+                      focus-visible:ring-2 focus-visible:ring-primary focus-visible:border-transparent
+                      placeholder:text-gray-400 text-base leading-relaxed"
+                    style={{ 
+                      overflow: 'auto',
+                      scrollbarWidth: 'thin',
+                      scrollbarColor: '#E5E7EB transparent'
+                    }}
+                  />
+                  <Button 
+                    type="submit" 
+                    size="sm"
+                    disabled={isGenerating || !input.trim()}
+                    className="absolute right-2 bottom-2 rounded-lg shadow-sm bg-primary hover:bg-primary/90 text-white"
+                  >
+                    <CornerDownLeft className="h-4 w-4" />
+                  </Button>
+                </div>
+                
+                <Button
+                  onClick={handleSaveResponse}
+                  disabled={isSaving || isGenerating || !messages.length}
+                  className="shrink-0 h-12 px-6 rounded-xl bg-primary hover:bg-primary/90 text-white shadow-sm 
+                    disabled:opacity-50 disabled:cursor-not-allowed transition-all
+                    flex items-center gap-2"
+                >
+                  {isSaving ? (
+                    <>
+                      <Loader2 className="h-4 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <Check className="h-4 w-4" />
+                      Save Response
+                    </>
+                  )}
+                </Button>
+              </form>
+            </div>
           </div>
         </div>
       </SlidePanel>
