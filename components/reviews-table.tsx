@@ -912,11 +912,9 @@ export function ReviewsTable({
                           {selectedReview.content.text}
                         </p>
                         <div className={cn(
-                          "absolute bottom-0 left-0 right-0 text-xs text-primary font-medium pt-1",
+                          "absolute bottom-0 left-0 right-0 h-6",
                           isReviewExpanded ? "hidden" : "bg-gradient-to-t from-white to-transparent"
-                        )}>
-                          Show more
-                        </div>
+                        )} />
                       </div>
                     </div>
                   </div>
