@@ -444,7 +444,7 @@ export default function ReviewsPage() {
           <div className="flex flex-col items-start">
             <div className="flex items-center gap-3 mb-2">
               <div className="h-8 w-1 rounded-full bg-gradient-to-b from-blue-600 to-blue-400" />
-              <h1 className="text-3xl sm:text-4xl font-semibold text-gray-900">
+              <h1 className="text-3xl sm:text-4xl font-semibold bg-gradient-to-b from-blue-800 to-blue-600 bg-clip-text text-transparent">
                 Review Management
               </h1>
             </div>
