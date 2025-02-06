@@ -103,24 +103,16 @@ export function IntegrationCard({ integration, onSync, onDelete }: IntegrationCa
       const data = await response.json()
 
       if (response.ok) {
-        if (data.newReviews > 0) {
-          integration.stats.syncedReviews = data.totalSyncedReviews
-          integration.syncConfig.lastSync = new Date()
-          integration.syncConfig.nextScheduledSync = data.nextScheduledSync
-          
-          toast({
-            title: "Sync completed",
-            description: `${data.newReviews} new reviews imported`,
-            variant: "default"
-          })
-        } else {
-          toast({
-            title: "Sync completed",
-            description: "No new reviews found",
-            variant: "default"
-          })
-        }
-        onSync()
+        toast({
+          title: "Sync completed",
+          description: data.newReviews > 0 
+            ? `${data.newReviews} new reviews imported`
+            : "No new reviews found",
+          variant: "default"
+        })
+        
+        // Aspetta che i dati siano ricaricati
+        await onSync()
       } else {
         toast({
           title: "Error",

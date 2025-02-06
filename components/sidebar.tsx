@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils"
 import { Progress } from "@/components/ui/progress"
 import { Button } from "@/components/ui/button"
 import { useUserStats } from "@/hooks/useUserStats"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { SidebarContainer, SidebarBody, SidebarLink } from "@/components/ui/sidebar"
 import { motion } from "framer-motion"
 import CreditPurchaseSlider from "@/components/billing/CreditPurchaseSlider"
@@ -77,14 +77,6 @@ export function Sidebar() {
     isLoading,
     refetch
   } = useUserStats()
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      refetch()
-    }, 5000)
-
-    return () => clearInterval(interval)
-  }, [refetch])
 
   const formatDate = (dateString: string) => {
     if (!dateString) return "..."

@@ -61,7 +61,7 @@ export function useUserStats() {
   }, [])
 
   useEffect(() => {
-    const interval = setInterval(fetchStats, 5000)
+    const interval = setInterval(fetchStats, 60000)
     fetchStats()
 
     return () => clearInterval(interval)
