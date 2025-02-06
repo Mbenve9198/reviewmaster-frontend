@@ -10,8 +10,6 @@ import { PlusCircle, Settings, X } from 'lucide-react'
 import { AddIntegrationModal } from "@/components/add-integration-modal"
 import { getCookie } from "@/lib/utils"
 import { toast } from "react-hot-toast"
-import { Tiles } from "@/components/ui/tiles"
-import { HandWrittenTitle } from "@/components/ui/hand-writing-text"
 
 interface Hotel {
   id: string
@@ -168,7 +166,6 @@ export default function IntegrationsPage() {
         throw new Error('Failed to delete integration')
       }
 
-      // Aggiorna la lista delle integrazioni
       setHotels(prev => prev.map(hotel => 
         hotel.id === selectedHotel 
           ? { 
@@ -186,14 +183,6 @@ export default function IntegrationsPage() {
   }
 
   const selectedHotelData = hotels.find(h => h.id === selectedHotel)
-
-  const totalReviewsSynced = selectedHotelData
-    ? selectedHotelData.integrations.reduce((sum, integration) => sum + integration.stats.syncedReviews, 0)
-    : 0
-
-  const totalReviewsAvailable = selectedHotelData
-    ? selectedHotelData.integrations.reduce((sum, integration) => sum + integration.stats.totalReviews, 0)
-    : 0
 
   if (isLoading) {
     return (
@@ -233,89 +222,106 @@ export default function IntegrationsPage() {
         </div>
       )}
 
-      <Tiles 
-        className="fixed inset-0 -z-10" 
-        rows={100}
-        cols={20}
-        tileSize="md"
-      />
+      {/* Modern gradient background */}
+      <div className="fixed inset-0 -z-10 bg-gradient-to-br from-[#FAFAFB] via-[#F0F0F2] to-[#FAFAFB] backdrop-blur-sm" />
       
-      <div className="min-h-screen py-12 md:pl-[100px]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <HandWrittenTitle 
-            title="Integrations"
-            subtitle="Connect and sync your reviews"
-          />
-          
-          {/* Hotel Selection and Controls */}
-          <div className="flex items-center justify-center gap-4 mb-8">
-            <Select value={selectedHotel || undefined} onValueChange={setSelectedHotel}>
-              <SelectTrigger className="w-[250px] rounded-xl">
-                <SelectValue placeholder="Select hotel" />
-              </SelectTrigger>
-              <SelectContent>
-                {hotels.map((hotel) => (
-                  <SelectItem 
-                    key={hotel.id} 
-                    value={hotel.id}
-                    className="text-lg py-2 px-4"
-                  >
-                    {hotel.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <Button
-              onClick={handleSettingsClick}
-              disabled={!selectedHotel}
-              className="rounded-xl bg-primary text-primary-foreground shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all"
-              aria-label="Hotel Settings"
-            >
-              <Settings className="w-4 h-4" />
-            </Button>
-
-            <Button
-              onClick={handleAddIntegration}
-              disabled={!selectedHotel}
-              className="rounded-xl bg-primary text-primary-foreground shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all flex items-center gap-2"
-            >
-              <PlusCircle className="w-4 h-4" />
-              Add Integration
-            </Button>
+      <div className="flex flex-col px-10 md:pl-[96px] py-12 min-h-screen">
+        <div className="max-w-[1400px] mx-auto w-full space-y-12">
+          {/* Modern left-aligned header */}
+          <div className="flex flex-col items-start">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="h-8 w-1 rounded-full bg-gradient-to-b from-blue-600 to-blue-400" />
+              <h1 className="text-3xl sm:text-4xl font-semibold bg-gradient-to-b from-blue-800 to-blue-600 bg-clip-text text-transparent">
+                Integrations
+              </h1>
+            </div>
+            <div className="flex items-center gap-2 text-gray-500">
+              <p className="text-base">
+                Connect and manage your review platforms in one place
+              </p>
+              <span className="inline-flex items-center rounded-full bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">
+                {hotels.length} Properties
+              </span>
+            </div>
           </div>
 
-          {selectedHotelData ? (
-            <div className="grid md:grid-cols-3 gap-8 mb-12">
-              {selectedHotelData.integrations.map((integration) => (
-                <IntegrationCard 
-                  key={integration._id} 
-                  integration={{
-                    ...integration,
-                    logo: platformLogos[integration.platform]
-                  }}
-                  onSync={async () => {
-                    const token = getCookie('token')
-                    await fetch(
-                      `${process.env.NEXT_PUBLIC_API_URL}/api/integrations/${integration._id}/sync`,
-                      {
-                        method: 'POST',
-                        headers: {
-                          'Authorization': `Bearer ${token}`,
-                        }
-                      }
-                    )
-                    handleIntegrationAdded(integration)
-                  }}
-                  onDelete={() => handleDeleteIntegration(integration._id)}
-                />
-              ))}
+          {/* Modern card container */}
+          <div className="bg-white rounded-3xl border border-gray-200 shadow-lg overflow-hidden">
+            {/* Controls section */}
+            <div className="p-6 border-b border-gray-100">
+              <div className="flex items-center gap-4">
+                <Select value={selectedHotel || undefined} onValueChange={setSelectedHotel}>
+                  <SelectTrigger className="w-[250px] rounded-xl border-gray-200 focus:border-primary focus:ring-primary bg-white/50">
+                    <SelectValue placeholder="Select hotel" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {hotels.map((hotel) => (
+                      <SelectItem 
+                        key={hotel.id} 
+                        value={hotel.id}
+                        className="text-lg py-2 px-4"
+                      >
+                        {hotel.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                <Button
+                  onClick={handleSettingsClick}
+                  disabled={!selectedHotel}
+                  className="rounded-xl bg-primary text-primary-foreground shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all"
+                  aria-label="Hotel Settings"
+                >
+                  <Settings className="w-4 h-4" />
+                </Button>
+
+                <Button
+                  onClick={handleAddIntegration}
+                  disabled={!selectedHotel}
+                  className="rounded-xl bg-primary text-primary-foreground shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all flex items-center gap-2"
+                >
+                  <PlusCircle className="w-4 h-4" />
+                  Add Integration
+                </Button>
+              </div>
             </div>
-          ) : (
-            <div className="text-center text-gray-500">
-              Please select a hotel to manage its integrations
+
+            {/* Integrations grid */}
+            <div className="p-6">
+              {selectedHotelData ? (
+                <div className="grid md:grid-cols-3 gap-8">
+                  {selectedHotelData.integrations.map((integration) => (
+                    <IntegrationCard 
+                      key={integration._id} 
+                      integration={{
+                        ...integration,
+                        logo: platformLogos[integration.platform]
+                      }}
+                      onSync={async () => {
+                        const token = getCookie('token')
+                        await fetch(
+                          `${process.env.NEXT_PUBLIC_API_URL}/api/integrations/${integration._id}/sync`,
+                          {
+                            method: 'POST',
+                            headers: {
+                              'Authorization': `Bearer ${token}`,
+                            }
+                          }
+                        )
+                        handleIntegrationAdded(integration)
+                      }}
+                      onDelete={() => handleDeleteIntegration(integration._id)}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center text-gray-500 py-8">
+                  Please select a hotel to manage its integrations
+                </div>
+              )}
             </div>
-          )}
+          </div>
         </div>
       </div>
 
@@ -327,4 +333,4 @@ export default function IntegrationsPage() {
       />
     </>
   )
-} 
+}
