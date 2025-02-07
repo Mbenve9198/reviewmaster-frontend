@@ -44,13 +44,13 @@ export function AddRuleModal({ isOpen, onClose, onSuccess, initialData = null }:
   const [field, setField] = useState(initialData?.condition?.field || '');
   const [operator, setOperator] = useState(initialData?.condition?.operator || '');
   const [value, setValue] = useState(initialData?.condition?.value || '');
-  const [keywords, setKeywords] = useState([]);
+  const [keywords, setKeywords] = useState<string[]>([]);
   const [responseText, setResponseText] = useState(initialData?.response?.text || '');
   const [responseStyle, setResponseStyle] = useState(initialData?.response?.settings?.style || 'professional');
   const [responseLength, setResponseLength] = useState(initialData?.response?.settings?.length || 'medium');
   const [keywordInput, setKeywordInput] = useState('');
 
-  const handleAddKeyword = (e) => {
+  const handleAddKeyword = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && keywordInput.trim()) {
       setKeywords([...keywords, keywordInput.trim()]);
       setKeywordInput('');
