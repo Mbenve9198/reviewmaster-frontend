@@ -17,7 +17,7 @@ import {
 import { LucideIcon } from "lucide-react";
 
 type FieldOption = {
-  value: string;
+  value: FieldKey;
   label: string;
   icon: LucideIcon;
 };
@@ -28,6 +28,16 @@ type OperatorOption = {
 };
 
 type FieldKey = 'content.text' | 'content.rating' | 'content.language';
+
+type ResponseStyle = 'professional' | 'friendly';
+type ResponseLength = 'short' | 'medium' | 'long';
+
+interface AddRuleModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSuccess: (rule: Rule) => void;
+  initialData?: Rule | null;
+}
 
 const FIELD_OPTIONS: FieldOption[] = [
   { value: 'content.text', label: 'Review Content', icon: MessageSquare },
@@ -45,23 +55,20 @@ const OPERATOR_OPTIONS: Record<FieldKey, OperatorOption[]> = {
   'content.language': [{ value: 'equals', label: 'Equals' }]
 };
 
-interface AddRuleModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSuccess: (rule: Rule) => void;
-  initialData?: Rule | null;
-}
-
 export function AddRuleModal({ isOpen, onClose, onSuccess, initialData = null }: AddRuleModalProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [name, setName] = useState(initialData?.name || '');
-  const [field, setField] = useState(initialData?.condition?.field || '');
+  const [field, setField] = useState<FieldKey | ''>(initialData?.condition?.field as FieldKey || '');
   const [operator, setOperator] = useState(initialData?.condition?.operator || '');
-  const [value, setValue] = useState(initialData?.condition?.value || '');
+  const [value, setValue] = useState<string>(initialData?.condition?.value?.toString() || '');
   const [keywords, setKeywords] = useState<string[]>([]);
   const [responseText, setResponseText] = useState(initialData?.response?.text || '');
-  const [responseStyle, setResponseStyle] = useState(initialData?.response?.settings?.style || 'professional');
-  const [responseLength, setResponseLength] = useState(initialData?.response?.settings?.length || 'medium');
+  const [responseStyle, setResponseStyle] = useState<ResponseStyle>(
+    (initialData?.response?.settings?.style as ResponseStyle) || 'professional'
+  );
+  const [responseLength, setResponseLength] = useState<ResponseLength>(
+    (initialData?.response?.settings?.length as ResponseLength) || 'medium'
+  );
   const [keywordInput, setKeywordInput] = useState('');
 
   const handleAddKeyword = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -80,6 +87,11 @@ export function AddRuleModal({ isOpen, onClose, onSuccess, initialData = null }:
     setResponseText(responseText + ` {${variable}}`);
   };
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Implementa la logica di submit qui
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
@@ -90,7 +102,7 @@ export function AddRuleModal({ isOpen, onClose, onSuccess, initialData = null }:
           </DialogTitle>
         </DialogHeader>
 
-        <form className="space-y-8 py-4">
+        <form onSubmit={handleSubmit} className="space-y-8 py-4">
           {/* Rule Name Section */}
           <div className="space-y-4">
             <Label className="text-base font-semibold">Rule Name</Label>
@@ -154,13 +166,13 @@ export function AddRuleModal({ isOpen, onClose, onSuccess, initialData = null }:
                     />
                   </div>
                 ) : field === 'content.rating' ? (
-                  <Select value={value} onValueChange={setValue}>
+                  <Select value={value.toString()} onValueChange={setValue}>
                     <SelectTrigger className="h-12 min-w-[180px] bg-white">
                       <SelectValue placeholder="Select rating" />
                     </SelectTrigger>
                     <SelectContent>
                       {[1,2,3,4,5].map(rating => (
-                        <SelectItem key={rating} value={String(rating)}>
+                        <SelectItem key={rating} value={rating.toString()}>
                           {rating} Stars
                         </SelectItem>
                       ))}
