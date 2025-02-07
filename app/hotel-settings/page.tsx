@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
   Select,
   SelectContent,
@@ -11,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Save } from 'lucide-react'
+import { Save, Building2, MessageSquare } from 'lucide-react'
 import Image from "next/image"
 import { useRouter } from 'next/navigation'
 import { motion } from "framer-motion"
@@ -46,6 +47,7 @@ export default function HotelSettingsPage() {
     }
   })
   const [isLoading, setIsLoading] = useState(true)
+  const [activeTab, setActiveTab] = useState("basic")
 
   useEffect(() => {
     const fetchHotels = async () => {
@@ -200,11 +202,25 @@ export default function HotelSettingsPage() {
 
             {selectedHotel && (
               <div className="p-8">
-                <div className="grid gap-8 md:grid-cols-2">
-                  {/* Basic Information */}
-                  <div className="space-y-6">
-                    <h2 className="text-xl font-bold text-gray-800">Basic Information</h2>
-                    
+                <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
+                  <TabsList className="grid grid-cols-2 max-w-[400px] p-1 bg-gray-100/80 rounded-xl">
+                    <TabsTrigger 
+                      value="basic"
+                      className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg px-6 py-3 transition-all"
+                    >
+                      <Building2 className="w-4 h-4" />
+                      Basic Information
+                    </TabsTrigger>
+                    <TabsTrigger 
+                      value="response"
+                      className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg px-6 py-3 transition-all"
+                    >
+                      <MessageSquare className="w-4 h-4" />
+                      Response Settings
+                    </TabsTrigger>
+                  </TabsList>
+
+                  <TabsContent value="basic" className="space-y-6 pt-4">
                     <div>
                       <label className="text-sm font-medium text-gray-600 mb-2 block">Hotel Name</label>
                       <Input
@@ -231,12 +247,9 @@ export default function HotelSettingsPage() {
                         className="w-full p-4 text-lg rounded-xl border-2 border-gray-200 focus:border-primary focus:ring-primary bg-white"
                       />
                     </div>
-                  </div>
+                  </TabsContent>
 
-                  {/* Response Settings */}
-                  <div className="space-y-6">
-                    <h2 className="text-xl font-bold text-gray-800">Response Settings</h2>
-                    
+                  <TabsContent value="response" className="space-y-6 pt-4">
                     <div>
                       <label className="text-sm font-medium text-gray-600 mb-2 block">Response Style</label>
                       <Select
@@ -281,8 +294,8 @@ export default function HotelSettingsPage() {
                         </SelectContent>
                       </Select>
                     </div>
-                  </div>
-                </div>
+                  </TabsContent>
+                </Tabs>
 
                 {/* Save Button */}
                 <div className="mt-8 flex justify-end">
