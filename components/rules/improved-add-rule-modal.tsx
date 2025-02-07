@@ -171,7 +171,7 @@ export function AddRuleModal({
         condition: {
           field,
           operator,
-          value: field === 'content.text' ? keywords : value
+          value: field === 'content.text' ? keywords : field === 'content.rating' ? parseInt(value) : value
         },
         response: {
           text: responseText.trim(),
@@ -179,8 +179,11 @@ export function AddRuleModal({
             style: responseStyle,
             length: responseLength
           }
-        }
+        },
+        isActive: true
       };
+
+      console.log('Sending rule data:', ruleData);
 
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/rules`, {
         method: 'POST',
@@ -193,6 +196,7 @@ export function AddRuleModal({
 
       if (!response.ok) {
         const errorData = await response.json();
+        console.error('Server error response:', errorData);
         throw new Error(errorData.message || 'Failed to create rule');
       }
 
