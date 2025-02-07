@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Loader2, AlertCircle, Sparkles, ThumbsUp, ThumbsDown, Languages } from "lucide-react";
+import { Loader2, AlertCircle, Sparkles, ThumbsUp, ThumbsDown, Languages, Plus } from "lucide-react";
 import { toast } from "sonner";
+import { hotelId } from "@/lib/utils";
 
 export function ThemesAnalysisDialog({ 
   isOpen, 
@@ -38,6 +39,11 @@ export function ThemesAnalysisDialog({
       setIsLoading(false);
       onAnalysisComplete?.();
     }
+  };
+
+  const handleCreateRule = (ruleConfig) => {
+    onRuleCreated?.(ruleConfig);
+    onClose();
   };
 
   return (

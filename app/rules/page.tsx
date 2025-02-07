@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Plus, Loader2, AlertCircle } from "lucide-react";
 import { AddRuleModal } from "@/components/rules/add-rule-modal";
 import { RulesList } from "@/components/rules/rules-list";
-import { ThemesAnalysisDialog } from "./themes-analysis-dialog";
+import { ThemesAnalysisDialog } from "@/components/rules/themes-analysis-dialog";
 import { Rule } from "@/types/rule";
 
 export default function RulesPage() {
