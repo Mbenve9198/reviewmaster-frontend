@@ -303,7 +303,7 @@ export function IntegrationCard({ integration, onSync, onDelete }: IntegrationCa
             <div className="flex justify-between text-sm">
               <span className="text-gray-500">Reviews Synced</span>
               <span className="font-medium">
-                {integration.stats.syncedReviews}
+                {integration.stats.totalReviews}
               </span>
             </div>
           </div>
