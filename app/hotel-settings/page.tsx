@@ -209,7 +209,7 @@ export default function HotelSettingsPage() {
             {selectedHotel && (
               <div className="p-8">
                 <Tabs value={activeTab} onValueChange={setActiveTab}>
-                  <TabsList className="flex border-b border-gray-200">
+                  <TabsList className="flex">
                     <TabsTrigger
                       value="basic"
                       className="px-4 py-2 text-lg font-medium text-gray-600 hover:text-blue-600 transition-colors data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:text-blue-600 flex items-center"
@@ -274,9 +274,24 @@ export default function HotelSettingsPage() {
                   </TabsContent>
 
                   <TabsContent value="response" className="mt-6">
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
-                      <div className="space-y-1">
-                        <label className="text-sm font-medium text-gray-700">Response Style</label>
+                    <motion.div 
+                      initial={{ opacity: 0 }} 
+                      animate={{ opacity: 1 }} 
+                      transition={{ duration: 0.5 }}
+                      className="space-y-6"
+                    >
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <label className="text-sm font-medium text-gray-700">Response Style</label>
+                          <Tooltip>
+                            <TooltipTrigger>
+                              <HelpCircle className="w-4 h-4 text-gray-400" />
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Choose how formal or casual your responses should be</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </div>
                         <Select
                           value={hotelData.responseSettings.style}
                           onValueChange={(value) => setHotelData({
@@ -287,7 +302,7 @@ export default function HotelSettingsPage() {
                             }
                           })}
                         >
-                          <SelectTrigger className="w-full p-4 text-lg rounded-xl border-2 border-gray-200 focus:border-primary focus:ring-primary bg-white" aria-label="Select response style">
+                          <SelectTrigger className="w-full p-4 text-lg rounded-xl border-2 border-gray-200 focus:border-primary focus:ring-primary bg-white transition-all duration-200 hover:border-primary/50" aria-label="Select response style">
                             <SelectValue placeholder="Select style" />
                           </SelectTrigger>
                           <SelectContent>
@@ -297,8 +312,18 @@ export default function HotelSettingsPage() {
                         </Select>
                       </div>
 
-                      <div className="space-y-1">
-                        <label className="text-sm font-medium text-gray-700">Response Length</label>
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <label className="text-sm font-medium text-gray-700">Response Length</label>
+                          <Tooltip>
+                            <TooltipTrigger>
+                              <HelpCircle className="w-4 h-4 text-gray-400" />
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Define how detailed your responses should be</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </div>
                         <Select
                           value={hotelData.responseSettings.length}
                           onValueChange={(value) => setHotelData({
@@ -309,7 +334,7 @@ export default function HotelSettingsPage() {
                             }
                           })}
                         >
-                          <SelectTrigger className="w-full p-4 text-lg rounded-xl border-2 border-gray-200 focus:border-primary focus:ring-primary bg-white" aria-label="Select response length">
+                          <SelectTrigger className="w-full p-4 text-lg rounded-xl border-2 border-gray-200 focus:border-primary focus:ring-primary bg-white transition-all duration-200 hover:border-primary/50" aria-label="Select response length">
                             <SelectValue placeholder="Select length" />
                           </SelectTrigger>
                           <SelectContent>
