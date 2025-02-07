@@ -1055,18 +1055,51 @@ export function ReviewsTable({
                         {message.content}
                         {message.sender === "ai" && (
                           <div className="absolute right-2 bottom-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => {
-                                navigator.clipboard.writeText(message.content)
-                                toast.success("Response copied to clipboard")
-                              }}
-                              className="h-7 w-7 rounded-full bg-white/90 hover:bg-white shadow-sm"
-                            >
-                              <Copy className="h-3.5 w-3.5" />
-                              <span className="sr-only">Copy response</span>
-                            </Button>
+                            {selectedReview?.content?.originalUrl ? (
+                              <ButtonGroup>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => {
+                                    navigator.clipboard.writeText(message.content);
+                                    window.open(selectedReview.content.originalUrl, '_blank');
+                                    toast.success("Risposta copiata e pagina originale aperta");
+                                  }}
+                                  className="h-8 w-8 rounded-l-full bg-white/95 hover:bg-white shadow-sm border-r border-gray-100"
+                                  title="Copia e vai alla recensione originale"
+                                >
+                                  <div className="flex items-center gap-1">
+                                    <Copy className="h-3.5 w-3.5" />
+                                    <ExternalLink className="h-3 w-3" />
+                                  </div>
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => {
+                                    navigator.clipboard.writeText(message.content);
+                                    toast.success("Risposta copiata negli appunti");
+                                  }}
+                                  className="h-8 w-8 rounded-r-full bg-white/95 hover:bg-white shadow-sm"
+                                  title="Copia risposta"
+                                >
+                                  <Copy className="h-3.5 w-3.5" />
+                                </Button>
+                              </ButtonGroup>
+                            ) : (
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => {
+                                  navigator.clipboard.writeText(message.content);
+                                  toast.success("Risposta copiata negli appunti");
+                                }}
+                                className="h-8 w-8 rounded-full bg-white/95 hover:bg-white shadow-sm"
+                                title="Copia risposta"
+                              >
+                                <Copy className="h-3.5 w-3.5" />
+                              </Button>
+                            )}
                           </div>
                         )}
                       </ChatBubbleMessage>
