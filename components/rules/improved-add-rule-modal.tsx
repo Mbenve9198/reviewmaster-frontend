@@ -58,11 +58,11 @@ export function AddRuleModal({ isOpen, onClose, onSuccess, initialData = null }:
     }
   };
 
-  const removeKeyword = (indexToRemove) => {
+  const removeKeyword = (indexToRemove: number) => {
     setKeywords(keywords.filter((_, index) => index !== indexToRemove));
   };
 
-  const insertVariable = (variable) => {
+  const insertVariable = (variable: string) => {
     setResponseText(responseText + ` {${variable}}`);
   };
 
