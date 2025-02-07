@@ -179,6 +179,7 @@ export default function RulesPage() {
           />
 
           <ThemesAnalysisDialog
+            hotelId={selectedHotelId}
             isOpen={isThemesDialogOpen}
             onClose={() => setIsThemesDialogOpen(false)}
             onAnalysisStart={() => {
@@ -192,7 +193,6 @@ export default function RulesPage() {
               setIsThemesDialogOpen(false);
               toast.success('Rule created from analysis');
             }}
-            hotelId={selectedHotelId}
           />
         </>
       )}
