@@ -41,7 +41,7 @@ export default function RulesPage() {
         
         // Seleziona il primo hotel o quello salvato nel localStorage
         const savedHotelId = localStorage.getItem('selectedHotel');
-        if (savedHotelId && data.find(h => h._id === savedHotelId)) {
+        if (savedHotelId && data.find((h: Hotel) => h._id === savedHotelId)) {
           setSelectedHotelId(savedHotelId);
         } else if (data.length > 0) {
           setSelectedHotelId(data[0]._id);
@@ -50,6 +50,8 @@ export default function RulesPage() {
       } catch (error) {
         console.error('Error fetching hotels:', error);
         toast.error('Failed to load hotels');
+      } finally {
+        setIsLoading(false);
       }
     };
 
