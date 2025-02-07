@@ -15,6 +15,8 @@ import {
   XCircle
 } from "lucide-react";
 import { LucideIcon } from "lucide-react";
+import { toast } from "sonner";
+import { useHotel } from "@/store/useHotel";
 
 type FieldOption = {
   value: FieldKey;
@@ -32,6 +34,7 @@ type ResponseStyle = 'professional' | 'friendly' | 'personal' | 'sarcastic' | 'c
 type ResponseLength = 'short' | 'medium' | 'long';
 
 interface AddRuleModalProps {
+  hotelId: string;
   isOpen: boolean;
   onClose: () => void;
   onSuccess: (rule: Rule) => void;
@@ -62,7 +65,14 @@ const OPERATOR_OPTIONS: Record<FieldKey, OperatorOption[]> = {
   ]
 };
 
-export function AddRuleModal({ isOpen, onClose, onSuccess, initialData = null }: AddRuleModalProps) {
+export function AddRuleModal({ 
+  hotelId,
+  isOpen, 
+  onClose, 
+  onSuccess, 
+  initialData = null 
+}: AddRuleModalProps) {
+  const { hotel } = useHotel();
   const [isLoading, setIsLoading] = useState(false);
   const [name, setName] = useState(initialData?.name || '');
   const [field, setField] = useState<FieldKey | ''>(initialData?.condition?.field as FieldKey || '');
@@ -94,9 +104,63 @@ export function AddRuleModal({ isOpen, onClose, onSuccess, initialData = null }:
     setResponseText(responseText + ` {${variable}}`);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const isFormValid = () => {
+    if (!name.trim()) return false;
+    if (!field || !operator) return false;
+    if (field === 'content.text' && keywords.length === 0) return false;
+    if ((field === 'content.rating' || field === 'content.language') && !value) return false;
+    if (!responseText.trim() || !responseStyle) return false;
+    return true;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Implementa la logica di submit qui
+    
+    if (!isFormValid()) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const ruleData = {
+        hotelId,
+        name: name.trim(),
+        field,
+        operator,
+        value: field === 'content.text' ? keywords : value,
+        keywords: field === 'content.text' ? keywords : undefined,
+        responseText: responseText.trim(),
+        responseStyle
+      };
+
+      const response = await fetch('/api/rules', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify(ruleData)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to create rule');
+      }
+
+      const createdRule = await response.json();
+      
+      toast.success("Rule created successfully");
+      onSuccess(createdRule);
+      onClose();
+
+    } catch (error) {
+      console.error('Error creating rule:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to create rule');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleOperatorChange = (newValue: string) => {
@@ -302,11 +366,20 @@ export function AddRuleModal({ isOpen, onClose, onSuccess, initialData = null }:
             </Button>
             <Button 
               type="submit"
-              disabled={isLoading}
+              disabled={isLoading || !isFormValid()}
               className="h-12 px-6 gap-2 bg-primary text-primary-foreground shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all rounded-xl"
             >
-              {isLoading ? 'Creating...' : 'Create Rule'}
-              <ChevronRight className="h-4 w-4" />
+              {isLoading ? (
+                <>
+                  <span className="animate-spin">⏳</span>
+                  Creating...
+                </>
+              ) : (
+                <>
+                  Create Rule
+                  <ChevronRight className="h-4 w-4" />
+                </>
+              )}
             </Button>
           </div>
         </form>
