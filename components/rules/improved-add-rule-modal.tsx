@@ -14,14 +14,28 @@ import {
   Sparkles,
   XCircle
 } from "lucide-react";
+import { LucideIcon } from "lucide-react";
 
-const FIELD_OPTIONS = [
+type FieldOption = {
+  value: string;
+  label: string;
+  icon: LucideIcon;
+};
+
+type OperatorOption = {
+  value: string;
+  label: string;
+};
+
+type FieldKey = 'content.text' | 'content.rating' | 'content.language';
+
+const FIELD_OPTIONS: FieldOption[] = [
   { value: 'content.text', label: 'Review Content', icon: MessageSquare },
   { value: 'content.rating', label: 'Rating', icon: Star },
   { value: 'content.language', label: 'Language', icon: Languages }
 ];
 
-const OPERATOR_OPTIONS = {
+const OPERATOR_OPTIONS: Record<FieldKey, OperatorOption[]> = {
   'content.text': [{ value: 'contains', label: 'Contains Keywords' }],
   'content.rating': [
     { value: 'equals', label: 'Equals' },
@@ -121,11 +135,11 @@ export function AddRuleModal({ isOpen, onClose, onSuccess, initialData = null }:
                     <SelectValue placeholder="Select operator" />
                   </SelectTrigger>
                   <SelectContent>
-                    {field && OPERATOR_OPTIONS[field].map(option => (
+                    {field && (OPERATOR_OPTIONS[field as FieldKey]?.map(option => (
                       <SelectItem key={option.value} value={option.value}>
                         {option.label}
                       </SelectItem>
-                    ))}
+                    )))}
                   </SelectContent>
                 </Select>
 
