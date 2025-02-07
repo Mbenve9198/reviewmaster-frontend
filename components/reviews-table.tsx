@@ -33,6 +33,7 @@ import {
   CalendarDays,
   Ban,
   AlertCircle,
+  Sparkles,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -376,7 +377,13 @@ export function ReviewsTable({
             <div className="truncate">
               {response}
             </div>
-            <div className="invisible group-hover:visible absolute left-0 top-full mt-2 p-4 bg-white rounded-xl shadow-lg border z-10 max-w-[500px] min-w-[300px] break-words">
+            <div 
+              onClick={async () => {
+                await navigator.clipboard.writeText(response);
+                toast.success("Response copied to clipboard");
+              }}
+              className="invisible group-hover:visible absolute left-0 top-full mt-2 p-4 bg-white rounded-xl shadow-lg border z-10 max-w-[500px] min-w-[300px] break-words cursor-pointer hover:bg-gray-50 transition-colors after:content-['Click_to_copy'] after:absolute after:top-2 after:right-2 after:text-xs after:text-gray-400"
+            >
               {response}
             </div>
           </div>
@@ -408,7 +415,7 @@ export function ReviewsTable({
               onClick={() => handleGenerateResponse(row.original)}
               className="rounded-xl flex items-center gap-2 bg-primary text-primary-foreground shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all"
             >
-              <MessageSquare className="h-4 w-4" />
+              <Sparkles className="h-4 w-4" />
               Generate
             </Button>
           </div>
@@ -1057,9 +1064,23 @@ export function ReviewsTable({
                     <div className="flex flex-col flex-1">
                       <ChatBubbleMessage 
                         variant={message.sender === "user" ? "sent" : "received"}
-                        className="rounded-2xl relative pr-10 shadow-sm"
+                        className="rounded-2xl relative pr-10 shadow-sm group"
                       >
-                        {message.content}
+                        <div 
+                          onClick={async () => {
+                            if (message.sender === "ai") {
+                              await navigator.clipboard.writeText(message.content);
+                              toast.success("Response copied to clipboard");
+                            }
+                          }}
+                          className={cn(
+                            "w-full",
+                            message.sender === "ai" && "cursor-pointer hover:opacity-80 transition-opacity",
+                            message.sender === "ai" && "after:content-['Click_to_copy'] after:absolute after:top-2 after:right-2 after:text-xs after:text-gray-400 after:opacity-0 after:transition-opacity group-hover:after:opacity-100"
+                          )}
+                        >
+                          {message.content}
+                        </div>
                         {message.sender === "ai" && selectedReview && (
                           <div className="absolute right-2 bottom-2 flex items-center gap-2">
                             {selectedReview.content?.originalUrl ? (
@@ -1294,7 +1315,7 @@ export function ReviewsTable({
                   e.preventDefault();
                   handleChatSubmit(input);
                 }}
-                className="relative py-4"
+                className="relative py-4 pb-6"
               >
                 <div className="relative">
                   <textarea
