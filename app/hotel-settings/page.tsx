@@ -186,34 +186,34 @@ export default function HotelSettingsPage() {
           <div className="bg-white rounded-3xl border border-gray-200 shadow-lg overflow-hidden">
             {/* Hotel selector section */}
             <div className="p-6 border-b border-gray-100">
-              <Select value={selectedHotel} onValueChange={handleHotelChange}>
-                <SelectTrigger className="w-full p-6 text-xl rounded-xl border-2 border-gray-200 focus:border-primary focus:ring-primary bg-white/50">
-                  <SelectValue placeholder="Select a hotel" />
-                </SelectTrigger>
-                <SelectContent>
-                  {hotels.map((hotel) => (
-                    <SelectItem key={hotel._id} value={hotel._id}>
-                      {hotel.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="w-full">
+                <Select value={selectedHotel} onValueChange={handleHotelChange}>
+                  <SelectTrigger className="w-full p-4 text-lg rounded-xl border-2 border-gray-200 focus:border-primary focus:ring-primary bg-white">
+                    <SelectValue placeholder="Select a hotel" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {hotels.map((hotel) => (
+                      <SelectItem key={hotel._id} value={hotel._id}>
+                        {hotel.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
             {selectedHotel && (
-              <div className="p-8">
+              <div className="p-8 space-y-8">
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
                   <div className="flex flex-col sm:flex-row gap-8">
-                    {/* Tab Navigation - Versione migliorata */}
+                    {/* Tab Navigation */}
                     <div className="sm:w-64">
                       <TabsList className="flex flex-col w-full bg-transparent space-y-2">
                         <TabsTrigger 
                           value="basic"
                           className="w-full flex items-center gap-3 p-4 bg-white hover:bg-gray-50 data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 rounded-xl border-2 border-transparent data-[state=active]:border-blue-200 transition-all text-left"
                         >
-                          <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-blue-100 text-blue-600">
-                            <Building2 className="w-5 h-5" />
-                          </div>
+                          <Building2 className="w-5 h-5 text-gray-500 data-[state=active]:text-blue-600" />
                           <div className="flex flex-col items-start">
                             <span className="font-medium">Basic Information</span>
                             <span className="text-xs text-gray-500">Hotel details and contacts</span>
@@ -224,9 +224,7 @@ export default function HotelSettingsPage() {
                           value="response"
                           className="w-full flex items-center gap-3 p-4 bg-white hover:bg-gray-50 data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 rounded-xl border-2 border-transparent data-[state=active]:border-blue-200 transition-all text-left"
                         >
-                          <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-blue-100 text-blue-600">
-                            <MessageSquare className="w-5 h-5" />
-                          </div>
+                          <MessageSquare className="w-5 h-5 text-gray-500 data-[state=active]:text-blue-600" />
                           <div className="flex flex-col items-start">
                             <span className="font-medium">Response Settings</span>
                             <span className="text-xs text-gray-500">AI response preferences</span>
