@@ -38,6 +38,16 @@ interface AnalysisResponse {
   reviewsAnalyzed: number;
 }
 
+interface ErrorResponse {
+  message: string;
+  code?: string;
+}
+
+// Type guard to check if response is an error
+function isErrorResponse(data: any): data is ErrorResponse {
+  return 'message' in data;
+}
+
 export function ThemesAnalysisDialog({
   hotelId,
   isOpen,
@@ -57,14 +67,19 @@ export function ThemesAnalysisDialog({
       onAnalysisStart?.();
 
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/rules/analyze/${hotelId}`);
-      const data: AnalysisResponse = await response.json();
+      const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || 'Error during analysis');
+        // Use type guard to check if response is an error
+        if (isErrorResponse(data)) {
+          throw new Error(data.message);
+        }
+        throw new Error('Error during analysis');
       }
 
-      setAnalysis(data.analysis);
-      toast.success(`Analyzed ${data.reviewsAnalyzed} reviews`);
+      const analysisData = data as AnalysisResponse;
+      setAnalysis(analysisData.analysis);
+      toast.success(`Analyzed ${analysisData.reviewsAnalyzed} reviews`);
     } catch (err) {
       console.error('Analysis error:', err);
       const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
