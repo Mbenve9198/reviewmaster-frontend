@@ -30,7 +30,14 @@ const OPERATOR_OPTIONS = {
   'content.language': [{ value: 'equals', label: 'Equals' }]
 };
 
-export function AddRuleModal({ isOpen, onClose, onSuccess, initialData = null }) {
+interface AddRuleModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSuccess: (rule: Rule) => void;
+  initialData?: Rule | null;
+}
+
+export function AddRuleModal({ isOpen, onClose, onSuccess, initialData = null }: AddRuleModalProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [name, setName] = useState(initialData?.name || '');
   const [field, setField] = useState(initialData?.condition?.field || '');

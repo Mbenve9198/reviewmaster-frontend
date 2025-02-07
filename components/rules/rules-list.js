@@ -3,8 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { Pencil, Trash2, GripVertical, AlertCircle, MessageSquare, Star, Languages } from "lucide-react";
-import { AddRuleModal } from "./add-rule-modal";
-import { ImprovedAddRuleModal } from "./improved-add-rule-modal";
+import { AddRuleModal } from './improved-add-rule-modal';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -229,13 +228,12 @@ export function RulesList({ rules, onRuleUpdate }) {
         ))}
       </div>
 
-      <ImprovedAddRuleModal
+      <AddRuleModal
         isOpen={isEditModalOpen}
         onClose={() => {
           setEditingRule(null);
           setIsEditModalOpen(false);
         }}
-        initialData={editingRule}
         onSuccess={(updatedRule) => {
           onRuleUpdate(rules.map(rule => 
             rule._id === updatedRule._id ? updatedRule : rule
