@@ -92,6 +92,26 @@ export function AddRuleModal({ isOpen, onClose, onSuccess, initialData = null }:
     // Implementa la logica di submit qui
   };
 
+  const handleFieldChange = (newValue: string) => {
+    setField(newValue as FieldKey);
+  };
+
+  const handleOperatorChange = (newValue: string) => {
+    setOperator(newValue);
+  };
+
+  const handleValueChange = (newValue: string) => {
+    setValue(newValue);
+  };
+
+  const handleResponseStyleChange = (newValue: string) => {
+    setResponseStyle(newValue as ResponseStyle);
+  };
+
+  const handleResponseLengthChange = (newValue: string) => {
+    setResponseLength(newValue as ResponseLength);
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
@@ -120,7 +140,7 @@ export function AddRuleModal({ isOpen, onClose, onSuccess, initialData = null }:
             <div className="p-6 bg-gray-50 rounded-xl space-y-4">
               <div className="flex items-center gap-3 text-base">
                 <span className="font-medium text-gray-700">IF</span>
-                <Select value={field} onValueChange={setField}>
+                <Select value={field} onValueChange={handleFieldChange}>
                   <SelectTrigger className="h-12 min-w-[180px] bg-white">
                     <SelectValue placeholder="Select field" />
                   </SelectTrigger>
@@ -140,7 +160,7 @@ export function AddRuleModal({ isOpen, onClose, onSuccess, initialData = null }:
 
                 <Select 
                   value={operator} 
-                  onValueChange={setOperator}
+                  onValueChange={handleOperatorChange}
                   disabled={!field}
                 >
                   <SelectTrigger className="h-12 min-w-[180px] bg-white">
@@ -166,7 +186,7 @@ export function AddRuleModal({ isOpen, onClose, onSuccess, initialData = null }:
                     />
                   </div>
                 ) : field === 'content.rating' ? (
-                  <Select value={value.toString()} onValueChange={setValue}>
+                  <Select value={value} onValueChange={handleValueChange}>
                     <SelectTrigger className="h-12 min-w-[180px] bg-white">
                       <SelectValue placeholder="Select rating" />
                     </SelectTrigger>
@@ -179,7 +199,7 @@ export function AddRuleModal({ isOpen, onClose, onSuccess, initialData = null }:
                     </SelectContent>
                   </Select>
                 ) : field === 'content.language' ? (
-                  <Select value={value} onValueChange={setValue}>
+                  <Select value={value} onValueChange={handleValueChange}>
                     <SelectTrigger className="h-12 min-w-[180px] bg-white">
                       <SelectValue placeholder="Select language" />
                     </SelectTrigger>
@@ -222,7 +242,7 @@ export function AddRuleModal({ isOpen, onClose, onSuccess, initialData = null }:
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label className="mb-2 block">Style</Label>
-                <Select value={responseStyle} onValueChange={setResponseStyle}>
+                <Select value={responseStyle} onValueChange={handleResponseStyleChange}>
                   <SelectTrigger className="h-12">
                     <SelectValue placeholder="Select style" />
                   </SelectTrigger>
@@ -234,7 +254,7 @@ export function AddRuleModal({ isOpen, onClose, onSuccess, initialData = null }:
               </div>
               <div>
                 <Label className="mb-2 block">Length</Label>
-                <Select value={responseLength} onValueChange={setResponseLength}>
+                <Select value={responseLength} onValueChange={handleResponseLengthChange}>
                   <SelectTrigger className="h-12">
                     <SelectValue placeholder="Select length" />
                   </SelectTrigger>
