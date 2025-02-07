@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Loader2, AlertCircle, Sparkles, ThumbsUp, ThumbsDown, Languages, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { getCookie } from "@/lib/utils";
+import { Rule } from "@/types/rule";
 
 interface ThemesAnalysisDialogProps {
   hotelId: string;
