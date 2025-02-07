@@ -910,8 +910,7 @@ export function ReviewsTable({
             setSelectedReview(null);
           }
         }}
-        className="!fixed !inset-0"
-        side="right"
+        className="!fixed !inset-0 !right-0 !left-auto"
       >
         <div className="h-screen flex flex-col">
           <div className="px-6 py-4 border-b bg-gray-50/80 backdrop-blur-sm sticky top-0 z-10">
