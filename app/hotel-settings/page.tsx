@@ -19,7 +19,7 @@ import { motion } from "framer-motion"
 import { getCookie } from "@/lib/utils"
 import { toast } from "sonner"
 
-// Aggiungiamo l'interfaccia per il tipo Hotel
+// Define the Hotel interface
 interface Hotel {
   _id: string;
   name: string;
@@ -61,7 +61,7 @@ export default function HotelSettingsPage() {
         const data = await response.json()
         setHotels(data)
         
-        // Seleziona il primo hotel di default o l'ultimo selezionato
+        // Select first hotel by default or restore last selected hotel
         const lastSelectedHotel = localStorage.getItem('lastSelectedHotel')
         if (lastSelectedHotel && data.some((hotel: Hotel) => hotel._id === lastSelectedHotel)) {
           setSelectedHotel(lastSelectedHotel)
@@ -91,7 +91,7 @@ export default function HotelSettingsPage() {
         }
       } catch (error) {
         console.error('Error fetching hotels:', error)
-        toast.error('Errore nel caricamento degli hotel')
+        toast.error('Error loading hotels')
       } finally {
         setIsLoading(false)
       }
@@ -120,7 +120,7 @@ export default function HotelSettingsPage() {
 
   const handleSave = async () => {
     if (!selectedHotel) {
-      toast.error('Seleziona prima un hotel')
+      toast.error('Please select a hotel first')
       return
     }
 
@@ -136,12 +136,12 @@ export default function HotelSettingsPage() {
         body: JSON.stringify(hotelData)
       })
 
-      if (!response.ok) throw new Error('Errore durante l\'aggiornamento')
+      if (!response.ok) throw new Error('Error updating hotel settings')
       
-      toast.success('Impostazioni hotel aggiornate con successo')
+      toast.success('Hotel settings updated successfully')
     } catch (error) {
       console.error('Error updating hotel:', error)
-      toast.error('Errore nell\'aggiornamento delle impostazioni')
+      toast.error('Error updating settings')
     } finally {
       setIsLoading(false)
     }
@@ -159,36 +159,36 @@ export default function HotelSettingsPage() {
 
   return (
     <>
-      {/* Sfondo gradient moderno */}
+      {/* Modern gradient background */}
       <div className="fixed inset-0 -z-10 bg-gradient-to-br from-[#FAFAFB] via-[#F0F0F2] to-[#FAFAFB] backdrop-blur-sm" />
       
       <div className="flex flex-col px-10 md:pl-[96px] py-12 min-h-screen">
         <div className="max-w-[1400px] mx-auto w-full space-y-12">
-          {/* Header allineato a sinistra */}
+          {/* Header aligned to the left */}
           <div className="flex flex-col items-start">
             <div className="flex items-center gap-3 mb-2">
               <div className="h-8 w-1 rounded-full bg-gradient-to-b from-blue-600 to-blue-400" />
               <h1 className="text-3xl sm:text-4xl font-semibold bg-gradient-to-b from-blue-800 to-blue-600 bg-clip-text text-transparent">
-                Impostazioni
+                Settings
               </h1>
             </div>
             <div className="flex items-center gap-2 text-gray-500">
               <p className="text-base">
-                Gestisci le impostazioni e le preferenze della tua proprietà
+                Manage your property settings and preferences
               </p>
               <span className="inline-flex items-center rounded-full bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">
-                {hotels.length} Proprietà
+                {hotels.length} Properties
               </span>
             </div>
           </div>
 
-          {/* Card contenitore */}
+          {/* Card container */}
           <div className="bg-white rounded-3xl border border-gray-200 shadow-lg overflow-hidden">
-            {/* Sezione di selezione dell'hotel (consolidata) */}
+            {/* Consolidated hotel selection */}
             <div className="p-6 border-b border-gray-100">
               <Select value={selectedHotel} onValueChange={handleHotelChange}>
-                <SelectTrigger className="w-full p-4 text-lg rounded-xl border-2 border-gray-200 focus:border-primary focus:ring-primary bg-white" aria-label="Seleziona un hotel">
-                  <SelectValue placeholder="Seleziona un hotel" />
+                <SelectTrigger className="w-full p-4 text-lg rounded-xl border-2 border-gray-200 focus:border-primary focus:ring-primary bg-white" aria-label="Select a hotel">
+                  <SelectValue placeholder="Select a hotel" />
                 </SelectTrigger>
                 <SelectContent>
                   {hotels.map((hotel) => (
@@ -201,134 +201,120 @@ export default function HotelSettingsPage() {
             </div>
 
             {selectedHotel && (
-              <div className="p-8 space-y-8">
-                <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col sm:flex-row gap-8">
-                  {/* Navigazione delle Tabs */}
-                  <div className="sm:w-64 pt-6">
-                    <TabsList className="flex flex-col w-full bg-transparent space-y-2">
-                      <TabsTrigger 
-                        value="basic"
-                        className="w-full flex items-center gap-3 p-4 bg-white hover:bg-gray-50 data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 rounded-xl border-2 border-transparent data-[state=active]:border-blue-200 transition-all text-left"
-                      >
-                        <Building2 className="w-5 h-5 text-gray-500 data-[state=active]:text-blue-600" />
-                        <div className="flex flex-col items-start">
-                          <span className="font-medium">Informazioni di Base</span>
-                          <span className="text-xs text-gray-500">Dettagli e contatti</span>
-                        </div>
-                      </TabsTrigger>
-                      
-                      <TabsTrigger 
-                        value="response"
-                        className="w-full flex items-center gap-3 p-4 bg-white hover:bg-gray-50 data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 rounded-xl border-2 border-transparent data-[state=active]:border-blue-200 transition-all text-left"
-                      >
-                        <MessageSquare className="w-5 h-5 text-gray-500 data-[state=active]:text-blue-600" />
-                        <div className="flex flex-col items-start">
-                          <span className="font-medium">Impostazioni Risposta</span>
-                          <span className="text-xs text-gray-500">Preferenze risposta AI</span>
-                        </div>
-                      </TabsTrigger>
-                    </TabsList>
-                  </div>
+              <div className="p-8">
+                <Tabs value={activeTab} onValueChange={setActiveTab}>
+                  <TabsList className="flex border-b border-gray-200">
+                    <TabsTrigger
+                      value="basic"
+                      className="px-4 py-2 text-lg font-medium text-gray-600 hover:text-blue-600 transition-colors data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:text-blue-600 flex items-center"
+                    >
+                      <Building2 className="mr-2 w-5 h-5" />
+                      Basic Information
+                    </TabsTrigger>
+                    
+                    <TabsTrigger
+                      value="response"
+                      className="px-4 py-2 text-lg font-medium text-gray-600 hover:text-blue-600 transition-colors data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:text-blue-600 flex items-center"
+                    >
+                      <MessageSquare className="mr-2 w-5 h-5" />
+                      Response Settings
+                    </TabsTrigger>
+                  </TabsList>
 
-                  {/* Contenuto delle Tabs */}
-                  <div className="flex-1">
-                    <TabsContent value="basic" className="mt-0 space-y-6 bg-white rounded-xl border-2 border-gray-100 p-6">
-                      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
-                        <div className="space-y-1">
-                          <label className="text-sm font-medium text-gray-700">Nome Hotel</label>
-                          <Input
-                            value={hotelData.name}
-                            onChange={(e) => setHotelData({ ...hotelData, name: e.target.value })}
-                            className="w-full p-4 text-lg rounded-xl border-2 border-gray-200 focus:border-primary focus:ring-primary bg-white"
-                          />
-                        </div>
+                  <TabsContent value="basic" className="mt-6">
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
+                      <div className="space-y-1">
+                        <label className="text-sm font-medium text-gray-700">Hotel Name</label>
+                        <Input
+                          value={hotelData.name}
+                          onChange={(e) => setHotelData({ ...hotelData, name: e.target.value })}
+                          className="w-full p-4 text-lg rounded-xl border-2 border-gray-200 focus:border-primary focus:ring-primary bg-white"
+                        />
+                      </div>
 
-                        <div className="space-y-1">
-                          <label className="text-sm font-medium text-gray-700">Descrizione</label>
-                          <Textarea
-                            value={hotelData.description}
-                            onChange={(e) => setHotelData({ ...hotelData, description: e.target.value })}
-                            className="w-full p-4 text-lg rounded-xl border-2 border-gray-200 focus:border-primary focus:ring-primary min-h-[150px] bg-white"
-                          />
-                        </div>
+                      <div className="space-y-1">
+                        <label className="text-sm font-medium text-gray-700">Description</label>
+                        <Textarea
+                          value={hotelData.description}
+                          onChange={(e) => setHotelData({ ...hotelData, description: e.target.value })}
+                          className="w-full p-4 text-lg rounded-xl border-2 border-gray-200 focus:border-primary focus:ring-primary min-h-[150px] bg-white"
+                        />
+                      </div>
 
-                        <div className="space-y-1">
-                          <label className="text-sm font-medium text-gray-700">Firma del Manager</label>
-                          <Input
-                            value={hotelData.signature}
-                            onChange={(e) => setHotelData({ ...hotelData, signature: e.target.value })}
-                            className="w-full p-4 text-lg rounded-xl border-2 border-gray-200 focus:border-primary focus:ring-primary bg-white"
-                          />
-                        </div>
-                      </motion.div>
-                    </TabsContent>
+                      <div className="space-y-1">
+                        <label className="text-sm font-medium text-gray-700">Manager Signature</label>
+                        <Input
+                          value={hotelData.signature}
+                          onChange={(e) => setHotelData({ ...hotelData, signature: e.target.value })}
+                          className="w-full p-4 text-lg rounded-xl border-2 border-gray-200 focus:border-primary focus:ring-primary bg-white"
+                        />
+                      </div>
+                    </motion.div>
+                  </TabsContent>
 
-                    <TabsContent value="response" className="mt-0 space-y-6 bg-white rounded-xl border-2 border-gray-100 p-6">
-                      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
-                        <div className="space-y-1">
-                          <label className="text-sm font-medium text-gray-700">Stile Risposta</label>
-                          <Select
-                            value={hotelData.responseSettings.style}
-                            onValueChange={(value) => setHotelData({
-                              ...hotelData,
-                              responseSettings: {
-                                ...hotelData.responseSettings,
-                                style: value as 'professional' | 'friendly'
-                              }
-                            })}
-                          >
-                            <SelectTrigger className="w-full p-4 text-lg rounded-xl border-2 border-gray-200 focus:border-primary focus:ring-primary bg-white" aria-label="Seleziona stile risposta">
-                              <SelectValue placeholder="Seleziona stile" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="professional">Professional</SelectItem>
-                              <SelectItem value="friendly">Friendly</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
+                  <TabsContent value="response" className="mt-6">
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
+                      <div className="space-y-1">
+                        <label className="text-sm font-medium text-gray-700">Response Style</label>
+                        <Select
+                          value={hotelData.responseSettings.style}
+                          onValueChange={(value) => setHotelData({
+                            ...hotelData,
+                            responseSettings: {
+                              ...hotelData.responseSettings,
+                              style: value as 'professional' | 'friendly'
+                            }
+                          })}
+                        >
+                          <SelectTrigger className="w-full p-4 text-lg rounded-xl border-2 border-gray-200 focus:border-primary focus:ring-primary bg-white" aria-label="Select response style">
+                            <SelectValue placeholder="Select style" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="professional">Professional</SelectItem>
+                            <SelectItem value="friendly">Friendly</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
 
-                        <div className="space-y-1">
-                          <label className="text-sm font-medium text-gray-700">Lunghezza Risposta</label>
-                          <Select
-                            value={hotelData.responseSettings.length}
-                            onValueChange={(value) => setHotelData({
-                              ...hotelData,
-                              responseSettings: {
-                                ...hotelData.responseSettings,
-                                length: value as 'short' | 'medium' | 'long'
-                              }
-                            })}
-                          >
-                            <SelectTrigger className="w-full p-4 text-lg rounded-xl border-2 border-gray-200 focus:border-primary focus:ring-primary bg-white" aria-label="Seleziona lunghezza risposta">
-                              <SelectValue placeholder="Seleziona lunghezza" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="short">Corta</SelectItem>
-                              <SelectItem value="medium">Media</SelectItem>
-                              <SelectItem value="long">Lunga</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </motion.div>
-                    </TabsContent>
-
-                    {/* Bottone di salvataggio */}
-                    <div className="flex justify-end pt-4">
-                      <Button
-                        onClick={handleSave}
-                        disabled={isLoading}
-                        className="px-8 py-4 bg-primary hover:bg-primary/90 text-white font-bold text-lg rounded-xl transition-all duration-300 flex items-center gap-2 shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px]"
-                      >
-                        {isLoading ? (
-                          <div className="animate-spin rounded-full h-5 w-5 border-2 border-t-2 border-white"></div>
-                        ) : (
-                          <Save className="w-5 h-5" />
-                        )}
-                        Salva modifiche
-                      </Button>
-                    </div>
-                  </div>
+                      <div className="space-y-1">
+                        <label className="text-sm font-medium text-gray-700">Response Length</label>
+                        <Select
+                          value={hotelData.responseSettings.length}
+                          onValueChange={(value) => setHotelData({
+                            ...hotelData,
+                            responseSettings: {
+                              ...hotelData.responseSettings,
+                              length: value as 'short' | 'medium' | 'long'
+                            }
+                          })}
+                        >
+                          <SelectTrigger className="w-full p-4 text-lg rounded-xl border-2 border-gray-200 focus:border-primary focus:ring-primary bg-white" aria-label="Select response length">
+                            <SelectValue placeholder="Select length" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="short">Short</SelectItem>
+                            <SelectItem value="medium">Medium</SelectItem>
+                            <SelectItem value="long">Long</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </motion.div>
+                  </TabsContent>
                 </Tabs>
+                <div className="flex justify-end pt-4">
+                  <Button
+                    onClick={handleSave}
+                    disabled={isLoading}
+                    className="px-8 py-4 bg-primary hover:bg-primary/90 text-white font-bold text-lg rounded-xl transition-all duration-300 flex items-center gap-2 shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px]"
+                  >
+                    {isLoading ? (
+                      <div className="animate-spin rounded-full h-5 w-5 border-2 border-t-2 border-white"></div>
+                    ) : (
+                      <Save className="w-5 h-5" />
+                    )}
+                    Save Changes
+                  </Button>
+                </div>
               </div>
             )}
           </div>
