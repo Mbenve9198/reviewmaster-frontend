@@ -16,8 +16,6 @@ import Image from "next/image"
 import { useRouter } from 'next/navigation'
 import { motion } from "framer-motion"
 import { getCookie } from "@/lib/utils"
-import { HandWrittenTitle } from "@/components/ui/hand-writing-text"
-import { Tiles } from "@/components/ui/tiles"
 import { toast } from "sonner"
 
 // Aggiungiamo l'interfaccia per il tipo Hotel
@@ -159,72 +157,88 @@ export default function HotelSettingsPage() {
 
   return (
     <>
-      <Tiles 
-        className="fixed inset-0 -z-10" 
-        rows={100}
-        cols={20}
-        tileSize="md"
-      />
+      {/* Modern gradient background */}
+      <div className="fixed inset-0 -z-10 bg-gradient-to-br from-[#FAFAFB] via-[#F0F0F2] to-[#FAFAFB] backdrop-blur-sm" />
       
-      <div className="min-h-screen py-12 md:pl-[100px]">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <HandWrittenTitle 
-            title="Settings"
-            subtitle="Edit your property"
-          />
-
-          <div className="mt-8 mb-12">
-            <Select value={selectedHotel} onValueChange={handleHotelChange}>
-              <SelectTrigger className="w-full p-6 text-xl rounded-xl border-2">
-                <SelectValue placeholder="Select a hotel" />
-              </SelectTrigger>
-              <SelectContent>
-                {hotels.map((hotel) => (
-                  <SelectItem key={hotel._id} value={hotel._id}>
-                    {hotel.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+      <div className="flex flex-col px-10 md:pl-[96px] py-12 min-h-screen">
+        <div className="max-w-[1400px] mx-auto w-full space-y-12">
+          {/* Modern left-aligned header */}
+          <div className="flex flex-col items-start">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="h-8 w-1 rounded-full bg-gradient-to-b from-blue-600 to-blue-400" />
+              <h1 className="text-3xl sm:text-4xl font-semibold bg-gradient-to-b from-blue-800 to-blue-600 bg-clip-text text-transparent">
+                Settings
+              </h1>
+            </div>
+            <div className="flex items-center gap-2 text-gray-500">
+              <p className="text-base">
+                Manage your property settings and preferences
+              </p>
+              <span className="inline-flex items-center rounded-full bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">
+                {hotels.length} Properties
+              </span>
+            </div>
           </div>
 
-          {selectedHotel && (
-            <div className="group relative overflow-hidden bg-white rounded-3xl p-8 border border-indigo-100 shadow-lg hover:shadow-xl transition-all duration-300">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary/10 to-primary/5 rounded-bl-full transform transition-transform duration-300 group-hover:scale-110" />
-              
-              <div className="relative space-y-6">
-                <div>
-                  <label className="text-xl font-bold text-gray-800 mb-2 block">Hotel Name</label>
-                  <Input
-                    value={hotelData.name}
-                    onChange={(e) => setHotelData({ ...hotelData, name: e.target.value })}
-                    className="w-full p-6 text-xl rounded-xl border-2 border-gray-200 focus:border-primary focus:ring-primary bg-white"
-                  />
-                </div>
+          {/* Modern card container */}
+          <div className="bg-white rounded-3xl border border-gray-200 shadow-lg overflow-hidden">
+            {/* Hotel selector section */}
+            <div className="p-6 border-b border-gray-100">
+              <Select value={selectedHotel} onValueChange={handleHotelChange}>
+                <SelectTrigger className="w-full p-6 text-xl rounded-xl border-2 border-gray-200 focus:border-primary focus:ring-primary bg-white/50">
+                  <SelectValue placeholder="Select a hotel" />
+                </SelectTrigger>
+                <SelectContent>
+                  {hotels.map((hotel) => (
+                    <SelectItem key={hotel._id} value={hotel._id}>
+                      {hotel.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
-                <div>
-                  <label className="text-xl font-bold text-gray-800 mb-2 block">Description</label>
-                  <Textarea
-                    value={hotelData.description}
-                    onChange={(e) => setHotelData({ ...hotelData, description: e.target.value })}
-                    className="w-full p-6 text-xl rounded-xl border-2 border-gray-200 focus:border-primary focus:ring-primary min-h-[200px] bg-white"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-xl font-bold text-gray-800 mb-2 block">Manager Signature</label>
-                  <Input
-                    value={hotelData.signature}
-                    onChange={(e) => setHotelData({ ...hotelData, signature: e.target.value })}
-                    className="w-full p-6 text-xl rounded-xl border-2 border-gray-200 focus:border-primary focus:ring-primary bg-white"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-xl font-bold text-gray-800 mb-2 block">Default Response Settings</label>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {selectedHotel && (
+              <div className="p-8">
+                <div className="grid gap-8 md:grid-cols-2">
+                  {/* Basic Information */}
+                  <div className="space-y-6">
+                    <h2 className="text-xl font-bold text-gray-800">Basic Information</h2>
+                    
                     <div>
-                      <label className="text-sm font-medium text-gray-600 mb-1 block">Response Style</label>
+                      <label className="text-sm font-medium text-gray-600 mb-2 block">Hotel Name</label>
+                      <Input
+                        value={hotelData.name}
+                        onChange={(e) => setHotelData({ ...hotelData, name: e.target.value })}
+                        className="w-full p-4 text-lg rounded-xl border-2 border-gray-200 focus:border-primary focus:ring-primary bg-white"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-sm font-medium text-gray-600 mb-2 block">Description</label>
+                      <Textarea
+                        value={hotelData.description}
+                        onChange={(e) => setHotelData({ ...hotelData, description: e.target.value })}
+                        className="w-full p-4 text-lg rounded-xl border-2 border-gray-200 focus:border-primary focus:ring-primary min-h-[150px] bg-white"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-sm font-medium text-gray-600 mb-2 block">Manager Signature</label>
+                      <Input
+                        value={hotelData.signature}
+                        onChange={(e) => setHotelData({ ...hotelData, signature: e.target.value })}
+                        className="w-full p-4 text-lg rounded-xl border-2 border-gray-200 focus:border-primary focus:ring-primary bg-white"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Response Settings */}
+                  <div className="space-y-6">
+                    <h2 className="text-xl font-bold text-gray-800">Response Settings</h2>
+                    
+                    <div>
+                      <label className="text-sm font-medium text-gray-600 mb-2 block">Response Style</label>
                       <Select
                         value={hotelData.responseSettings.style}
                         onValueChange={(value) => setHotelData({
@@ -235,7 +249,7 @@ export default function HotelSettingsPage() {
                           }
                         })}
                       >
-                        <SelectTrigger className="w-full p-6 text-xl rounded-xl border-2 border-gray-200 focus:border-primary focus:ring-primary bg-white">
+                        <SelectTrigger className="w-full p-4 text-lg rounded-xl border-2 border-gray-200 focus:border-primary focus:ring-primary bg-white">
                           <SelectValue placeholder="Select style" />
                         </SelectTrigger>
                         <SelectContent>
@@ -246,7 +260,7 @@ export default function HotelSettingsPage() {
                     </div>
 
                     <div>
-                      <label className="text-sm font-medium text-gray-600 mb-1 block">Response Length</label>
+                      <label className="text-sm font-medium text-gray-600 mb-2 block">Response Length</label>
                       <Select
                         value={hotelData.responseSettings.length}
                         onValueChange={(value) => setHotelData({
@@ -257,7 +271,7 @@ export default function HotelSettingsPage() {
                           }
                         })}
                       >
-                        <SelectTrigger className="w-full p-6 text-xl rounded-xl border-2 border-gray-200 focus:border-primary focus:ring-primary bg-white">
+                        <SelectTrigger className="w-full p-4 text-lg rounded-xl border-2 border-gray-200 focus:border-primary focus:ring-primary bg-white">
                           <SelectValue placeholder="Select length" />
                         </SelectTrigger>
                         <SelectContent>
@@ -270,17 +284,20 @@ export default function HotelSettingsPage() {
                   </div>
                 </div>
 
-                <Button
-                  onClick={handleSave}
-                  disabled={isLoading}
-                  className="w-full bg-primary hover:bg-primary/90 text-white font-bold text-xl py-6 rounded-xl transition-all duration-300 transform hover:scale-[1.02] flex items-center justify-center gap-2 shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px]"
-                >
-                  <Save className="w-5 h-5" />
-                  Save Changes
-                </Button>
+                {/* Save Button */}
+                <div className="mt-8 flex justify-end">
+                  <Button
+                    onClick={handleSave}
+                    disabled={isLoading}
+                    className="px-8 py-4 bg-primary hover:bg-primary/90 text-white font-bold text-lg rounded-xl transition-all duration-300 flex items-center gap-2 shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px]"
+                  >
+                    <Save className="w-5 h-5" />
+                    Save Changes
+                  </Button>
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
     </>
