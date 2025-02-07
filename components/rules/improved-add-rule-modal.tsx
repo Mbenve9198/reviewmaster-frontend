@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { LucideIcon } from "lucide-react";
 import { toast } from "sonner";
+import { getCookie } from "cookies-next";
 
 type FieldOption = {
   value: FieldKey;
@@ -103,11 +104,53 @@ export function AddRuleModal({
   };
 
   const isFormValid = () => {
-    if (!name.trim()) return false;
-    if (!field || !operator) return false;
-    if (field === 'content.text' && keywords.length === 0) return false;
-    if ((field === 'content.rating' || field === 'content.language') && !value) return false;
-    if (!responseText.trim() || !responseStyle) return false;
+    // Debug logs
+    console.log('Form validation state:', {
+      name: name.trim(),
+      field,
+      operator,
+      keywords,
+      value,
+      responseText: responseText.trim(),
+      responseStyle
+    });
+
+    // Basic field validation
+    if (!name.trim()) {
+      console.log('Name is empty');
+      return false;
+    }
+
+    if (!field || !operator) {
+      console.log('Field or operator is missing');
+      return false;
+    }
+
+    // Content type specific validation
+    if (field === 'content.text') {
+      if (keywords.length === 0) {
+        console.log('Keywords are required for text content');
+        return false;
+      }
+    } else if ((field === 'content.rating' || field === 'content.language')) {
+      if (!value.trim()) {
+        console.log('Value is required for rating/language');
+        return false;
+      }
+    }
+
+    // Response validation
+    if (!responseText.trim()) {
+      console.log('Response text is empty');
+      return false;
+    }
+
+    if (!responseStyle || !['professional', 'friendly', 'personal', 'sarcastic', 'challenging'].includes(responseStyle)) {
+      console.log('Invalid response style:', responseStyle);
+      return false;
+    }
+
+    console.log('Form is valid');
     return true;
   };
 
@@ -125,19 +168,25 @@ export function AddRuleModal({
       const ruleData = {
         hotelId,
         name: name.trim(),
-        field,
-        operator,
-        value: field === 'content.text' ? keywords : value,
-        keywords: field === 'content.text' ? keywords : undefined,
-        responseText: responseText.trim(),
-        responseStyle
+        condition: {
+          field,
+          operator,
+          value: field === 'content.text' ? keywords : value
+        },
+        response: {
+          text: responseText.trim(),
+          settings: {
+            style: responseStyle,
+            length: responseLength
+          }
+        }
       };
 
-      const response = await fetch('/api/rules', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/rules`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${getCookie('token')}`
         },
         body: JSON.stringify(ruleData)
       });
