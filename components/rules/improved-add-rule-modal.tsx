@@ -110,15 +110,15 @@ export function AddRuleModal({ isOpen, onClose, onSuccess, initialData = null }:
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-[600px] bg-white p-6 max-h-[90vh] overflow-y-auto">
+        <DialogHeader className="mb-6">
           <DialogTitle className="flex items-center gap-2 text-xl font-semibold">
             <Sparkles className="h-6 w-6 text-blue-500" />
             New Response Rule
           </DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-8 py-4">
+        <form onSubmit={handleSubmit} className="space-y-6">
           {/* Rule Name Section */}
           <div className="space-y-4">
             <Label className="text-base font-semibold">Rule Name</Label>
