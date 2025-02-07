@@ -29,7 +29,7 @@ type OperatorOption = {
 
 type FieldKey = 'content.text' | 'content.rating' | 'content.language';
 
-type ResponseStyle = 'professional' | 'friendly';
+type ResponseStyle = 'professional' | 'friendly' | 'personal' | 'sarcastic' | 'challenging';
 type ResponseLength = 'short' | 'medium' | 'long';
 
 interface AddRuleModalProps {
@@ -40,19 +40,27 @@ interface AddRuleModalProps {
 }
 
 const FIELD_OPTIONS: FieldOption[] = [
-  { value: 'content.text', label: 'Review Content', icon: MessageSquare },
-  { value: 'content.rating', label: 'Rating', icon: Star },
-  { value: 'content.language', label: 'Language', icon: Languages }
+  { value: 'content.text', label: 'Review Content' },
+  { value: 'content.rating', label: 'Rating' },
+  { value: 'content.language', label: 'Language' }
 ];
 
 const OPERATOR_OPTIONS: Record<FieldKey, OperatorOption[]> = {
-  'content.text': [{ value: 'contains', label: 'Contains Keywords' }],
+  'content.text': [
+    { value: 'contains', label: 'Contains Keywords' },
+    { value: 'not_contains', label: "Doesn't Contain" },
+    { value: 'greater_than', label: 'Greater than' },
+    { value: 'less_than', label: 'Less than' },
+    { value: 'equals', label: 'Equals' }
+  ],
   'content.rating': [
     { value: 'equals', label: 'Equals' },
     { value: 'greater_than', label: 'Greater than' },
     { value: 'less_than', label: 'Less than' }
   ],
-  'content.language': [{ value: 'equals', label: 'Equals' }]
+  'content.language': [
+    { value: 'equals', label: 'Equals' }
+  ]
 };
 
 export function AddRuleModal({ isOpen, onClose, onSuccess, initialData = null }: AddRuleModalProps) {
@@ -126,7 +134,7 @@ export function AddRuleModal({ isOpen, onClose, onSuccess, initialData = null }:
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g., Positive Breakfast Response"
-              className="h-12 text-base border-gray-200"
+              className="h-12 text-base border-gray-200 rounded-xl"
             />
           </div>
 
@@ -136,41 +144,29 @@ export function AddRuleModal({ isOpen, onClose, onSuccess, initialData = null }:
             <div className="p-6 bg-gray-50 rounded-xl space-y-4">
               <div className="flex items-center gap-3 text-base">
                 <span className="font-medium text-gray-700">IF</span>
-                <Select 
-                  value={field} 
-                  onValueChange={(value: FieldKey) => setField(value)}
-                >
-                  <SelectTrigger className="h-12 min-w-[180px] bg-white">
+                <Select value={field} onValueChange={(value: FieldKey) => setField(value)}>
+                  <SelectTrigger className="h-12 min-w-[180px] bg-white rounded-xl">
                     <SelectValue placeholder="Select field" />
                   </SelectTrigger>
                   <SelectContent>
                     {FIELD_OPTIONS.map(option => (
-                      <SelectItem 
-                        key={option.value} 
-                        value={option.value}
-                        className="flex items-center gap-2"
-                      >
-                        <option.icon className="h-4 w-4" />
+                      <SelectItem key={option.value} value={option.value}>
                         {option.label}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
 
-                <Select 
-                  value={operator} 
-                  onValueChange={handleOperatorChange}
-                  disabled={!field}
-                >
-                  <SelectTrigger className="h-12 min-w-[180px] bg-white">
+                <Select value={operator} onValueChange={handleOperatorChange} disabled={!field}>
+                  <SelectTrigger className="h-12 min-w-[180px] bg-white rounded-xl">
                     <SelectValue placeholder="Select operator" />
                   </SelectTrigger>
                   <SelectContent>
-                    {field && (OPERATOR_OPTIONS[field as FieldKey]?.map(option => (
+                    {field && OPERATOR_OPTIONS[field]?.map(option => (
                       <SelectItem key={option.value} value={option.value}>
                         {option.label}
                       </SelectItem>
-                    )))}
+                    ))}
                   </SelectContent>
                 </Select>
 
@@ -181,12 +177,12 @@ export function AddRuleModal({ isOpen, onClose, onSuccess, initialData = null }:
                       onChange={(e) => setKeywordInput(e.target.value)}
                       onKeyDown={handleAddKeyword}
                       placeholder="Type keyword and press Enter"
-                      className="h-12 bg-white"
+                      className="h-12 bg-white rounded-xl w-full"
                     />
                   </div>
                 ) : field === 'content.rating' ? (
                   <Select value={value} onValueChange={handleValueChange}>
-                    <SelectTrigger className="h-12 min-w-[180px] bg-white">
+                    <SelectTrigger className="h-12 min-w-[180px] bg-white rounded-xl">
                       <SelectValue placeholder="Select rating" />
                     </SelectTrigger>
                     <SelectContent>
@@ -199,7 +195,7 @@ export function AddRuleModal({ isOpen, onClose, onSuccess, initialData = null }:
                   </Select>
                 ) : field === 'content.language' ? (
                   <Select value={value} onValueChange={handleValueChange}>
-                    <SelectTrigger className="h-12 min-w-[180px] bg-white">
+                    <SelectTrigger className="h-12 min-w-[180px] bg-white rounded-xl">
                       <SelectValue placeholder="Select language" />
                     </SelectTrigger>
                     <SelectContent>
@@ -218,7 +214,7 @@ export function AddRuleModal({ isOpen, onClose, onSuccess, initialData = null }:
                   {keywords.map((keyword, index) => (
                     <span
                       key={index}
-                      className="inline-flex items-center gap-1 px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm"
+                      className="inline-flex items-center gap-1 px-3 py-1 bg-blue-50 text-blue-700 rounded-xl text-sm"
                     >
                       {keyword}
                       <button
@@ -238,32 +234,20 @@ export function AddRuleModal({ isOpen, onClose, onSuccess, initialData = null }:
           {/* Response Configuration Section */}
           <div className="space-y-4">
             <Label className="text-base font-semibold">Response Configuration</Label>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label className="mb-2 block">Style</Label>
-                <Select value={responseStyle} onValueChange={handleResponseStyleChange}>
-                  <SelectTrigger className="h-12">
-                    <SelectValue placeholder="Select style" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="professional">Professional</SelectItem>
-                    <SelectItem value="friendly">Friendly</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label className="mb-2 block">Length</Label>
-                <Select value={responseLength} onValueChange={handleResponseLengthChange}>
-                  <SelectTrigger className="h-12">
-                    <SelectValue placeholder="Select length" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="short">Short</SelectItem>
-                    <SelectItem value="medium">Medium</SelectItem>
-                    <SelectItem value="long">Long</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+            <div>
+              <Label className="mb-2 block">Response Style</Label>
+              <Select value={responseStyle} onValueChange={handleResponseStyleChange}>
+                <SelectTrigger className="h-12 rounded-xl w-full">
+                  <SelectValue placeholder="Select style" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="professional">Professional and Formal</SelectItem>
+                  <SelectItem value="friendly">Friendly and Warm</SelectItem>
+                  <SelectItem value="personal">Personal and Empathetic</SelectItem>
+                  <SelectItem value="sarcastic">Ironic and Witty</SelectItem>
+                  <SelectItem value="challenging">Questioning and Critical</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
@@ -277,7 +261,7 @@ export function AddRuleModal({ isOpen, onClose, onSuccess, initialData = null }:
                   variant="outline"
                   size="sm"
                   onClick={() => insertVariable('reviewer_name')}
-                  className="text-sm"
+                  className="text-sm rounded-xl"
                 >
                   + Guest Name
                 </Button>
@@ -286,7 +270,7 @@ export function AddRuleModal({ isOpen, onClose, onSuccess, initialData = null }:
                   variant="outline"
                   size="sm"
                   onClick={() => insertVariable('hotel_name')}
-                  className="text-sm"
+                  className="text-sm rounded-xl"
                 >
                   + Hotel Name
                 </Button>
@@ -295,7 +279,7 @@ export function AddRuleModal({ isOpen, onClose, onSuccess, initialData = null }:
                   variant="outline"
                   size="sm"
                   onClick={() => insertVariable('rating')}
-                  className="text-sm"
+                  className="text-sm rounded-xl"
                 >
                   + Rating
                 </Button>
@@ -305,7 +289,7 @@ export function AddRuleModal({ isOpen, onClose, onSuccess, initialData = null }:
               value={responseText}
               onChange={(e) => setResponseText(e.target.value)}
               placeholder="Enter your response template..."
-              className="min-h-[200px] text-base"
+              className="min-h-[200px] text-base rounded-xl"
             />
           </div>
 
@@ -315,14 +299,14 @@ export function AddRuleModal({ isOpen, onClose, onSuccess, initialData = null }:
               type="button" 
               variant="outline" 
               onClick={onClose}
-              className="h-12 px-6"
+              className="h-12 px-6 rounded-xl"
             >
               Cancel
             </Button>
             <Button 
               type="submit"
               disabled={isLoading}
-              className="h-12 px-6 gap-2 bg-primary text-primary-foreground shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all"
+              className="h-12 px-6 gap-2 bg-primary text-primary-foreground shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all rounded-xl"
             >
               {isLoading ? 'Creating...' : 'Create Rule'}
               <ChevronRight className="h-4 w-4" />
