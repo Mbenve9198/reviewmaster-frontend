@@ -911,6 +911,7 @@ export function ReviewsTable({
           }
         }}
         className="!fixed !inset-0"
+        side="right"
       >
         <div className="h-screen flex flex-col">
           <div className="px-6 py-4 border-b bg-gray-50/80 backdrop-blur-sm sticky top-0 z-10">
@@ -1053,14 +1054,15 @@ export function ReviewsTable({
                         className="rounded-2xl relative pr-10 shadow-sm"
                       >
                         {message.content}
-                        {message.sender === "ai" && (
+                        {message.sender === "ai" && selectedReview && (
                           <div className="absolute right-2 bottom-2 flex items-center gap-2">
-                            {selectedReview?.content?.originalUrl ? (
+                            {selectedReview.content?.originalUrl ? (
                               <>
                                 <Button
                                   variant="ghost"
                                   size="sm"
                                   onClick={async () => {
+                                    if (!selectedReview) return;
                                     try {
                                       // Salva la risposta
                                       const token = getCookie('token');
@@ -1112,6 +1114,7 @@ export function ReviewsTable({
                                   variant="ghost"
                                   size="icon"
                                   onClick={async () => {
+                                    if (!selectedReview) return;
                                     try {
                                       // Salva la risposta
                                       const token = getCookie('token');
@@ -1160,6 +1163,7 @@ export function ReviewsTable({
                                 variant="ghost"
                                 size="sm"
                                 onClick={async () => {
+                                  if (!selectedReview) return;
                                   try {
                                     // Salva la risposta
                                     const token = getCookie('token');
