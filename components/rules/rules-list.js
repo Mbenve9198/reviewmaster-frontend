@@ -4,6 +4,7 @@ import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { Pencil, Trash2, GripVertical, AlertCircle, MessageSquare, Star, Languages } from "lucide-react";
 import { AddRuleModal } from "./add-rule-modal";
+import { ImprovedAddRuleModal } from "./improved-add-rule-modal";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -228,7 +229,7 @@ export function RulesList({ rules, onRuleUpdate }) {
         ))}
       </div>
 
-      <AddRuleModal
+      <ImprovedAddRuleModal
         isOpen={isEditModalOpen}
         onClose={() => {
           setEditingRule(null);

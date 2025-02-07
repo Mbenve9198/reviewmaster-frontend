@@ -1,18 +1,18 @@
 export interface Rule {
-  _id: string
-  name: string
+  _id?: string;
+  hotelId: string;
+  name: string;
   condition: {
-    field: string
-    operator: string
-    value: string | string[] | number
-  }
+    field: 'content.text' | 'content.rating' | 'content.language';
+    operator: 'contains' | 'equals' | 'greater_than' | 'less_than';
+    value: string | string[] | number;
+  };
   response: {
-    text: string
+    text: string;
     settings: {
-      style: 'professional' | 'friendly'
-      length: 'short' | 'medium' | 'long'
-    }
-  }
-  isActive: boolean
-  priority: number
+      style: 'professional' | 'friendly';
+      length: 'short' | 'medium' | 'long';
+    };
+  };
+  isActive?: boolean;
 } 
