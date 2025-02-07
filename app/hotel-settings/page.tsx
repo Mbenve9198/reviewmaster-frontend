@@ -12,12 +12,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Save, Building2, MessageSquare } from 'lucide-react'
+import { Save, Building2, MessageSquare, HelpCircle } from 'lucide-react'
 import Image from "next/image"
 import { useRouter } from 'next/navigation'
 import { motion } from "framer-motion"
 import { getCookie } from "@/lib/utils"
 import { toast } from "sonner"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
 // Define the Hotel interface
 interface Hotel {
@@ -48,6 +49,7 @@ export default function HotelSettingsPage() {
   })
   const [isLoading, setIsLoading] = useState(true)
   const [activeTab, setActiveTab] = useState("basic")
+  const [isSaving, setIsSaving] = useState(false)
 
   useEffect(() => {
     const fetchHotels = async () => {
@@ -124,6 +126,7 @@ export default function HotelSettingsPage() {
       return
     }
 
+    setIsSaving(true)
     setIsLoading(true)
     try {
       const token = getCookie('token')
@@ -138,12 +141,15 @@ export default function HotelSettingsPage() {
 
       if (!response.ok) throw new Error('Error updating hotel settings')
       
-      toast.success('Hotel settings updated successfully')
+      toast.success('Hotel settings updated successfully', {
+        duration: 2000,
+      })
     } catch (error) {
       console.error('Error updating hotel:', error)
       toast.error('Error updating settings')
     } finally {
       setIsLoading(false)
+      setIsSaving(false)
     }
   }
 
@@ -158,7 +164,7 @@ export default function HotelSettingsPage() {
   }
 
   return (
-    <>
+    <TooltipProvider>
       {/* Modern gradient background */}
       <div className="fixed inset-0 -z-10 bg-gradient-to-br from-[#FAFAFB] via-[#F0F0F2] to-[#FAFAFB] backdrop-blur-sm" />
       
@@ -183,7 +189,7 @@ export default function HotelSettingsPage() {
           </div>
 
           {/* Card container */}
-          <div className="bg-white rounded-3xl border border-gray-200 shadow-lg overflow-hidden">
+          <div className="bg-white rounded-3xl border border-gray-200 shadow-lg overflow-hidden transition-all duration-300 hover:shadow-xl">
             {/* Consolidated hotel selection */}
             <div className="p-6 border-b border-gray-100">
               <Select value={selectedHotel} onValueChange={handleHotelChange}>
@@ -222,13 +228,28 @@ export default function HotelSettingsPage() {
                   </TabsList>
 
                   <TabsContent value="basic" className="mt-6">
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
-                      <div className="space-y-1">
-                        <label className="text-sm font-medium text-gray-700">Hotel Name</label>
+                    <motion.div 
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="space-y-6"
+                    >
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <label className="text-sm font-medium text-gray-700">Hotel Name</label>
+                          <Tooltip>
+                            <TooltipTrigger>
+                              <HelpCircle className="w-4 h-4 text-gray-400" />
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>The name of your property as it will appear to guests</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </div>
                         <Input
                           value={hotelData.name}
                           onChange={(e) => setHotelData({ ...hotelData, name: e.target.value })}
-                          className="w-full p-4 text-lg rounded-xl border-2 border-gray-200 focus:border-primary focus:ring-primary bg-white"
+                          className="w-full p-4 text-lg rounded-xl border-2 border-gray-200 focus:border-primary focus:ring-primary bg-white transition-all duration-200 hover:border-primary/50"
                         />
                       </div>
 
@@ -301,26 +322,52 @@ export default function HotelSettingsPage() {
                     </motion.div>
                   </TabsContent>
                 </Tabs>
-                <div className="flex justify-end pt-4">
+
+                <motion.div 
+                  className="flex justify-end pt-6"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.2 }}
+                >
                   <Button
                     onClick={handleSave}
-                    disabled={isLoading}
-                    className="px-8 py-4 bg-primary hover:bg-primary/90 text-white font-bold text-lg rounded-xl transition-all duration-300 flex items-center gap-2 shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px]"
+                    disabled={isLoading || isSaving}
+                    className={`
+                      px-8 py-4 bg-primary text-white font-bold text-lg rounded-xl
+                      transition-all duration-300 flex items-center gap-2
+                      ${isSaving ? 'bg-green-500' : 'bg-primary'}
+                      hover:bg-primary/90 hover:translate-y-[2px]
+                      disabled:opacity-50 disabled:hover:translate-y-0
+                      focus:ring-2 focus:ring-primary focus:ring-offset-2
+                    `}
                   >
                     {isLoading ? (
                       <div className="animate-spin rounded-full h-5 w-5 border-2 border-t-2 border-white"></div>
+                    ) : isSaving ? (
+                      <>
+                        <motion.div
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          className="text-white"
+                        >
+                          ✓
+                        </motion.div>
+                        Saved!
+                      </>
                     ) : (
-                      <Save className="w-5 h-5" />
+                      <>
+                        <Save className="w-5 h-5" />
+                        Save Changes
+                      </>
                     )}
-                    Save Changes
                   </Button>
-                </div>
+                </motion.div>
               </div>
             )}
           </div>
         </div>
       </div>
-    </>
+    </TooltipProvider>
   )
 }
 
