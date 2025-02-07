@@ -203,111 +203,130 @@ export default function HotelSettingsPage() {
             {selectedHotel && (
               <div className="p-8">
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
-                  <TabsList className="grid grid-cols-2 max-w-[400px] p-1 bg-gray-100/80 rounded-xl">
-                    <TabsTrigger 
-                      value="basic"
-                      className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg px-6 py-3 transition-all"
+                  <div className="flex flex-col sm:flex-row gap-8">
+                    {/* Tab Navigation - Versione migliorata */}
+                    <div className="sm:w-64">
+                      <TabsList className="flex flex-col w-full bg-transparent space-y-2">
+                        <TabsTrigger 
+                          value="basic"
+                          className="w-full flex items-center gap-3 p-4 bg-white hover:bg-gray-50 data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 rounded-xl border-2 border-transparent data-[state=active]:border-blue-200 transition-all text-left"
+                        >
+                          <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-blue-100 text-blue-600">
+                            <Building2 className="w-5 h-5" />
+                          </div>
+                          <div className="flex flex-col items-start">
+                            <span className="font-medium">Basic Information</span>
+                            <span className="text-xs text-gray-500">Hotel details and contacts</span>
+                          </div>
+                        </TabsTrigger>
+                        
+                        <TabsTrigger 
+                          value="response"
+                          className="w-full flex items-center gap-3 p-4 bg-white hover:bg-gray-50 data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 rounded-xl border-2 border-transparent data-[state=active]:border-blue-200 transition-all text-left"
+                        >
+                          <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-blue-100 text-blue-600">
+                            <MessageSquare className="w-5 h-5" />
+                          </div>
+                          <div className="flex flex-col items-start">
+                            <span className="font-medium">Response Settings</span>
+                            <span className="text-xs text-gray-500">AI response preferences</span>
+                          </div>
+                        </TabsTrigger>
+                      </TabsList>
+                    </div>
+
+                    {/* Tab Content - Con bordo e padding migliorati */}
+                    <div className="flex-1 bg-white rounded-xl border-2 border-gray-100 p-6">
+                      <TabsContent value="basic" className="space-y-6 mt-0">
+                        <div className="space-y-1">
+                          <label className="text-sm font-medium text-gray-700">Hotel Name</label>
+                          <Input
+                            value={hotelData.name}
+                            onChange={(e) => setHotelData({ ...hotelData, name: e.target.value })}
+                            className="w-full p-4 text-lg rounded-xl border-2 border-gray-200 focus:border-primary focus:ring-primary bg-white"
+                          />
+                        </div>
+
+                        <div className="space-y-1">
+                          <label className="text-sm font-medium text-gray-700">Description</label>
+                          <Textarea
+                            value={hotelData.description}
+                            onChange={(e) => setHotelData({ ...hotelData, description: e.target.value })}
+                            className="w-full p-4 text-lg rounded-xl border-2 border-gray-200 focus:border-primary focus:ring-primary min-h-[150px] bg-white"
+                          />
+                        </div>
+
+                        <div className="space-y-1">
+                          <label className="text-sm font-medium text-gray-700">Manager Signature</label>
+                          <Input
+                            value={hotelData.signature}
+                            onChange={(e) => setHotelData({ ...hotelData, signature: e.target.value })}
+                            className="w-full p-4 text-lg rounded-xl border-2 border-gray-200 focus:border-primary focus:ring-primary bg-white"
+                          />
+                        </div>
+                      </TabsContent>
+
+                      <TabsContent value="response" className="space-y-6 mt-0">
+                        <div className="space-y-1">
+                          <label className="text-sm font-medium text-gray-700">Response Style</label>
+                          <Select
+                            value={hotelData.responseSettings.style}
+                            onValueChange={(value) => setHotelData({
+                              ...hotelData,
+                              responseSettings: {
+                                ...hotelData.responseSettings,
+                                style: value as 'professional' | 'friendly'
+                              }
+                            })}
+                          >
+                            <SelectTrigger className="w-full p-4 text-lg rounded-xl border-2 border-gray-200 focus:border-primary focus:ring-primary bg-white">
+                              <SelectValue placeholder="Select style" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="professional">Professional</SelectItem>
+                              <SelectItem value="friendly">Friendly</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div className="space-y-1">
+                          <label className="text-sm font-medium text-gray-700">Response Length</label>
+                          <Select
+                            value={hotelData.responseSettings.length}
+                            onValueChange={(value) => setHotelData({
+                              ...hotelData,
+                              responseSettings: {
+                                ...hotelData.responseSettings,
+                                length: value as 'short' | 'medium' | 'long'
+                              }
+                            })}
+                          >
+                            <SelectTrigger className="w-full p-4 text-lg rounded-xl border-2 border-gray-200 focus:border-primary focus:ring-primary bg-white">
+                              <SelectValue placeholder="Select length" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="short">Short</SelectItem>
+                              <SelectItem value="medium">Medium</SelectItem>
+                              <SelectItem value="long">Long</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </TabsContent>
+                    </div>
+                  </div>
+
+                  {/* Save Button */}
+                  <div className="flex justify-end pt-4">
+                    <Button
+                      onClick={handleSave}
+                      disabled={isLoading}
+                      className="px-8 py-4 bg-primary hover:bg-primary/90 text-white font-bold text-lg rounded-xl transition-all duration-300 flex items-center gap-2 shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px]"
                     >
-                      <Building2 className="w-4 h-4" />
-                      Basic Information
-                    </TabsTrigger>
-                    <TabsTrigger 
-                      value="response"
-                      className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg px-6 py-3 transition-all"
-                    >
-                      <MessageSquare className="w-4 h-4" />
-                      Response Settings
-                    </TabsTrigger>
-                  </TabsList>
-
-                  <TabsContent value="basic" className="space-y-6 pt-4">
-                    <div>
-                      <label className="text-sm font-medium text-gray-600 mb-2 block">Hotel Name</label>
-                      <Input
-                        value={hotelData.name}
-                        onChange={(e) => setHotelData({ ...hotelData, name: e.target.value })}
-                        className="w-full p-4 text-lg rounded-xl border-2 border-gray-200 focus:border-primary focus:ring-primary bg-white"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="text-sm font-medium text-gray-600 mb-2 block">Description</label>
-                      <Textarea
-                        value={hotelData.description}
-                        onChange={(e) => setHotelData({ ...hotelData, description: e.target.value })}
-                        className="w-full p-4 text-lg rounded-xl border-2 border-gray-200 focus:border-primary focus:ring-primary min-h-[150px] bg-white"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="text-sm font-medium text-gray-600 mb-2 block">Manager Signature</label>
-                      <Input
-                        value={hotelData.signature}
-                        onChange={(e) => setHotelData({ ...hotelData, signature: e.target.value })}
-                        className="w-full p-4 text-lg rounded-xl border-2 border-gray-200 focus:border-primary focus:ring-primary bg-white"
-                      />
-                    </div>
-                  </TabsContent>
-
-                  <TabsContent value="response" className="space-y-6 pt-4">
-                    <div>
-                      <label className="text-sm font-medium text-gray-600 mb-2 block">Response Style</label>
-                      <Select
-                        value={hotelData.responseSettings.style}
-                        onValueChange={(value) => setHotelData({
-                          ...hotelData,
-                          responseSettings: {
-                            ...hotelData.responseSettings,
-                            style: value as 'professional' | 'friendly'
-                          }
-                        })}
-                      >
-                        <SelectTrigger className="w-full p-4 text-lg rounded-xl border-2 border-gray-200 focus:border-primary focus:ring-primary bg-white">
-                          <SelectValue placeholder="Select style" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="professional">Professional</SelectItem>
-                          <SelectItem value="friendly">Friendly</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div>
-                      <label className="text-sm font-medium text-gray-600 mb-2 block">Response Length</label>
-                      <Select
-                        value={hotelData.responseSettings.length}
-                        onValueChange={(value) => setHotelData({
-                          ...hotelData,
-                          responseSettings: {
-                            ...hotelData.responseSettings,
-                            length: value as 'short' | 'medium' | 'long'
-                          }
-                        })}
-                      >
-                        <SelectTrigger className="w-full p-4 text-lg rounded-xl border-2 border-gray-200 focus:border-primary focus:ring-primary bg-white">
-                          <SelectValue placeholder="Select length" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="short">Short</SelectItem>
-                          <SelectItem value="medium">Medium</SelectItem>
-                          <SelectItem value="long">Long</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </TabsContent>
+                      <Save className="w-5 h-5" />
+                      Save Changes
+                    </Button>
+                  </div>
                 </Tabs>
-
-                {/* Save Button */}
-                <div className="mt-8 flex justify-end">
-                  <Button
-                    onClick={handleSave}
-                    disabled={isLoading}
-                    className="px-8 py-4 bg-primary hover:bg-primary/90 text-white font-bold text-lg rounded-xl transition-all duration-300 flex items-center gap-2 shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px]"
-                  >
-                    <Save className="w-5 h-5" />
-                    Save Changes
-                  </Button>
-                </div>
               </div>
             )}
           </div>
