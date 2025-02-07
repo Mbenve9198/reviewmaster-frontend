@@ -117,7 +117,7 @@ export function AddRuleModal({ isOpen, onClose, onSuccess, initialData = null }:
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[600px] bg-white p-6 max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[800px] bg-white p-6 max-h-[90vh] overflow-y-auto">
         <DialogHeader className="mb-6">
           <DialogTitle className="flex items-center gap-2 text-xl font-semibold">
             <Sparkles className="h-6 w-6 text-blue-500" />
@@ -141,10 +141,10 @@ export function AddRuleModal({ isOpen, onClose, onSuccess, initialData = null }:
           <div className="space-y-4">
             <Label className="text-base font-semibold">Condition</Label>
             <div className="p-6 bg-gray-50 rounded-xl space-y-4">
-              <div className="flex items-center gap-3 text-base">
+              <div className="grid grid-cols-[auto_180px_180px_1fr] gap-3 items-center">
                 <span className="font-medium text-gray-700">IF</span>
                 <Select value={field} onValueChange={(value: FieldKey) => setField(value)}>
-                  <SelectTrigger className="h-12 min-w-[180px] bg-white rounded-xl">
+                  <SelectTrigger className="h-12 bg-white rounded-xl">
                     <SelectValue placeholder="Select field" />
                   </SelectTrigger>
                   <SelectContent>
@@ -157,7 +157,7 @@ export function AddRuleModal({ isOpen, onClose, onSuccess, initialData = null }:
                 </Select>
 
                 <Select value={operator} onValueChange={handleOperatorChange} disabled={!field}>
-                  <SelectTrigger className="h-12 min-w-[180px] bg-white rounded-xl">
+                  <SelectTrigger className="h-12 bg-white rounded-xl">
                     <SelectValue placeholder="Select operator" />
                   </SelectTrigger>
                   <SelectContent>
@@ -170,18 +170,16 @@ export function AddRuleModal({ isOpen, onClose, onSuccess, initialData = null }:
                 </Select>
 
                 {field === 'content.text' ? (
-                  <div className="flex-1">
-                    <Input
-                      value={keywordInput}
-                      onChange={(e) => setKeywordInput(e.target.value)}
-                      onKeyDown={handleAddKeyword}
-                      placeholder="Type keyword and press Enter"
-                      className="h-12 bg-white rounded-xl w-full"
-                    />
-                  </div>
+                  <Input
+                    value={keywordInput}
+                    onChange={(e) => setKeywordInput(e.target.value)}
+                    onKeyDown={handleAddKeyword}
+                    placeholder="Type keyword and press Enter"
+                    className="h-12 bg-white rounded-xl w-full"
+                  />
                 ) : field === 'content.rating' ? (
                   <Select value={value} onValueChange={handleValueChange}>
-                    <SelectTrigger className="h-12 min-w-[180px] bg-white rounded-xl">
+                    <SelectTrigger className="h-12 bg-white rounded-xl">
                       <SelectValue placeholder="Select rating" />
                     </SelectTrigger>
                     <SelectContent>
@@ -194,7 +192,7 @@ export function AddRuleModal({ isOpen, onClose, onSuccess, initialData = null }:
                   </Select>
                 ) : field === 'content.language' ? (
                   <Select value={value} onValueChange={handleValueChange}>
-                    <SelectTrigger className="h-12 min-w-[180px] bg-white rounded-xl">
+                    <SelectTrigger className="h-12 bg-white rounded-xl">
                       <SelectValue placeholder="Select language" />
                     </SelectTrigger>
                     <SelectContent>
@@ -250,10 +248,10 @@ export function AddRuleModal({ isOpen, onClose, onSuccess, initialData = null }:
             </div>
           </div>
 
-          {/* Response Template Section */}
+          {/* Response Prompt Section */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <Label className="text-base font-semibold">Response Template</Label>
+              <Label className="text-base font-semibold">Response Behavior</Label>
               <div className="flex gap-2">
                 <Button
                   type="button"
@@ -287,7 +285,7 @@ export function AddRuleModal({ isOpen, onClose, onSuccess, initialData = null }:
             <Textarea
               value={responseText}
               onChange={(e) => setResponseText(e.target.value)}
-              placeholder="Enter your response template..."
+              placeholder="Describe how the AI should respond in this situation. For example: 'Thank the guest for their positive feedback about breakfast, mention our commitment to quality ingredients, and invite them to try our seasonal specialties on their next visit.'"
               className="min-h-[200px] text-base rounded-xl"
             />
           </div>
