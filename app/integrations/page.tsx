@@ -298,19 +298,7 @@ export default function IntegrationsPage() {
                         ...integration,
                         logo: platformLogos[integration.platform]
                       }}
-                      onSync={async () => {
-                        const token = getCookie('token')
-                        await fetch(
-                          `${process.env.NEXT_PUBLIC_API_URL}/api/integrations/${integration._id}/sync`,
-                          {
-                            method: 'POST',
-                            headers: {
-                              'Authorization': `Bearer ${token}`,
-                            }
-                          }
-                        )
-                        handleIntegrationAdded(integration)
-                      }}
+                      onSync={() => handleIntegrationAdded(integration)}
                       onDelete={() => handleDeleteIntegration(integration._id)}
                     />
                   ))}
