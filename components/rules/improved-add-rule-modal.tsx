@@ -19,7 +19,6 @@ import { LucideIcon } from "lucide-react";
 type FieldOption = {
   value: FieldKey;
   label: string;
-  icon: LucideIcon;
 };
 
 type OperatorOption = {
