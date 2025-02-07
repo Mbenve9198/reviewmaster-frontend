@@ -31,7 +31,6 @@ type OperatorOption = {
 type FieldKey = 'content.text' | 'content.rating' | 'content.language';
 
 type ResponseStyle = 'professional' | 'friendly' | 'personal' | 'sarcastic' | 'challenging';
-type ResponseLength = 'short' | 'medium' | 'long';
 
 interface AddRuleModalProps {
   hotelId: string;
@@ -81,9 +80,6 @@ export function AddRuleModal({
   const [responseText, setResponseText] = useState(initialData?.response?.text || '');
   const [responseStyle, setResponseStyle] = useState<ResponseStyle>(
     (initialData?.response?.settings?.style as ResponseStyle) || 'professional'
-  );
-  const [responseLength, setResponseLength] = useState<ResponseLength>(
-    (initialData?.response?.settings?.length as ResponseLength) || 'medium'
   );
   const [keywordInput, setKeywordInput] = useState('');
 
@@ -165,7 +161,6 @@ export function AddRuleModal({
     setIsLoading(true);
 
     try {
-      // Struttura riallineata per corrispondere esattamente al modello mongoose
       const ruleData = {
         hotelId,
         name: name.trim(),
@@ -186,8 +181,7 @@ export function AddRuleModal({
       console.log('Sending rule data:', JSON.stringify(ruleData, null, 2));
 
       const token = getCookie('token');
-      console.log('Using token:', token); // Per debugging
-
+      
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/rules`, {
         method: 'POST',
         headers: {
@@ -226,10 +220,6 @@ export function AddRuleModal({
 
   const handleResponseStyleChange = (newValue: string) => {
     setResponseStyle(newValue as ResponseStyle);
-  };
-
-  const handleResponseLengthChange = (newValue: string) => {
-    setResponseLength(newValue as ResponseLength);
   };
 
   return (
