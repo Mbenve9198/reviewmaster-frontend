@@ -1060,10 +1060,44 @@ export function ReviewsTable({
                                 <Button
                                   variant="ghost"
                                   size="sm"
-                                  onClick={() => {
-                                    navigator.clipboard.writeText(message.content);
-                                    window.open(selectedReview.content.originalUrl, '_blank');
-                                    toast.success("Response copied and original review opened");
+                                  onClick={async () => {
+                                    try {
+                                      // Salva la risposta
+                                      const token = getCookie('token');
+                                      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reviews/${selectedReview._id}`, {
+                                        method: 'PATCH',
+                                        headers: {
+                                          'Authorization': `Bearer ${token}`,
+                                          'Content-Type': 'application/json'
+                                        },
+                                        body: JSON.stringify({
+                                          response: {
+                                            text: message.content,
+                                            createdAt: new Date(),
+                                            settings: {
+                                              style: responseTone,
+                                              length: responseLength
+                                            }
+                                          }
+                                        })
+                                      });
+
+                                      // Copia e apri l'URL
+                                      navigator.clipboard.writeText(message.content);
+                                      window.open(selectedReview.content.originalUrl, '_blank');
+                                      
+                                      // Aggiorna lo stato locale
+                                      updateReviewResponse(selectedReview._id, message.content);
+                                      
+                                      toast.success("Response copied, saved and original review opened");
+                                      
+                                      if (onRefresh) {
+                                        onRefresh();
+                                      }
+                                    } catch (error) {
+                                      console.error('Error saving response:', error);
+                                      toast.error("Failed to save response");
+                                    }
                                   }}
                                   className="h-8 px-3 rounded-full bg-white shadow-sm border border-gray-100 hover:bg-gray-50 
                                     text-gray-600 hover:text-gray-900 transition-colors
@@ -1077,9 +1111,43 @@ export function ReviewsTable({
                                 <Button
                                   variant="ghost"
                                   size="icon"
-                                  onClick={() => {
-                                    navigator.clipboard.writeText(message.content);
-                                    toast.success("Response copied to clipboard");
+                                  onClick={async () => {
+                                    try {
+                                      // Salva la risposta
+                                      const token = getCookie('token');
+                                      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reviews/${selectedReview._id}`, {
+                                        method: 'PATCH',
+                                        headers: {
+                                          'Authorization': `Bearer ${token}`,
+                                          'Content-Type': 'application/json'
+                                        },
+                                        body: JSON.stringify({
+                                          response: {
+                                            text: message.content,
+                                            createdAt: new Date(),
+                                            settings: {
+                                              style: responseTone,
+                                              length: responseLength
+                                            }
+                                          }
+                                        })
+                                      });
+
+                                      // Copia negli appunti
+                                      navigator.clipboard.writeText(message.content);
+                                      
+                                      // Aggiorna lo stato locale
+                                      updateReviewResponse(selectedReview._id, message.content);
+                                      
+                                      toast.success("Response copied and saved");
+                                      
+                                      if (onRefresh) {
+                                        onRefresh();
+                                      }
+                                    } catch (error) {
+                                      console.error('Error saving response:', error);
+                                      toast.error("Failed to save response");
+                                    }
                                   }}
                                   className="h-8 w-8 rounded-full hover:bg-gray-50 text-gray-500"
                                   title="Copy response"
@@ -1091,9 +1159,43 @@ export function ReviewsTable({
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                onClick={() => {
-                                  navigator.clipboard.writeText(message.content);
-                                  toast.success("Response copied to clipboard");
+                                onClick={async () => {
+                                  try {
+                                    // Salva la risposta
+                                    const token = getCookie('token');
+                                    await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reviews/${selectedReview._id}`, {
+                                      method: 'PATCH',
+                                      headers: {
+                                        'Authorization': `Bearer ${token}`,
+                                        'Content-Type': 'application/json'
+                                      },
+                                      body: JSON.stringify({
+                                        response: {
+                                          text: message.content,
+                                          createdAt: new Date(),
+                                          settings: {
+                                            style: responseTone,
+                                            length: responseLength
+                                          }
+                                        }
+                                      })
+                                    });
+
+                                    // Copia negli appunti
+                                    navigator.clipboard.writeText(message.content);
+                                    
+                                    // Aggiorna lo stato locale
+                                    updateReviewResponse(selectedReview._id, message.content);
+                                    
+                                    toast.success("Response copied and saved");
+                                    
+                                    if (onRefresh) {
+                                      onRefresh();
+                                    }
+                                  } catch (error) {
+                                    console.error('Error saving response:', error);
+                                    toast.error("Failed to save response");
+                                  }
                                 }}
                                 className="h-8 px-3 rounded-full bg-white shadow-sm border border-gray-100 hover:bg-gray-50 
                                   text-gray-600 hover:text-gray-900 transition-colors
@@ -1161,63 +1263,40 @@ export function ReviewsTable({
                 }}
                 className="relative py-4"
               >
-                <div className="flex gap-3">
-                  <div className="relative flex-1">
-                    <textarea
-                      value={input}
-                      onChange={(e) => {
-                        setInput(e.target.value);
-                        e.target.style.height = 'inherit';
-                        const height = Math.min(e.target.scrollHeight, 120);
-                        e.target.style.height = `${height}px`;
-                      }}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' && !e.shiftKey) {
-                          e.preventDefault();
-                          handleChatSubmit(input);
-                        }
-                      }}
-                      placeholder="Refine the response..."
-                      className="w-full min-h-[52px] max-h-[120px] pe-[90px] ps-4 py-3
-                        bg-gray-50 rounded-xl resize-none
-                        border border-gray-200 hover:border-gray-300
-                        focus:border-primary focus:ring-1 focus:ring-primary
-                        transition-colors text-base leading-relaxed
-                        scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent"
-                      style={{ 
-                        overflow: 'auto',
-                      }}
-                    />
-                    {input.trim() && (
-                      <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                        <kbd className="inline-flex h-6 select-none items-center gap-1 rounded border border-gray-200 bg-gray-50 px-1.5 font-mono text-[10px] font-medium text-gray-400">
-                          <span className="text-xs">⏎</span>
-                          Enter
-                        </kbd>
-                      </div>
-                    )}
-                  </div>
-
-                  <Button
-                    onClick={handleSaveResponse}
-                    disabled={isSaving || isGenerating || !messages.length}
-                    className="h-[52px] px-4 rounded-xl bg-white border border-gray-200 hover:bg-gray-50 hover:text-gray-900 text-gray-600
-                      shadow-sm transition-all duration-200 
-                      disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-gray-600
-                      flex items-center gap-2"
-                  >
-                    {isSaving ? (
-                      <>
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        Saving...
-                      </>
-                    ) : (
-                      <>
-                        <Check className="h-4 w-4" />
-                        Save Response
-                      </>
-                    )}
-                  </Button>
+                <div className="relative">
+                  <textarea
+                    value={input}
+                    onChange={(e) => {
+                      setInput(e.target.value);
+                      e.target.style.height = 'inherit';
+                      const height = Math.min(e.target.scrollHeight, 120);
+                      e.target.style.height = `${height}px`;
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        handleChatSubmit(input);
+                      }
+                    }}
+                    placeholder="Refine the response..."
+                    className="w-full min-h-[52px] max-h-[120px] pe-[90px] ps-4 py-3
+                      bg-gray-50 rounded-xl resize-none
+                      border border-gray-200 hover:border-gray-300
+                      focus:border-primary focus:ring-1 focus:ring-primary
+                      transition-colors text-base leading-relaxed
+                      scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent"
+                    style={{ 
+                      overflow: 'auto',
+                    }}
+                  />
+                  {input.trim() && (
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                      <kbd className="inline-flex h-6 select-none items-center gap-1 rounded border border-gray-200 bg-gray-50 px-1.5 font-mono text-[10px] font-medium text-gray-400">
+                        <span className="text-xs">⏎</span>
+                        Enter
+                      </kbd>
+                    </div>
+                  )}
                 </div>
               </form>
             </div>
