@@ -904,15 +904,15 @@ export function ReviewsTable({
         onOpenChange={(open) => {
           setIsModalOpen(open);
           if (!open) {
-            // Reset dello stato quando si chiude il pannello
             setMessages([]);
             setInput('');
             setIsGenerating(false);
             setSelectedReview(null);
           }
         }}
+        className="!fixed !inset-0"
       >
-        <div className="h-full flex flex-col">
+        <div className="h-screen flex flex-col">
           <div className="px-6 py-4 border-b bg-gray-50/80 backdrop-blur-sm sticky top-0 z-10">
             <div className="flex flex-col gap-2">
               <div className="flex items-center justify-between">
@@ -1055,34 +1055,55 @@ export function ReviewsTable({
                         {message.content}
                         {message.sender === "ai" && (
                           <div className="absolute right-2 bottom-2 flex items-center gap-2">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => {
-                                navigator.clipboard.writeText(message.content);
-                                if (selectedReview?.content?.originalUrl) {
-                                  window.open(selectedReview.content.originalUrl, '_blank');
-                                  toast.success("Risposta copiata e pagina originale aperta");
-                                } else {
-                                  toast.success("Risposta copiata negli appunti");
-                                }
-                              }}
-                              className="h-8 px-3 rounded-full bg-white shadow-sm border border-gray-100 hover:bg-gray-50 
-                                text-gray-600 hover:text-gray-900 transition-colors
-                                flex items-center gap-1.5"
-                              title={selectedReview?.content?.originalUrl ? 
-                                "Copia e vai alla recensione originale" : 
-                                "Copia risposta"
-                              }
-                            >
-                              <Copy className="h-3.5 w-3.5" />
-                              <span className="text-xs font-medium">
-                                {selectedReview?.content?.originalUrl ? 'Copia e vai' : 'Copia'}
-                              </span>
-                              {selectedReview?.content?.originalUrl && (
-                                <ExternalLink className="h-3 w-3 ml-0.5" />
-                              )}
-                            </Button>
+                            {selectedReview?.content?.originalUrl ? (
+                              <>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => {
+                                    navigator.clipboard.writeText(message.content);
+                                    window.open(selectedReview.content.originalUrl, '_blank');
+                                    toast.success("Response copied and original review opened");
+                                  }}
+                                  className="h-8 px-3 rounded-full bg-white shadow-sm border border-gray-100 hover:bg-gray-50 
+                                    text-gray-600 hover:text-gray-900 transition-colors
+                                    flex items-center gap-1.5"
+                                  title="Copy and go to original review"
+                                >
+                                  <span className="text-xs font-medium">Copy & Go</span>
+                                  <ExternalLink className="h-3 w-3 ml-0.5" />
+                                </Button>
+
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => {
+                                    navigator.clipboard.writeText(message.content);
+                                    toast.success("Response copied to clipboard");
+                                  }}
+                                  className="h-8 w-8 rounded-full hover:bg-gray-50 text-gray-500"
+                                  title="Copy response"
+                                >
+                                  <Copy className="h-3.5 w-3.5" />
+                                </Button>
+                              </>
+                            ) : (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => {
+                                  navigator.clipboard.writeText(message.content);
+                                  toast.success("Response copied to clipboard");
+                                }}
+                                className="h-8 px-3 rounded-full bg-white shadow-sm border border-gray-100 hover:bg-gray-50 
+                                  text-gray-600 hover:text-gray-900 transition-colors
+                                  flex items-center gap-1.5"
+                                title="Copy response"
+                              >
+                                <Copy className="h-3.5 w-3.5" />
+                                <span className="text-xs font-medium">Copy</span>
+                              </Button>
+                            )}
                           </div>
                         )}
                       </ChatBubbleMessage>
