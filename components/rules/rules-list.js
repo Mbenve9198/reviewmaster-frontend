@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, Dispatch, SetStateAction } from "react"
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
 import { toast } from "sonner"
@@ -16,11 +16,34 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 
-export function RulesList() {
-  const [rules, setRules] = useState([])
+interface Rule {
+  _id: string
+  name: string
+  condition: {
+    field: string
+    operator: string
+    value: string | string[] | number
+  }
+  response: {
+    text: string
+    settings: {
+      style: 'professional' | 'friendly'
+      length: 'short' | 'medium' | 'long'
+    }
+  }
+  isActive: boolean
+  priority: number
+}
+
+interface RulesListProps {
+  rules: Rule[]
+  onRuleUpdate: Dispatch<SetStateAction<Rule[]>>
+}
+
+export function RulesList({ rules, onRuleUpdate }: RulesListProps) {
   const [loading, setLoading] = useState(true)
-  const [editingRule, setEditingRule] = useState(null)
-  const [deletingRule, setDeletingRule] = useState(null)
+  const [editingRule, setEditingRule] = useState<Rule | null>(null)
+  const [deletingRule, setDeletingRule] = useState<Rule | null>(null)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
 
@@ -28,7 +51,7 @@ export function RulesList() {
     try {
       const hotelId = localStorage.getItem('selectedHotel')
       if (!hotelId) {
-        setRules([])
+        onRuleUpdate([])
         return
       }
 
@@ -44,7 +67,7 @@ export function RulesList() {
       }
 
       const data = await response.json()
-      setRules(data)
+      onRuleUpdate(data)
     } catch (error) {
       console.error('Fetch rules error:', error)
       toast.error('Errore nel caricamento delle regole')
@@ -55,9 +78,9 @@ export function RulesList() {
 
   useEffect(() => {
     fetchRules()
-  }, [])
+  }, [onRuleUpdate])
 
-  const handleToggleRule = async (ruleId, currentState) => {
+  const handleToggleRule = async (ruleId: string, currentState: boolean) => {
     try {
       const token = getCookie('token')
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/rules/${ruleId}`, {
@@ -73,7 +96,7 @@ export function RulesList() {
         throw new Error('Failed to toggle rule')
       }
 
-      setRules(rules.map(rule => 
+      onRuleUpdate(rules.map(rule => 
         rule._id === ruleId ? { ...rule, isActive: !currentState } : rule
       ))
 
@@ -100,7 +123,7 @@ export function RulesList() {
         throw new Error('Failed to delete rule')
       }
 
-      setRules(rules.filter(rule => rule._id !== deletingRule._id))
+      onRuleUpdate(rules.filter(rule => rule._id !== deletingRule._id))
       toast.success('Regola eliminata')
     } catch (error) {
       console.error('Delete rule error:', error)
@@ -207,7 +230,7 @@ export function RulesList() {
         }}
         initialData={editingRule}
         onSuccess={(updatedRule) => {
-          setRules(rules.map(rule => 
+          onRuleUpdate(rules.map(rule => 
             rule._id === updatedRule._id ? updatedRule : rule
           ))
         }}

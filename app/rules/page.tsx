@@ -8,11 +8,30 @@ import { AddRuleModal } from "@/components/rules/add-rule-modal"
 import { RulesList } from "@/components/rules/rules-list"
 import { ThemesAnalysisDialog } from "@/components/rules/themes-analysis-dialog"
 
+interface Rule {
+  _id: string
+  name: string
+  condition: {
+    field: string
+    operator: string
+    value: string | string[] | number
+  }
+  response: {
+    text: string
+    settings: {
+      style: 'professional' | 'friendly'
+      length: 'short' | 'medium' | 'long'
+    }
+  }
+  isActive: boolean
+  priority: number
+}
+
 export default function RulesPage() {
   const [isAddRuleModalOpen, setIsAddRuleModalOpen] = useState(false)
   const [isAnalysisDialogOpen, setIsAnalysisDialogOpen] = useState(false)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
-  const [rules, setRules] = useState([])
+  const [rules, setRules] = useState<Rule[]>([])
 
   return (
     <>
