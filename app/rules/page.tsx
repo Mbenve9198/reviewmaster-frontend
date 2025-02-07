@@ -59,10 +59,36 @@ export default function RulesPage() {
     fetchHotels();
   }, []);
 
+  const fetchRules = async (hotelId: string) => {
+    try {
+      const token = getCookie('token');
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/rules/${hotelId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        }
+      });
+      
+      if (!response.ok) throw new Error('Failed to fetch rules');
+      
+      const data = await response.json();
+      setRules(data);
+    } catch (error) {
+      console.error('Error fetching rules:', error);
+      toast.error('Failed to load rules');
+    }
+  };
+
   const handleHotelChange = (hotelId: string) => {
     setSelectedHotelId(hotelId);
     localStorage.setItem('selectedHotel', hotelId);
+    fetchRules(hotelId);
   };
+
+  useEffect(() => {
+    if (selectedHotelId) {
+      fetchRules(selectedHotelId);
+    }
+  }, [selectedHotelId]);
 
   return (
     <div className="container mx-auto py-6 max-w-7xl">
@@ -166,6 +192,7 @@ export default function RulesPage() {
               setIsThemesDialogOpen(false);
               toast.success('Rule created from analysis');
             }}
+            hotelId={selectedHotelId}
           />
         </>
       )}
