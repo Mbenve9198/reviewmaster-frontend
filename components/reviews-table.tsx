@@ -1054,52 +1054,35 @@ export function ReviewsTable({
                       >
                         {message.content}
                         {message.sender === "ai" && (
-                          <div className="absolute right-2 bottom-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                            {selectedReview?.content?.originalUrl ? (
-                              <ButtonGroup>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  onClick={() => {
-                                    navigator.clipboard.writeText(message.content);
-                                    window.open(selectedReview.content.originalUrl, '_blank');
-                                    toast.success("Risposta copiata e pagina originale aperta");
-                                  }}
-                                  className="h-8 w-8 rounded-l-full bg-white/95 hover:bg-white shadow-sm border-r border-gray-100"
-                                  title="Copia e vai alla recensione originale"
-                                >
-                                  <div className="flex items-center gap-1">
-                                    <Copy className="h-3.5 w-3.5" />
-                                    <ExternalLink className="h-3 w-3" />
-                                  </div>
-                                </Button>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  onClick={() => {
-                                    navigator.clipboard.writeText(message.content);
-                                    toast.success("Risposta copiata negli appunti");
-                                  }}
-                                  className="h-8 w-8 rounded-r-full bg-white/95 hover:bg-white shadow-sm"
-                                  title="Copia risposta"
-                                >
-                                  <Copy className="h-3.5 w-3.5" />
-                                </Button>
-                              </ButtonGroup>
-                            ) : (
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => {
-                                  navigator.clipboard.writeText(message.content);
+                          <div className="absolute right-2 bottom-2 flex items-center gap-2">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {
+                                navigator.clipboard.writeText(message.content);
+                                if (selectedReview?.content?.originalUrl) {
+                                  window.open(selectedReview.content.originalUrl, '_blank');
+                                  toast.success("Risposta copiata e pagina originale aperta");
+                                } else {
                                   toast.success("Risposta copiata negli appunti");
-                                }}
-                                className="h-8 w-8 rounded-full bg-white/95 hover:bg-white shadow-sm"
-                                title="Copia risposta"
-                              >
-                                <Copy className="h-3.5 w-3.5" />
-                              </Button>
-                            )}
+                                }
+                              }}
+                              className="h-8 px-3 rounded-full bg-white shadow-sm border border-gray-100 hover:bg-gray-50 
+                                text-gray-600 hover:text-gray-900 transition-colors
+                                flex items-center gap-1.5"
+                              title={selectedReview?.content?.originalUrl ? 
+                                "Copia e vai alla recensione originale" : 
+                                "Copia risposta"
+                              }
+                            >
+                              <Copy className="h-3.5 w-3.5" />
+                              <span className="text-xs font-medium">
+                                {selectedReview?.content?.originalUrl ? 'Copia e vai' : 'Copia'}
+                              </span>
+                              {selectedReview?.content?.originalUrl && (
+                                <ExternalLink className="h-3 w-3 ml-0.5" />
+                              )}
+                            </Button>
                           </div>
                         )}
                       </ChatBubbleMessage>
@@ -1127,7 +1110,7 @@ export function ReviewsTable({
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setInput("Could you make it more personal?")}
+                  onClick={() => handleChatSubmit("Could you make it more personal?")}
                   className="rounded-full text-sm whitespace-nowrap hover:bg-primary hover:text-white border-gray-200"
                 >
                   Make it more personal
@@ -1135,7 +1118,7 @@ export function ReviewsTable({
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setInput("Can you address specific points from the review?")}
+                  onClick={() => handleChatSubmit("Can you address specific points from the review?")}
                   className="rounded-full text-sm whitespace-nowrap hover:bg-primary hover:text-white border-gray-200"
                 >
                   Address specific points
@@ -1143,7 +1126,7 @@ export function ReviewsTable({
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setInput("Could you make it shorter?")}
+                  onClick={() => handleChatSubmit("Could you make it shorter?")}
                   className="rounded-full text-sm whitespace-nowrap hover:bg-primary hover:text-white border-gray-200"
                 >
                   Make it shorter
