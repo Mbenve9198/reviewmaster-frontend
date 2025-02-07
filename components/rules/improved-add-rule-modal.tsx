@@ -92,10 +92,6 @@ export function AddRuleModal({ isOpen, onClose, onSuccess, initialData = null }:
     // Implementa la logica di submit qui
   };
 
-  const handleFieldChange = (newValue: string) => {
-    setField(newValue as FieldKey);
-  };
-
   const handleOperatorChange = (newValue: string) => {
     setOperator(newValue);
   };
@@ -140,7 +136,10 @@ export function AddRuleModal({ isOpen, onClose, onSuccess, initialData = null }:
             <div className="p-6 bg-gray-50 rounded-xl space-y-4">
               <div className="flex items-center gap-3 text-base">
                 <span className="font-medium text-gray-700">IF</span>
-                <Select value={field} onValueChange={handleFieldChange}>
+                <Select 
+                  value={field} 
+                  onValueChange={(value: FieldKey) => setField(value)}
+                >
                   <SelectTrigger className="h-12 min-w-[180px] bg-white">
                     <SelectValue placeholder="Select field" />
                   </SelectTrigger>
