@@ -220,36 +220,36 @@ export default function HotelSettingsPage() {
                 </div>
 
                 <div className="flex flex-col sm:flex-row gap-8">
-                  {/* Tab Navigation */}
-                  <div className="sm:w-64">
-                    <TabsList className="flex flex-col w-full bg-transparent space-y-2">
-                      <TabsTrigger 
-                        value="basic"
-                        className="w-full flex items-center gap-3 p-4 bg-white hover:bg-gray-50 data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 rounded-xl border-2 border-transparent data-[state=active]:border-blue-200 transition-all text-left"
-                      >
-                        <Building2 className="w-5 h-5 text-gray-500 data-[state=active]:text-blue-600" />
-                        <div className="flex flex-col items-start">
-                          <span className="font-medium">Basic Information</span>
-                          <span className="text-xs text-gray-500">Hotel details and contacts</span>
-                        </div>
-                      </TabsTrigger>
-                      
-                      <TabsTrigger 
-                        value="response"
-                        className="w-full flex items-center gap-3 p-4 bg-white hover:bg-gray-50 data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 rounded-xl border-2 border-transparent data-[state=active]:border-blue-200 transition-all text-left"
-                      >
-                        <MessageSquare className="w-5 h-5 text-gray-500 data-[state=active]:text-blue-600" />
-                        <div className="flex flex-col items-start">
-                          <span className="font-medium">Response Settings</span>
-                          <span className="text-xs text-gray-500">AI response preferences</span>
-                        </div>
-                      </TabsTrigger>
-                    </TabsList>
-                  </div>
+                  <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col sm:flex-row gap-8">
+                    {/* Tab Navigation */}
+                    <div className="sm:w-64">
+                      <TabsList className="flex flex-col w-full bg-transparent space-y-2">
+                        <TabsTrigger 
+                          value="basic"
+                          className="w-full flex items-center gap-3 p-4 bg-white hover:bg-gray-50 data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 rounded-xl border-2 border-transparent data-[state=active]:border-blue-200 transition-all text-left"
+                        >
+                          <Building2 className="w-5 h-5 text-gray-500 data-[state=active]:text-blue-600" />
+                          <div className="flex flex-col items-start">
+                            <span className="font-medium">Basic Information</span>
+                            <span className="text-xs text-gray-500">Hotel details and contacts</span>
+                          </div>
+                        </TabsTrigger>
+                        
+                        <TabsTrigger 
+                          value="response"
+                          className="w-full flex items-center gap-3 p-4 bg-white hover:bg-gray-50 data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 rounded-xl border-2 border-transparent data-[state=active]:border-blue-200 transition-all text-left"
+                        >
+                          <MessageSquare className="w-5 h-5 text-gray-500 data-[state=active]:text-blue-600" />
+                          <div className="flex flex-col items-start">
+                            <span className="font-medium">Response Settings</span>
+                            <span className="text-xs text-gray-500">AI response preferences</span>
+                          </div>
+                        </TabsTrigger>
+                      </TabsList>
+                    </div>
 
-                  {/* Tab Content */}
-                  <div className="flex-1">
-                    <Tabs value={activeTab} onValueChange={setActiveTab}>
+                    {/* Tab Content */}
+                    <div className="flex-1">
                       <TabsContent value="basic" className="mt-0 space-y-6 bg-white rounded-xl border-2 border-gray-100 p-6">
                         <div className="space-y-1">
                           <label className="text-sm font-medium text-gray-700">Hotel Name</label>
@@ -325,20 +325,20 @@ export default function HotelSettingsPage() {
                           </Select>
                         </div>
                       </TabsContent>
-                    </Tabs>
 
-                    {/* Save Button */}
-                    <div className="flex justify-end pt-4">
-                      <Button
-                        onClick={handleSave}
-                        disabled={isLoading}
-                        className="px-8 py-4 bg-primary hover:bg-primary/90 text-white font-bold text-lg rounded-xl transition-all duration-300 flex items-center gap-2 shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px]"
-                      >
-                        <Save className="w-5 h-5" />
-                        Save Changes
-                      </Button>
+                      {/* Save Button */}
+                      <div className="flex justify-end pt-4">
+                        <Button
+                          onClick={handleSave}
+                          disabled={isLoading}
+                          className="px-8 py-4 bg-primary hover:bg-primary/90 text-white font-bold text-lg rounded-xl transition-all duration-300 flex items-center gap-2 shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px]"
+                        >
+                          <Save className="w-5 h-5" />
+                          Save Changes
+                        </Button>
+                      </div>
                     </div>
-                  </div>
+                  </Tabs>
                 </div>
               </div>
             )}
