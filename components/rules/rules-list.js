@@ -1,4 +1,4 @@
-import { useState, useEffect, Dispatch, SetStateAction } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
 import { toast } from "sonner"
@@ -16,34 +16,10 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 
-interface Rule {
-  _id: string
-  name: string
-  condition: {
-    field: string
-    operator: string
-    value: string | string[] | number
-  }
-  response: {
-    text: string
-    settings: {
-      style: 'professional' | 'friendly'
-      length: 'short' | 'medium' | 'long'
-    }
-  }
-  isActive: boolean
-  priority: number
-}
-
-interface RulesListProps {
-  rules: Rule[]
-  onRuleUpdate: Dispatch<SetStateAction<Rule[]>>
-}
-
-export function RulesList({ rules, onRuleUpdate }: RulesListProps) {
+export function RulesList({ rules, onRuleUpdate }) {
   const [loading, setLoading] = useState(true)
-  const [editingRule, setEditingRule] = useState<Rule | null>(null)
-  const [deletingRule, setDeletingRule] = useState<Rule | null>(null)
+  const [editingRule, setEditingRule] = useState(null)
+  const [deletingRule, setDeletingRule] = useState(null)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
 
@@ -80,7 +56,7 @@ export function RulesList({ rules, onRuleUpdate }: RulesListProps) {
     fetchRules()
   }, [onRuleUpdate])
 
-  const handleToggleRule = async (ruleId: string, currentState: boolean) => {
+  const handleToggleRule = async (ruleId, currentState) => {
     try {
       const token = getCookie('token')
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/rules/${ruleId}`, {
