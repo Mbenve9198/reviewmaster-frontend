@@ -15,6 +15,29 @@ interface ThemesAnalysisDialogProps {
   onRuleCreated: (rule: Rule) => void;
 }
 
+interface AnalysisResponse {
+  analysis: {
+    recurringThemes: Array<{
+      theme: string;
+      frequency: number;
+      exampleQuote: string;
+      suggestedRule: Rule;
+    }>;
+    commonIssues: Array<{
+      issue: string;
+      frequency: number;
+      exampleQuote: string;
+      suggestedRule: Rule;
+    }>;
+    languageRules: Array<{
+      language: string;
+      frequency: number;
+      suggestedRule: Rule;
+    }>;
+  };
+  reviewsAnalyzed: number;
+}
+
 export function ThemesAnalysisDialog({
   hotelId,
   isOpen,
@@ -23,9 +46,9 @@ export function ThemesAnalysisDialog({
   onAnalysisComplete,
   onRuleCreated
 }: ThemesAnalysisDialogProps) {
-  const [analysis, setAnalysis] = useState(null);
+  const [analysis, setAnalysis] = useState<AnalysisResponse['analysis'] | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
   const startAnalysis = async () => {
     try {
@@ -34,7 +57,7 @@ export function ThemesAnalysisDialog({
       onAnalysisStart?.();
 
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/rules/analyze/${hotelId}`);
-      const data = await response.json();
+      const data: AnalysisResponse = await response.json();
 
       if (!response.ok) {
         throw new Error(data.message || 'Error during analysis');
@@ -42,17 +65,18 @@ export function ThemesAnalysisDialog({
 
       setAnalysis(data.analysis);
       toast.success(`Analyzed ${data.reviewsAnalyzed} reviews`);
-    } catch (error) {
-      console.error('Analysis error:', error);
-      setError(error.message);
-      toast.error(error.message);
+    } catch (err) {
+      console.error('Analysis error:', err);
+      const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
       onAnalysisComplete?.();
     }
   };
 
-  const handleCreateRule = (ruleConfig) => {
+  const handleCreateRule = (ruleConfig: Rule) => {
     onRuleCreated?.(ruleConfig);
     onClose();
   };
