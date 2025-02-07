@@ -165,6 +165,7 @@ export function AddRuleModal({
     setIsLoading(true);
 
     try {
+      // Struttura riallineata per corrispondere esattamente al modello mongoose
       const ruleData = {
         hotelId,
         name: name.trim(),
@@ -176,34 +177,35 @@ export function AddRuleModal({
         response: {
           text: responseText.trim(),
           settings: {
-            style: responseStyle,
-            length: responseLength
+            style: responseStyle
           }
         },
         isActive: true
       };
 
-      console.log('Sending rule data:', ruleData);
+      console.log('Sending rule data:', JSON.stringify(ruleData, null, 2));
+
+      const token = getCookie('token');
+      console.log('Using token:', token); // Per debugging
 
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/rules`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${getCookie('token')}`
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(ruleData)
       });
 
+      const responseData = await response.json();
+      console.log('Server response:', responseData);
+
       if (!response.ok) {
-        const errorData = await response.json();
-        console.error('Server error response:', errorData);
-        throw new Error(errorData.message || 'Failed to create rule');
+        throw new Error(responseData.message || responseData.error || 'Failed to create rule');
       }
 
-      const createdRule = await response.json();
-      
       toast.success("Rule created successfully");
-      onSuccess(createdRule);
+      onSuccess(responseData);
       onClose();
 
     } catch (error) {
