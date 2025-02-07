@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Loader2, AlertCircle, Sparkles, ThumbsUp, ThumbsDown, Languages, Plus } from "lucide-react";
 import { toast } from "sonner";
-import { hotelId } from "@/lib/utils";
+import { getCookie } from "@/lib/utils";
 
 export function ThemesAnalysisDialog({ 
   isOpen, 
@@ -18,6 +18,7 @@ export function ThemesAnalysisDialog({
 
   const startAnalysis = async () => {
     try {
+      const hotelId = getCookie('hotelId');
       setIsLoading(true);
       setError(null);
       onAnalysisStart?.();

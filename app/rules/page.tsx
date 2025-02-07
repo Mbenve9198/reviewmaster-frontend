@@ -7,6 +7,7 @@ import { AddRuleModal } from "@/components/rules/add-rule-modal";
 import { RulesList } from "@/components/rules/rules-list";
 import { ThemesAnalysisDialog } from "@/components/rules/themes-analysis-dialog";
 import { Rule } from "@/types/rule";
+import { toast } from "react-hot-toast";
 
 export default function RulesPage() {
   const [isAddRuleModalOpen, setIsAddRuleModalOpen] = useState(false);
