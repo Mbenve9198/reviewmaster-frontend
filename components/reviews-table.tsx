@@ -150,6 +150,7 @@ export function ReviewsTable({
   } | null>(null);
   const [isAddPropertyModalOpen, setIsAddPropertyModalOpen] = useState(false)
   const [isReviewExpanded, setIsReviewExpanded] = useState(false)
+  const [suggestions, setSuggestions] = useState<string[]>([])
 
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
@@ -540,6 +541,7 @@ export function ReviewsTable({
     setIsGenerating(false);
     setSelectedReview(review);
     setIsModalOpen(true);
+    setSuggestions([]);
     
     setTimeout(async () => {
       setIsGenerating(true);
@@ -562,7 +564,8 @@ export function ReviewsTable({
             responseSettings: {
               style: responseTone,
               length: responseLength
-            }
+            },
+            generateSuggestions: true
           })
         });
         
@@ -573,6 +576,10 @@ export function ReviewsTable({
         
         if (data.response) {
           setMessages([{ id: 1, content: data.response, sender: "ai" }]);
+        }
+        
+        if (data.suggestions) {
+          setSuggestions(data.suggestions);
         }
       } catch (error: any) {
         console.error('Generate response error:', error);
@@ -1233,30 +1240,53 @@ export function ReviewsTable({
           <div className="border-t bg-white px-6">
             <div className="max-w-3xl mx-auto">
               <div className="py-3 flex items-center gap-2 overflow-x-auto scrollbar-hide">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleChatSubmit("Could you make it more personal?")}
-                  className="rounded-full text-sm whitespace-nowrap hover:bg-primary hover:text-white border-gray-200"
-                >
-                  Make it more personal
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleChatSubmit("Can you address specific points from the review?")}
-                  className="rounded-full text-sm whitespace-nowrap hover:bg-primary hover:text-white border-gray-200"
-                >
-                  Address specific points
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleChatSubmit("Could you make it shorter?")}
-                  className="rounded-full text-sm whitespace-nowrap hover:bg-primary hover:text-white border-gray-200"
-                >
-                  Make it shorter
-                </Button>
+                {isGenerating ? (
+                  Array(3).fill(0).map((_, i) => (
+                    <div 
+                      key={i}
+                      className="h-9 w-32 rounded-full bg-gray-100 animate-pulse"
+                    />
+                  ))
+                ) : suggestions.length > 0 ? (
+                  suggestions.map((suggestion, index) => (
+                    <Button
+                      key={index}
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleChatSubmit(suggestion)}
+                      className="rounded-full text-sm whitespace-nowrap hover:bg-primary hover:text-white border-gray-200"
+                    >
+                      {suggestion}
+                    </Button>
+                  ))
+                ) : (
+                  <>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleChatSubmit("Could you make it more personal?")}
+                      className="rounded-full text-sm whitespace-nowrap hover:bg-primary hover:text-white border-gray-200"
+                    >
+                      Make it more personal
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleChatSubmit("Can you address specific points from the review?")}
+                      className="rounded-full text-sm whitespace-nowrap hover:bg-primary hover:text-white border-gray-200"
+                    >
+                      Address specific points
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleChatSubmit("Could you make it shorter?")}
+                      className="rounded-full text-sm whitespace-nowrap hover:bg-primary hover:text-white border-gray-200"
+                    >
+                      Make it shorter
+                    </Button>
+                  </>
+                )}
               </div>
 
               <form 
