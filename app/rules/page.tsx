@@ -7,25 +7,7 @@ import { toast } from "sonner"
 import { AddRuleModal } from "@/components/rules/add-rule-modal"
 import { RulesList } from "@/components/rules/rules-list"
 import { ThemesAnalysisDialog } from "@/components/rules/themes-analysis-dialog"
-
-interface Rule {
-  _id: string
-  name: string
-  condition: {
-    field: string
-    operator: string
-    value: string | string[] | number
-  }
-  response: {
-    text: string
-    settings: {
-      style: 'professional' | 'friendly'
-      length: 'short' | 'medium' | 'long'
-    }
-  }
-  isActive: boolean
-  priority: number
-}
+import { Rule } from "@/types/rule"
 
 export default function RulesPage() {
   const [isAddRuleModalOpen, setIsAddRuleModalOpen] = useState(false)
@@ -81,7 +63,7 @@ export default function RulesPage() {
       <AddRuleModal
         isOpen={isAddRuleModalOpen}
         onClose={() => setIsAddRuleModalOpen(false)}
-        onSuccess={(newRule) => {
+        onSuccess={(newRule: Rule) => {
           setRules([...rules, newRule])
           toast.success('Regola creata con successo')
         }}
@@ -92,7 +74,7 @@ export default function RulesPage() {
         onClose={() => setIsAnalysisDialogOpen(false)}
         onAnalysisStart={() => setIsAnalyzing(true)}
         onAnalysisComplete={() => setIsAnalyzing(false)}
-        onRuleCreated={(newRule) => {
+        onRuleCreated={(newRule: Rule) => {
           setRules(prevRules => [...prevRules, newRule])
         }}
       />
