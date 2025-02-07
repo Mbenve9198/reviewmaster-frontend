@@ -16,7 +16,6 @@ import {
 } from "lucide-react";
 import { LucideIcon } from "lucide-react";
 import { toast } from "sonner";
-import { useHotel } from "@/store/useHotel";
 
 type FieldOption = {
   value: FieldKey;
@@ -72,7 +71,6 @@ export function AddRuleModal({
   onSuccess, 
   initialData = null 
 }: AddRuleModalProps) {
-  const { hotel } = useHotel();
   const [isLoading, setIsLoading] = useState(false);
   const [name, setName] = useState(initialData?.name || '');
   const [field, setField] = useState<FieldKey | ''>(initialData?.condition?.field as FieldKey || '');
