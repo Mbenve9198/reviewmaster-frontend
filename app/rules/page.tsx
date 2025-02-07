@@ -179,7 +179,7 @@ export default function RulesPage() {
           />
 
           <ThemesAnalysisDialog
-            hotelId={selectedHotelId}
+            selectedHotelId={selectedHotelId}
             isOpen={isThemesDialogOpen}
             onClose={() => setIsThemesDialogOpen(false)}
             onAnalysisStart={() => {
