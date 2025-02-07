@@ -8,7 +8,8 @@ import { AddRuleModal } from "@/components/rules/improved-add-rule-modal";
 import { RulesList } from "@/components/rules/rules-list";
 import { ThemesAnalysisDialog } from "@/components/rules/themes-analysis-dialog";
 import { Rule } from "@/types/rule";
-import { toast } from "react-hot-toast";
+import { toast } from "sonner";
+import { getCookie } from "@/lib/utils";
 
 interface Hotel {
   _id: string;
@@ -24,13 +25,13 @@ export default function RulesPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Carica gli hotel dell'utente
   useEffect(() => {
     const fetchHotels = async () => {
       try {
+        const token = getCookie('token');
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/hotels`, {
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
+            'Authorization': `Bearer ${token}`,
           }
         });
         
@@ -49,7 +50,7 @@ export default function RulesPage() {
         }
       } catch (error) {
         console.error('Error fetching hotels:', error);
-        toast.error('Failed to load hotels');
+        setError('Failed to load hotels');
       } finally {
         setIsLoading(false);
       }
@@ -57,34 +58,6 @@ export default function RulesPage() {
 
     fetchHotels();
   }, []);
-
-  // Carica le regole quando cambia l'hotel selezionato
-  useEffect(() => {
-    const fetchRules = async () => {
-      if (!selectedHotelId) return;
-      
-      setIsLoading(true);
-      try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/rules/${selectedHotelId}`, {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
-        });
-        
-        if (!response.ok) throw new Error('Failed to fetch rules');
-        
-        const data = await response.json();
-        setRules(data);
-      } catch (error) {
-        console.error('Error fetching rules:', error);
-        setError('Failed to load rules');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchRules();
-  }, [selectedHotelId]);
 
   const handleHotelChange = (hotelId: string) => {
     setSelectedHotelId(hotelId);
@@ -180,10 +153,15 @@ export default function RulesPage() {
           />
 
           <ThemesAnalysisDialog
-            hotelId={selectedHotelId}
             isOpen={isThemesDialogOpen}
             onClose={() => setIsThemesDialogOpen(false)}
-            onRuleCreate={(rule: Rule) => {
+            onAnalysisStart={() => {
+              toast.info('Analysis started...');
+            }}
+            onAnalysisComplete={() => {
+              toast.success('Analysis completed');
+            }}
+            onRuleCreated={(rule: Rule) => {
               setRules(prevRules => [...prevRules, rule]);
               setIsThemesDialogOpen(false);
               toast.success('Rule created from analysis');
