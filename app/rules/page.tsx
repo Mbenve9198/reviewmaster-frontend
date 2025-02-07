@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Plus, Loader2, AlertCircle } from "lucide-react";
-import { ImprovedAddRuleModal } from "@/components/rules/improved-add-rule-modal";
+import { AddRuleModal } from "@/components/rules/improved-add-rule-modal";
 import { RulesList } from "@/components/rules/rules-list";
 import { ThemesAnalysisDialog } from "@/components/rules/themes-analysis-dialog";
 import { Rule } from "@/types/rule";
@@ -70,7 +70,7 @@ export default function RulesPage() {
       </div>
 
       {/* Modals */}
-      <ImprovedAddRuleModal
+      <AddRuleModal
         isOpen={isAddRuleModalOpen}
         onClose={() => setIsAddRuleModalOpen(false)}
         onSuccess={(newRule: Rule) => {
