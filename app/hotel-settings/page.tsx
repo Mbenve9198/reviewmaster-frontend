@@ -222,7 +222,7 @@ export default function HotelSettingsPage() {
                 <div className="flex flex-col sm:flex-row gap-8">
                   <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col sm:flex-row gap-8">
                     {/* Tab Navigation */}
-                    <div className="sm:w-64">
+                    <div className="sm:w-64 pt-6">
                       <TabsList className="flex flex-col w-full bg-transparent space-y-2">
                         <TabsTrigger 
                           value="basic"
