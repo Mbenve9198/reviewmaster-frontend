@@ -80,6 +80,7 @@ interface RuleResponse {
 
 interface BaseRule {
   name: string;
+  hotelId: string;
   condition: RuleCondition;
   response: RuleResponse;
 }
@@ -152,8 +153,12 @@ export function ThemesAnalysisDialog({
     }
   };
 
-  const handleCreateRule = (ruleConfig: Rule) => {
-    onRuleCreated?.(ruleConfig);
+  const handleCreateRule = (ruleConfig: SuggestedRule | Rule) => {
+    const completeRule = {
+      ...ruleConfig,
+      hotelId,
+    };
+    onRuleCreated?.(completeRule as Rule);
     onClose();
   };
 
@@ -177,10 +182,15 @@ export function ThemesAnalysisDialog({
 
   const handleCreateSelectedRules = () => {
     const selectedRulesArray = Array.from(selectedRules);
-    // Implementa la logica per creare multiple regole
     selectedRulesArray.forEach(ruleId => {
-      // Trova la regola corrispondente e creala
-      // ...
+      const rule = findRuleById(ruleId);
+      if (rule) {
+        const completeRule = {
+          ...rule,
+          hotelId,
+        };
+        handleCreateRule(completeRule);
+      }
     });
     onClose();
   };
