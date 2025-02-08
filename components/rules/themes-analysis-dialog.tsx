@@ -5,7 +5,7 @@ import { Loader2, AlertCircle, Sparkles, ThumbsUp, ThumbsDown, Languages, Plus, 
 import { toast } from "sonner";
 import { getCookie } from "cookies-next";
 import { Rule } from "@/types/rule";
-import CreditPurchaseSlider from "@/components/credits/CreditPurchaseSlider";
+import CreditPurchaseSlider from "@/components/billing/CreditPurchaseSlider";
 
 interface ThemesAnalysisDialogProps {
   hotelId: string;
