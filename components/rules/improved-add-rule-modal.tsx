@@ -94,8 +94,8 @@ export function AddRuleModal({
       
       if (initialData.condition.field === 'content.text') {
         const keywordsArray = Array.isArray(initialData.condition.value) 
-          ? initialData.condition.value 
-          : [initialData.condition.value];
+          ? initialData.condition.value.map(String)
+          : [String(initialData.condition.value)];
         setKeywords(keywordsArray);
       } else {
         setValue(String(initialData.condition.value));
