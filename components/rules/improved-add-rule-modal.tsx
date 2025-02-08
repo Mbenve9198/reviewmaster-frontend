@@ -91,10 +91,16 @@ export function AddRuleModal({
       setName(initialData.name);
       setField(initialData.condition.field);
       setOperator(initialData.condition.operator);
-      setValue(Array.isArray(initialData.condition.value) 
-        ? initialData.condition.value.join(', ') 
-        : String(initialData.condition.value)
-      );
+      
+      if (initialData.condition.field === 'content.text') {
+        const keywordsArray = Array.isArray(initialData.condition.value) 
+          ? initialData.condition.value 
+          : [initialData.condition.value];
+        setKeywords(keywordsArray);
+      } else {
+        setValue(String(initialData.condition.value));
+      }
+      
       setResponseText(initialData.response.text);
       setResponseStyle(initialData.response.settings.style);
     }
