@@ -7,6 +7,7 @@ import { getCookie } from "cookies-next";
 import { Rule } from "@/types/rule";
 import CreditPurchaseSlider from "@/components/billing/CreditPurchaseSlider";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
 
 interface ThemesAnalysisDialogProps {
   hotelId: string;
@@ -61,6 +62,23 @@ interface ErrorResponse {
 // Type guard to check if response is an error
 function isErrorResponse(data: any): data is ErrorResponse {
   return 'message' in data;
+}
+
+interface SuggestedRule {
+  _id?: string;  // Opzionale perché potrebbe non esistere ancora
+  name: string;
+  condition: {
+    field: string;
+    operator: string;
+    value: string | string[] | number;
+  };
+  response: {
+    text: string;
+    settings: {
+      style: string;
+    };
+  };
+  isActive: boolean;
 }
 
 export function ThemesAnalysisDialog({
@@ -129,7 +147,8 @@ export function ThemesAnalysisDialog({
     setError(null);
   };
 
-  const toggleRuleSelection = (ruleId: string) => {
+  const toggleRuleSelection = (rule: SuggestedRule) => {
+    const ruleId = rule._id || `temp-${Math.random()}`; // Genera un ID temporaneo se non esiste
     setSelectedRules(prev => {
       const newSet = new Set(prev);
       if (newSet.has(ruleId)) {
@@ -149,6 +168,14 @@ export function ThemesAnalysisDialog({
       // ...
     });
     onClose();
+  };
+
+  const toggleRuleActive = (rule: Rule) => {
+    const updatedRule = {
+      ...rule,
+      isActive: !rule.isActive
+    };
+    handleCreateRule(updatedRule);
   };
 
   return (
@@ -229,9 +256,8 @@ export function ThemesAnalysisDialog({
                       size="sm"
                       className="gap-2 hover:bg-blue-50 hover:text-blue-600 rounded-xl"
                       onClick={() => {
-                        // Seleziona tutte le regole di questa sezione
                         analysis.recurringThemes.forEach(theme => {
-                          toggleRuleSelection(theme.suggestedRule._id);
+                          toggleRuleSelection(theme.suggestedRule);
                         });
                       }}
                     >
@@ -243,13 +269,20 @@ export function ThemesAnalysisDialog({
                       <div key={i} className="p-4 rounded-xl border border-gray-200 bg-white shadow-sm hover:shadow-md transition-shadow">
                         <div className="flex items-start gap-3">
                           <Checkbox
-                            checked={selectedRules.has(theme.suggestedRule._id)}
-                            onCheckedChange={() => toggleRuleSelection(theme.suggestedRule._id)}
+                            checked={selectedRules.has(theme.suggestedRule._id || `temp-${i}`)}
+                            onCheckedChange={() => toggleRuleSelection(theme.suggestedRule)}
                             className="mt-1"
                           />
                           <div className="flex-1">
                             <div className="flex justify-between items-start mb-3">
-                              <h4 className="font-medium text-gray-900">{theme.theme}</h4>
+                              <div className="flex items-center gap-3">
+                                <h4 className="font-medium text-gray-900">{theme.theme}</h4>
+                                <Switch
+                                  checked={theme.suggestedRule.isActive}
+                                  onCheckedChange={() => toggleRuleActive(theme.suggestedRule)}
+                                  className="data-[state=checked]:bg-green-500"
+                                />
+                              </div>
                               <span className="px-2 py-1 rounded-full text-xs bg-blue-50 text-blue-700 font-medium">
                                 {theme.frequency} mentions
                               </span>
@@ -419,9 +452,26 @@ export function ThemesAnalysisDialog({
           
           {previewRule && (
             <div className="space-y-4">
-              <div className="space-y-2">
-                <h4 className="font-medium text-sm text-gray-700">Name</h4>
-                <p className="text-gray-900">{previewRule.name}</p>
+              <div className="flex justify-between items-center">
+                <div className="space-y-2">
+                  <h4 className="font-medium text-sm text-gray-700">Name</h4>
+                  <p className="text-gray-900">{previewRule.name}</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-gray-600">
+                    {previewRule.isActive ? 'Active' : 'Inactive'}
+                  </span>
+                  <Switch
+                    checked={previewRule.isActive}
+                    onCheckedChange={() => {
+                      setPreviewRule(prev => prev ? {
+                        ...prev,
+                        isActive: !prev.isActive
+                      } : null);
+                    }}
+                    className="data-[state=checked]:bg-green-500"
+                  />
+                </div>
               </div>
 
               <div className="space-y-2">
