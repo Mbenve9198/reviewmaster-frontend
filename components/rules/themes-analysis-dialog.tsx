@@ -64,21 +64,36 @@ function isErrorResponse(data: any): data is ErrorResponse {
   return 'message' in data;
 }
 
-interface SuggestedRule {
-  _id?: string;  // Opzionale perché potrebbe non esistere ancora
+// Definisci prima le interfacce di base
+interface RuleCondition {
+  field: string;
+  operator: string;
+  value: string | string[] | number;
+}
+
+interface RuleResponse {
+  text: string;
+  settings: {
+    style: string;
+  };
+}
+
+interface BaseRule {
   name: string;
-  condition: {
-    field: string;
-    operator: string;
-    value: string | string[] | number;
-  };
-  response: {
-    text: string;
-    settings: {
-      style: string;
-    };
-  };
+  condition: RuleCondition;
+  response: RuleResponse;
+}
+
+// Estendi BaseRule per SuggestedRule
+interface SuggestedRule extends BaseRule {
+  _id?: string;
   isActive: boolean;
+}
+
+// Estendi BaseRule per Rule (dal database)
+interface Rule extends BaseRule {
+  _id: string;
+  isActive?: boolean; // Ora è opzionale come nel tipo originale
 }
 
 export function ThemesAnalysisDialog({
@@ -147,8 +162,8 @@ export function ThemesAnalysisDialog({
     setError(null);
   };
 
-  const toggleRuleSelection = (rule: SuggestedRule) => {
-    const ruleId = rule._id || `temp-${Math.random()}`; // Genera un ID temporaneo se non esiste
+  const toggleRuleSelection = (rule: SuggestedRule | Rule) => {
+    const ruleId = rule._id || `temp-${Math.random()}`;
     setSelectedRules(prev => {
       const newSet = new Set(prev);
       if (newSet.has(ruleId)) {
@@ -170,12 +185,12 @@ export function ThemesAnalysisDialog({
     onClose();
   };
 
-  const toggleRuleActive = (rule: Rule) => {
+  const toggleRuleActive = (rule: SuggestedRule | Rule) => {
     const updatedRule = {
       ...rule,
-      isActive: !rule.isActive
+      isActive: !(rule.isActive ?? true) // Default a true se undefined
     };
-    handleCreateRule(updatedRule);
+    handleCreateRule(updatedRule as Rule);
   };
 
   return (
@@ -257,7 +272,7 @@ export function ThemesAnalysisDialog({
                       className="gap-2 hover:bg-blue-50 hover:text-blue-600 rounded-xl"
                       onClick={() => {
                         analysis.recurringThemes.forEach(theme => {
-                          toggleRuleSelection(theme.suggestedRule);
+                          toggleRuleSelection(theme.suggestedRule as SuggestedRule);
                         });
                       }}
                     >
@@ -270,7 +285,7 @@ export function ThemesAnalysisDialog({
                         <div className="flex items-start gap-3">
                           <Checkbox
                             checked={selectedRules.has(theme.suggestedRule._id || `temp-${i}`)}
-                            onCheckedChange={() => toggleRuleSelection(theme.suggestedRule)}
+                            onCheckedChange={() => toggleRuleSelection(theme.suggestedRule as SuggestedRule)}
                             className="mt-1"
                           />
                           <div className="flex-1">
@@ -278,8 +293,8 @@ export function ThemesAnalysisDialog({
                               <div className="flex items-center gap-3">
                                 <h4 className="font-medium text-gray-900">{theme.theme}</h4>
                                 <Switch
-                                  checked={theme.suggestedRule.isActive}
-                                  onCheckedChange={() => toggleRuleActive(theme.suggestedRule)}
+                                  checked={theme.suggestedRule.isActive ?? true}
+                                  onCheckedChange={() => toggleRuleActive(theme.suggestedRule as SuggestedRule)}
                                   className="data-[state=checked]:bg-green-500"
                                 />
                               </div>
