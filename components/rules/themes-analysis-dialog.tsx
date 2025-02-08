@@ -166,7 +166,17 @@ export function ThemesAnalysisDialog({
       ...(analysis.complexRules?.map(c => c.suggestedRule) || [])
     ];
 
-    return allRules.find(rule => rule._id === ruleId || `temp-${Math.random()}` === ruleId);
+    const rule = allRules.find(rule => rule._id === ruleId || `temp-${Math.random()}` === ruleId);
+    
+    // Assicuriamoci che isActive sia sempre definito
+    if (rule) {
+      return {
+        ...rule,
+        isActive: rule.isActive ?? true // Se isActive è undefined, impostiamo a true
+      };
+    }
+    
+    return undefined;
   };
 
   const handleCreateSelectedRules = () => {
