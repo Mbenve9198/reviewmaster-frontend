@@ -272,213 +272,217 @@ export function AddRuleModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[800px] bg-white p-6 max-h-[90vh] overflow-y-auto">
-        <DialogHeader className="mb-6">
-          <DialogTitle className="flex items-center gap-2 text-xl font-semibold">
-            <Sparkles className="h-6 w-6 text-blue-500" />
-            {isEditing ? 'Edit Rule' : 'Create New Rule'}
-          </DialogTitle>
-          <DialogDescription>
-            {isEditing 
-              ? 'Modify your automatic response rule settings below.'
-              : 'Set up a new automatic response rule for your reviews.'}
-          </DialogDescription>
-        </DialogHeader>
+      <DialogContent className="max-w-[100vw] h-[100vh] p-0 bg-[#FAFAFA]">
+        {/* Header Section */}
+        <div className="sticky top-0 z-10 bg-white border-b px-8 py-6">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-2xl font-semibold">
+              <Sparkles className="h-7 w-7 text-blue-500" />
+              {isEditing ? 'Edit Response Rule' : 'Create New Response Rule'}
+            </DialogTitle>
+            <DialogDescription className="text-base">
+              {isEditing 
+                ? 'Fine-tune your automatic response rule settings below.'
+                : 'Configure how your AI assistant should respond to specific review patterns.'}
+            </DialogDescription>
+          </DialogHeader>
+        </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Rule Name Section */}
-          <div className="space-y-4">
-            <Label className="text-base font-semibold">Rule Name</Label>
-            <Input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="e.g., Positive Breakfast Response"
-              className="h-12 text-base border-gray-200 rounded-xl"
-            />
-          </div>
+        {/* Main Content */}
+        <div className="px-8 py-6 h-[calc(100vh-180px)] overflow-y-auto">
+          <form onSubmit={handleSubmit} className="max-w-4xl mx-auto space-y-8">
+            {/* Rule Name Section */}
+            <div className="space-y-4">
+              <Label className="text-lg font-semibold">Rule Name</Label>
+              <Input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="e.g., Positive Breakfast Response"
+                className="h-14 text-base border-gray-200 rounded-xl"
+              />
+            </div>
 
-          {/* Condition Builder Section */}
-          <div className="space-y-4">
-            <Label className="text-base font-semibold">Condition</Label>
-            <div className="p-6 bg-gray-50 rounded-xl space-y-4">
-              <div className="grid grid-cols-[auto_180px_180px_1fr] gap-3 items-center">
-                <span className="font-medium text-gray-700">IF</span>
-                <Select value={field} onValueChange={(value: FieldKey) => setField(value)}>
-                  <SelectTrigger className="h-12 bg-white rounded-xl">
-                    <SelectValue placeholder="Select field" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {FIELD_OPTIONS.map(option => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-
-                <Select value={operator} onValueChange={handleOperatorChange} disabled={!field}>
-                  <SelectTrigger className="h-12 bg-white rounded-xl">
-                    <SelectValue placeholder="Select operator" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {field && OPERATOR_OPTIONS[field]?.map(option => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-
-                {field === 'content.text' ? (
-                  <Input
-                    value={keywordInput}
-                    onChange={(e) => setKeywordInput(e.target.value)}
-                    onKeyDown={handleAddKeyword}
-                    placeholder="Enter a topic/theme (e.g., breakfast, cleanliness, staff) and press Enter"
-                    className="h-12 bg-white rounded-xl w-full"
-                  />
-                ) : field === 'content.rating' ? (
-                  <Select value={value} onValueChange={handleValueChange}>
-                    <SelectTrigger className="h-12 bg-white rounded-xl">
-                      <SelectValue placeholder="Select star rating" />
+            {/* Condition Builder Section */}
+            <div className="space-y-4">
+              <Label className="text-lg font-semibold">Condition</Label>
+              <div className="p-8 bg-white rounded-2xl border border-gray-100 shadow-sm space-y-6">
+                <div className="grid grid-cols-[auto_200px_200px_1fr] gap-4 items-center">
+                  <span className="font-medium text-gray-700">IF</span>
+                  <Select value={field} onValueChange={(value: FieldKey) => setField(value)}>
+                    <SelectTrigger className="h-14 bg-white rounded-xl">
+                      <SelectValue placeholder="Select field" />
                     </SelectTrigger>
                     <SelectContent>
-                      {[1,2,3,4,5].map(rating => (
-                        <SelectItem key={rating} value={rating.toString()}>
-                          {rating} {rating === 1 ? 'Star' : 'Stars'}
+                      {FIELD_OPTIONS.map(option => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
-                ) : field === 'content.language' ? (
-                  <Select value={value} onValueChange={handleValueChange}>
-                    <SelectTrigger className="h-12 bg-white rounded-xl">
-                      <SelectValue placeholder="Select review language" />
+
+                  <Select value={operator} onValueChange={handleOperatorChange} disabled={!field}>
+                    <SelectTrigger className="h-14 bg-white rounded-xl">
+                      <SelectValue placeholder="Select operator" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="it">Italian</SelectItem>
-                      <SelectItem value="en">English</SelectItem>
-                      <SelectItem value="de">German</SelectItem>
-                      <SelectItem value="fr">French</SelectItem>
+                      {field && OPERATOR_OPTIONS[field]?.map(option => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
-                ) : null}
-              </div>
 
-              {/* Topics Tags */}
-              {field === 'content.text' && keywords.length > 0 && (
-                <div className="flex flex-wrap gap-2 pt-2">
-                  {keywords.map((keyword, index) => (
-                    <span
-                      key={index}
-                      className="inline-flex items-center gap-1 px-3 py-1 bg-blue-50 text-blue-700 rounded-xl text-sm"
-                    >
-                      {keyword}
-                      <button
-                        type="button"
-                        onClick={() => removeKeyword(index)}
-                        className="text-blue-500 hover:text-blue-700"
-                      >
-                        <XCircle className="h-4 w-4" />
-                      </button>
-                    </span>
-                  ))}
+                  {field === 'content.text' ? (
+                    <Input
+                      value={keywordInput}
+                      onChange={(e) => setKeywordInput(e.target.value)}
+                      onKeyDown={handleAddKeyword}
+                      placeholder="Enter a topic/theme (e.g., breakfast, cleanliness, staff) and press Enter"
+                      className="h-14 bg-white rounded-xl w-full"
+                    />
+                  ) : field === 'content.rating' ? (
+                    <Select value={value} onValueChange={handleValueChange}>
+                      <SelectTrigger className="h-14 bg-white rounded-xl">
+                        <SelectValue placeholder="Select star rating" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {[1,2,3,4,5].map(rating => (
+                          <SelectItem key={rating} value={rating.toString()}>
+                            {rating} {rating === 1 ? 'Star' : 'Stars'}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  ) : field === 'content.language' ? (
+                    <Input
+                      value={value}
+                      onChange={(e) => handleValueChange(e.target.value)}
+                      placeholder="Enter language code (e.g., en, it, fr, de)"
+                      className="h-14 bg-white rounded-xl w-full"
+                    />
+                  ) : null}
                 </div>
-              )}
-            </div>
-          </div>
 
-          {/* Response Configuration Section */}
-          <div className="space-y-4">
-            <Label className="text-base font-semibold">Response Configuration</Label>
-            <div>
-              <Label className="mb-2 block">Response Style</Label>
-              <Select value={responseStyle} onValueChange={handleResponseStyleChange}>
-                <SelectTrigger className="h-12 rounded-xl w-full">
-                  <SelectValue placeholder="Select style" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="professional">Professional and Formal</SelectItem>
-                  <SelectItem value="friendly">Friendly and Warm</SelectItem>
-                  <SelectItem value="personal">Personal and Empathetic</SelectItem>
-                  <SelectItem value="sarcastic">Ironic and Witty</SelectItem>
-                  <SelectItem value="challenging">Questioning and Critical</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          {/* Response Prompt Section */}
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <Label className="text-base font-semibold">Response Behavior</Label>
-              <div className="flex gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => insertVariable('reviewer_name')}
-                  className="text-sm rounded-xl"
-                >
-                  + Guest Name
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => insertVariable('hotel_name')}
-                  className="text-sm rounded-xl"
-                >
-                  + Hotel Name
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => insertVariable('rating')}
-                  className="text-sm rounded-xl"
-                >
-                  + Rating
-                </Button>
+                {/* Topics Tags */}
+                {field === 'content.text' && keywords.length > 0 && (
+                  <div className="flex flex-wrap gap-2 pt-2">
+                    {keywords.map((keyword, index) => (
+                      <span
+                        key={index}
+                        className="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-50 text-blue-700 rounded-xl text-sm font-medium"
+                      >
+                        {keyword}
+                        <button
+                          type="button"
+                          onClick={() => removeKeyword(index)}
+                          className="text-blue-500 hover:text-blue-700"
+                        >
+                          <XCircle className="h-4 w-4" />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
-            <Textarea
-              value={responseText}
-              onChange={(e) => setResponseText(e.target.value)}
-              placeholder="Describe how the AI should respond in this situation. For example: 'Thank the guest for their positive feedback about breakfast, mention our commitment to quality ingredients, and invite them to try our seasonal specialties on their next visit.'"
-              className="min-h-[200px] text-base rounded-xl"
-            />
-          </div>
 
-          {/* Action Buttons */}
-          <div className="flex justify-end gap-3 pt-4">
+            {/* Response Configuration Section */}
+            <div className="space-y-6">
+              <Label className="text-lg font-semibold">Response Configuration</Label>
+              <div className="grid grid-cols-2 gap-8">
+                <div className="space-y-4">
+                  <Label className="text-base font-medium">Response Style</Label>
+                  <Select value={responseStyle} onValueChange={handleResponseStyleChange}>
+                    <SelectTrigger className="h-14 rounded-xl">
+                      <SelectValue placeholder="Select style" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="professional">Professional and Formal</SelectItem>
+                      <SelectItem value="friendly">Friendly and Warm</SelectItem>
+                      <SelectItem value="personal">Personal and Empathetic</SelectItem>
+                      <SelectItem value="sarcastic">Ironic and Witty</SelectItem>
+                      <SelectItem value="challenging">Questioning and Critical</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-4">
+                  <Label className="text-base font-medium">Available Variables</Label>
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => insertVariable('reviewer_name')}
+                      className="h-14 px-6 rounded-xl"
+                    >
+                      + Guest Name
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => insertVariable('hotel_name')}
+                      className="h-14 px-6 rounded-xl"
+                    >
+                      + Hotel Name
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => insertVariable('rating')}
+                      className="h-14 px-6 rounded-xl"
+                    >
+                      + Rating
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <Label className="text-base font-medium">Response Behavior</Label>
+                <Textarea
+                  value={responseText}
+                  onChange={(e) => setResponseText(e.target.value)}
+                  placeholder="Describe how the AI should respond in this situation. For example: 'Thank the guest for their positive feedback about breakfast, mention our commitment to quality ingredients, and invite them to try our seasonal specialties on their next visit.'"
+                  className="min-h-[200px] text-base rounded-xl p-4"
+                />
+              </div>
+            </div>
+          </form>
+        </div>
+
+        {/* Footer Actions - Fixed at bottom */}
+        <div className="sticky bottom-0 bg-white border-t px-8 py-4">
+          <div className="max-w-4xl mx-auto flex justify-end gap-3">
             <Button 
               type="button" 
               variant="outline" 
               onClick={handleReset}
-              className="h-12 px-6 rounded-xl"
+              className="h-14 px-8 rounded-xl"
             >
               Cancel
             </Button>
             <Button 
               type="submit"
+              onClick={handleSubmit}
               disabled={isLoading || !isFormValid()}
-              className="h-12 px-6 gap-2 bg-primary text-primary-foreground shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all rounded-xl"
+              className="h-14 px-8 gap-2 bg-primary text-primary-foreground shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all rounded-xl"
             >
               {isLoading ? (
                 <>
-                  <span className="animate-spin">⏳</span>
+                  <Loader2 className="h-5 w-5 animate-spin" />
                   {isEditing ? 'Updating...' : 'Creating...'}
                 </>
               ) : (
                 <>
                   {isEditing ? 'Update Rule' : 'Create Rule'}
-                  <ChevronRight className="h-4 w-4" />
+                  <ChevronRight className="h-5 w-5" />
                 </>
               )}
             </Button>
           </div>
-        </form>
+        </div>
       </DialogContent>
     </Dialog>
   );
