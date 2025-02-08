@@ -234,10 +234,15 @@ export function RulesList({ rules, onRuleUpdate }) {
           setEditingRule(null);
           setIsEditModalOpen(false);
         }}
+        initialData={editingRule}
+        isEditing={!!editingRule}
         onSuccess={(updatedRule) => {
           onRuleUpdate(rules.map(rule => 
             rule._id === updatedRule._id ? updatedRule : rule
           ));
+          setEditingRule(null);
+          setIsEditModalOpen(false);
+          toast.success('Rule updated successfully');
         }}
       />
 

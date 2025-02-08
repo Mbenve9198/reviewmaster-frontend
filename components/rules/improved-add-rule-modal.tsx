@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import React, { useState, useEffect } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,7 +12,8 @@ import {
   Languages, 
   ChevronRight, 
   Sparkles,
-  XCircle
+  XCircle,
+  Loader2
 } from "lucide-react";
 import { LucideIcon } from "lucide-react";
 import { toast } from "sonner";
@@ -37,7 +38,8 @@ interface AddRuleModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: (rule: Rule) => void;
-  initialData?: Rule | null;
+  initialData?: Rule;
+  isEditing?: boolean;
 }
 
 const FIELD_OPTIONS: FieldOption[] = [
@@ -69,7 +71,8 @@ export function AddRuleModal({
   isOpen, 
   onClose, 
   onSuccess, 
-  initialData = null 
+  initialData, 
+  isEditing = false 
 }: AddRuleModalProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [name, setName] = useState(initialData?.name || '');
@@ -82,6 +85,20 @@ export function AddRuleModal({
     (initialData?.response?.settings?.style as ResponseStyle) || 'professional'
   );
   const [keywordInput, setKeywordInput] = useState('');
+
+  useEffect(() => {
+    if (initialData && isEditing) {
+      setName(initialData.name);
+      setField(initialData.condition.field);
+      setOperator(initialData.condition.operator);
+      setValue(Array.isArray(initialData.condition.value) 
+        ? initialData.condition.value.join(', ') 
+        : String(initialData.condition.value)
+      );
+      setResponseText(initialData.response.text);
+      setResponseStyle(initialData.response.settings.style);
+    }
+  }, [initialData, isEditing]);
 
   const handleAddKeyword = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && keywordInput.trim()) {
@@ -182,8 +199,14 @@ export function AddRuleModal({
 
       const token = getCookie('token');
       
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/rules`, {
-        method: 'POST',
+      const url = isEditing 
+        ? `${process.env.NEXT_PUBLIC_API_URL}/api/rules/${initialData?._id}`
+        : `${process.env.NEXT_PUBLIC_API_URL}/api/rules`;
+      
+      const method = isEditing ? 'PUT' : 'POST';
+
+      const response = await fetch(url, {
+        method,
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
@@ -200,7 +223,7 @@ export function AddRuleModal({
 
       toast.success("Rule created successfully");
       onSuccess(responseData);
-      onClose();
+      handleReset();
 
     } catch (error) {
       console.error('Error creating rule:', error);
@@ -208,6 +231,17 @@ export function AddRuleModal({
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleReset = () => {
+    setName('');
+    setField('content.text');
+    setOperator('contains');
+    setValue('');
+    setKeywords([]);
+    setResponseText('');
+    setResponseStyle('professional');
+    onClose();
   };
 
   const handleOperatorChange = (newValue: string) => {
@@ -228,8 +262,13 @@ export function AddRuleModal({
         <DialogHeader className="mb-6">
           <DialogTitle className="flex items-center gap-2 text-xl font-semibold">
             <Sparkles className="h-6 w-6 text-blue-500" />
-            New Response Rule
+            {isEditing ? 'Edit Rule' : 'Create New Rule'}
           </DialogTitle>
+          <DialogDescription>
+            {isEditing 
+              ? 'Modify your automatic response rule settings below.'
+              : 'Set up a new automatic response rule for your reviews.'}
+          </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -402,7 +441,7 @@ export function AddRuleModal({
             <Button 
               type="button" 
               variant="outline" 
-              onClick={onClose}
+              onClick={handleReset}
               className="h-12 px-6 rounded-xl"
             >
               Cancel
@@ -415,11 +454,11 @@ export function AddRuleModal({
               {isLoading ? (
                 <>
                   <span className="animate-spin">⏳</span>
-                  Creating...
+                  {isEditing ? 'Updating...' : 'Creating...'}
                 </>
               ) : (
                 <>
-                  Create Rule
+                  {isEditing ? 'Update Rule' : 'Create Rule'}
                   <ChevronRight className="h-4 w-4" />
                 </>
               )}
