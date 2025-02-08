@@ -164,7 +164,7 @@ export function ThemesAnalysisDialog({
   };
 
   const toggleRuleSelection = (rule: SuggestedRule | Rule) => {
-    const ruleId = rule._id;
+    const ruleId = rule._id || `temp-${Math.random()}`;
     setSelectedRules(prev => {
       const newSet = new Set(prev);
       if (newSet.has(ruleId)) {
