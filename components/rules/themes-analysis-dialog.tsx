@@ -201,14 +201,45 @@ export function ThemesAnalysisDialog({
   };
 
   const handleCreateSelectedRules = async () => {
-    const selectedRulesArray = Array.from(selectedRules);
-    for (const ruleId of selectedRulesArray) {
-      const rule = findRuleById(ruleId);
-      if (rule) {
-        await handleCreateRule(rule);
+    try {
+      const selectedRulesArray = Array.from(selectedRules);
+      const createdRules = [];
+
+      for (const ruleId of selectedRulesArray) {
+        const rule = findRuleById(ruleId);
+        if (rule) {
+          const token = getCookie('token');
+          const completeRule = {
+            ...rule,
+            hotelId,
+          };
+
+          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/rules`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`,
+            },
+            body: JSON.stringify(completeRule),
+          });
+
+          if (!response.ok) {
+            throw new Error(`Failed to create rule ${ruleId}`);
+          }
+
+          const savedRule = await response.json();
+          createdRules.push(savedRule);
+          onRuleCreated?.(savedRule);
+        }
       }
+
+      toast.success(`Successfully created ${createdRules.length} rules`);
+      setSelectedRules(new Set()); // Reset selected rules
+      onClose();
+    } catch (error) {
+      console.error('Error creating rules:', error);
+      toast.error('Failed to create some rules');
     }
-    onClose();
   };
 
   const toggleRuleActive = (rule: SuggestedRule | Rule) => {
@@ -221,9 +252,9 @@ export function ThemesAnalysisDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-[100vw] h-[100vh] p-0">
+      <DialogContent className="max-w-[100vw] w-[100vw] h-[100vh] p-0 rounded-3xl">
         {/* Header Section */}
-        <div className="sticky top-0 z-10 bg-white border-b px-8 py-6">
+        <div className="sticky top-0 z-10 bg-white border-b px-8 py-6 rounded-t-3xl">
           <DialogHeader>
             <div className="flex items-center justify-between">
               <div>
@@ -369,13 +400,13 @@ export function ThemesAnalysisDialog({
 
         {/* Preview Modal */}
         <Dialog open={!!previewRule} onOpenChange={() => setPreviewRule(null)}>
-          <DialogContent className="sm:max-w-xl">
-            <DialogHeader>
-              <DialogTitle>Rule Preview</DialogTitle>
+          <DialogContent className="sm:max-w-xl rounded-3xl bg-white p-8">
+            <DialogHeader className="mb-6">
+              <DialogTitle className="text-xl font-semibold">Rule Preview</DialogTitle>
             </DialogHeader>
             {previewRule && (
-              <div className="space-y-4">
-                <div className="space-y-2">
+              <div className="space-y-6">
+                <div className="space-y-3">
                   <h4 className="font-medium text-sm text-gray-700">Condition</h4>
                   <div className="bg-gray-50 p-4 rounded-xl space-y-2">
                     <p className="text-sm">
@@ -392,7 +423,7 @@ export function ThemesAnalysisDialog({
                     </p>
                   </div>
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-3">
                   <h4 className="font-medium text-sm text-gray-700">Response</h4>
                   <div className="bg-gray-50 p-4 rounded-xl">
                     <p className="text-sm whitespace-pre-wrap">{previewRule.response.text}</p>
@@ -403,7 +434,7 @@ export function ThemesAnalysisDialog({
                 </div>
               </div>
             )}
-            <DialogFooter className="gap-2">
+            <DialogFooter className="gap-2 mt-8">
               <Button
                 variant="outline"
                 onClick={() => setPreviewRule(null)}
