@@ -376,9 +376,9 @@ export function ThemesAnalysisDialog({
                           <div className="flex-1 space-y-3">
                             <div className="flex items-start justify-between gap-4">
                               <h4 className="font-medium text-gray-900">{theme.theme}</h4>
-                              <Badge variant="secondary" className="shrink-0">
+                              <div className="shrink-0 px-2.5 py-0.5 bg-gray-100 text-gray-700 rounded-full text-sm">
                                 {theme.frequency} mentions
-                              </Badge>
+                              </div>
                             </div>
                             
                             <blockquote className="text-sm text-gray-600 italic border-l-2 border-gray-200 pl-3">
