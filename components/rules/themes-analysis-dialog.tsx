@@ -9,6 +9,7 @@ import CreditPurchaseSlider from "@/components/billing/CreditPurchaseSlider";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface ThemesAnalysisDialogProps {
   hotelId: string;
@@ -86,6 +87,10 @@ export function ThemesAnalysisDialog({
   const [showCreditPurchase, setShowCreditPurchase] = useState(false);
   const [selectedRules, setSelectedRules] = useState<Set<string>>(new Set());
   const [previewRule, setPreviewRule] = useState<Rule | null>(null);
+  const [field, setField] = useState<FieldKey>('content.rating');
+  const [operator, setOperator] = useState<OperatorKey>('>');
+  const [value, setValue] = useState<string>('3');
+  const [responseStyle, setResponseStyle] = useState<ResponseStyle>('professional');
 
   const startAnalysis = async () => {
     try {
@@ -164,7 +169,7 @@ export function ThemesAnalysisDialog({
   };
 
   const toggleRuleSelection = (rule: SuggestedRule | Rule) => {
-    const ruleId = rule._id || `temp-${Math.random()}`;
+    const ruleId = rule._id || `temp-${rule.name.toLowerCase().replace(/\s+/g, '-')}`;
     setSelectedRules(prev => {
       const newSet = new Set(prev);
       if (newSet.has(ruleId)) {
@@ -179,81 +184,105 @@ export function ThemesAnalysisDialog({
   const findRuleById = (ruleId: string): SuggestedRule | undefined => {
     if (!analysis) return undefined;
 
-    // Cerca in tutte le categorie di regole
+    // Raccoglie tutte le regole da tutte le categorie
     const allRules = [
       ...(analysis.recurringThemes?.map(t => ({
         ...t.suggestedRule,
-        _id: t.suggestedRule._id || `temp-${Math.random()}`,
+        _id: t.suggestedRule._id || `temp-${t.theme.toLowerCase().replace(/\s+/g, '-')}`,
         isActive: true
       })) || []),
       ...(analysis.commonIssues?.map(i => ({
         ...i.suggestedRule,
-        _id: i.suggestedRule._id || `temp-issue-${Math.random()}`,
+        _id: i.suggestedRule._id || `temp-${i.issue.toLowerCase().replace(/\s+/g, '-')}`,
         isActive: true
       })) || []),
       ...(analysis.languageRules?.map(l => ({
         ...l.suggestedRule,
-        _id: l.suggestedRule._id || `temp-lang-${Math.random()}`,
+        _id: l.suggestedRule._id || `temp-${l.language.toLowerCase().replace(/\s+/g, '-')}`,
         isActive: true
       })) || []),
       ...(analysis.ratingBasedRules?.map(r => ({
         ...r.suggestedRule,
-        _id: r.suggestedRule._id || `temp-rating-${Math.random()}`,
+        _id: r.suggestedRule._id || `temp-${r.ratingCondition.toLowerCase().replace(/\s+/g, '-')}`,
         isActive: true
       })) || []),
       ...(analysis.complexRules?.map(c => ({
         ...c.suggestedRule,
-        _id: c.suggestedRule._id || `temp-complex-${Math.random()}`,
+        _id: c.suggestedRule._id || `temp-${c.scenario.toLowerCase().replace(/\s+/g, '-')}`,
         isActive: true
       })) || [])
     ];
 
-    return allRules.find(rule => rule._id === ruleId);
+    // Prima cerca per ID esatto
+    let rule = allRules.find(r => r._id === ruleId);
+    
+    // Se non trova, cerca per ID temporaneo basato sul nome
+    if (!rule) {
+      rule = allRules.find(r => {
+        const tempId = `temp-${r.name.toLowerCase().replace(/\s+/g, '-')}`;
+        return tempId === ruleId;
+      });
+    }
+
+    return rule;
   };
 
   const handleCreateSelectedRules = async () => {
     try {
       const selectedRulesArray = Array.from(selectedRules);
       const createdRules = [];
+      const errors = [];
 
       for (const ruleId of selectedRulesArray) {
         const rule = findRuleById(ruleId);
         if (rule) {
-          const token = getCookie('token');
-          const completeRule = {
-            ...rule,
-            hotelId,
-            isActive: true
-          };
+          try {
+            const token = getCookie('token');
+            const completeRule = {
+              ...rule,
+              hotelId,
+              isActive: true
+            };
 
-          // Rimuovi il _id temporaneo prima di salvare
-          delete completeRule._id;
+            // Rimuovi _id temporaneo
+            delete completeRule._id;
 
-          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/rules`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}`,
-            },
-            body: JSON.stringify(completeRule),
-          });
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/rules`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+              },
+              body: JSON.stringify(completeRule),
+            });
 
-          if (!response.ok) {
-            throw new Error(`Failed to create rule ${ruleId}`);
+            if (!response.ok) {
+              throw new Error(`Failed to create rule ${ruleId}`);
+            }
+
+            const savedRule = await response.json();
+            createdRules.push(savedRule);
+            onRuleCreated?.(savedRule);
+          } catch (error) {
+            errors.push(ruleId);
+            console.error(`Error creating rule ${ruleId}:`, error);
           }
-
-          const savedRule = await response.json();
-          createdRules.push(savedRule);
-          onRuleCreated?.(savedRule);
         }
       }
 
-      toast.success(`Successfully created ${createdRules.length} rules`);
-      setSelectedRules(new Set()); // Reset selected rules
-      onClose();
+      if (createdRules.length > 0) {
+        toast.success(`Successfully created ${createdRules.length} rules`);
+        if (errors.length > 0) {
+          toast.error(`Failed to create ${errors.length} rules`);
+        }
+        setSelectedRules(new Set()); // Reset selected rules
+        onClose();
+      } else {
+        toast.error('Failed to create any rules');
+      }
     } catch (error) {
       console.error('Error creating rules:', error);
-      toast.error('Failed to create some rules');
+      toast.error('Failed to create rules');
     }
   };
 
@@ -265,11 +294,23 @@ export function ThemesAnalysisDialog({
     handleCreateRule(updatedRule as Rule);
   };
 
+  const handleOperatorChange = (value: OperatorKey) => {
+    setOperator(value);
+  };
+
+  const handleValueChange = (value: string) => {
+    setValue(value);
+  };
+
+  const handleResponseStyleChange = (value: ResponseStyle) => {
+    setResponseStyle(value);
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-5xl h-[95vh] p-0 bg-white rounded-xl">
-        {/* Header aggiornato */}
-        <div className="sticky top-0 z-10 bg-white border-b px-6 py-4">
+      <DialogContent className="max-w-5xl h-[95vh] p-0 bg-white rounded-xl flex flex-col">
+        {/* Header */}
+        <div className="shrink-0 sticky top-0 z-10 bg-white border-b px-6 py-4">
           <DialogHeader>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -295,8 +336,8 @@ export function ThemesAnalysisDialog({
           </DialogHeader>
         </div>
 
-        {/* Main Content - Corretto scrolling */}
-        <div className="h-[calc(95vh-140px)] overflow-y-auto">
+        {/* Main Content - Con scroll indipendente */}
+        <div className="flex-1 overflow-y-auto px-6 py-6">
           {!analysis && !isLoading && !error && (
             <div className="flex flex-col items-center justify-center py-12 space-y-6">
               <div className="text-center space-y-4 max-w-lg">
@@ -309,7 +350,7 @@ export function ThemesAnalysisDialog({
                 </p>
                 <Button
                   onClick={startAnalysis}
-                  className="h-11 px-6 gap-2"
+                  className="h-11 px-6 gap-2 bg-primary text-primary-foreground shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all rounded-xl"
                 >
                   <Sparkles className="h-4 w-4" />
                   Start Analysis
@@ -347,7 +388,7 @@ export function ThemesAnalysisDialog({
           )}
 
           {analysis && !isLoading && !error && (
-            <div className="px-6 py-6 space-y-8">
+            <div className="space-y-8">
               {analysis.recurringThemes?.length > 0 && (
                 <div className="space-y-4">
                   <div className="flex items-center gap-2">
@@ -391,9 +432,8 @@ export function ThemesAnalysisDialog({
 
                             <div className="flex gap-2 pt-2">
                               <Button 
-                                variant="outline" 
                                 size="sm"
-                                className="flex-1 gap-1.5"
+                                className="flex-1 gap-1.5 bg-primary text-primary-foreground shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all rounded-xl"
                                 onClick={() => handleCreateRule(theme.suggestedRule)}
                               >
                                 <Plus className="h-3.5 w-3.5" />
@@ -402,7 +442,7 @@ export function ThemesAnalysisDialog({
                               <Button
                                 variant="outline"
                                 size="sm"
-                                className="px-2.5"
+                                className="px-2.5 rounded-xl"
                                 onClick={() => setPreviewRule(theme.suggestedRule)}
                               >
                                 <Eye className="h-3.5 w-3.5" />
@@ -419,97 +459,109 @@ export function ThemesAnalysisDialog({
           )}
         </div>
 
-        {/* Footer aggiornato */}
-        {selectedRules.size > 0 && (
-          <div className="sticky bottom-0 bg-white border-t px-6 py-4">
-            <div className="flex justify-between items-center">
-              <p className="text-sm text-gray-600">
-                {selectedRules.size} rules selected
-              </p>
-              <Button 
-                onClick={handleCreateSelectedRules}
-                className="h-10 px-5 gap-2"
-              >
-                Create Selected Rules
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            </div>
+        {/* Footer */}
+        <div className="shrink-0 sticky bottom-0 bg-white border-t px-6 py-4 mt-auto">
+          <div className="flex justify-between items-center">
+            <Button 
+              variant="ghost"
+              onClick={onClose}
+              className="h-10 rounded-xl"
+            >
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleCreateSelectedRules}
+              disabled={isLoading || selectedRules.size === 0}
+              className="h-10 px-6 gap-2 bg-primary text-primary-foreground shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all rounded-xl"
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span>Creating Rules...</span>
+                </>
+              ) : (
+                <>
+                  <span>Create Selected Rules</span>
+                  <ChevronRight className="h-4 w-4" />
+                </>
+              )}
+            </Button>
           </div>
-        )}
-
-        {/* Preview Modal */}
-        <Dialog open={!!previewRule} onOpenChange={() => setPreviewRule(null)}>
-          <DialogContent className="sm:max-w-xl p-6 rounded-xl">
-            <DialogHeader className="mb-4">
-              <div className="flex items-center gap-2 text-lg font-semibold">
-                <Eye className="h-5 w-5 text-gray-500" />
-                Rule Preview
-              </div>
-            </DialogHeader>
-
-            {previewRule && (
-              <div className="space-y-6">
-                <div className="space-y-2">
-                  <Label className="text-sm text-gray-700">When</Label>
-                  <div className="bg-gray-50 p-3 rounded-lg space-y-1.5">
-                    <p className="text-sm flex items-center justify-between">
-                      <span className="text-gray-600">Field</span>
-                      <span className="font-medium">{previewRule.condition.field}</span>
-                    </p>
-                    <p className="text-sm flex items-center justify-between">
-                      <span className="text-gray-600">Operator</span>
-                      <span className="font-medium">{previewRule.condition.operator}</span>
-                    </p>
-                    <p className="text-sm flex items-center justify-between">
-                      <span className="text-gray-600">Value</span>
-                      <span className="font-medium">
-                        {Array.isArray(previewRule.condition.value) 
-                          ? previewRule.condition.value.join(', ')
-                          : previewRule.condition.value}
-                      </span>
-                    </p>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="text-sm text-gray-700">Response</Label>
-                  <div className="bg-gray-50 p-3 rounded-lg space-y-3">
-                    <p className="text-sm whitespace-pre-wrap">{previewRule.response.text}</p>
-                    <div className="pt-2 border-t">
-                      <p className="text-sm flex items-center justify-between">
-                        <span className="text-gray-600">Style</span>
-                        <div className="px-2.5 py-0.5 bg-gray-100 text-gray-700 rounded-full text-sm">
-                          {previewRule.response.settings.style}
-                        </div>
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex justify-end gap-2 pt-2">
-                  <Button
-                    variant="outline"
-                    onClick={() => setPreviewRule(null)}
-                    className="h-9"
-                  >
-                    Close
-                  </Button>
-                  <Button
-                    onClick={() => {
-                      handleCreateRule(previewRule);
-                      setPreviewRule(null);
-                    }}
-                    className="h-9 gap-2"
-                  >
-                    <Plus className="h-4 w-4" />
-                    Create Rule
-                  </Button>
-                </div>
-              </div>
-            )}
-          </DialogContent>
-        </Dialog>
+        </div>
       </DialogContent>
+
+      {/* Preview Modal */}
+      <Dialog open={!!previewRule} onOpenChange={() => setPreviewRule(null)}>
+        <DialogContent className="sm:max-w-xl p-6 rounded-xl">
+          <DialogHeader className="mb-4">
+            <div className="flex items-center gap-2 text-lg font-semibold">
+              <Eye className="h-5 w-5 text-gray-500" />
+              Rule Preview
+            </div>
+          </DialogHeader>
+
+          {previewRule && (
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <Label className="text-sm text-gray-700">When</Label>
+                <div className="bg-gray-50 p-3 rounded-lg space-y-1.5">
+                  <p className="text-sm flex items-center justify-between">
+                    <span className="text-gray-600">Field</span>
+                    <span className="font-medium">{previewRule.condition.field}</span>
+                  </p>
+                  <p className="text-sm flex items-center justify-between">
+                    <span className="text-gray-600">Operator</span>
+                    <span className="font-medium">{previewRule.condition.operator}</span>
+                  </p>
+                  <p className="text-sm flex items-center justify-between">
+                    <span className="text-gray-600">Value</span>
+                    <span className="font-medium">
+                      {Array.isArray(previewRule.condition.value) 
+                        ? previewRule.condition.value.join(', ')
+                        : previewRule.condition.value}
+                    </span>
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-sm text-gray-700">Response</Label>
+                <div className="bg-gray-50 p-3 rounded-lg space-y-3">
+                  <p className="text-sm whitespace-pre-wrap">{previewRule.response.text}</p>
+                  <div className="pt-2 border-t">
+                    <p className="text-sm flex items-center justify-between">
+                      <span className="text-gray-600">Style</span>
+                      <div className="px-2.5 py-0.5 bg-gray-100 text-gray-700 rounded-full text-sm w-fit">
+                        {previewRule.response.settings.style}
+                      </div>
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2">
+                <Button
+                  variant="ghost"
+                  onClick={() => setPreviewRule(null)}
+                  className="h-10 rounded-xl"
+                >
+                  Close
+                </Button>
+                <Button
+                  onClick={() => {
+                    handleCreateRule(previewRule);
+                    setPreviewRule(null);
+                  }}
+                  className="h-10 px-6 gap-2 bg-primary text-primary-foreground shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all rounded-xl"
+                >
+                  <Plus className="h-4 w-4" />
+                  Create Rule
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       <CreditPurchaseSlider 
         open={showCreditPurchase} 

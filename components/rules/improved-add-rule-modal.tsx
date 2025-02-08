@@ -273,9 +273,9 @@ export function AddRuleModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-5xl h-[95vh] p-0 bg-white rounded-xl">
+      <DialogContent className="max-w-5xl h-[95vh] p-0 bg-white rounded-xl flex flex-col">
         {/* Header Section */}
-        <div className="sticky top-0 z-10 bg-white border-b px-6 py-4">
+        <div className="shrink-0 sticky top-0 z-10 bg-white border-b px-6 py-4">
           <DialogHeader>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -294,35 +294,39 @@ export function AddRuleModal({
           </DialogHeader>
         </div>
 
-        {/* Main Content */}
-        <div className="px-6 py-6 h-[calc(95vh-140px)] overflow-y-auto">
+        {/* Main Content - Con scroll indipendente */}
+        <div className="flex-1 overflow-y-auto px-6 py-6">
           <div className="max-w-4xl mx-auto space-y-8">
             {/* Step sections... */}
             <div className="space-y-4">
               <div className="flex items-center gap-2 mb-4">
-                <div className="flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 text-blue-700 text-sm font-medium">1</div>
+                <div className="flex items-center justify-center w-6 h-6 rounded-full bg-blue-50 text-blue-600 text-sm font-medium border border-blue-100">
+                  1
+                </div>
                 <h3 className="font-medium text-gray-900">Name Your Rule</h3>
               </div>
               <Input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="e.g., Handle Positive Breakfast Reviews"
-                className="h-11 text-base"
+                className="h-11 text-base rounded-xl border-gray-200 hover:border-gray-300"
               />
             </div>
 
             {/* Step 2: Condition */}
             <div className="space-y-4">
               <div className="flex items-center gap-2 mb-4">
-                <div className="flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 text-blue-700 text-sm font-medium">2</div>
+                <div className="flex items-center justify-center w-6 h-6 rounded-full bg-blue-50 text-blue-600 text-sm font-medium border border-blue-100">
+                  2
+                </div>
                 <h3 className="font-medium text-gray-900">Set Trigger Conditions</h3>
               </div>
-              <div className="p-4 bg-gray-50 rounded-xl space-y-4">
+              <div className="p-4 bg-gray-50/80 backdrop-blur-sm rounded-xl border border-gray-100 shadow-sm">
                 <div className="grid grid-cols-[1.5fr_1.5fr_2fr] gap-4 items-start">
                   <div className="space-y-2">
                     <Label className="text-sm text-gray-600">When</Label>
                     <Select value={field} onValueChange={(value: FieldKey) => setField(value)}>
-                      <SelectTrigger className="h-11 bg-white">
+                      <SelectTrigger className="h-11 bg-white rounded-xl border-gray-200 hover:border-gray-300">
                         <SelectValue placeholder="Select field" />
                       </SelectTrigger>
                       <SelectContent>
@@ -338,7 +342,7 @@ export function AddRuleModal({
                   <div className="space-y-2">
                     <Label className="text-sm text-gray-600">Condition</Label>
                     <Select value={operator} onValueChange={handleOperatorChange} disabled={!field}>
-                      <SelectTrigger className="h-11 bg-white">
+                      <SelectTrigger className="h-11 bg-white rounded-xl border-gray-200 hover:border-gray-300">
                         <SelectValue placeholder="Select operator" />
                       </SelectTrigger>
                       <SelectContent>
@@ -360,14 +364,14 @@ export function AddRuleModal({
                           onChange={(e) => setKeywordInput(e.target.value)}
                           onKeyDown={handleAddKeyword}
                           placeholder="Type keyword and press Enter"
-                          className="h-11 bg-white"
+                          className="h-11 text-base rounded-xl border-gray-200 hover:border-gray-300 bg-white"
                         />
                         {keywords.length > 0 && (
                           <div className="flex flex-wrap gap-2 pt-2">
                             {keywords.map((keyword, index) => (
                               <span
                                 key={index}
-                                className="inline-flex items-center gap-1.5 px-3 py-1 bg-white border rounded-lg text-sm"
+                                className="inline-flex items-center gap-1.5 px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm"
                               >
                                 {keyword}
                                 <button
@@ -384,7 +388,7 @@ export function AddRuleModal({
                       </div>
                     ) : field === 'content.rating' ? (
                       <Select value={value} onValueChange={handleValueChange}>
-                        <SelectTrigger className="h-11 bg-white">
+                        <SelectTrigger className="h-11 bg-white rounded-xl border-gray-200 hover:border-gray-300">
                           <SelectValue placeholder="Select rating" />
                         </SelectTrigger>
                         <SelectContent>
@@ -403,7 +407,7 @@ export function AddRuleModal({
                         value={value}
                         onChange={(e) => handleValueChange(e.target.value)}
                         placeholder="e.g., en, es, fr"
-                        className="h-11 bg-white"
+                        className="h-11 text-base rounded-xl border-gray-200 hover:border-gray-300 bg-white"
                       />
                     ) : null}
                   </div>
@@ -414,7 +418,9 @@ export function AddRuleModal({
             {/* Step 3: Response Configuration */}
             <div className="space-y-4">
               <div className="flex items-center gap-2 mb-4">
-                <div className="flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 text-blue-700 text-sm font-medium">3</div>
+                <div className="flex items-center justify-center w-6 h-6 rounded-full bg-blue-50 text-blue-600 text-sm font-medium border border-blue-100">
+                  3
+                </div>
                 <h3 className="font-medium text-gray-900">Configure Response</h3>
               </div>
               
@@ -422,7 +428,7 @@ export function AddRuleModal({
                 <div className="space-y-2">
                   <Label className="text-sm text-gray-600">Response Style</Label>
                   <Select value={responseStyle} onValueChange={handleResponseStyleChange}>
-                    <SelectTrigger className="h-11 bg-white">
+                    <SelectTrigger className="h-11 bg-white rounded-xl border-gray-200 hover:border-gray-300">
                       <SelectValue placeholder="Select style" />
                     </SelectTrigger>
                     <SelectContent>
@@ -444,7 +450,7 @@ export function AddRuleModal({
                         variant="outline"
                         size="sm"
                         onClick={() => insertVariable('reviewer_name')}
-                        className="h-7 px-2 text-xs"
+                        className="h-8 px-3 rounded-full border-gray-200 hover:bg-gray-50 text-gray-600 hover:text-gray-900"
                       >
                         +Name
                       </Button>
@@ -453,7 +459,7 @@ export function AddRuleModal({
                         variant="outline"
                         size="sm"
                         onClick={() => insertVariable('hotel_name')}
-                        className="h-7 px-2 text-xs"
+                        className="h-8 px-3 rounded-full border-gray-200 hover:bg-gray-50 text-gray-600 hover:text-gray-900"
                       >
                         +Hotel
                       </Button>
@@ -462,7 +468,7 @@ export function AddRuleModal({
                         variant="outline"
                         size="sm"
                         onClick={() => insertVariable('rating')}
-                        className="h-7 px-2 text-xs"
+                        className="h-8 px-3 rounded-full border-gray-200 hover:bg-gray-50 text-gray-600 hover:text-gray-900"
                       >
                         +Rating
                       </Button>
@@ -472,7 +478,7 @@ export function AddRuleModal({
                     value={responseText}
                     onChange={(e) => setResponseText(e.target.value)}
                     placeholder="Write your response template..."
-                    className="min-h-[200px] text-base p-3 bg-white"
+                    className="min-h-[200px] text-base p-3 bg-white rounded-xl border-gray-200 hover:border-gray-300"
                   />
                 </div>
               </div>
@@ -480,14 +486,14 @@ export function AddRuleModal({
           </div>
         </div>
 
-        {/* Footer */}
-        <div className="sticky bottom-0 bg-white border-t px-6 py-4">
+        {/* Footer - Sempre in fondo */}
+        <div className="shrink-0 sticky bottom-0 bg-white border-t px-6 py-4 mt-auto">
           <div className="max-w-4xl mx-auto flex justify-between items-center">
             <Button 
               type="button" 
               variant="ghost"
               onClick={handleReset}
-              className="h-10"
+              className="h-10 rounded-xl hover:bg-gray-100"
             >
               Cancel
             </Button>
@@ -495,7 +501,7 @@ export function AddRuleModal({
               type="submit"
               onClick={handleSubmit}
               disabled={isLoading || !isFormValid()}
-              className="h-10 px-6 gap-2"
+              className="h-10 px-6 gap-2 bg-primary text-primary-foreground shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all rounded-xl"
             >
               {isLoading ? (
                 <>
