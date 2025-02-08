@@ -64,34 +64,12 @@ function isErrorResponse(data: any): data is ErrorResponse {
   return 'message' in data;
 }
 
-// Definisci prima le interfacce di base
-interface RuleCondition {
-  field: 'content.text' | 'content.rating' | 'content.language';
-  operator: 'contains' | 'not_contains' | 'equals' | 'greater_than' | 'less_than';
-  value: string | string[] | number;
-}
-
-interface RuleResponse {
-  text: string;
-  settings: {
-    style: 'professional' | 'friendly' | 'personal' | 'sarcastic' | 'challenging';
-  };
-}
-
-interface BaseRule {
-  name: string;
-  condition: RuleCondition;
-  response: RuleResponse;
-}
-
-// Estendi BaseRule per SuggestedRule
+// Estendi Rule per SuggestedRule
 interface SuggestedRule extends Omit<Rule, 'hotelId'> {
+  _id?: string;
   hotelId?: string;
   isActive: boolean;
 }
-
-// Importa il tipo Rule direttamente da types/rule
-import { Rule } from '@/types/rule';
 
 export function ThemesAnalysisDialog({
   hotelId,
