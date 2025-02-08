@@ -92,76 +92,104 @@ export default function RulesPage() {
 
   return (
     <div className="container mx-auto py-6 max-w-7xl">
-      <div className="flex flex-col gap-6">
-        {/* Header con selettore hotel */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div className="flex-1 w-full sm:w-auto max-w-xs">
-            <Select value={selectedHotelId} onValueChange={handleHotelChange}>
-              <SelectTrigger className="h-12 rounded-xl bg-white border-gray-200">
-                <SelectValue placeholder="Select hotel" />
-              </SelectTrigger>
-              <SelectContent>
-                {hotels.map(hotel => (
-                  <SelectItem key={hotel._id} value={hotel._id}>
-                    {hotel.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+      {/* Modern gradient background */}
+      <div className="fixed inset-0 -z-10 bg-gradient-to-br from-[#FAFAFB] via-[#F0F0F2] to-[#FAFAFB] backdrop-blur-sm" />
 
-          <div className="flex gap-3">
-            <Button
-              onClick={() => setIsThemesDialogOpen(true)}
-              variant="outline"
-              className="h-12 px-6 gap-2 rounded-xl border-gray-200 hover:bg-gray-50 transition-colors"
-              disabled={!selectedHotelId}
-            >
-              <Sparkles className="h-4 w-4" />
-              Analyze Reviews
-            </Button>
-            <Button
-              onClick={() => setIsAddRuleModalOpen(true)}
-              className="h-12 px-6 gap-2 bg-primary text-primary-foreground shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all rounded-xl"
-              disabled={!selectedHotelId}
-            >
-              <Plus className="h-4 w-4" />
-              Add Rule
-            </Button>
+      <div className="flex flex-col gap-6">
+        {/* Modern left-aligned header */}
+        <div className="flex flex-col items-start">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="h-8 w-1 rounded-full bg-gradient-to-b from-blue-600 to-blue-400" />
+            <h1 className="text-3xl sm:text-4xl font-semibold bg-gradient-to-b from-blue-800 to-blue-600 bg-clip-text text-transparent">
+              Response Rules
+            </h1>
+          </div>
+          <div className="flex items-center gap-2 text-gray-500">
+            <p className="text-base">
+              Create and manage automated response rules for your reviews
+            </p>
+            <span className="inline-flex items-center rounded-full bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">
+              {rules.length} Rules
+            </span>
           </div>
         </div>
 
-        {/* Loading state */}
-        {isLoading ? (
-          <div className="flex justify-center py-8">
-            <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
-          </div>
-        ) : error ? (
-          <div className="flex justify-center py-8 text-red-500 items-center gap-2">
-            <AlertCircle className="h-5 w-5" />
-            {error}
-          </div>
-        ) : rules.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="flex justify-center mb-4">
-              <div className="p-3 rounded-full bg-primary/10">
-                <Plus className="h-6 w-6 text-primary" />
+        {/* Header con selettore hotel */}
+        <div className="bg-white rounded-3xl border border-gray-200 shadow-lg overflow-hidden">
+          <div className="p-6 border-b border-gray-100">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <div className="flex-1 w-full sm:w-auto max-w-xs">
+                <Select value={selectedHotelId} onValueChange={handleHotelChange}>
+                  <SelectTrigger className="h-12 rounded-xl bg-white/50 border-gray-200 focus:border-primary focus:ring-primary">
+                    <SelectValue placeholder="Select hotel" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {hotels.map(hotel => (
+                      <SelectItem key={hotel._id} value={hotel._id}>
+                        {hotel.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="flex gap-3">
+                <Button
+                  onClick={() => setIsThemesDialogOpen(true)}
+                  variant="outline"
+                  className="h-12 px-6 gap-2 rounded-xl border-gray-200 hover:bg-gray-50 transition-colors"
+                  disabled={!selectedHotelId}
+                >
+                  <Sparkles className="h-4 w-4" />
+                  Analyze Reviews
+                </Button>
+                <Button
+                  onClick={() => setIsAddRuleModalOpen(true)}
+                  className="h-12 px-6 gap-2 bg-primary text-primary-foreground shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all rounded-xl"
+                  disabled={!selectedHotelId}
+                >
+                  <Plus className="h-4 w-4" />
+                  Add Rule
+                </Button>
               </div>
             </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-1">No rules yet</h3>
-            <p className="text-gray-500 mb-4">Create your first rule to start automating responses</p>
-            <Button
-              onClick={() => setIsAddRuleModalOpen(true)}
-              className="h-12 px-6 gap-2 bg-primary text-primary-foreground shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all rounded-xl"
-              disabled={!selectedHotelId}
-            >
-              <Plus className="h-4 w-4" />
-              Create First Rule
-            </Button>
           </div>
-        ) : (
-          <RulesList rules={rules} onRuleUpdate={setRules} />
-        )}
+
+          {/* Content section */}
+          <div className="p-6">
+            {/* Loading state */}
+            {isLoading ? (
+              <div className="flex justify-center py-8">
+                <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+              </div>
+            ) : error ? (
+              <div className="flex justify-center py-8 text-red-500 items-center gap-2">
+                <AlertCircle className="h-5 w-5" />
+                {error}
+              </div>
+            ) : rules.length === 0 ? (
+              <div className="text-center py-12">
+                <div className="flex justify-center mb-4">
+                  <div className="p-3 rounded-full bg-primary/10">
+                    <Plus className="h-6 w-6 text-primary" />
+                  </div>
+                </div>
+                <h3 className="text-lg font-medium text-gray-900 mb-1">No rules yet</h3>
+                <p className="text-gray-500 mb-4">Create your first rule to start automating responses</p>
+                <Button
+                  onClick={() => setIsAddRuleModalOpen(true)}
+                  className="h-12 px-6 gap-2 bg-primary text-primary-foreground shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all rounded-xl"
+                  disabled={!selectedHotelId}
+                >
+                  <Plus className="h-4 w-4" />
+                  Create First Rule
+                </Button>
+              </div>
+            ) : (
+              <RulesList rules={rules} onRuleUpdate={setRules} />
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Modals */}

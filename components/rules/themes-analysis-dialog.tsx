@@ -93,7 +93,6 @@ export function ThemesAnalysisDialog({
       const data = await response.json();
 
       if (!response.ok) {
-        // Use type guard to check if response is an error
         if (isErrorResponse(data)) {
           if (data.type === 'NO_CREDITS') {
             setShowCreditPurchase(true);
@@ -104,9 +103,8 @@ export function ThemesAnalysisDialog({
         throw new Error('Error during analysis');
       }
 
-      const analysisData = data as AnalysisResponse;
-      setAnalysis(analysisData.analysis);
-      toast.success(`Analyzed ${analysisData.reviewsAnalyzed} reviews`);
+      setAnalysis(data.analysis.analysis);
+      toast.success(`Analyzed ${data.reviewsAnalyzed} reviews`);
     } catch (err) {
       console.error('Analysis error:', err);
       const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
