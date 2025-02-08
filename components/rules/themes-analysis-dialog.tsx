@@ -286,10 +286,10 @@ export function ThemesAnalysisDialog({
                 </div>
               </div>
               {selectedRules.size > 0 && (
-                <Badge variant="secondary" className="h-7 px-3 gap-1.5">
+                <div className="flex items-center gap-1.5 h-7 px-3 bg-gray-100 text-gray-700 rounded-full text-sm">
                   <Check className="h-3.5 w-3.5" />
-                  {selectedRules.size} selected
-                </Badge>
+                  <span>{selectedRules.size} selected</span>
+                </div>
               )}
             </div>
           </DialogHeader>
