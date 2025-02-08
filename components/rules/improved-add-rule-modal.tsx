@@ -103,6 +103,14 @@ export function AddRuleModal({
       
       setResponseText(initialData.response.text);
       setResponseStyle(initialData.response.settings.style);
+    } else {
+      setName('');
+      setField('content.text');
+      setOperator('contains');
+      setKeywords([]);
+      setValue('');
+      setResponseText('');
+      setResponseStyle('professional');
     }
   }, [initialData, isEditing]);
 
@@ -326,18 +334,18 @@ export function AddRuleModal({
                     value={keywordInput}
                     onChange={(e) => setKeywordInput(e.target.value)}
                     onKeyDown={handleAddKeyword}
-                    placeholder="Type keyword and press Enter"
+                    placeholder="Enter a topic/theme (e.g., breakfast, cleanliness, staff) and press Enter"
                     className="h-12 bg-white rounded-xl w-full"
                   />
                 ) : field === 'content.rating' ? (
                   <Select value={value} onValueChange={handleValueChange}>
                     <SelectTrigger className="h-12 bg-white rounded-xl">
-                      <SelectValue placeholder="Select rating" />
+                      <SelectValue placeholder="Select star rating" />
                     </SelectTrigger>
                     <SelectContent>
                       {[1,2,3,4,5].map(rating => (
                         <SelectItem key={rating} value={rating.toString()}>
-                          {rating} Stars
+                          {rating} {rating === 1 ? 'Star' : 'Stars'}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -345,7 +353,7 @@ export function AddRuleModal({
                 ) : field === 'content.language' ? (
                   <Select value={value} onValueChange={handleValueChange}>
                     <SelectTrigger className="h-12 bg-white rounded-xl">
-                      <SelectValue placeholder="Select language" />
+                      <SelectValue placeholder="Select review language" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="it">Italian</SelectItem>
@@ -357,7 +365,7 @@ export function AddRuleModal({
                 ) : null}
               </div>
 
-              {/* Keywords Tags */}
+              {/* Topics Tags */}
               {field === 'content.text' && keywords.length > 0 && (
                 <div className="flex flex-wrap gap-2 pt-2">
                   {keywords.map((keyword, index) => (
