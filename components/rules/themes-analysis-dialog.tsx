@@ -183,23 +183,28 @@ export function ThemesAnalysisDialog({
     const allRules = [
       ...(analysis.recurringThemes?.map(t => ({
         ...t.suggestedRule,
-        _id: t.suggestedRule._id || `temp-${Math.random()}`
+        _id: t.suggestedRule._id || `temp-${Math.random()}`,
+        isActive: true
       })) || []),
       ...(analysis.commonIssues?.map(i => ({
         ...i.suggestedRule,
-        _id: i.suggestedRule._id || `temp-issue-${Math.random()}`
+        _id: i.suggestedRule._id || `temp-issue-${Math.random()}`,
+        isActive: true
       })) || []),
       ...(analysis.languageRules?.map(l => ({
         ...l.suggestedRule,
-        _id: l.suggestedRule._id || `temp-lang-${Math.random()}`
+        _id: l.suggestedRule._id || `temp-lang-${Math.random()}`,
+        isActive: true
       })) || []),
       ...(analysis.ratingBasedRules?.map(r => ({
         ...r.suggestedRule,
-        _id: r.suggestedRule._id || `temp-rating-${Math.random()}`
+        _id: r.suggestedRule._id || `temp-rating-${Math.random()}`,
+        isActive: true
       })) || []),
       ...(analysis.complexRules?.map(c => ({
         ...c.suggestedRule,
-        _id: c.suggestedRule._id || `temp-complex-${Math.random()}`
+        _id: c.suggestedRule._id || `temp-complex-${Math.random()}`,
+        isActive: true
       })) || [])
     ];
 
