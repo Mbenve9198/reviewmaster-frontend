@@ -1,13 +1,14 @@
 import React, { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Loader2, AlertCircle, Sparkles, ThumbsUp, ThumbsDown, Languages, Plus, CreditCard, Eye, MessageSquare, Star } from "lucide-react";
+import { Loader2, AlertCircle, Sparkles, ThumbsUp, ThumbsDown, Languages, Plus, CreditCard, Eye, MessageSquare, Star, ChevronRight, Badge, Check } from "lucide-react";
 import { toast } from "sonner";
 import { getCookie } from "cookies-next";
 import { Rule } from "@/types/rule";
 import CreditPurchaseSlider from "@/components/billing/CreditPurchaseSlider";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 interface ThemesAnalysisDialogProps {
   hotelId: string;
@@ -163,7 +164,7 @@ export function ThemesAnalysisDialog({
   };
 
   const toggleRuleSelection = (rule: SuggestedRule | Rule) => {
-    const ruleId = rule._id || `temp-${Math.random()}`;
+    const ruleId = rule._id;
     setSelectedRules(prev => {
       const newSet = new Set(prev);
       if (newSet.has(ruleId)) {
@@ -180,24 +181,29 @@ export function ThemesAnalysisDialog({
 
     // Cerca in tutte le categorie di regole
     const allRules = [
-      ...(analysis.recurringThemes?.map(t => t.suggestedRule) || []),
-      ...(analysis.commonIssues?.map(i => i.suggestedRule) || []),
-      ...(analysis.languageRules?.map(l => l.suggestedRule) || []),
-      ...(analysis.ratingBasedRules?.map(r => r.suggestedRule) || []),
-      ...(analysis.complexRules?.map(c => c.suggestedRule) || [])
+      ...(analysis.recurringThemes?.map(t => ({
+        ...t.suggestedRule,
+        _id: t.suggestedRule._id || `temp-${Math.random()}`
+      })) || []),
+      ...(analysis.commonIssues?.map(i => ({
+        ...i.suggestedRule,
+        _id: i.suggestedRule._id || `temp-issue-${Math.random()}`
+      })) || []),
+      ...(analysis.languageRules?.map(l => ({
+        ...l.suggestedRule,
+        _id: l.suggestedRule._id || `temp-lang-${Math.random()}`
+      })) || []),
+      ...(analysis.ratingBasedRules?.map(r => ({
+        ...r.suggestedRule,
+        _id: r.suggestedRule._id || `temp-rating-${Math.random()}`
+      })) || []),
+      ...(analysis.complexRules?.map(c => ({
+        ...c.suggestedRule,
+        _id: c.suggestedRule._id || `temp-complex-${Math.random()}`
+      })) || [])
     ];
 
-    const rule = allRules.find(rule => rule._id === ruleId || `temp-${Math.random()}` === ruleId);
-    
-    // Assicuriamoci che isActive sia sempre definito
-    if (rule) {
-      return {
-        ...rule,
-        isActive: rule.isActive ?? true // Se isActive è undefined, impostiamo a true
-      };
-    }
-    
-    return undefined;
+    return allRules.find(rule => rule._id === ruleId);
   };
 
   const handleCreateSelectedRules = async () => {
@@ -212,7 +218,11 @@ export function ThemesAnalysisDialog({
           const completeRule = {
             ...rule,
             hotelId,
+            isActive: true
           };
+
+          // Rimuovi il _id temporaneo prima di salvare
+          delete completeRule._id;
 
           const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/rules`, {
             method: 'POST',
@@ -252,47 +262,51 @@ export function ThemesAnalysisDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-[100vw] w-[100vw] h-[100vh] p-0 rounded-3xl">
-        {/* Header Section */}
-        <div className="sticky top-0 z-10 bg-white border-b px-8 py-6 rounded-t-3xl">
+      <DialogContent className="max-w-5xl h-[95vh] p-0 bg-white rounded-xl">
+        {/* Header aggiornato */}
+        <div className="sticky top-0 z-10 bg-white border-b px-6 py-4">
           <DialogHeader>
             <div className="flex items-center justify-between">
-              <div>
-                <DialogTitle className="flex items-center gap-2 text-2xl font-semibold">
-                  <Sparkles className="h-7 w-7 text-blue-500" />
-                  Review Analysis
-                </DialogTitle>
-                <DialogDescription className="text-base mt-1">
-                  AI-powered suggestions based on your review patterns
-                </DialogDescription>
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-blue-50 rounded-lg">
+                  <Sparkles className="h-5 w-5 text-blue-500" />
+                </div>
+                <div>
+                  <DialogTitle className="text-xl font-semibold">
+                    Review Analysis
+                  </DialogTitle>
+                  <p className="text-sm text-gray-500 mt-1">
+                    AI-powered suggestions based on your review patterns
+                  </p>
+                </div>
               </div>
               {selectedRules.size > 0 && (
-                <Button
-                  onClick={handleCreateSelectedRules}
-                  className="h-12 px-6 gap-2 bg-primary text-primary-foreground shadow-lg rounded-xl"
-                >
-                  Create {selectedRules.size} Selected Rules
-                </Button>
+                <Badge variant="secondary" className="h-7 px-3 gap-1.5">
+                  <Check className="h-3.5 w-3.5" />
+                  {selectedRules.size} selected
+                </Badge>
               )}
             </div>
           </DialogHeader>
         </div>
 
-        {/* Main Content Area */}
-        <div className="h-[calc(100vh-180px)] overflow-y-auto bg-gray-50">
+        {/* Main Content - Corretto scrolling */}
+        <div className="h-[calc(95vh-140px)] overflow-y-auto">
           {!analysis && !isLoading && !error && (
-            <div className="flex flex-col items-center justify-center h-full space-y-6 px-8">
+            <div className="flex flex-col items-center justify-center py-12 space-y-6">
               <div className="text-center space-y-4 max-w-lg">
-                <Sparkles className="h-12 w-12 text-blue-500 mx-auto" />
+                <div className="p-3 rounded-xl bg-blue-50 w-fit mx-auto">
+                  <Sparkles className="h-8 w-8 text-blue-500" />
+                </div>
                 <h3 className="text-xl font-semibold">Start Review Analysis</h3>
                 <p className="text-gray-600">
                   Our AI will analyze your reviews to identify patterns and suggest automated response rules.
                 </p>
                 <Button
                   onClick={startAnalysis}
-                  className="h-12 px-8 gap-2 bg-primary text-primary-foreground shadow-lg rounded-xl"
+                  className="h-11 px-6 gap-2"
                 >
-                  <Sparkles className="h-5 w-5" />
+                  <Sparkles className="h-4 w-4" />
                   Start Analysis
                 </Button>
               </div>
@@ -300,7 +314,7 @@ export function ThemesAnalysisDialog({
           )}
 
           {isLoading && (
-            <div className="flex flex-col items-center justify-center h-full space-y-4">
+            <div className="flex flex-col items-center justify-center py-12 space-y-4">
               <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
               <p className="text-gray-600">Analyzing your reviews...</p>
             </div>
@@ -328,130 +342,166 @@ export function ThemesAnalysisDialog({
           )}
 
           {analysis && !isLoading && !error && (
-            <div className="px-8 py-6 space-y-8">
-              {/* Categories Grid */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-                {/* Recurring Themes Section */}
-                {analysis.recurringThemes?.length > 0 && (
-                  <div className="col-span-full">
-                    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-                      <div className="p-6 border-b border-gray-100">
-                        <h3 className="text-lg font-medium flex items-center gap-2">
-                          <MessageSquare className="h-5 w-5 text-blue-500" />
-                          Recurring Themes
-                        </h3>
-                      </div>
-                      <div className="p-6 grid gap-4 md:grid-cols-2">
-                        {analysis.recurringThemes.map((theme, i) => (
-                          <div key={i} className="bg-gray-50 rounded-xl p-4 space-y-3">
-                            <div className="flex items-start justify-between">
-                              <div className="flex items-center gap-3">
-                                <Checkbox
-                                  checked={selectedRules.has(theme.suggestedRule._id || `temp-${i}`)}
-                                  onCheckedChange={() => toggleRuleSelection({
-                                    ...theme.suggestedRule,
-                                    _id: theme.suggestedRule._id || `temp-${i}`,
-                                    isActive: true
-                                  })}
-                                  className="h-5 w-5"
-                                />
-                                <h4 className="font-medium text-gray-900">{theme.theme}</h4>
-                              </div>
-                              <span className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-medium">
+            <div className="px-6 py-6 space-y-8">
+              {analysis.recurringThemes?.length > 0 && (
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2">
+                    <MessageSquare className="h-5 w-5 text-blue-500" />
+                    <Label className="text-lg font-medium text-gray-900">
+                      Recurring Themes
+                    </Label>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {analysis.recurringThemes.map((theme, i) => (
+                      <div 
+                        key={i} 
+                        className="group p-4 bg-gray-50 hover:bg-gray-100/80 rounded-lg transition-colors"
+                      >
+                        <div className="flex items-start gap-3">
+                          <Checkbox
+                            checked={selectedRules.has(theme.suggestedRule._id || `temp-${i}`)}
+                            onCheckedChange={() => toggleRuleSelection({
+                              ...theme.suggestedRule,
+                              _id: theme.suggestedRule._id || `temp-${i}`,
+                              isActive: true
+                            })}
+                            className="h-4 w-4 mt-1"
+                          />
+                          <div className="flex-1 space-y-3">
+                            <div className="flex items-start justify-between gap-4">
+                              <h4 className="font-medium text-gray-900">{theme.theme}</h4>
+                              <Badge variant="secondary" className="shrink-0">
                                 {theme.frequency} mentions
-                              </span>
+                              </Badge>
                             </div>
-                            <p className="text-sm text-gray-600 italic">"{theme.exampleQuote}"</p>
-                            <p className="text-sm text-gray-600">
+                            
+                            <blockquote className="text-sm text-gray-600 italic border-l-2 border-gray-200 pl-3">
+                              "{theme.exampleQuote}"
+                            </blockquote>
+                            
+                            <p className="line-clamp-2 text-sm text-gray-600">
                               <span className="font-medium">Response:</span> {theme.suggestedRule.response.text}
                             </p>
+
                             <div className="flex gap-2 pt-2">
                               <Button 
                                 variant="outline" 
                                 size="sm"
-                                className="flex-1 gap-2 hover:bg-blue-50 hover:text-blue-600 rounded-xl"
+                                className="flex-1 gap-1.5"
                                 onClick={() => handleCreateRule(theme.suggestedRule)}
                               >
-                                <Plus className="h-4 w-4" />
+                                <Plus className="h-3.5 w-3.5" />
                                 Create Rule
                               </Button>
                               <Button
                                 variant="outline"
                                 size="sm"
-                                className="px-3 hover:bg-gray-50 rounded-xl"
+                                className="px-2.5"
                                 onClick={() => setPreviewRule(theme.suggestedRule)}
                               >
-                                <Eye className="h-4 w-4" />
+                                <Eye className="h-3.5 w-3.5" />
                               </Button>
                             </div>
                           </div>
-                        ))}
+                        </div>
                       </div>
-                    </div>
+                    ))}
                   </div>
-                )}
-
-                {/* Similar structure for Rating, Language and Complex rules... */}
-                {/* ... keeping the same pattern but with different colors and icons */}
-              </div>
+                </div>
+              )}
             </div>
           )}
         </div>
 
+        {/* Footer aggiornato */}
+        {selectedRules.size > 0 && (
+          <div className="sticky bottom-0 bg-white border-t px-6 py-4">
+            <div className="flex justify-between items-center">
+              <p className="text-sm text-gray-600">
+                {selectedRules.size} rules selected
+              </p>
+              <Button 
+                onClick={handleCreateSelectedRules}
+                className="h-10 px-5 gap-2"
+              >
+                Create Selected Rules
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        )}
+
         {/* Preview Modal */}
         <Dialog open={!!previewRule} onOpenChange={() => setPreviewRule(null)}>
-          <DialogContent className="sm:max-w-xl rounded-3xl bg-white p-8">
-            <DialogHeader className="mb-6">
-              <DialogTitle className="text-xl font-semibold">Rule Preview</DialogTitle>
+          <DialogContent className="sm:max-w-xl p-6 rounded-xl">
+            <DialogHeader className="mb-4">
+              <div className="flex items-center gap-2 text-lg font-semibold">
+                <Eye className="h-5 w-5 text-gray-500" />
+                Rule Preview
+              </div>
             </DialogHeader>
+
             {previewRule && (
               <div className="space-y-6">
-                <div className="space-y-3">
-                  <h4 className="font-medium text-sm text-gray-700">Condition</h4>
-                  <div className="bg-gray-50 p-4 rounded-xl space-y-2">
-                    <p className="text-sm">
-                      <span className="font-medium">Field:</span> {previewRule.condition.field}
+                <div className="space-y-2">
+                  <Label className="text-sm text-gray-700">When</Label>
+                  <div className="bg-gray-50 p-3 rounded-lg space-y-1.5">
+                    <p className="text-sm flex items-center justify-between">
+                      <span className="text-gray-600">Field</span>
+                      <span className="font-medium">{previewRule.condition.field}</span>
                     </p>
-                    <p className="text-sm">
-                      <span className="font-medium">Operator:</span> {previewRule.condition.operator}
+                    <p className="text-sm flex items-center justify-between">
+                      <span className="text-gray-600">Operator</span>
+                      <span className="font-medium">{previewRule.condition.operator}</span>
                     </p>
-                    <p className="text-sm">
-                      <span className="font-medium">Value:</span>{' '}
-                      {Array.isArray(previewRule.condition.value) 
-                        ? previewRule.condition.value.join(', ')
-                        : previewRule.condition.value}
+                    <p className="text-sm flex items-center justify-between">
+                      <span className="text-gray-600">Value</span>
+                      <span className="font-medium">
+                        {Array.isArray(previewRule.condition.value) 
+                          ? previewRule.condition.value.join(', ')
+                          : previewRule.condition.value}
+                      </span>
                     </p>
                   </div>
                 </div>
-                <div className="space-y-3">
-                  <h4 className="font-medium text-sm text-gray-700">Response</h4>
-                  <div className="bg-gray-50 p-4 rounded-xl">
+
+                <div className="space-y-2">
+                  <Label className="text-sm text-gray-700">Response</Label>
+                  <div className="bg-gray-50 p-3 rounded-lg space-y-3">
                     <p className="text-sm whitespace-pre-wrap">{previewRule.response.text}</p>
-                    <p className="text-sm mt-2">
-                      <span className="font-medium">Style:</span> {previewRule.response.settings.style}
-                    </p>
+                    <div className="pt-2 border-t">
+                      <p className="text-sm flex items-center justify-between">
+                        <span className="text-gray-600">Style</span>
+                        <Badge variant="secondary">
+                          {previewRule.response.settings.style}
+                        </Badge>
+                      </p>
+                    </div>
                   </div>
+                </div>
+
+                <div className="flex justify-end gap-2 pt-2">
+                  <Button
+                    variant="outline"
+                    onClick={() => setPreviewRule(null)}
+                    className="h-9"
+                  >
+                    Close
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      handleCreateRule(previewRule);
+                      setPreviewRule(null);
+                    }}
+                    className="h-9 gap-2"
+                  >
+                    <Plus className="h-4 w-4" />
+                    Create Rule
+                  </Button>
                 </div>
               </div>
             )}
-            <DialogFooter className="gap-2 mt-8">
-              <Button
-                variant="outline"
-                onClick={() => setPreviewRule(null)}
-                className="rounded-xl"
-              >
-                Close
-              </Button>
-              <Button
-                onClick={() => {
-                  handleCreateRule(previewRule!);
-                  setPreviewRule(null);
-                }}
-                className="rounded-xl bg-primary text-primary-foreground"
-              >
-                Create Rule
-              </Button>
-            </DialogFooter>
           </DialogContent>
         </Dialog>
       </DialogContent>
