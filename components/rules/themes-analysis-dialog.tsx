@@ -154,6 +154,21 @@ export function ThemesAnalysisDialog({
     });
   };
 
+  const findRuleById = (ruleId: string): SuggestedRule | undefined => {
+    if (!analysis) return undefined;
+
+    // Cerca in tutte le categorie di regole
+    const allRules = [
+      ...(analysis.recurringThemes?.map(t => t.suggestedRule) || []),
+      ...(analysis.commonIssues?.map(i => i.suggestedRule) || []),
+      ...(analysis.languageRules?.map(l => l.suggestedRule) || []),
+      ...(analysis.ratingBasedRules?.map(r => r.suggestedRule) || []),
+      ...(analysis.complexRules?.map(c => c.suggestedRule) || [])
+    ];
+
+    return allRules.find(rule => rule._id === ruleId || `temp-${Math.random()}` === ruleId);
+  };
+
   const handleCreateSelectedRules = () => {
     const selectedRulesArray = Array.from(selectedRules);
     selectedRulesArray.forEach(ruleId => {
