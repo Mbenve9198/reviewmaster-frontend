@@ -35,6 +35,18 @@ interface AnalysisResponse {
       frequency: number;
       suggestedRule: Rule;
     }>;
+    ratingBasedRules: Array<{
+      ratingCondition: string;
+      frequency: number;
+      exampleQuote: string;
+      suggestedRule: Rule;
+    }>;
+    complexRules: Array<{
+      scenario: string;
+      frequency: number;
+      exampleQuote: string;
+      suggestedRule: Rule;
+    }>;
   };
   reviewsAnalyzed: number;
 }
@@ -178,18 +190,18 @@ export function ThemesAnalysisDialog({
 
           {analysis && (
             <div className="space-y-8">
-              {/* Recurring Themes Section */}
+              {/* Recurring Themes */}
               <div className="space-y-4">
                 <h3 className="text-lg font-medium flex items-center gap-2">
-                  <ThumbsUp className="h-5 w-5 text-green-500" />
-                  Common Positive Themes
+                  <Sparkles className="h-5 w-5 text-blue-500" />
+                  Recurring Themes
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {analysis.recurringThemes.map((theme, i) => (
                     <div key={i} className="p-4 rounded-xl border bg-white shadow-sm hover:shadow-md transition-shadow">
                       <div className="flex justify-between items-start mb-3">
                         <h4 className="font-medium text-gray-900">{theme.theme}</h4>
-                        <span className="px-2 py-1 rounded-full text-xs bg-green-50 text-green-700 font-medium">
+                        <span className="px-2 py-1 rounded-full text-xs bg-blue-50 text-blue-700 font-medium">
                           {theme.frequency} mentions
                         </span>
                       </div>
@@ -199,54 +211,86 @@ export function ThemesAnalysisDialog({
                       <Button 
                         variant="outline" 
                         size="sm"
-                        className="w-full gap-2 hover:bg-green-50 hover:text-green-600"
+                        className="w-full gap-2 hover:bg-blue-50 hover:text-blue-600"
                         onClick={() => handleCreateRule(theme.suggestedRule)}
                       >
                         <Plus className="h-4 w-4" />
-                        Create Response Rule
+                        Create Theme Rule
                       </Button>
                     </div>
                   ))}
                 </div>
               </div>
 
-              {/* Common Issues Section */}
+              {/* Rating Based Rules */}
               <div className="space-y-4">
                 <h3 className="text-lg font-medium flex items-center gap-2">
-                  <ThumbsDown className="h-5 w-5 text-red-500" />
-                  Common Issues
+                  <ThumbsUp className="h-5 w-5 text-green-500" />
+                  Rating Based Rules
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {analysis.commonIssues.map((issue, i) => (
+                  {analysis.ratingBasedRules.map((rule, i) => (
                     <div key={i} className="p-4 rounded-xl border bg-white shadow-sm hover:shadow-md transition-shadow">
                       <div className="flex justify-between items-start mb-3">
-                        <h4 className="font-medium text-gray-900">{issue.issue}</h4>
-                        <span className="px-2 py-1 rounded-full text-xs bg-red-50 text-red-700 font-medium">
-                          {issue.frequency} mentions
+                        <h4 className="font-medium text-gray-900">{rule.ratingCondition}</h4>
+                        <span className="px-2 py-1 rounded-full text-xs bg-green-50 text-green-700 font-medium">
+                          {rule.frequency} reviews
                         </span>
                       </div>
                       <p className="text-sm text-gray-600 italic mb-4 line-clamp-2">
-                        "{issue.exampleQuote}"
+                        "{rule.exampleQuote}"
                       </p>
                       <Button 
                         variant="outline" 
                         size="sm"
-                        className="w-full gap-2 hover:bg-red-50 hover:text-red-600"
-                        onClick={() => handleCreateRule(issue.suggestedRule)}
+                        className="w-full gap-2 hover:bg-green-50 hover:text-green-600"
+                        onClick={() => handleCreateRule(rule.suggestedRule)}
                       >
                         <Plus className="h-4 w-4" />
-                        Create Response Rule
+                        Create Rating Rule
                       </Button>
                     </div>
                   ))}
                 </div>
               </div>
 
-              {/* Language-based Rules */}
+              {/* Complex Rules */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-medium flex items-center gap-2">
+                  <ThumbsDown className="h-5 w-5 text-orange-500" />
+                  Complex Scenarios
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {analysis.complexRules.map((rule, i) => (
+                    <div key={i} className="p-4 rounded-xl border bg-white shadow-sm hover:shadow-md transition-shadow">
+                      <div className="flex justify-between items-start mb-3">
+                        <h4 className="font-medium text-gray-900">{rule.scenario}</h4>
+                        <span className="px-2 py-1 rounded-full text-xs bg-orange-50 text-orange-700 font-medium">
+                          {rule.frequency} matches
+                        </span>
+                      </div>
+                      <p className="text-sm text-gray-600 italic mb-4 line-clamp-2">
+                        "{rule.exampleQuote}"
+                      </p>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        className="w-full gap-2 hover:bg-orange-50 hover:text-orange-600"
+                        onClick={() => handleCreateRule(rule.suggestedRule)}
+                      >
+                        <Plus className="h-4 w-4" />
+                        Create Complex Rule
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Language Rules */}
               <div className="space-y-4">
                 <h3 className="text-lg font-medium flex items-center gap-2">
                   <Languages className="h-5 w-5 text-purple-500" />
-                  Language-based Rules
+                  Language Rules
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {analysis.languageRules.map((rule, i) => (
