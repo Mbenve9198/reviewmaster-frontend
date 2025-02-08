@@ -85,8 +85,7 @@ interface BaseRule {
 }
 
 // Estendi BaseRule per SuggestedRule
-interface SuggestedRule extends BaseRule {
-  _id?: string;
+interface SuggestedRule extends Omit<Rule, 'hotelId'> {
   hotelId?: string;
   isActive: boolean;
 }
