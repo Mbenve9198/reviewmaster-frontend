@@ -478,9 +478,9 @@ export function ThemesAnalysisDialog({
                     <div className="pt-2 border-t">
                       <p className="text-sm flex items-center justify-between">
                         <span className="text-gray-600">Style</span>
-                        <Badge variant="secondary">
+                        <div className="px-2.5 py-0.5 bg-gray-100 text-gray-700 rounded-full text-sm">
                           {previewRule.response.settings.style}
-                        </Badge>
+                        </div>
                       </p>
                     </div>
                   </div>
