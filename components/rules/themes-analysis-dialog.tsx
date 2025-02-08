@@ -87,10 +87,6 @@ export function ThemesAnalysisDialog({
   const [showCreditPurchase, setShowCreditPurchase] = useState(false);
   const [selectedRules, setSelectedRules] = useState<Set<string>>(new Set());
   const [previewRule, setPreviewRule] = useState<Rule | null>(null);
-  const [field, setField] = useState<FieldKey>('content.rating');
-  const [operator, setOperator] = useState<OperatorKey>('>');
-  const [value, setValue] = useState<string>('3');
-  const [responseStyle, setResponseStyle] = useState<ResponseStyle>('professional');
 
   const startAnalysis = async () => {
     try {
@@ -292,18 +288,6 @@ export function ThemesAnalysisDialog({
       isActive: !(rule.isActive ?? true) // Default a true se undefined
     };
     handleCreateRule(updatedRule as Rule);
-  };
-
-  const handleOperatorChange = (value: OperatorKey) => {
-    setOperator(value);
-  };
-
-  const handleValueChange = (value: string) => {
-    setValue(value);
-  };
-
-  const handleResponseStyleChange = (value: ResponseStyle) => {
-    setResponseStyle(value);
   };
 
   return (
