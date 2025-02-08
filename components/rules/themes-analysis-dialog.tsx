@@ -292,9 +292,9 @@ export function ThemesAnalysisDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-5xl h-[95vh] p-0 bg-white rounded-xl flex flex-col">
-        {/* Header */}
-        <div className="shrink-0 sticky top-0 z-10 bg-white border-b px-6 py-4">
+      <DialogContent className="max-w-5xl h-[95vh] p-0 bg-white rounded-2xl flex flex-col overflow-hidden">
+        {/* Header fisso */}
+        <div className="shrink-0 bg-white border-b rounded-t-2xl px-6 py-4">
           <DialogHeader>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -320,158 +320,162 @@ export function ThemesAnalysisDialog({
           </DialogHeader>
         </div>
 
-        {/* Main Content - Con scroll indipendente */}
-        <div className="flex-1 overflow-y-auto px-6 py-6">
-          {!analysis && !isLoading && !error && (
-            <div className="flex flex-col items-center justify-center py-12 space-y-6">
-              <div className="text-center space-y-4 max-w-lg">
-                <div className="p-3 rounded-xl bg-blue-50 w-fit mx-auto">
-                  <Sparkles className="h-8 w-8 text-blue-500" />
+        {/* Content scrollabile */}
+        <div className="flex-1 overflow-y-auto">
+          <div className="px-6 py-6">
+            {!analysis && !isLoading && !error && (
+              <div className="flex flex-col items-center justify-center py-12 space-y-6">
+                <div className="text-center space-y-4 max-w-lg">
+                  <div className="p-3 rounded-xl bg-blue-50 w-fit mx-auto">
+                    <Sparkles className="h-8 w-8 text-blue-500" />
+                  </div>
+                  <h3 className="text-xl font-semibold">Start Review Analysis</h3>
+                  <p className="text-gray-600">
+                    Our AI will analyze your reviews to identify patterns and suggest automated response rules.
+                  </p>
+                  <Button
+                    onClick={startAnalysis}
+                    className="h-11 px-6 gap-2 bg-primary text-primary-foreground shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all rounded-xl"
+                  >
+                    <Sparkles className="h-4 w-4" />
+                    Start Analysis
+                  </Button>
                 </div>
-                <h3 className="text-xl font-semibold">Start Review Analysis</h3>
-                <p className="text-gray-600">
-                  Our AI will analyze your reviews to identify patterns and suggest automated response rules.
-                </p>
-                <Button
-                  onClick={startAnalysis}
-                  className="h-11 px-6 gap-2 bg-primary text-primary-foreground shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all rounded-xl"
+              </div>
+            )}
+
+            {isLoading && (
+              <div className="flex flex-col items-center justify-center py-12 space-y-4">
+                <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+                <p className="text-gray-600">Analyzing your reviews...</p>
+              </div>
+            )}
+
+            {error && error.includes('credits') && (
+              <div className="flex flex-col items-center justify-center py-12 space-y-6">
+                <AlertCircle className="h-12 w-12 text-yellow-500" />
+                <div className="text-center space-y-3">
+                  <h3 className="text-lg font-medium text-gray-900">
+                    Insufficient Credits
+                  </h3>
+                  <p className="text-sm text-gray-500 max-w-md">
+                    You need at least 10 credits to perform this analysis.
+                  </p>
+                </div>
+                <Button 
+                  onClick={() => setShowCreditPurchase(true)}
+                  className="h-12 px-6 gap-2 bg-primary text-primary-foreground shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all rounded-xl"
                 >
-                  <Sparkles className="h-4 w-4" />
-                  Start Analysis
+                  <CreditCard className="h-4 w-4" />
+                  Purchase Credits
                 </Button>
               </div>
-            </div>
-          )}
+            )}
 
-          {isLoading && (
-            <div className="flex flex-col items-center justify-center py-12 space-y-4">
-              <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
-              <p className="text-gray-600">Analyzing your reviews...</p>
-            </div>
-          )}
-
-          {error && error.includes('credits') && (
-            <div className="flex flex-col items-center justify-center py-12 space-y-6">
-              <AlertCircle className="h-12 w-12 text-yellow-500" />
-              <div className="text-center space-y-3">
-                <h3 className="text-lg font-medium text-gray-900">
-                  Insufficient Credits
-                </h3>
-                <p className="text-sm text-gray-500 max-w-md">
-                  You need at least 10 credits to perform this analysis.
-                </p>
-              </div>
-              <Button 
-                onClick={() => setShowCreditPurchase(true)}
-                className="h-12 px-6 gap-2 bg-primary text-primary-foreground shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all rounded-xl"
-              >
-                <CreditCard className="h-4 w-4" />
-                Purchase Credits
-              </Button>
-            </div>
-          )}
-
-          {analysis && !isLoading && !error && (
-            <div className="space-y-8">
-              {analysis.recurringThemes?.length > 0 && (
-                <div className="space-y-4">
-                  <div className="flex items-center gap-2">
-                    <MessageSquare className="h-5 w-5 text-blue-500" />
-                    <Label className="text-lg font-medium text-gray-900">
-                      Recurring Themes
-                    </Label>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {analysis.recurringThemes.map((theme, i) => (
-                      <div 
-                        key={i} 
-                        className="group p-4 bg-gray-50 hover:bg-gray-100/80 rounded-lg transition-colors"
-                      >
-                        <div className="flex items-start gap-3">
-                          <Checkbox
-                            checked={selectedRules.has(theme.suggestedRule._id || `temp-${i}`)}
-                            onCheckedChange={() => toggleRuleSelection({
-                              ...theme.suggestedRule,
-                              _id: theme.suggestedRule._id || `temp-${i}`,
-                              isActive: true
-                            })}
-                            className="h-4 w-4 mt-1"
-                          />
-                          <div className="flex-1 space-y-3">
-                            <div className="flex items-start justify-between gap-4">
-                              <h4 className="font-medium text-gray-900">{theme.theme}</h4>
-                              <div className="shrink-0 px-2.5 py-0.5 bg-gray-100 text-gray-700 rounded-full text-sm">
-                                {theme.frequency} mentions
+            {analysis && !isLoading && !error && (
+              <div className="space-y-8">
+                {analysis.recurringThemes?.length > 0 && (
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2">
+                      <MessageSquare className="h-5 w-5 text-blue-500" />
+                      <Label className="text-lg font-medium text-gray-900">
+                        Recurring Themes
+                      </Label>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {analysis.recurringThemes.map((theme, i) => (
+                        <div 
+                          key={i} 
+                          className="group p-4 bg-gray-50 hover:bg-gray-100/80 rounded-lg transition-colors"
+                        >
+                          <div className="flex items-start gap-3">
+                            <Checkbox
+                              checked={selectedRules.has(theme.suggestedRule._id || `temp-${i}`)}
+                              onCheckedChange={() => toggleRuleSelection({
+                                ...theme.suggestedRule,
+                                _id: theme.suggestedRule._id || `temp-${i}`,
+                                isActive: true
+                              })}
+                              className="h-4 w-4 mt-1"
+                            />
+                            <div className="flex-1 space-y-3">
+                              <div className="flex items-start justify-between gap-4">
+                                <h4 className="font-medium text-gray-900">{theme.theme}</h4>
+                                <div className="shrink-0 px-2.5 py-0.5 bg-gray-100 text-gray-700 rounded-full text-sm">
+                                  {theme.frequency} mentions
+                                </div>
                               </div>
-                            </div>
-                            
-                            <blockquote className="text-sm text-gray-600 italic border-l-2 border-gray-200 pl-3">
-                              "{theme.exampleQuote}"
-                            </blockquote>
-                            
-                            <p className="line-clamp-2 text-sm text-gray-600">
-                              <span className="font-medium">Response:</span> {theme.suggestedRule.response.text}
-                            </p>
+                              
+                              <blockquote className="text-sm text-gray-600 italic border-l-2 border-gray-200 pl-3">
+                                "{theme.exampleQuote}"
+                              </blockquote>
+                              
+                              <p className="line-clamp-2 text-sm text-gray-600">
+                                <span className="font-medium">Response:</span> {theme.suggestedRule.response.text}
+                              </p>
 
-                            <div className="flex gap-2 pt-2">
-                              <Button 
-                                size="sm"
-                                className="flex-1 gap-1.5 bg-primary text-primary-foreground shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all rounded-xl"
-                                onClick={() => handleCreateRule(theme.suggestedRule)}
-                              >
-                                <Plus className="h-3.5 w-3.5" />
-                                Create Rule
-                              </Button>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                className="px-2.5 rounded-xl"
-                                onClick={() => setPreviewRule(theme.suggestedRule)}
-                              >
-                                <Eye className="h-3.5 w-3.5" />
-                              </Button>
+                              <div className="flex gap-2 pt-2">
+                                <Button 
+                                  size="sm"
+                                  className="flex-1 gap-1.5 bg-primary text-primary-foreground shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all rounded-xl"
+                                  onClick={() => handleCreateRule(theme.suggestedRule)}
+                                >
+                                  <Plus className="h-3.5 w-3.5" />
+                                  Create Rule
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="px-2.5 rounded-xl"
+                                  onClick={() => setPreviewRule(theme.suggestedRule)}
+                                >
+                                  <Eye className="h-3.5 w-3.5" />
+                                </Button>
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* Footer */}
-        <div className="shrink-0 sticky bottom-0 bg-white border-t px-6 py-4 mt-auto">
-          <div className="flex justify-between items-center">
-            <Button 
-              variant="ghost"
-              onClick={onClose}
-              className="h-10 rounded-xl"
-            >
-              Cancel
-            </Button>
-            <Button 
-              onClick={handleCreateSelectedRules}
-              disabled={isLoading || selectedRules.size === 0}
-              className="h-10 px-6 gap-2 bg-primary text-primary-foreground shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all rounded-xl"
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  <span>Creating Rules...</span>
-                </>
-              ) : (
-                <>
-                  <span>Create Selected Rules</span>
-                  <ChevronRight className="h-4 w-4" />
-                </>
-              )}
-            </Button>
+                )}
+              </div>
+            )}
           </div>
         </div>
+
+        {/* Footer fisso (solo quando ci sono regole selezionate) */}
+        {selectedRules.size > 0 && (
+          <div className="shrink-0 bg-white border-t rounded-b-2xl px-6 py-4">
+            <div className="flex justify-between items-center">
+              <Button 
+                variant="ghost"
+                onClick={onClose}
+                className="h-10 rounded-xl hover:bg-gray-100"
+              >
+                Cancel
+              </Button>
+              <Button 
+                onClick={handleCreateSelectedRules}
+                disabled={isLoading || selectedRules.size === 0}
+                className="h-10 px-6 gap-2 bg-primary text-primary-foreground shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all rounded-xl"
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span>Creating Rules...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Create Selected Rules</span>
+                    <ChevronRight className="h-4 w-4" />
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        )}
       </DialogContent>
 
       {/* Preview Modal */}
