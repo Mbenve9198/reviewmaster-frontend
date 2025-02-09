@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
-import { Pencil, Trash2, GripVertical, AlertCircle, MessageSquare, Star, Languages } from "lucide-react";
+import { Pencil, Trash2, AlertCircle, MessageSquare, Star, Languages } from "lucide-react";
 import { AddRuleModal } from './improved-add-rule-modal';
 import {
   AlertDialog,
@@ -165,10 +165,6 @@ export function RulesList({ rules, onRuleUpdate }) {
             key={rule._id}
             className="group flex items-center gap-4 p-4 bg-white rounded-xl border shadow-sm hover:shadow-md transition-shadow"
           >
-            <div className="cursor-move text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity">
-              <GripVertical className="h-5 w-5" />
-            </div>
-
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-2">
                 {getFieldIcon(rule.condition.field)}
@@ -197,15 +193,22 @@ export function RulesList({ rules, onRuleUpdate }) {
                 </div>
                 
                 <div className="flex items-center gap-3 shrink-0">
-                  <Switch
-                    checked={rule.isActive}
-                    onCheckedChange={() => handleToggleRule(rule._id, rule.isActive)}
-                    className="data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-gray-200 relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:ring-green-500 disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    <span 
-                      className="pointer-events-none block h-5 w-5 translate-x-0.5 rounded-full bg-white shadow-lg ring-0 transition-transform data-[state=checked]:translate-x-5"
-                    />
-                  </Switch>
+                  <div className="flex items-center gap-2">
+                    <Switch
+                      checked={rule.isActive}
+                      onCheckedChange={() => handleToggleRule(rule._id, rule.isActive)}
+                      className="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-gray-200"
+                    >
+                      <span
+                        className={`pointer-events-none block h-5 w-5 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
+                          rule.isActive ? "translate-x-5" : "translate-x-0"
+                        }`}
+                      />
+                    </Switch>
+                    <span className="text-sm text-gray-500">
+                      {rule.isActive ? "Active" : "Inactive"}
+                    </span>
+                  </div>
                   
                   <div className="flex items-center gap-1">
                     <Button
