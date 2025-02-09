@@ -51,11 +51,8 @@ const FIELD_OPTIONS: FieldOption[] = [
 
 const OPERATOR_OPTIONS: Record<FieldKey, OperatorOption[]> = {
   'content.text': [
-    { value: 'contains', label: 'Contains Keywords' },
-    { value: 'not_contains', label: "Doesn't Contain" },
-    { value: 'greater_than', label: 'Greater than' },
-    { value: 'less_than', label: 'Less than' },
-    { value: 'equals', label: 'Equals' }
+    { value: 'contains', label: 'Contains Topic' },
+    { value: 'not_contains', label: "Doesn't Contain Topic" }
   ],
   'content.rating': [
     { value: 'equals', label: 'Equals' },
@@ -282,13 +279,9 @@ export function AddRuleModal({
                 <div className="p-2 bg-blue-50 rounded-lg">
                   <Sparkles className="h-5 w-5 text-blue-500" />
                 </div>
-                <DialogTitle className="text-xl font-semibold">
+                <DialogTitle className="text-lg font-semibold">
                   {isEditing ? 'Edit Rule' : 'New Response Rule'}
                 </DialogTitle>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-gray-500">
-                <Info className="h-4 w-4" />
-                All changes are saved automatically
               </div>
             </div>
           </DialogHeader>
@@ -300,39 +293,39 @@ export function AddRuleModal({
             <div className="max-w-4xl mx-auto space-y-8">
               {/* Step sections... */}
               <div className="space-y-4">
-                <div className="flex items-center gap-2 mb-4">
-                  <div className="flex items-center justify-center w-6 h-6 rounded-full bg-blue-50 text-blue-600 text-sm font-medium border border-blue-100">
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center justify-center w-5 h-5 rounded-full bg-blue-50 text-blue-600 text-xs font-medium border border-blue-100">
                     1
                   </div>
-                  <h3 className="font-medium text-gray-900">Name Your Rule</h3>
+                  <h3 className="font-medium text-sm text-gray-900">Name Your Rule</h3>
                 </div>
                 <Input
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="e.g., Handle Positive Breakfast Reviews"
-                  className="h-11 text-base rounded-xl border-gray-200 hover:border-gray-300"
+                  className="h-9 text-sm rounded-xl border-gray-200 hover:border-gray-300"
                 />
               </div>
 
               {/* Step 2: Condition */}
               <div className="space-y-4">
                 <div className="flex items-center gap-2 mb-4">
-                  <div className="flex items-center justify-center w-6 h-6 rounded-full bg-blue-50 text-blue-600 text-sm font-medium border border-blue-100">
+                  <div className="flex items-center justify-center w-5 h-5 rounded-full bg-blue-50 text-blue-600 text-xs font-medium border border-blue-100">
                     2
                   </div>
-                  <h3 className="font-medium text-gray-900">Set Trigger Conditions</h3>
+                  <h3 className="font-medium text-sm text-gray-900">Set Trigger Conditions</h3>
                 </div>
                 <div className="p-4 bg-gray-50/80 backdrop-blur-sm rounded-xl border border-gray-100 shadow-sm">
                   <div className="grid grid-cols-[1.5fr_1.5fr_2fr] gap-4 items-start">
                     <div className="space-y-2">
-                      <Label className="text-sm text-gray-600">When</Label>
+                      <Label className="text-xs text-gray-600">When</Label>
                       <Select value={field} onValueChange={(value: FieldKey) => setField(value)}>
-                        <SelectTrigger className="h-11 bg-white rounded-xl border-gray-200 hover:border-gray-300">
+                        <SelectTrigger className="h-9 bg-white rounded-xl border-gray-200 hover:border-gray-300 text-sm">
                           <SelectValue placeholder="Select field" />
                         </SelectTrigger>
                         <SelectContent>
                           {FIELD_OPTIONS.map(option => (
-                            <SelectItem key={option.value} value={option.value}>
+                            <SelectItem key={option.value} value={option.value} className="text-sm">
                               {option.label}
                             </SelectItem>
                           ))}
@@ -341,9 +334,9 @@ export function AddRuleModal({
                     </div>
 
                     <div className="space-y-2">
-                      <Label className="text-sm text-gray-600">Condition</Label>
+                      <Label className="text-xs text-gray-600">Condition</Label>
                       <Select value={operator} onValueChange={handleOperatorChange} disabled={!field}>
-                        <SelectTrigger className="h-11 bg-white rounded-xl border-gray-200 hover:border-gray-300">
+                        <SelectTrigger className="h-9 bg-white rounded-xl border-gray-200 hover:border-gray-300 text-sm">
                           <SelectValue placeholder="Select operator" />
                         </SelectTrigger>
                         <SelectContent>
@@ -357,15 +350,15 @@ export function AddRuleModal({
                     </div>
 
                     <div className="space-y-2">
-                      <Label className="text-sm text-gray-600">Value</Label>
+                      <Label className="text-xs text-gray-600">Value</Label>
                       {field === 'content.text' ? (
                         <div className="space-y-2">
                           <Input
                             value={keywordInput}
                             onChange={(e) => setKeywordInput(e.target.value)}
                             onKeyDown={handleAddKeyword}
-                            placeholder="Type keyword and press Enter"
-                            className="h-11 text-base rounded-xl border-gray-200 hover:border-gray-300 bg-white"
+                            placeholder="e.g., breakfast, room cleanliness, staff service"
+                            className="h-9 text-sm rounded-xl border-gray-200 hover:border-gray-300 bg-white"
                           />
                           {keywords.length > 0 && (
                             <div className="flex flex-wrap gap-2 pt-2">
@@ -389,11 +382,11 @@ export function AddRuleModal({
                         </div>
                       ) : field === 'content.rating' ? (
                         <Select value={value} onValueChange={handleValueChange}>
-                          <SelectTrigger className="h-11 bg-white rounded-xl border-gray-200 hover:border-gray-300">
+                          <SelectTrigger className="h-9 bg-white rounded-xl border-gray-200 hover:border-gray-300 text-sm">
                             <SelectValue placeholder="Select rating" />
                           </SelectTrigger>
                           <SelectContent>
-                            {[1,2,3,4,5].map(rating => (
+                            {[1,2,3,4,5,6,7,8,9,10].map(rating => (
                               <SelectItem key={rating} value={rating.toString()}>
                                 <div className="flex items-center gap-1.5">
                                   <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
@@ -408,7 +401,7 @@ export function AddRuleModal({
                           value={value}
                           onChange={(e) => handleValueChange(e.target.value)}
                           placeholder="e.g., en, es, fr"
-                          className="h-11 text-base rounded-xl border-gray-200 hover:border-gray-300 bg-white"
+                          className="h-9 text-sm rounded-xl border-gray-200 hover:border-gray-300 bg-white"
                         />
                       ) : null}
                     </div>
@@ -419,32 +412,32 @@ export function AddRuleModal({
               {/* Step 3: Response Configuration */}
               <div className="space-y-4">
                 <div className="flex items-center gap-2 mb-4">
-                  <div className="flex items-center justify-center w-6 h-6 rounded-full bg-blue-50 text-blue-600 text-sm font-medium border border-blue-100">
+                  <div className="flex items-center justify-center w-5 h-5 rounded-full bg-blue-50 text-blue-600 text-xs font-medium border border-blue-100">
                     3
                   </div>
-                  <h3 className="font-medium text-gray-900">Configure Response</h3>
+                  <h3 className="font-medium text-sm text-gray-900">Configure Response</h3>
                 </div>
                 
                 <div className="grid grid-cols-[200px_1fr] gap-6">
                   <div className="space-y-2">
-                    <Label className="text-sm text-gray-600">Response Style</Label>
+                    <Label className="text-xs text-gray-600">Response Style</Label>
                     <Select value={responseStyle} onValueChange={handleResponseStyleChange}>
-                      <SelectTrigger className="h-11 bg-white rounded-xl border-gray-200 hover:border-gray-300">
+                      <SelectTrigger className="h-9 bg-white rounded-xl border-gray-200 hover:border-gray-300 text-sm">
                         <SelectValue placeholder="Select style" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="professional">Professional</SelectItem>
-                        <SelectItem value="friendly">Friendly</SelectItem>
-                        <SelectItem value="personal">Personal</SelectItem>
-                        <SelectItem value="sarcastic">Witty</SelectItem>
-                        <SelectItem value="challenging">Critical</SelectItem>
+                        <SelectItem value="professional" className="text-sm">Professional</SelectItem>
+                        <SelectItem value="friendly" className="text-sm">Friendly</SelectItem>
+                        <SelectItem value="personal" className="text-sm">Personal</SelectItem>
+                        <SelectItem value="sarcastic" className="text-sm">Witty</SelectItem>
+                        <SelectItem value="challenging" className="text-sm">Critical</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
 
                   <div className="space-y-2">
                     <div className="flex justify-between items-center">
-                      <Label className="text-sm text-gray-600">Response Template</Label>
+                      <Label className="text-xs text-gray-600">Response Template</Label>
                       <div className="flex gap-1.5">
                         <Button
                           type="button"
@@ -478,8 +471,16 @@ export function AddRuleModal({
                     <Textarea
                       value={responseText}
                       onChange={(e) => setResponseText(e.target.value)}
-                      placeholder="Write your response template..."
-                      className="min-h-[200px] text-base p-3 bg-white rounded-xl border-gray-200 hover:border-gray-300"
+                      placeholder={
+                        field === 'content.text' 
+                          ? "e.g., When guests mention {topic}, highlight our recent renovations in that area and mention our commitment to continuous improvement. Be sure to address their specific feedback about {topic} and invite them to see the changes on their next visit."
+                        : field === 'content.rating'
+                          ? "e.g., For {rating}/10 ratings, acknowledge their scoring specifically, address any potential shortcomings, and detail our quality assurance program. Emphasize our dedication to maintaining high standards."
+                        : field === 'content.language'
+                          ? "e.g., For reviews in {language}, ensure to mention our multilingual staff and our special services for international guests. Highlight our cultural sensitivity and global hospitality approach."
+                        : "Write your response template..."
+                      }
+                      className="min-h-[200px] text-sm p-3 bg-white rounded-xl border-gray-200 hover:border-gray-300"
                     />
                   </div>
                 </div>
