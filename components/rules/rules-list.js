@@ -14,6 +14,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { getCookie } from "@/lib/cookies";
 
 const getFieldIcon = (field) => {
   switch (field) {
@@ -88,10 +89,12 @@ export function RulesList({ rules, onRuleUpdate }) {
 
   const handleToggleRule = async (ruleId, currentState) => {
     try {
+      const token = getCookie('token');
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/rules/${ruleId}`, {
         method: 'PATCH',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({ isActive: !currentState })
       });
@@ -113,8 +116,12 @@ export function RulesList({ rules, onRuleUpdate }) {
     if (!deletingRule) return;
 
     try {
+      const token = getCookie('token');
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/rules/${deletingRule._id}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
       });
 
       if (!response.ok) throw new Error('Failed to delete rule');
@@ -193,8 +200,12 @@ export function RulesList({ rules, onRuleUpdate }) {
                   <Switch
                     checked={rule.isActive}
                     onCheckedChange={() => handleToggleRule(rule._id, rule.isActive)}
-                    className="data-[state=checked]:bg-green-500"
-                  />
+                    className="data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-gray-200 relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:ring-green-500 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <span 
+                      className="pointer-events-none block h-5 w-5 translate-x-0.5 rounded-full bg-white shadow-lg ring-0 transition-transform data-[state=checked]:translate-x-5"
+                    />
+                  </Switch>
                   
                   <div className="flex items-center gap-1">
                     <Button
@@ -247,7 +258,7 @@ export function RulesList({ rules, onRuleUpdate }) {
       />
 
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <AlertDialogContent>
+        <AlertDialogContent className="bg-white rounded-2xl">
           <AlertDialogHeader>
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
             <AlertDialogDescription>

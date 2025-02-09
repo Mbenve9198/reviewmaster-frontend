@@ -234,14 +234,23 @@ export function ThemesAnalysisDialog({
         if (rule) {
           try {
             const token = getCookie('token');
+            // Crea una copia pulita della regola senza proprietà non necessarie
             const completeRule = {
-              ...rule,
               hotelId,
+              name: rule.name,
+              condition: {
+                field: rule.condition.field,
+                operator: rule.condition.operator,
+                value: rule.condition.value
+              },
+              response: {
+                text: rule.response.text,
+                settings: {
+                  style: rule.response.settings.style
+                }
+              },
               isActive: true
             };
-
-            // Rimuovi _id temporaneo
-            delete completeRule._id;
 
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/rules`, {
               method: 'POST',
@@ -310,12 +319,6 @@ export function ThemesAnalysisDialog({
                   </p>
                 </div>
               </div>
-              {selectedRules.size > 0 && (
-                <div className="flex items-center gap-1.5 h-7 px-3 bg-gray-100 text-gray-700 rounded-full text-sm">
-                  <Check className="h-3.5 w-3.5" />
-                  <span>{selectedRules.size} selected</span>
-                </div>
-              )}
             </div>
           </DialogHeader>
         </div>
@@ -468,7 +471,7 @@ export function ThemesAnalysisDialog({
                   </>
                 ) : (
                   <>
-                    <span>Create Selected Rules</span>
+                    <span>Create Selected Rules ({selectedRules.size})</span>
                     <ChevronRight className="h-4 w-4" />
                   </>
                 )}
@@ -480,7 +483,7 @@ export function ThemesAnalysisDialog({
 
       {/* Preview Modal */}
       <Dialog open={!!previewRule} onOpenChange={() => setPreviewRule(null)}>
-        <DialogContent className="sm:max-w-xl p-6 rounded-xl">
+        <DialogContent className="sm:max-w-xl p-6 rounded-xl bg-white">
           <DialogHeader className="mb-4">
             <div className="flex items-center gap-2 text-lg font-semibold">
               <Eye className="h-5 w-5 text-gray-500" />
