@@ -197,10 +197,10 @@ export function RulesList({ rules, onRuleUpdate }) {
                     <Switch
                       checked={rule.isActive}
                       onCheckedChange={() => handleToggleRule(rule._id, rule.isActive)}
-                      className="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-gray-200"
+                      className="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 data-[state=checked]:bg-primary data-[state=unchecked]:bg-gray-200"
                     >
                       <span
-                        className={`pointer-events-none block h-5 w-5 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
+                        className={`pointer-events-none block h-5 w-5 transform rounded-full bg-white !bg-opacity-100 shadow-lg ring-0 transition duration-200 ease-in-out ${
                           rule.isActive ? "translate-x-5" : "translate-x-0"
                         }`}
                       />
