@@ -377,6 +377,7 @@ export function ThemesAnalysisDialog({
 
             {analysis && !isLoading && !error && (
               <div className="space-y-8">
+                {/* Recurring Themes Section */}
                 {analysis.recurringThemes?.length > 0 && (
                   <div className="space-y-4">
                     <div className="flex items-center gap-2">
@@ -432,6 +433,208 @@ export function ThemesAnalysisDialog({
                                   size="sm"
                                   className="px-2.5 rounded-xl"
                                   onClick={() => setPreviewRule(theme.suggestedRule)}
+                                >
+                                  <Eye className="h-3.5 w-3.5" />
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Rating Based Rules Section */}
+                {analysis.ratingBasedRules?.length > 0 && (
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2">
+                      <Star className="h-5 w-5 text-yellow-500" />
+                      <Label className="text-lg font-medium text-gray-900">
+                        Rating Based Rules
+                      </Label>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {analysis.ratingBasedRules.map((rule, i) => (
+                        <div 
+                          key={i} 
+                          className="group p-4 bg-gray-50 hover:bg-gray-100/80 rounded-lg transition-colors"
+                        >
+                          <div className="flex items-start gap-3">
+                            <Checkbox
+                              checked={selectedRules.has(rule.suggestedRule._id || `temp-rating-${i}`)}
+                              onCheckedChange={() => toggleRuleSelection({
+                                ...rule.suggestedRule,
+                                _id: rule.suggestedRule._id || `temp-rating-${i}`,
+                                isActive: true
+                              })}
+                              className="h-4 w-4 mt-1"
+                            />
+                            <div className="flex-1 space-y-3">
+                              <div className="flex items-start justify-between gap-4">
+                                <h4 className="font-medium text-gray-900">{rule.ratingCondition}</h4>
+                                <div className="shrink-0 px-2.5 py-0.5 bg-gray-100 text-gray-700 rounded-full text-sm">
+                                  {rule.frequency} reviews
+                                </div>
+                              </div>
+                              
+                              <blockquote className="text-sm text-gray-600 italic border-l-2 border-gray-200 pl-3">
+                                "{rule.exampleQuote}"
+                              </blockquote>
+                              
+                              <p className="line-clamp-2 text-sm text-gray-600">
+                                <span className="font-medium">Response:</span> {rule.suggestedRule.response.text}
+                              </p>
+
+                              <div className="flex gap-2 pt-2">
+                                <Button 
+                                  size="sm"
+                                  className="flex-1 gap-1.5 bg-primary text-primary-foreground shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all rounded-xl"
+                                  onClick={() => handleCreateRule(rule.suggestedRule)}
+                                >
+                                  <Plus className="h-3.5 w-3.5" />
+                                  Create Rule
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="px-2.5 rounded-xl"
+                                  onClick={() => setPreviewRule(rule.suggestedRule)}
+                                >
+                                  <Eye className="h-3.5 w-3.5" />
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Language Rules Section */}
+                {analysis.languageRules?.length > 0 && (
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2">
+                      <Languages className="h-5 w-5 text-green-500" />
+                      <Label className="text-lg font-medium text-gray-900">
+                        Language Rules
+                      </Label>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {analysis.languageRules.map((rule, i) => (
+                        <div 
+                          key={i} 
+                          className="group p-4 bg-gray-50 hover:bg-gray-100/80 rounded-lg transition-colors"
+                        >
+                          <div className="flex items-start gap-3">
+                            <Checkbox
+                              checked={selectedRules.has(rule.suggestedRule._id || `temp-lang-${i}`)}
+                              onCheckedChange={() => toggleRuleSelection({
+                                ...rule.suggestedRule,
+                                _id: rule.suggestedRule._id || `temp-lang-${i}`,
+                                isActive: true
+                              })}
+                              className="h-4 w-4 mt-1"
+                            />
+                            <div className="flex-1 space-y-3">
+                              <div className="flex items-start justify-between gap-4">
+                                <h4 className="font-medium text-gray-900">
+                                  {rule.language.toUpperCase()} Reviews
+                                </h4>
+                                <div className="shrink-0 px-2.5 py-0.5 bg-gray-100 text-gray-700 rounded-full text-sm">
+                                  {rule.frequency} reviews
+                                </div>
+                              </div>
+                              
+                              <p className="line-clamp-2 text-sm text-gray-600">
+                                <span className="font-medium">Response:</span> {rule.suggestedRule.response.text}
+                              </p>
+
+                              <div className="flex gap-2 pt-2">
+                                <Button 
+                                  size="sm"
+                                  className="flex-1 gap-1.5 bg-primary text-primary-foreground shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all rounded-xl"
+                                  onClick={() => handleCreateRule(rule.suggestedRule)}
+                                >
+                                  <Plus className="h-3.5 w-3.5" />
+                                  Create Rule
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="px-2.5 rounded-xl"
+                                  onClick={() => setPreviewRule(rule.suggestedRule)}
+                                >
+                                  <Eye className="h-3.5 w-3.5" />
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Complex Rules Section */}
+                {analysis.complexRules?.length > 0 && (
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="h-5 w-5 text-purple-500" />
+                      <Label className="text-lg font-medium text-gray-900">
+                        Complex Rules
+                      </Label>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {analysis.complexRules.map((rule, i) => (
+                        <div 
+                          key={i} 
+                          className="group p-4 bg-gray-50 hover:bg-gray-100/80 rounded-lg transition-colors"
+                        >
+                          <div className="flex items-start gap-3">
+                            <Checkbox
+                              checked={selectedRules.has(rule.suggestedRule._id || `temp-complex-${i}`)}
+                              onCheckedChange={() => toggleRuleSelection({
+                                ...rule.suggestedRule,
+                                _id: rule.suggestedRule._id || `temp-complex-${i}`,
+                                isActive: true
+                              })}
+                              className="h-4 w-4 mt-1"
+                            />
+                            <div className="flex-1 space-y-3">
+                              <div className="flex items-start justify-between gap-4">
+                                <h4 className="font-medium text-gray-900">{rule.scenario}</h4>
+                                <div className="shrink-0 px-2.5 py-0.5 bg-gray-100 text-gray-700 rounded-full text-sm">
+                                  {rule.frequency} matches
+                                </div>
+                              </div>
+                              
+                              <blockquote className="text-sm text-gray-600 italic border-l-2 border-gray-200 pl-3">
+                                "{rule.exampleQuote}"
+                              </blockquote>
+                              
+                              <p className="line-clamp-2 text-sm text-gray-600">
+                                <span className="font-medium">Response:</span> {rule.suggestedRule.response.text}
+                              </p>
+
+                              <div className="flex gap-2 pt-2">
+                                <Button 
+                                  size="sm"
+                                  className="flex-1 gap-1.5 bg-primary text-primary-foreground shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all rounded-xl"
+                                  onClick={() => handleCreateRule(rule.suggestedRule)}
+                                >
+                                  <Plus className="h-3.5 w-3.5" />
+                                  Create Rule
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="px-2.5 rounded-xl"
+                                  onClick={() => setPreviewRule(rule.suggestedRule)}
                                 >
                                   <Eye className="h-3.5 w-3.5" />
                                 </Button>
