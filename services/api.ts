@@ -138,6 +138,23 @@ export const authApi = {
 
 // Funzioni per l'analytics
 export const analyticsApi = {
+  getAnalyses: async () => {
+    const token = getCookie('token');
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/analytics`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to fetch analyses');
+    }
+
+    return response.json();
+  },
+
   analyzeReviews: async (
     reviews: any[], 
     prompt: string, 

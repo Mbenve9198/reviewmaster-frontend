@@ -28,7 +28,9 @@ import { format } from "date-fns"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { DateRange } from "react-day-picker"
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog"
+import { toast } from "react-hot-toast"
+import { api } from "@/services/api"
 
 interface Analysis {
   _id: string
@@ -103,14 +105,16 @@ export function AnalysesCombobox({ value, onChange }: AnalysesComboboxProps) {
     const fetchData = async () => {
       try {
         const [analysesData, hotelsData] = await Promise.all([
-          fetch('/api/analyses').then(res => res.json()),
-          fetch('/api/hotels').then(res => res.json())
-        ])
-        setAnalyses(analysesData)
-        setFilteredAnalyses(analysesData)
-        setHotels(hotelsData)
-      } catch (error) {
-        console.error('Error fetching data:', error)
+          api.analytics.getAnalyses(),
+          api.hotels.getHotels()
+        ]);
+
+        setAnalyses(analysesData);
+        setFilteredAnalyses(analysesData);
+        setHotels(hotelsData);
+      } catch (error: any) {
+        console.error('Error fetching data:', error);
+        toast.error(error.message || 'Failed to load data');
       }
     }
     fetchData()
@@ -129,7 +133,7 @@ export function AnalysesCombobox({ value, onChange }: AnalysesComboboxProps) {
     }
 
     // Filter by selected hotel
-    if (selectedHotel) {
+    if (selectedHotel && selectedHotel !== "all") {
       filtered = filtered.filter(analysis => analysis.hotelId === selectedHotel)
     }
 
@@ -165,6 +169,9 @@ export function AnalysesCombobox({ value, onChange }: AnalysesComboboxProps) {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-[800px]">
           <DialogTitle>Select Analysis</DialogTitle>
+          <DialogDescription>
+            Select an analysis to view details and insights
+          </DialogDescription>
           
           <div className="flex items-center gap-4 p-6 border-b border-gray-100">
             <Select
@@ -179,7 +186,7 @@ export function AnalysesCombobox({ value, onChange }: AnalysesComboboxProps) {
                 <SelectValue placeholder="Select hotel" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All hotels</SelectItem>
+                <SelectItem value="all">All hotels</SelectItem>
                 {hotels.map((hotel) => (
                   <SelectItem 
                     key={hotel.id} 
