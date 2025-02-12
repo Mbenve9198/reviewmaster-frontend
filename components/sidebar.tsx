@@ -1,6 +1,6 @@
 "use client"
 
-import { LogOut, Sparkles, MessageSquare, Star, Blocks, Building2, CreditCard } from 'lucide-react'
+import { LogOut, Sparkles, MessageSquare, Star, Blocks, Building2, CreditCard, BarChart2, ScrollText } from 'lucide-react'
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import Image from "next/image"
@@ -28,6 +28,24 @@ const navigation = [
     href: "/reviews",
     icon: (
       <Star 
+        className="w-6 h-6 text-gray-700 stroke-[1.5px]" 
+      />
+    )
+  },
+  { 
+    label: "Analyses",
+    href: "/analyses",
+    icon: (
+      <BarChart2 
+        className="w-6 h-6 text-gray-700 stroke-[1.5px]" 
+      />
+    )
+  },
+  { 
+    label: "Rules",
+    href: "/rules",
+    icon: (
+      <ScrollText 
         className="w-6 h-6 text-gray-700 stroke-[1.5px]" 
       />
     )
