@@ -97,173 +97,187 @@ export default function AnalysesPage() {
   }
 
   return (
-    <div className="flex flex-col h-screen">
-      {/* Header */}
-      <div className="sticky top-0 z-10 bg-white border-b">
-        <div className="max-w-screen-2xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <h1 className="text-2xl font-semibold flex items-center gap-2">
-                <BarChart2 className="h-6 w-6 text-primary" />
-                Analysis
-              </h1>
-              {selectedAnalysis && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleDownloadPDF}
-                  className="rounded-xl border-gray-200 hover:bg-gray-50"
-                >
-                  <Download className="h-4 w-4 mr-2" />
-                  Download PDF
-                </Button>
-              )}
-            </div>
-            <AnalysesDropdown 
-              value={selectedAnalysis} 
-              onChange={setSelectedAnalysis}
-            />
+    <div className="flex flex-col px-10 md:pl-[96px] py-12 min-h-screen">
+      <div className="max-w-[1400px] mx-auto w-full space-y-12">
+        {/* Header modernizzato e allineato a sinistra */}
+        <div className="flex flex-col items-start">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="h-8 w-1 rounded-full bg-gradient-to-b from-blue-600 to-blue-400" />
+            <h1 className="text-3xl sm:text-4xl font-semibold bg-gradient-to-b from-blue-800 to-blue-600 bg-clip-text text-transparent">
+              Analysis
+            </h1>
           </div>
-        </div>
-      </div>
-
-      {/* Main content */}
-      <div className="flex-1 flex overflow-hidden">
-        {/* Left panel - Analysis */}
-        <div className="w-[65%] bg-gray-50 overflow-y-auto">
-          <div className="max-w-4xl mx-auto p-8">
-            {selectedAnalysis ? (
-              <div className="bg-white rounded-xl shadow-sm">
-                <FormattedMessage 
-                  content={JSON.stringify(selectedAnalysis.analysis)} 
-                  variant="received" 
-                />
-              </div>
-            ) : (
-              <div className="flex items-center justify-center h-full min-h-[400px]">
-                <div className="text-center">
-                  <p className="text-gray-500 mb-4">Select an analysis to view insights</p>
-                  <img 
-                    src="/empty-state.svg" 
-                    alt="Select analysis" 
-                    className="w-64 h-64 opacity-50"
-                  />
-                </div>
-              </div>
-            )}
+          <div className="flex items-center gap-2 text-gray-500">
+            <p className="text-base">
+              Analyze your reviews and get AI-powered insights
+            </p>
           </div>
         </div>
 
-        {/* Right panel - Chat */}
-        <div className="w-[35%] border-l flex flex-col bg-white">
-          {selectedAnalysis ? (
-            <>
-              {/* Suggestions */}
-              <div className="border-b p-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <MessageSquare className="h-4 w-4 text-gray-500" />
-                  <h3 className="text-sm font-medium text-gray-500">
-                    Ask about the analysis
-                  </h3>
-                </div>
-                
-                <div className="space-y-2">
-                  {selectedAnalysis.followUpSuggestions?.map((suggestion, index) => (
-                    <Button
-                      key={index}
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleAnalysis(suggestion)}
-                      disabled={isLoading}
-                      className="w-full justify-start text-left"
-                    >
-                      {suggestion}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Chat messages */}
-              <div 
-                ref={chatContainerRef} 
-                className="flex-1 overflow-y-auto p-4 space-y-4"
-              >
-                {messages.slice(2).map((msg, i) => (
-                  <ChatBubble
-                    key={i}
-                    variant={msg.role === "user" ? "sent" : "received"}
+        {/* Main content */}
+        <div className="bg-white rounded-3xl border border-gray-200 shadow-lg overflow-hidden">
+          {/* Header */}
+          <div className="border-b border-gray-100 p-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                {selectedAnalysis && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleDownloadPDF}
+                    className="rounded-xl border-gray-200 hover:bg-gray-50"
                   >
-                    {msg.role === "assistant" && (
-                      <ChatBubbleAvatar>
-                        <img 
-                          src="/ai-avatar.png"
-                          alt="AI Assistant"
-                          className="w-8 h-8 rounded-full"
-                        />
-                      </ChatBubbleAvatar>
-                    )}
-                    
-                    {msg.role === "user" ? (
-                      <ChatBubbleMessage variant="sent">
-                        {msg.content}
-                      </ChatBubbleMessage>
-                    ) : (
-                      <FormattedMessage content={msg.content} />
-                    )}
-                  </ChatBubble>
-                ))}
-                
-                {currentTypingContent && (
-                  <ChatBubble variant="received">
-                    <ChatBubbleAvatar>
-                      <img 
-                        src="/ai-avatar.png"
-                        alt="AI Assistant"
-                        className="w-8 h-8 rounded-full"
-                      />
-                    </ChatBubbleAvatar>
-                    <FormattedMessage content={currentTypingContent} />
-                  </ChatBubble>
+                    <Download className="h-4 w-4 mr-2" />
+                    Download PDF
+                  </Button>
                 )}
               </div>
-
-              {/* Input area */}
-              <div className="border-t p-4">
-                <div className="relative">
-                  <Input
-                    value={inputValue}
-                    onChange={(e) => setInputValue(e.target.value)}
-                    onKeyPress={(e) => {
-                      if (e.key === 'Enter' && inputValue.trim()) {
-                        handleAnalysis(inputValue)
-                      }
-                    }}
-                    placeholder={isLoading ? "Analysis in progress..." : "Ask questions about the analysis..."}
-                    disabled={isLoading}
-                    className="pr-24 rounded-xl"
-                  />
-                  {inputValue.trim() && (
-                    <Button
-                      size="sm"
-                      onClick={() => handleAnalysis(inputValue)}
-                      disabled={isLoading}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg"
-                    >
-                      {isLoading ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <Send className="h-4 w-4" />
-                      )}
-                    </Button>
-                  )}
-                </div>
-              </div>
-            </>
-          ) : (
-            <div className="flex items-center justify-center h-full text-gray-500">
-              Select an analysis to start a conversation
+              <AnalysesDropdown 
+                value={selectedAnalysis} 
+                onChange={setSelectedAnalysis}
+              />
             </div>
-          )}
+          </div>
+
+          {/* Main content */}
+          <div className="flex overflow-hidden">
+            {/* Left panel - Analysis */}
+            <div className="w-[65%] bg-gray-50 overflow-y-auto">
+              <div className="max-w-4xl mx-auto p-8">
+                {selectedAnalysis ? (
+                  <div className="bg-white rounded-xl shadow-sm">
+                    <FormattedMessage 
+                      content={JSON.stringify(selectedAnalysis.analysis)} 
+                      variant="received" 
+                    />
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center h-full min-h-[400px]">
+                    <div className="text-center">
+                      <p className="text-gray-500 mb-4">Select an analysis to view insights</p>
+                      <img 
+                        src="/empty-state.svg" 
+                        alt="Select analysis" 
+                        className="w-64 h-64 opacity-50"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Right panel - Chat */}
+            <div className="w-[35%] border-l flex flex-col bg-white">
+              {selectedAnalysis ? (
+                <>
+                  {/* Suggestions */}
+                  <div className="border-b p-4">
+                    <div className="flex items-center gap-2 mb-3">
+                      <MessageSquare className="h-4 w-4 text-gray-500" />
+                      <h3 className="text-sm font-medium text-gray-500">
+                        Ask about the analysis
+                      </h3>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      {selectedAnalysis.followUpSuggestions?.map((suggestion, index) => (
+                        <Button
+                          key={index}
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleAnalysis(suggestion)}
+                          disabled={isLoading}
+                          className="w-full justify-start text-left"
+                        >
+                          {suggestion}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Chat messages */}
+                  <div 
+                    ref={chatContainerRef} 
+                    className="flex-1 overflow-y-auto p-4 space-y-4"
+                  >
+                    {messages.slice(2).map((msg, i) => (
+                      <ChatBubble
+                        key={i}
+                        variant={msg.role === "user" ? "sent" : "received"}
+                      >
+                        {msg.role === "assistant" && (
+                          <ChatBubbleAvatar>
+                            <img 
+                              src="/ai-avatar.png"
+                              alt="AI Assistant"
+                              className="w-8 h-8 rounded-full"
+                            />
+                          </ChatBubbleAvatar>
+                        )}
+                        
+                        {msg.role === "user" ? (
+                          <ChatBubbleMessage variant="sent">
+                            {msg.content}
+                          </ChatBubbleMessage>
+                        ) : (
+                          <FormattedMessage content={msg.content} />
+                        )}
+                      </ChatBubble>
+                    ))}
+                    
+                    {currentTypingContent && (
+                      <ChatBubble variant="received">
+                        <ChatBubbleAvatar>
+                          <img 
+                            src="/ai-avatar.png"
+                            alt="AI Assistant"
+                            className="w-8 h-8 rounded-full"
+                          />
+                        </ChatBubbleAvatar>
+                        <FormattedMessage content={currentTypingContent} />
+                      </ChatBubble>
+                    )}
+                  </div>
+
+                  {/* Input area */}
+                  <div className="border-t p-4">
+                    <div className="relative">
+                      <Input
+                        value={inputValue}
+                        onChange={(e) => setInputValue(e.target.value)}
+                        onKeyPress={(e) => {
+                          if (e.key === 'Enter' && inputValue.trim()) {
+                            handleAnalysis(inputValue)
+                          }
+                        }}
+                        placeholder={isLoading ? "Analysis in progress..." : "Ask questions about the analysis..."}
+                        disabled={isLoading}
+                        className="pr-24 rounded-xl"
+                      />
+                      {inputValue.trim() && (
+                        <Button
+                          size="sm"
+                          onClick={() => handleAnalysis(inputValue)}
+                          disabled={isLoading}
+                          className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg"
+                        >
+                          {isLoading ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <Send className="h-4 w-4" />
+                          )}
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <div className="flex items-center justify-center h-full text-gray-500">
+                  Select an analysis to start a conversation
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </div>
