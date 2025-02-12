@@ -10,6 +10,20 @@ import { ChatBubble, ChatBubbleMessage, ChatBubbleAvatar } from "@/components/ui
 import { Input } from "@/components/ui/input"
 import { AnalysesDropdown } from "@/components/analyses/AnalysesDropdown"
 
+interface Analysis {
+  _id: string
+  title: string
+  hotelName: string
+  createdAt: string
+  reviewsAnalyzed: number
+  analysis: {
+    meta: {
+      avgRating: string
+    }
+  }
+  followUpSuggestions?: string[]
+}
+
 export default function AnalysesPage() {
   const [selectedAnalysis, setSelectedAnalysis] = useState<Analysis | null>(null)
   const [messages, setMessages] = useState<Array<{ role: string; content: string }>>([])
