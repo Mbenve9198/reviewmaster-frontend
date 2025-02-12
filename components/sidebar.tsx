@@ -79,30 +79,6 @@ const navigation = [
   }
 ]
 
-interface SidebarLinkProps {
-  link: string
-  active?: boolean
-  className?: string
-  children: React.ReactNode
-}
-
-export function SidebarLink({ link, active, className, children }: SidebarLinkProps) {
-  return (
-    <Link
-      href={link}
-      className={cn(
-        "flex items-center justify-center w-12 h-12 rounded-xl transition-colors",
-        active 
-          ? "bg-primary text-primary-foreground shadow-sm" 
-          : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
-        className
-      )}
-    >
-      {children}
-    </Link>
-  )
-}
-
 export function Sidebar() {
   const pathname = usePathname()
   const router = useRouter()
