@@ -421,6 +421,10 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="w-screen h-screen p-0 bg-white max-w-none m-0 rounded-none">
+        <DialogTitle className="sr-only">Reviews Analysis</DialogTitle>
+        <DialogDescription className="sr-only">
+          Analysis of hotel reviews with insights and recommendations
+        </DialogDescription>
         <div className="flex flex-1 overflow-hidden h-screen">
           {/* Left panel */}
           <div className="w-[65%] border-r overflow-y-auto bg-gray-50">
@@ -448,6 +452,7 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
                   className="rounded-full hover:bg-gray-100"
                 >
                   <X className="h-5 w-5" />
+                  <span className="sr-only">Close dialog</span>
                 </Button>
               </div>
             </div>

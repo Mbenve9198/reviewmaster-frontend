@@ -189,6 +189,7 @@ export function FormattedMessage({ content, variant = "received", isLoading = fa
         variant={variant}
         isLoading
         className="text-base rounded-2xl whitespace-pre-wrap"
+        aria-busy="true"
       >
         {content}
       </ChatBubbleMessage>
@@ -198,9 +199,13 @@ export function FormattedMessage({ content, variant = "received", isLoading = fa
   // Verifica se il contenuto è JSON
   let analysisData: AnalysisData | null = null;
   try {
-    const parsed = JSON.parse(content);
-    if (parsed.meta && parsed.sentiment && parsed.strengths) {
-      analysisData = parsed;
+    if (typeof content === 'string') {
+      const parsed = JSON.parse(content);
+      if (parsed.meta && parsed.sentiment && parsed.strengths) {
+        analysisData = parsed;
+      }
+    } else {
+      analysisData = content;
     }
   } catch (e) {
     // Non è JSON, lo trattiamo come testo normale
