@@ -174,6 +174,38 @@ export const analyticsApi = {
       creditsRemaining: data.creditsRemaining,
       provider: data.provider
     };
+  },
+
+  getFollowUpAnalysis: async (
+    analysisId: string,
+    prompt: string,
+    previousMessages?: string | null,
+    messages?: Array<{ role: string; content: string }>
+  ) => {
+    const token = getCookie('token');
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/analytics/${analysisId}/follow-up`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        prompt,
+        previousMessages,
+        messages
+      })
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to get follow-up analysis');
+    }
+
+    const data = await response.json();
+    return {
+      analysis: data.analysis,
+      provider: data.provider
+    };
   }
 };
 
