@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { Loader2, X, Download, MessageSquare, Send, BarChart2 } from "lucide-react"
+import { Loader2, X, Download, MessageSquare, Send, BarChart2, LineChart } from "lucide-react"
 import { api } from "@/services/api"
 import { toast } from "sonner"
 import { FormattedMessage } from "@/components/analytics/FormattedMessage"
@@ -163,12 +163,13 @@ export default function AnalysesPage() {
                 ) : (
                   <div className="flex items-center justify-center h-full min-h-[400px]">
                     <div className="text-center">
-                      <p className="text-gray-500 mb-4">Select an analysis to view insights</p>
-                      <img 
-                        src="/empty-state.svg" 
-                        alt="Select analysis" 
-                        className="w-64 h-64 opacity-50"
-                      />
+                      <p className="text-gray-500 mb-4">Seleziona un'analisi per visualizzare gli insights</p>
+                      <div className="flex justify-center">
+                        <LineChart 
+                          className="w-32 h-32 text-gray-300" 
+                          strokeWidth={1.5}
+                        />
+                      </div>
                     </div>
                   </div>
                 )}
