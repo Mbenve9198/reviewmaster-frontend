@@ -9,6 +9,7 @@ import { FormattedMessage } from "@/components/analytics/FormattedMessage"
 import { ChatBubble, ChatBubbleMessage, ChatBubbleAvatar } from "@/components/ui/chat-bubble"
 import { Input } from "@/components/ui/input"
 import { AnalysesDropdown } from "@/components/analyses/AnalysesDropdown"
+import { ChatInput } from "@/components/ui/chat-input"
 
 interface Analysis {
   _id: string
@@ -180,89 +181,101 @@ export default function AnalysesPage() {
             <div className="w-[35%] border-l flex flex-col bg-white">
               {selectedAnalysis ? (
                 <>
-                  {/* Suggestions */}
-                  <div className="border-b p-4">
-                    <div className="flex items-center gap-2 mb-3">
-                      <MessageSquare className="h-4 w-4 text-gray-500" />
-                      <h3 className="text-sm font-medium text-gray-500">
-                        Ask about the analysis
-                      </h3>
-                    </div>
-                    
-                    <div className="space-y-2">
-                      {selectedAnalysis.followUpSuggestions?.map((suggestion, index) => (
-                        <Button
-                          key={index}
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleAnalysis(suggestion)}
-                          disabled={isLoading}
-                          className="w-full justify-start text-left"
-                        >
-                          {suggestion}
-                        </Button>
-                      ))}
+                  {/* Sticky header with gradient and suggestions */}
+                  <div className="sticky top-0 z-10">
+                    <div className="absolute inset-x-0 h-32 bg-gradient-to-b from-white via-white to-transparent" />
+                    <div className="relative">
+                      <div className="flex items-center gap-2 p-4">
+                        <MessageSquare className="h-4 w-4 text-gray-500" />
+                        <h3 className="text-sm font-medium text-gray-500">
+                          Questions about the analysis
+                        </h3>
+                      </div>
+                      
+                      {/* Suggestions directly in header */}
+                      <div className="px-4 pb-4 space-y-2">
+                        {selectedAnalysis.followUpSuggestions?.map((suggestion, index) => (
+                          <Button
+                            key={index}
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleAnalysis(suggestion)}
+                            disabled={isLoading}
+                            className="bg-white/80 hover:bg-blue-50 border border-gray-200 
+                                     rounded-full h-auto py-2 px-3 flex items-center gap-2 text-left w-full"
+                          >
+                            <BarChart2 className="w-5 h-5 text-blue-500" />
+                            <span className="text-base truncate">{suggestion}</span>
+                          </Button>
+                        ))}
+                      </div>
                     </div>
                   </div>
 
                   {/* Chat messages */}
-                  <div 
-                    ref={chatContainerRef} 
-                    className="flex-1 overflow-y-auto p-4 space-y-4"
-                  >
-                    {messages.slice(2).map((msg, i) => (
-                      <ChatBubble
-                        key={i}
-                        variant={msg.role === "user" ? "sent" : "received"}
-                      >
-                        {msg.role === "assistant" && (
-                          <ChatBubbleAvatar>
-                            <img 
-                              src="/ai-avatar.png"
-                              alt="AI Assistant"
-                              className="w-8 h-8 rounded-full"
-                            />
-                          </ChatBubbleAvatar>
-                        )}
-                        
-                        {msg.role === "user" ? (
-                          <ChatBubbleMessage variant="sent">
-                            {msg.content}
-                          </ChatBubbleMessage>
-                        ) : (
-                          <FormattedMessage content={msg.content} />
-                        )}
-                      </ChatBubble>
-                    ))}
-                    
-                    {currentTypingContent && (
-                      <ChatBubble variant="received">
-                        <ChatBubbleAvatar>
-                          <img 
-                            src="/ai-avatar.png"
-                            alt="AI Assistant"
-                            className="w-8 h-8 rounded-full"
-                          />
-                        </ChatBubbleAvatar>
-                        <FormattedMessage content={currentTypingContent} />
-                      </ChatBubble>
-                    )}
+                  <div ref={chatContainerRef} className="flex-1 overflow-y-auto">
+                    <div className="p-6 space-y-6">
+                      {messages.slice(2).map((msg, i) => (
+                        <div key={i} className="relative group" style={{ willChange: 'transform' }}>
+                          <ChatBubble variant={msg.role === "user" ? "sent" : "received"}>
+                            {msg.role === "assistant" && (
+                              <ChatBubbleAvatar>
+                                <div className="rounded-full overflow-hidden w-8 h-8">
+                                  <img 
+                                    src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/ai_profile-image-5cGMUYt7uIe4gJLlE9iHrTqpTtVwOS.png"
+                                    alt="AI Assistant"
+                                    className="w-full h-full object-cover"
+                                  />
+                                </div>
+                              </ChatBubbleAvatar>
+                            )}
+                            
+                            {msg.role === "user" ? (
+                              <ChatBubbleMessage variant="sent" className="text-base rounded-2xl">
+                                {msg.content}
+                              </ChatBubbleMessage>
+                            ) : (
+                              <FormattedMessage content={msg.content} />
+                            )}
+                          </ChatBubble>
+                        </div>
+                      ))}
+                      
+                      {currentTypingContent && (
+                        <div className="relative group">
+                          <ChatBubble variant="received">
+                            <ChatBubbleAvatar>
+                              <div className="rounded-full overflow-hidden w-8 h-8">
+                                <img 
+                                  src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/ai_profile-image-5cGMUYt7uIe4gJLlE9iHrTqpTtVwOS.png"
+                                  alt="AI Assistant"
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
+                            </ChatBubbleAvatar>
+                            <FormattedMessage content={currentTypingContent} />
+                          </ChatBubble>
+                        </div>
+                      )}
+                    </div>
                   </div>
 
                   {/* Input area */}
-                  <div className="border-t p-4">
+                  <div className="border-t bg-white p-4">
                     <div className="relative">
-                      <Input
+                      <ChatInput
                         value={inputValue}
                         onChange={(e) => setInputValue(e.target.value)}
                         onKeyPress={(e) => {
-                          if (e.key === 'Enter' && inputValue.trim()) {
-                            handleAnalysis(inputValue)
+                          if (e.key === 'Enter' && !e.shiftKey && inputValue.trim()) {
+                            e.preventDefault();
+                            handleAnalysis(inputValue);
                           }
                         }}
                         placeholder={isLoading ? "Analysis in progress..." : "Ask questions about the analysis..."}
                         disabled={isLoading}
-                        className="pr-24 rounded-xl"
+                        className="pr-24 bg-white border-2 border-gray-100 rounded-xl h-12
+                                  text-base focus:border-blue-500 focus:ring-0"
                       />
                       {inputValue.trim() && (
                         <Button

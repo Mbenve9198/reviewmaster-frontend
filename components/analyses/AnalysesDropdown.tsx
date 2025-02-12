@@ -71,20 +71,20 @@ export function AnalysesDropdown({ value, onChange }: AnalysesDropdownProps) {
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-[300px] justify-between rounded-xl border-gray-200"
+          className="w-[300px] justify-between rounded-xl border-gray-200 bg-white hover:bg-gray-50"
         >
           {value ? value.title : "Select analysis..."}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[300px] p-0" align="start">
-        <Command>
+      <PopoverContent className="w-[300px] p-0 bg-white" align="start">
+        <Command className="bg-white">
           <CommandInput 
             placeholder="Search analyses..." 
-            className="h-9"
+            className="h-9 bg-white"
           />
           <CommandEmpty>No analyses found.</CommandEmpty>
-          <CommandGroup className="max-h-[300px] overflow-auto">
+          <CommandGroup className="max-h-[300px] overflow-auto bg-white">
             {analyses.map((analysis) => (
               <CommandItem
                 key={analysis._id}
