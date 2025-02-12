@@ -13,9 +13,18 @@ import { AnalysesDropdown } from "@/components/analyses/AnalysesDropdown"
 interface Analysis {
   _id: string
   title: string
+  hotelId: string
   hotelName: string
   createdAt: string
   reviewsAnalyzed: number
+  metadata: {
+    platforms: string[]
+    dateRange: {
+      start: string
+      end: string
+    }
+    creditsUsed: number
+  }
   analysis: {
     meta: {
       avgRating: string
