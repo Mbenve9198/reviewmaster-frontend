@@ -9,7 +9,7 @@ import { Progress } from "@/components/ui/progress"
 import { Button } from "@/components/ui/button"
 import { useUserStats } from "@/hooks/useUserStats"
 import { useState } from "react"
-import { SidebarContainer, SidebarBody, SidebarLink } from "@/components/ui/sidebar"
+import { SidebarContainer, SidebarBody } from "@/components/ui/sidebar"
 import { motion } from "framer-motion"
 import CreditPurchaseSlider from "@/components/billing/CreditPurchaseSlider"
 
@@ -117,8 +117,8 @@ export function Sidebar() {
 
   return (
     <>
-      <SidebarContainer open={open} setOpen={setOpen}>
-        <SidebarBody className="justify-between bg-white shadow-lg">
+      <SidebarContainer>
+        <SidebarBody>
           <div className="flex flex-col h-full">
             {/* Logo */}
             <div className="mb-8 flex justify-center">
@@ -130,13 +130,18 @@ export function Sidebar() {
             {/* Navigation */}
             <div className="space-y-4">
               {navigation.map((item) => (
-                <SidebarLink 
+                <Link
                   key={item.href}
-                  link={item.href}
-                  active={pathname === item.href}
+                  href={item.href}
+                  className={cn(
+                    "flex items-center justify-center w-12 h-12 rounded-xl transition-colors",
+                    pathname === item.href
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                  )}
                 >
                   {item.icon}
-                </SidebarLink>
+                </Link>
               ))}
             </div>
 
