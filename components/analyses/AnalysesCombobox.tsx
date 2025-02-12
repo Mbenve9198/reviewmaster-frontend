@@ -28,6 +28,7 @@ import { format } from "date-fns"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { DateRange } from "react-day-picker"
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
 
 interface Analysis {
   _id: string
@@ -95,6 +96,7 @@ export function AnalysesCombobox({ value, onChange }: AnalysesComboboxProps) {
   const [hotels, setHotels] = React.useState<{ id: string; name: string }[]>([])
   const [selectedHotel, setSelectedHotel] = React.useState<string>("")
   const [dateRange, setDateRange] = React.useState<DateRange | undefined>()
+  const [calendarOpen, setCalendarOpen] = React.useState(false)
 
   // Fetch analyses and hotels on mount
   React.useEffect(() => {
@@ -148,123 +150,135 @@ export function AnalysesCombobox({ value, onChange }: AnalysesComboboxProps) {
   }
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          role="combobox"
-          aria-expanded={open}
-          className="w-full justify-between"
-        >
-          {value ? value.title : "Select analysis..."}
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-[600px] p-0">
-        {/* Filters */}
-        <div className="flex items-center gap-2 p-2 border-b">
-          <Select
-            value={selectedHotel}
-            onValueChange={(value) => {
-              setSelectedHotel(value)
-              filterAnalyses()
-            }}
-          >
-            <SelectTrigger className="w-[200px]">
-              <Building className="mr-2 h-4 w-4" />
-              <SelectValue placeholder="Select hotel" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="">All hotels</SelectItem>
-              {hotels.map((hotel) => (
-                <SelectItem key={hotel.id} value={hotel.id}>
-                  {hotel.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+    <>
+      <Button
+        variant="outline"
+        role="combobox"
+        aria-expanded={open}
+        className="w-full justify-between"
+        onClick={() => setOpen(true)}
+      >
+        {value ? value.title : "Select analysis..."}
+        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+      </Button>
 
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                className={cn(
-                  "w-[240px] justify-start text-left font-normal",
-                  !dateRange?.from && "text-muted-foreground"
-                )}
-              >
-                <CalendarIcon className="mr-2 h-4 w-4" />
-                {dateRange?.from ? (
-                  dateRange?.to ? (
-                    <>
-                      {format(dateRange.from, "LLL dd, y")} -{" "}
-                      {format(dateRange.to, "LLL dd, y")}
-                    </>
-                  ) : (
-                    format(dateRange.from, "LLL dd, y")
-                  )
-                ) : (
-                  <span>Pick a date range</span>
-                )}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-              <Calendar
-                initialFocus
-                mode="range"
-                selected={dateRange}
-                onSelect={setDateRange}
-                numberOfMonths={2}
-              />
-            </PopoverContent>
-          </Popover>
-        </div>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="max-w-[800px]">
+          <DialogTitle>Select Analysis</DialogTitle>
+          
+          <div className="flex items-center gap-4 p-6 border-b border-gray-100">
+            <Select
+              value={selectedHotel}
+              onValueChange={(value) => {
+                setSelectedHotel(value)
+                filterAnalyses()
+              }}
+            >
+              <SelectTrigger className="w-[200px] rounded-xl border-gray-200 focus:border-primary focus:ring-primary bg-white/50">
+                <Building className="mr-2 h-4 w-4" />
+                <SelectValue placeholder="Select hotel" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">All hotels</SelectItem>
+                {hotels.map((hotel) => (
+                  <SelectItem 
+                    key={hotel.id} 
+                    value={hotel.id}
+                    className="text-sm py-2 px-4"
+                  >
+                    {hotel.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
-        <Command>
-          <CommandInput 
-            placeholder="Search analyses..." 
-            onValueChange={handleSearch}
-          />
-          <CommandEmpty>No analyses found.</CommandEmpty>
-          <CommandGroup className="max-h-[300px] overflow-auto">
-            {filteredAnalyses.map((analysis) => (
-              <CommandItem
-                key={analysis._id}
-                value={analysis.title}
-                onSelect={() => {
-                  onChange(analysis)
-                  setOpen(false)
-                }}
-              >
-                <div className="flex flex-col w-full gap-1">
-                  <div className="flex items-center justify-between">
-                    <span className="font-medium">{analysis.title}</span>
-                    <span className="text-sm text-muted-foreground">
-                      {format(new Date(analysis.createdAt), "MMM d, yyyy")}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <span>{analysis.hotelName}</span>
-                    <Separator orientation="vertical" className="h-4" />
-                    <Badge variant="secondary">
-                      {analysis.reviewsAnalyzed} reviews
-                    </Badge>
-                    <Badge variant="secondary">
-                      Avg. {analysis.analysis.meta.avgRating}★
-                    </Badge>
-                  </div>
-                </div>
-                <Check
+            <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
                   className={cn(
-                    "ml-auto h-4 w-4",
-                    value?._id === analysis._id ? "opacity-100" : "opacity-0"
+                    "w-[240px] justify-start text-left font-normal rounded-xl border-gray-200 focus:border-primary focus:ring-primary bg-white/50",
+                    !dateRange?.from && "text-muted-foreground"
                   )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {dateRange?.from ? (
+                    dateRange?.to ? (
+                      <>
+                        {format(dateRange.from, "LLL dd, y")} -{" "}
+                        {format(dateRange.to, "LLL dd, y")}
+                      </>
+                    ) : (
+                      format(dateRange.from, "LLL dd, y")
+                    )
+                  ) : (
+                    <span>Pick a date range</span>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0 rounded-xl border-gray-200" align="start">
+                <Calendar
+                  initialFocus
+                  mode="range"
+                  selected={dateRange}
+                  onSelect={(range) => {
+                    setDateRange(range)
+                    setCalendarOpen(false)
+                    filterAnalyses()
+                  }}
+                  numberOfMonths={2}
                 />
-              </CommandItem>
-            ))}
-          </CommandGroup>
-        </Command>
-      </PopoverContent>
-    </Popover>
+              </PopoverContent>
+            </Popover>
+          </div>
+
+          <Command className="rounded-lg border shadow-md">
+            <CommandInput 
+              placeholder="Search analyses..." 
+              className="h-9 text-sm rounded-xl border-gray-200 focus:border-primary focus:ring-primary bg-white/50"
+            />
+            <CommandEmpty>No analyses found.</CommandEmpty>
+            <CommandGroup className="max-h-[300px] overflow-auto">
+              {filteredAnalyses.map((analysis) => (
+                <CommandItem
+                  key={analysis._id}
+                  value={analysis.title}
+                  onSelect={() => {
+                    onChange(analysis)
+                    setOpen(false)
+                  }}
+                  className="px-4 py-2 hover:bg-gray-50"
+                >
+                  <div className="flex flex-col w-full gap-1">
+                    <div className="flex items-center justify-between">
+                      <span className="font-medium">{analysis.title}</span>
+                      <span className="text-sm text-muted-foreground">
+                        {format(new Date(analysis.createdAt), "MMM d, yyyy")}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <span>{analysis.hotelName}</span>
+                      <Separator orientation="vertical" className="h-4" />
+                      <Badge variant="secondary" className="rounded-full">
+                        {analysis.reviewsAnalyzed} reviews
+                      </Badge>
+                      <Badge variant="secondary" className="rounded-full">
+                        Avg. {analysis.analysis.meta.avgRating}★
+                      </Badge>
+                    </div>
+                  </div>
+                  <Check
+                    className={cn(
+                      "ml-auto h-4 w-4",
+                      value?._id === analysis._id ? "opacity-100" : "opacity-0"
+                    )}
+                  />
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </Command>
+        </DialogContent>
+      </Dialog>
+    </>
   )
 } 

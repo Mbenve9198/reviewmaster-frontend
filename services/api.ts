@@ -152,7 +152,7 @@ export const analyticsApi = {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({ 
-        reviews, 
+        reviews: reviews.slice(0, 500), // Aumentato a 500 recensioni
         prompt, 
         previousMessages,
         messages
