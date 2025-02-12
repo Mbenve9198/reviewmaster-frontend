@@ -27,6 +27,7 @@ import {
 import { format } from "date-fns"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
+import { DateRange } from "react-day-picker"
 
 interface Analysis {
   _id: string
@@ -93,13 +94,7 @@ export function AnalysesCombobox({ value, onChange }: AnalysesComboboxProps) {
   const [filteredAnalyses, setFilteredAnalyses] = React.useState<Analysis[]>([])
   const [hotels, setHotels] = React.useState<{ id: string; name: string }[]>([])
   const [selectedHotel, setSelectedHotel] = React.useState<string>("")
-  const [dateRange, setDateRange] = React.useState<{
-    from: Date | undefined
-    to: Date | undefined
-  }>({
-    from: undefined,
-    to: undefined,
-  })
+  const [dateRange, setDateRange] = React.useState<DateRange | undefined>()
 
   // Fetch analyses and hotels on mount
   React.useEffect(() => {
@@ -137,7 +132,7 @@ export function AnalysesCombobox({ value, onChange }: AnalysesComboboxProps) {
     }
 
     // Filter by date range
-    if (dateRange.from && dateRange.to) {
+    if (dateRange?.from && dateRange?.to) {
       filtered = filtered.filter(analysis => {
         const analysisDate = new Date(analysis.createdAt)
         return analysisDate >= dateRange.from! && analysisDate <= dateRange.to!
@@ -195,12 +190,12 @@ export function AnalysesCombobox({ value, onChange }: AnalysesComboboxProps) {
                 variant="outline"
                 className={cn(
                   "w-[240px] justify-start text-left font-normal",
-                  !dateRange.from && "text-muted-foreground"
+                  !dateRange?.from && "text-muted-foreground"
                 )}
               >
                 <CalendarIcon className="mr-2 h-4 w-4" />
-                {dateRange.from ? (
-                  dateRange.to ? (
+                {dateRange?.from ? (
+                  dateRange?.to ? (
                     <>
                       {format(dateRange.from, "LLL dd, y")} -{" "}
                       {format(dateRange.to, "LLL dd, y")}
@@ -217,12 +212,8 @@ export function AnalysesCombobox({ value, onChange }: AnalysesComboboxProps) {
               <Calendar
                 initialFocus
                 mode="range"
-                defaultMonth={dateRange.from}
                 selected={dateRange}
-                onSelect={(range) => {
-                  setDateRange(range || { from: undefined, to: undefined })
-                  filterAnalyses()
-                }}
+                onSelect={setDateRange}
                 numberOfMonths={2}
               />
             </PopoverContent>
