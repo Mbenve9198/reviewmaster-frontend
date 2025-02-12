@@ -206,6 +206,42 @@ export const analyticsApi = {
       analysis: data.analysis,
       provider: data.provider
     };
+  },
+
+  renameAnalysis: async (analysisId: string, newTitle: string) => {
+    const token = getCookie('token');
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/analytics/${analysisId}/rename`, {
+      method: 'PATCH',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ title: newTitle })
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to rename analysis');
+    }
+
+    return response.json();
+  },
+
+  deleteAnalysis: async (analysisId: string) => {
+    const token = getCookie('token');
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/analytics/${analysisId}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to delete analysis');
+    }
+
+    return response.json();
   }
 };
 
