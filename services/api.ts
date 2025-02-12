@@ -155,6 +155,32 @@ export const analyticsApi = {
     return response.json();
   },
 
+  downloadAnalysisPDF: async (analysisId: string) => {
+    const token = getCookie('token');
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/analytics/${analysisId}/pdf`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to download PDF');
+    }
+
+    // Trigger il download del PDF
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `analysis-${analysisId}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+  },
+
   analyzeReviews: async (
     reviews: any[], 
     prompt: string, 
