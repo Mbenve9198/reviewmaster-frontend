@@ -119,16 +119,24 @@ export function Sidebar() {
     <>
       <SidebarContainer open={open} setOpen={setOpen}>
         <SidebarBody className="justify-between bg-white shadow-lg">
-          <div className="flex flex-col flex-1">
-            <div className="flex flex-col gap-2 mt-4">
-              {navigation.map((link) => (
+          <div className="flex flex-col h-full">
+            {/* Logo */}
+            <div className="mb-8 flex justify-center">
+              <span className="text-4xl font-bold bg-gradient-to-b from-blue-800 to-blue-600 bg-clip-text text-transparent">
+                R
+              </span>
+            </div>
+
+            {/* Navigation */}
+            <div className="space-y-4">
+              {navigation.map((item) => (
                 <SidebarLink 
-                  key={link.href}
-                  link={link}
-                  className={cn(
-                    pathname === link.href && "bg-primary/10 text-primary"
-                  )}
-                />
+                  key={item.href}
+                  href={item.href}
+                  active={pathname === item.href}
+                >
+                  {item.icon}
+                </SidebarLink>
               ))}
             </div>
 
