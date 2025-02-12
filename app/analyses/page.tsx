@@ -178,7 +178,7 @@ export default function AnalysesPage() {
             </div>
 
             {/* Right panel - Chat */}
-            <div className="w-[35%] border-l flex flex-col bg-white">
+            <div className="w-[35%] border-l flex flex-col bg-white relative">
               {selectedAnalysis ? (
                 <>
                   {/* Sticky header with gradient and suggestions */}
@@ -213,7 +213,10 @@ export default function AnalysesPage() {
                   </div>
 
                   {/* Chat messages */}
-                  <div ref={chatContainerRef} className="flex-1 overflow-y-auto">
+                  <div 
+                    ref={chatContainerRef} 
+                    className="flex-1 overflow-y-auto pb-[80px]"
+                  >
                     <div className="p-6 space-y-6">
                       {messages.slice(2).map((msg, i) => (
                         <div key={i} className="relative group" style={{ willChange: 'transform' }}>
@@ -260,8 +263,8 @@ export default function AnalysesPage() {
                     </div>
                   </div>
 
-                  {/* Input area */}
-                  <div className="border-t bg-white p-4">
+                  {/* Input area - ora fixed */}
+                  <div className="absolute bottom-0 left-0 right-0 border-t bg-white p-4">
                     <div className="relative">
                       <ChatInput
                         value={inputValue}
