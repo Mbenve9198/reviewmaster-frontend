@@ -30,6 +30,7 @@ interface Analysis {
       end: string
     }
     platforms: string[]
+    creditsUsed: number
   }
   analysis: {
     meta: {
@@ -67,7 +68,7 @@ interface Analysis {
       period: string
     }>
   }
-  followUpSuggestions: string[]
+  followUpSuggestions?: string[]
 }
 
 export default function AnalysesPage() {
@@ -257,7 +258,7 @@ export default function AnalysesPage() {
                 
                 {/* Suggestions */}
                 <div className="px-4 pb-4 space-y-2">
-                  {selectedAnalysis.followUpSuggestions.map((suggestion, index) => (
+                  {selectedAnalysis.followUpSuggestions?.map((suggestion, index) => (
                     <Button
                       key={index}
                       variant="outline"
