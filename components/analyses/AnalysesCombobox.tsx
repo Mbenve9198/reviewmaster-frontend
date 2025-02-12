@@ -41,12 +41,45 @@ interface Analysis {
       end: string
     }
     platforms: string[]
+    creditsUsed: number
   }
   analysis: {
     meta: {
+      hotelName: string
       avgRating: string
     }
+    sentiment: {
+      excellent: string
+      average: string
+      needsImprovement: string
+    }
+    strengths: Array<{
+      title: string
+      impact: string
+      quote: string
+      details: string
+      mentions: number
+    }>
+    issues: Array<{
+      title: string
+      priority: string
+      quote: string
+      details: string
+      mentions: number
+      solution: {
+        title: string
+        timeline: string
+        cost: string
+        roi: string
+      }
+    }>
+    trends: Array<{
+      metric: string
+      change: string
+      period: string
+    }>
   }
+  followUpSuggestions?: string[]
 }
 
 interface AnalysesComboboxProps {
