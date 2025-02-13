@@ -4,19 +4,19 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowDown, ArrowUp, ArrowRight, Star, AlertTriangle, CheckCircle, TrendingUp, TrendingDown } from 'lucide-react';
 
 // Helper per il colore del trend
-const getTrendColor = (value) => {
+const getTrendColor = (value: string): string => {
   if (value.startsWith('+')) return 'text-green-600';
   if (value.startsWith('-')) return 'text-red-600';
   return 'text-gray-600';
 };
 
-const TrendIndicator = ({ value }) => {
+const TrendIndicator = ({ value }: { value: string }) => {
   if (value.startsWith('+')) return <TrendingUp className="w-4 h-4 text-green-600" />;
   if (value.startsWith('-')) return <TrendingDown className="w-4 h-4 text-red-600" />;
   return <ArrowRight className="w-4 h-4 text-gray-600" />;
 };
 
-const StatCard = ({ label, value, trend }) => (
+const StatCard = ({ label, value, trend }: { label: string, value: string | number, trend?: string }) => (
   <Card className="p-4 bg-white">
     <div className="flex flex-col">
       <span className="text-sm text-gray-500">{label}</span>
