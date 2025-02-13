@@ -33,7 +33,43 @@ const StatCard = ({ label, value, trend }: { label: string, value: string | numb
   </Card>
 );
 
-const StrengthCard = ({ strength }) => (
+interface Strength {
+  title: string
+  impact: string
+  mentions: number
+  quote: string
+  details: string
+  marketingTips: Array<{
+    action: string
+    cost: string
+    roi: string
+  }>
+}
+
+interface Issue {
+  title: string
+  priority: "HIGH" | "MEDIUM" | "LOW"
+  impact: string
+  mentions: number
+  quote: string
+  details: string
+  solution: {
+    title: string
+    timeline: string
+    cost: string
+    roi: string
+    steps: string[]
+  }
+}
+
+interface QuickWin {
+  action: string
+  timeline: string
+  cost: string
+  impact: string
+}
+
+const StrengthCard = ({ strength }: { strength: Strength }) => (
   <Card className="overflow-hidden bg-gradient-to-br from-green-50 to-green-100/50">
     <div className="p-4">
       <div className="flex items-start justify-between mb-3">
@@ -61,7 +97,7 @@ const StrengthCard = ({ strength }) => (
   </Card>
 );
 
-const IssueCard = ({ issue }) => (
+const IssueCard = ({ issue }: { issue: Issue }) => (
   <Card className="overflow-hidden bg-gradient-to-br from-red-50 to-red-100/50">
     <div className="p-4">
       <div className="flex items-start justify-between mb-3">
@@ -120,7 +156,7 @@ const IssueCard = ({ issue }) => (
   </Card>
 );
 
-const QuickWinCard = ({ win }) => (
+const QuickWinCard = ({ win }: { win: QuickWin }) => (
   <Card className="bg-gradient-to-br from-purple-50 to-purple-100/50 p-4">
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-2">
