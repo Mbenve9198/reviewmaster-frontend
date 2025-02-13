@@ -137,13 +137,22 @@ export function Sidebar() {
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    "flex items-center justify-center w-12 h-12 rounded-xl transition-colors",
+                    "flex items-center gap-3 px-3 h-12 rounded-xl transition-colors",
                     pathname === item.href
                       ? "bg-primary text-primary-foreground shadow-sm"
                       : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
                   )}
                 >
                   {item.icon}
+                  <motion.span
+                    animate={{
+                      opacity: open ? 1 : 0,
+                      width: open ? "auto" : 0
+                    }}
+                    className="whitespace-nowrap overflow-hidden"
+                  >
+                    {item.label}
+                  </motion.span>
                 </Link>
               ))}
             </div>
