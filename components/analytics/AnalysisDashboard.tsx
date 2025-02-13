@@ -171,7 +171,38 @@ const QuickWinCard = ({ win }: { win: QuickWin }) => (
   </Card>
 );
 
-const AnalysisDashboard = ({ data }) => {
+interface AnalysisDashboardProps {
+  data: {
+    meta: {
+      hotelName: string
+      reviewCount: number
+      avgRating: number
+      platforms: string
+    }
+    sentiment: {
+      excellent: string
+      average: string
+      needsImprovement: string
+      distribution?: {
+        rating5: string
+        rating4: string
+        rating3: string
+        rating2: string
+        rating1: string
+      }
+    }
+    strengths: Strength[]
+    issues: Issue[]
+    quickWins?: QuickWin[]
+    trends: Array<{
+      metric: string
+      change: string
+      period: string
+    }>
+  }
+}
+
+const AnalysisDashboard = ({ data }: AnalysisDashboardProps) => {
   if (!data) return null;
 
   return (
