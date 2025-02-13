@@ -118,8 +118,8 @@ export function Sidebar() {
   return (
     <>
       <SidebarContainer 
-        onMouseEnter={() => setOpen(true)}
-        onMouseLeave={() => setOpen(false)}
+        open={open}
+        setOpen={setOpen}
       >
         <SidebarBody>
           <div className="flex flex-col h-full">
