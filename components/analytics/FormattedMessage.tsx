@@ -96,16 +96,24 @@ export function FormattedMessage({
     );
   }
 
-  // Verifica se il contenuto è JSON
+  // Modifica la gestione dei suggerimenti nel parsing JSON
   let analysisData: AnalysisData | null = null;
   try {
     if (typeof content === 'string') {
       const parsed = JSON.parse(content);
       if (parsed.meta && parsed.sentiment && parsed.strengths) {
         analysisData = parsed;
+        // Aggiungi questa riga per inviare immediatamente i suggerimenti
+        if (parsed.suggestions) {
+          onSuggestions?.(parsed.suggestions);
+        }
       }
     } else {
       analysisData = content;
+      // Aggiungi anche qui il controllo per i suggerimenti
+      if (content.suggestions) {
+        onSuggestions?.(content.suggestions);
+      }
     }
   } catch (e) {
     // Non è JSON, lo trattiamo come testo markdown
@@ -145,13 +153,6 @@ export function FormattedMessage({
       </ChatBubbleMessage>
     );
   }
-
-  // Quando viene parsato il JSON dell'analisi, estraiamo e inviamo i suggerimenti
-  useEffect(() => {
-    if (analysisData?.suggestions) {
-      onSuggestions?.(analysisData.suggestions);
-    }
-  }, [analysisData, onSuggestions]);
 
   // Rendering dell'analisi strutturata
   return (
