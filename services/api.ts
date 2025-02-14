@@ -288,32 +288,38 @@ export const analyticsApi = {
   },
 
   getValuePlan: async (strength: any) => {
-    const response = await fetch('/api/analytics/value-plan', {
+    const token = getCookie('token');
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/analytics/value-plan`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({ strength }),
     });
     
     if (!response.ok) {
-      throw new Error('Failed to generate value plan');
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to generate value plan');
     }
     
     return response.json();
   },
   
   getSolutionPlan: async (issue: any) => {
-    const response = await fetch('/api/analytics/solution-plan', {
+    const token = getCookie('token');
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/analytics/solution-plan`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({ issue }),
     });
     
     if (!response.ok) {
-      throw new Error('Failed to generate solution plan');
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to generate solution plan');
     }
     
     return response.json();
