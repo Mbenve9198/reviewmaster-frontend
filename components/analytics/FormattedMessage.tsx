@@ -1,6 +1,10 @@
 import { ChatBubbleMessage } from "@/components/ui/chat-bubble"
 import AnalysisDashboard from "./AnalysisDashboard"
 import ReactMarkdown from 'react-markdown'
+import { Button } from "@/components/ui/button"
+import { TrendingUp, Wrench } from "lucide-react"
+import { toast } from "react-hot-toast"
+import { api } from "@/lib/api"
 
 interface FormattedMessageProps {
   content: string
@@ -142,3 +146,110 @@ export function FormattedMessage({ content, variant = "received", isLoading = fa
     </ChatBubbleMessage>
   );
 }
+
+const AnalysisDashboard = ({ data }: { data: AnalysisData }) => {
+  const handleStrengthAction = async (strength: any) => {
+    try {
+      const response = await api.analytics.getValuePlan(strength);
+      toast.success("Piano di valorizzazione generato con successo");
+      // Qui puoi gestire la risposta, magari mostrandola in un modal o in un nuovo componente
+    } catch (error) {
+      toast.error("Errore nella generazione del piano");
+    }
+  };
+
+  const handleIssueAction = async (issue: any) => {
+    try {
+      const response = await api.analytics.getSolutionPlan(issue);
+      toast.success("Piano di risoluzione generato con successo");
+      // Qui puoi gestire la risposta
+    } catch (error) {
+      toast.error("Errore nella generazione del piano");
+    }
+  };
+
+  return (
+    <div className="space-y-6 p-4">
+      {/* ... existing meta section ... */}
+
+      {/* Strengths Section */}
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold text-green-700">Key Strengths</h3>
+        {data.strengths.map((strength, index) => (
+          <div key={index} className="bg-green-50 rounded-lg p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <h4 className="font-medium text-green-800">{strength.title}</h4>
+                <div className="text-sm text-green-600">
+                  Impact: {strength.impact} • {strength.mentions} mentions
+                </div>
+              </div>
+              <Button
+                onClick={() => handleStrengthAction(strength)}
+                variant="outline"
+                className="bg-green-100 hover:bg-green-200 text-green-700 border-green-200"
+              >
+                <TrendingUp className="w-4 h-4 mr-2" />
+                Maximize Value
+              </Button>
+            </div>
+            <blockquote className="text-sm italic text-gray-600 border-l-4 border-green-200 pl-3">
+              "{strength.quote}"
+            </blockquote>
+            <p className="text-sm text-gray-600">{strength.details}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Issues Section */}
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold text-red-700">Critical Issues</h3>
+        {data.issues.map((issue, index) => (
+          <div key={index} className="bg-red-50 rounded-lg p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <h4 className="font-medium text-red-800">{issue.title}</h4>
+                <div className="text-sm text-red-600">
+                  Priority: {issue.priority} • {issue.mentions} mentions
+                </div>
+              </div>
+              <Button
+                onClick={() => handleIssueAction(issue)}
+                variant="outline"
+                className="bg-red-100 hover:bg-red-200 text-red-700 border-red-200"
+              >
+                <Wrench className="w-4 h-4 mr-2" />
+                Create Action Plan
+              </Button>
+            </div>
+            <blockquote className="text-sm italic text-gray-600 border-l-4 border-red-200 pl-3">
+              "{issue.quote}"
+            </blockquote>
+            <p className="text-sm text-gray-600">{issue.details}</p>
+            {issue.solution && (
+              <div className="bg-white rounded p-3 mt-2">
+                <div className="font-medium text-red-800 mb-2">{issue.solution.title}</div>
+                <div className="grid grid-cols-3 gap-4 text-sm">
+                  <div>
+                    <span className="text-gray-500">Timeline:</span>
+                    <div>{issue.solution.timeline}</div>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">Cost:</span>
+                    <div>{issue.solution.cost}</div>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">ROI:</span>
+                    <div>{issue.solution.roi}</div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* ... rest of the existing sections ... */}
+    </div>
+  );
+};

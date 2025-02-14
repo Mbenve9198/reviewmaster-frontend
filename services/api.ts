@@ -285,7 +285,39 @@ export const analyticsApi = {
     }
 
     return response.json();
-  }
+  },
+
+  getValuePlan: async (strength: any) => {
+    const response = await fetch('/api/analytics/value-plan', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ strength }),
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to generate value plan');
+    }
+    
+    return response.json();
+  },
+  
+  getSolutionPlan: async (issue: any) => {
+    const response = await fetch('/api/analytics/solution-plan', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ issue }),
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to generate solution plan');
+    }
+    
+    return response.json();
+  },
 };
 
 // Export principale
