@@ -174,11 +174,18 @@ export function FormattedMessage({
           try {
             const response = await api.analytics.getSolutionPlan(issue);
             toast.success("Piano di risoluzione generato con successo");
-            onMessage?.(`Come possiamo risolvere il problema "${issue.title}"?`);
-          } catch (error) {
-            toast.error("Errore nella generazione del piano");
+            if (onMessage) {
+              onMessage(response.message || `Come possiamo risolvere il problema "${issue.title}"?\n\n${JSON.stringify(response.plan, null, 2)}`);
+            }
+          } catch (error: any) {
+            if (error.message === 'QUOTA_EXCEEDED') {
+              toast.error("Quota API esaurita. Riprova più tardi.");
+            } else {
+              toast.error("Errore nella generazione del piano");
+            }
           }
         }}
+        onMessage={onMessage}
       />
     </ChatBubbleMessage>
   );

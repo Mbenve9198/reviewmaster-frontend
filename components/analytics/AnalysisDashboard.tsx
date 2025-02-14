@@ -321,19 +321,45 @@ const AnalysisDashboard = ({ data, onStrengthAction, onIssueAction, onMessage }:
                         const response = await api.analytics.getSolutionPlan(issue);
                         toast.success("Piano di risoluzione generato con successo");
                         
-                        // Aggiungi il messaggio alla chat
-                        if (response.message) {
-                          onMessage?.(response.message);
+                        // Formatta il piano in modo più leggibile
+                        const formattedPlan = `# Piano di Risoluzione per "${issue.title}"
+
+## Overview
+${response.plan.overview}
+
+## Fasi di Implementazione
+${response.plan.phases.map((phase: any, index: number) => `
+### ${phase.title}
+${phase.description}
+
+Timeline: ${phase.timeline}
+Costo: ${phase.cost}
+Impatto: ${phase.impact}
+
+Steps:
+${phase.steps.map((step: string) => `- ${step}`).join('\n')}
+`).join('\n')}
+
+## Metriche di Successo
+${response.plan.successMetrics.map((metric: any) => `
+- ${metric.metric}
+  Target: ${metric.target}
+  Timeline: ${metric.timeline}
+`).join('\n')}`;
+
+                        // Invia il messaggio formattato alla chat
+                        if (onMessage) {
+                          onMessage(formattedPlan);
                         } else {
-                          onMessage?.(`Come possiamo risolvere il problema "${issue.title}"?\n\n${JSON.stringify(response.plan, null, 2)}`);
+                          console.warn('onMessage callback not provided');
                         }
                       } catch (error: any) {
-                        if (error.response?.status === 429) {
+                        console.error('Error generating solution plan:', error);
+                        if (error.message === 'QUOTA_EXCEEDED') {
                           toast.error("Quota API esaurita. Riprova più tardi.");
                         } else {
-                          toast.error("Errore nella generazione del piano");
+                          toast.error(error.message || "Errore nella generazione del piano");
                         }
-                        console.error('Error:', error);
                       }
                     }}
                     variant="outline"

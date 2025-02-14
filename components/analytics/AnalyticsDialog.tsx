@@ -467,7 +467,18 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
                 <div className="bg-white rounded-xl shadow-sm">
                   <FormattedMessage 
                     content={messages[1].content} 
-                    variant="received" 
+                    variant="received"
+                    onMessage={(message) => {
+                      console.log('Received message in AnalyticsDialog:', message); // Debug log
+                      setMessages(prev => [...prev, { role: 'assistant', content: message }]);
+                      // Scroll to bottom after adding message
+                      setTimeout(() => {
+                        if (chatContainerRef.current) {
+                          chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+                        }
+                      }, 100);
+                    }}
+                    onSuggestions={(newSuggestions) => setSuggestions(newSuggestions)}
                   />
                 </div>
               )}
@@ -540,7 +551,16 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
                       ) : (
                         <FormattedMessage 
                           content={msg.content} 
-                          onMessage={(message) => handleAnalysis(message)}
+                          onMessage={(message) => {
+                            console.log('Received message in chat:', message); // Debug log
+                            setMessages(prev => [...prev, { role: 'assistant', content: message }]);
+                            // Scroll to bottom after adding message
+                            setTimeout(() => {
+                              if (chatContainerRef.current) {
+                                chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+                              }
+                            }, 100);
+                          }}
                           onSuggestions={(newSuggestions) => setSuggestions(newSuggestions)}
                         />
                       )}
@@ -560,7 +580,13 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
                           />
                         </div>
                       </ChatBubbleAvatar>
-                      <FormattedMessage content={currentTypingContent} />
+                      <FormattedMessage 
+                        content={currentTypingContent}
+                        onMessage={(message) => {
+                          console.log('Received message while typing:', message); // Debug log
+                          setMessages(prev => [...prev, { role: 'assistant', content: message }]);
+                        }}
+                      />
                     </ChatBubble>
                   </div>
                 )}
