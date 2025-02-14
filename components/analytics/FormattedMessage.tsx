@@ -75,6 +75,13 @@ interface AnalysisData {
   suggestions?: string[]
 }
 
+interface ContentWithSuggestions {
+  suggestions?: string[];
+  meta?: any;
+  sentiment?: any;
+  strengths?: any;
+}
+
 export function FormattedMessage({ 
   content, 
   variant = "received", 
@@ -109,10 +116,11 @@ export function FormattedMessage({
         }
       }
     } else if (content && typeof content === 'object') {
+      const contentWithSuggestions = content as ContentWithSuggestions;
       analysisData = content as AnalysisData;
       // Aggiungi anche qui il controllo per i suggerimenti
-      if ('suggestions' in content) {
-        onSuggestions?.(content.suggestions as string[]);
+      if ('suggestions' in contentWithSuggestions && Array.isArray(contentWithSuggestions.suggestions)) {
+        onSuggestions?.(contentWithSuggestions.suggestions);
       }
     }
   } catch (e) {
