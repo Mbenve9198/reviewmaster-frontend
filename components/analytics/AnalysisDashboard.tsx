@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ArrowDown, ArrowUp, ArrowRight, Star, AlertTriangle, CheckCircle, TrendingUp, TrendingDown, Wrench } from 'lucide-react';
 import { Button } from "@/components/ui/button";
+import { toast } from "react-hot-toast";
 
 // Helper per il colore del trend
 const getTrendColor = (value: string): string => {
@@ -229,9 +230,10 @@ interface AnalysisDashboardProps {
   }
   onStrengthAction?: (strength: any) => Promise<void>
   onIssueAction?: (issue: any) => Promise<void>
+  onMessage?: (message: string) => void
 }
 
-const AnalysisDashboard = ({ data, onStrengthAction, onIssueAction }: AnalysisDashboardProps) => {
+const AnalysisDashboard = ({ data, onStrengthAction, onIssueAction, onMessage }: AnalysisDashboardProps) => {
   if (!data) return null;
 
   return (
@@ -313,7 +315,26 @@ const AnalysisDashboard = ({ data, onStrengthAction, onIssueAction }: AnalysisDa
                 </div>
                 {onIssueAction && (
                   <Button
-                    onClick={() => onIssueAction(issue)}
+                    onClick={async () => {
+                      try {
+                        const response = await api.analytics.getSolutionPlan(issue);
+                        toast.success("Piano di risoluzione generato con successo");
+                        
+                        // Aggiungi il messaggio alla chat
+                        if (response.message) {
+                          onMessage?.(response.message);
+                        } else {
+                          onMessage?.(`Come possiamo risolvere il problema "${issue.title}"?\n\n${JSON.stringify(response.plan, null, 2)}`);
+                        }
+                      } catch (error: any) {
+                        if (error.response?.status === 429) {
+                          toast.error("Quota API esaurita. Riprova più tardi.");
+                        } else {
+                          toast.error("Errore nella generazione del piano");
+                        }
+                        console.error('Error:', error);
+                      }
+                    }}
                     variant="outline"
                     className="bg-red-100 hover:bg-red-200 text-red-700 border-red-200"
                   >

@@ -309,17 +309,20 @@ export const analyticsApi = {
   getSolutionPlan: async (issue: any) => {
     const token = getCookie('token');
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/analytics/solution-plan`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ issue }),
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ issue }),
     });
     
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || 'Failed to generate solution plan');
+        const error = await response.json();
+        if (response.status === 429) {
+            throw new Error('QUOTA_EXCEEDED');
+        }
+        throw new Error(error.message || 'Failed to generate solution plan');
     }
     
     return response.json();
