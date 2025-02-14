@@ -181,10 +181,26 @@ export function AIChatHistory({ messages, onSendMessage, isLoading, className }:
   )
 }
 
+// Aggiungiamo un componente ThinkingMessage
+const ThinkingMessage = () => (
+  <div className="flex items-start gap-3 bg-gray-50 p-4 rounded-xl">
+    <Bot className="h-6 w-6 text-blue-500 mt-1" />
+    <div className="flex flex-col gap-2">
+      <div className="font-medium text-gray-700">Thinking...</div>
+      <div className="flex gap-1">
+        <div className="h-2 w-2 rounded-full bg-blue-500 animate-bounce [animation-delay:-0.3s]"></div>
+        <div className="h-2 w-2 rounded-full bg-blue-500 animate-bounce [animation-delay:-0.15s]"></div>
+        <div className="h-2 w-2 rounded-full bg-blue-500 animate-bounce"></div>
+      </div>
+    </div>
+  </div>
+);
+
 export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsDialogProps) {
   const [messages, setMessages] = useState<Array<{ role: string; content: string }>>([])
   const [currentTypingContent, setCurrentTypingContent] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const [isThinking, setIsThinking] = useState(false)
   const [inputValue, setInputValue] = useState("")
   const [suggestions, setSuggestions] = useState<string[]>([])
   const chatContainerRef = useRef<HTMLDivElement>(null)
@@ -552,14 +568,15 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
                         <FormattedMessage 
                           content={msg.content} 
                           onMessage={(message) => {
-                            console.log('Received message in chat:', message); // Debug log
-                            setMessages(prev => [...prev, { role: 'assistant', content: message }]);
-                            // Scroll to bottom after adding message
+                            setIsThinking(true); // Mostra l'animazione thinking
+                            setMessages(prev => [...prev, { role: 'user', content: message }]);
+                            // Aggiungi un piccolo delay prima di aggiungere il messaggio "thinking"
                             setTimeout(() => {
-                              if (chatContainerRef.current) {
-                                chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
-                              }
-                            }, 100);
+                              setMessages(prev => [...prev, { 
+                                role: 'assistant', 
+                                content: '🤔 Analyzing and preparing a detailed plan...' 
+                              }]);
+                            }, 500);
                           }}
                           onSuggestions={(newSuggestions) => setSuggestions(newSuggestions)}
                         />
@@ -567,6 +584,24 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
                     </ChatBubble>
                   </div>
                 ))}
+                
+                {/* Mostra il messaggio "thinking" quando necessario */}
+                {isThinking && (
+                  <div className="relative group">
+                    <ChatBubble variant="received">
+                      <ChatBubbleAvatar>
+                        <div className="rounded-full overflow-hidden w-8 h-8">
+                          <img 
+                            src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/ai_profile-image-5cGMUYt7uIe4gJLlE9iHrTqpTtVwOS.png"
+                            alt="AI Assistant"
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      </ChatBubbleAvatar>
+                      <ThinkingMessage />
+                    </ChatBubble>
+                  </div>
+                )}
                 
                 {currentTypingContent && (
                   <div className="relative group">
@@ -583,7 +618,7 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
                       <FormattedMessage 
                         content={currentTypingContent}
                         onMessage={(message) => {
-                          console.log('Received message while typing:', message); // Debug log
+                          setIsThinking(true);
                           setMessages(prev => [...prev, { role: 'assistant', content: message }]);
                         }}
                       />

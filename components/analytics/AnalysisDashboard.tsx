@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowDown, ArrowUp, ArrowRight, Star, AlertTriangle, CheckCircle, TrendingUp, TrendingDown, Wrench } from 'lucide-react';
+import { ArrowDown, ArrowUp, ArrowRight, Star, AlertTriangle, CheckCircle, TrendingUp, TrendingDown, Wrench, Loader2 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { toast } from "react-hot-toast";
 import { api } from "@/services/api";
@@ -237,6 +237,9 @@ interface AnalysisDashboardProps {
 const AnalysisDashboard = ({ data, onStrengthAction, onIssueAction, onMessage }: AnalysisDashboardProps) => {
   if (!data) return null;
 
+  // Aggiungiamo uno stato per tracciare quale piano sta caricando
+  const [loadingPlanId, setLoadingPlanId] = useState<number | null>(null);
+
   return (
     <div className="space-y-8">
       {/* Header Section */}
@@ -318,55 +321,86 @@ const AnalysisDashboard = ({ data, onStrengthAction, onIssueAction, onMessage }:
                   <Button
                     onClick={async () => {
                       try {
-                        const response = await api.analytics.getSolutionPlan(issue);
-                        toast.success("Piano di risoluzione generato con successo");
+                        // Mostra il messaggio di richiesta immediatamente
+                        onMessage?.(`How can we solve the "${issue.title}" issue?`);
                         
-                        // Formatta il piano in modo più leggibile
-                        const formattedPlan = `# Piano di Risoluzione per "${issue.title}"
+                        // Mostra il messaggio "thinking"
+                        onMessage?.("🤔 Analyzing the issue and creating a detailed solution plan...");
+                        
+                        // Imposta lo stato di caricamento per questo issue
+                        setLoadingPlanId(i);
+                        
+                        const response = await api.analytics.getSolutionPlan(issue);
+                        
+                        toast.success("Solution plan generated successfully");
+                        
+                        const formattedPlan = `# Resolution Plan for "${issue.title}"
 
 ## Overview
 ${response.plan.overview}
 
-## Fasi di Implementazione
+## Implementation Phases
 ${response.plan.phases.map((phase: any, index: number) => `
 ### ${phase.title}
 ${phase.description}
 
 Timeline: ${phase.timeline}
-Costo: ${phase.cost}
-Impatto: ${phase.impact}
+Cost: ${phase.cost}
+Impact: ${phase.impact}
 
 Steps:
 ${phase.steps.map((step: string) => `- ${step}`).join('\n')}
 `).join('\n')}
 
-## Metriche di Successo
+## Success Metrics
 ${response.plan.successMetrics.map((metric: any) => `
 - ${metric.metric}
   Target: ${metric.target}
   Timeline: ${metric.timeline}
-`).join('\n')}`;
+`).join('\n')}
 
-                        // Invia il messaggio formattato alla chat
+## Risk Management
+${response.plan.contingencyPlan ? `
+### Risks:
+${response.plan.contingencyPlan.risks.map((risk: string) => `- ${risk}`).join('\n')}
+
+### Mitigations:
+${response.plan.contingencyPlan.mitigations.map((mitigation: string) => `- ${mitigation}`).join('\n')}
+` : ''}`;
+
+                        // Invia il piano formattato alla chat
                         if (onMessage) {
                           onMessage(formattedPlan);
-                        } else {
-                          console.warn('onMessage callback not provided');
                         }
                       } catch (error: any) {
                         console.error('Error generating solution plan:', error);
                         if (error.message === 'QUOTA_EXCEEDED') {
-                          toast.error("Quota API esaurita. Riprova più tardi.");
+                          toast.error("API quota exceeded. Please try again later.");
+                          onMessage?.("❌ Sorry, I couldn't generate the plan due to API quota limits. Please try again later.");
                         } else {
-                          toast.error(error.message || "Errore nella generazione del piano");
+                          toast.error(error.message || "Error generating the plan");
+                          onMessage?.("❌ Sorry, there was an error generating the plan. Please try again.");
                         }
+                      } finally {
+                        // Rimuovi lo stato di caricamento
+                        setLoadingPlanId(null);
                       }
                     }}
                     variant="outline"
                     className="bg-red-100 hover:bg-red-200 text-red-700 border-red-200"
+                    disabled={loadingPlanId === i}
                   >
-                    <Wrench className="w-4 h-4 mr-2" />
-                    Create Action Plan
+                    {loadingPlanId === i ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Creating Plan...
+                      </>
+                    ) : (
+                      <>
+                        <Wrench className="w-4 h-4 mr-2" />
+                        Create Action Plan
+                      </>
+                    )}
                   </Button>
                 )}
               </div>
