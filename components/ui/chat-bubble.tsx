@@ -53,6 +53,9 @@ export function ChatBubbleMessage({
       ? "bg-primary text-primary-foreground"
       : "bg-gray-100 text-gray-700"
 
+  const isSuggestion = typeof children === 'string' && 
+    (children.startsWith('Come possiamo') || children.startsWith('How can we'));
+
   if (isLoading) {
     return (
       <div className={cn(
@@ -76,7 +79,12 @@ export function ChatBubbleMessage({
   }
   
   return (
-    <div className={cn(baseStyle, variantStyle, className)}>
+    <div className={cn(
+      baseStyle, 
+      variantStyle, 
+      isSuggestion && "text-xs py-2 px-3 bg-blue-50 text-blue-700 hover:bg-blue-100 cursor-pointer transition-colors duration-200 border border-blue-100",
+      className
+    )}>
       {children}
     </div>
   )

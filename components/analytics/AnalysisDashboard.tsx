@@ -325,7 +325,7 @@ const AnalysisDashboard = ({ data, onStrengthAction, onIssueAction, onMessage }:
                         onMessage?.(`How can we solve the "${issue.title}" issue?`);
                         
                         // Mostra il messaggio "thinking"
-                        onMessage?.("🤔 Analyzing the issue and creating a detailed solution plan...");
+                        onMessage?.("🤔 Analyzing the issue and creating a detailed solution plan<span class='loading-dots'>...</span>");
                         
                         // Imposta lo stato di caricamento per questo issue
                         setLoadingPlanId(i);

@@ -568,11 +568,13 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
                         <FormattedMessage 
                           content={msg.content} 
                           onMessage={(message) => {
-                            // Aggiungi prima il messaggio come messaggio utente
+                            // Aggiungi prima il messaggio dell'utente
                             setMessages(prev => [...prev, { role: 'user', content: message }]);
                             
-                            // Poi attiva lo stato "thinking" per la risposta dell'assistente
+                            // Poi mostra l'animazione thinking
                             setIsThinking(true);
+                            
+                            // Aggiungi un piccolo delay prima di aggiungere il messaggio "thinking"
                             setTimeout(() => {
                               setIsThinking(false);
                               // La risposta effettiva sarà gestita dalla callback dell'API
