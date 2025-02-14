@@ -568,15 +568,15 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
                         <FormattedMessage 
                           content={msg.content} 
                           onMessage={(message) => {
-                            setIsThinking(true); // Mostra l'animazione thinking
+                            // Aggiungi prima il messaggio come messaggio utente
                             setMessages(prev => [...prev, { role: 'user', content: message }]);
-                            // Aggiungi un piccolo delay prima di aggiungere il messaggio "thinking"
+                            
+                            // Poi attiva lo stato "thinking" per la risposta dell'assistente
+                            setIsThinking(true);
                             setTimeout(() => {
-                              setMessages(prev => [...prev, { 
-                                role: 'assistant', 
-                                content: '🤔 Analyzing and preparing a detailed plan...' 
-                              }]);
-                            }, 500);
+                              setIsThinking(false);
+                              // La risposta effettiva sarà gestita dalla callback dell'API
+                            }, 1000);
                           }}
                           onSuggestions={(newSuggestions) => setSuggestions(newSuggestions)}
                         />

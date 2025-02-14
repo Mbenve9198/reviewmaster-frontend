@@ -165,7 +165,9 @@ export function FormattedMessage({
           try {
             const response = await api.analytics.getValuePlan(strength);
             toast.success("Piano di valorizzazione generato con successo");
-            onMessage?.(`Come possiamo massimizzare il valore di "${strength.title}"?`);
+            // Invia solo il messaggio utente
+            const message = `Come possiamo massimizzare il valore di "${strength.title}"?`;
+            onMessage?.(message);
           } catch (error) {
             toast.error("Errore nella generazione del piano");
           }
@@ -174,8 +176,20 @@ export function FormattedMessage({
           try {
             const response = await api.analytics.getSolutionPlan(issue);
             toast.success("Piano di risoluzione generato con successo");
+            
+            // Crea il messaggio utente
+            const userMessage = `Come possiamo risolvere il problema "${issue.title}"?`;
+            
             if (onMessage) {
-              onMessage(response.message || `Come possiamo risolvere il problema "${issue.title}"?\n\n${JSON.stringify(response.plan, null, 2)}`);
+              // Prima invia il messaggio utente
+              onMessage(userMessage);
+              
+              // Poi, se c'è un piano di risposta, invialo come messaggio separato dell'assistente
+              if (response.plan) {
+                setTimeout(() => {
+                  onMessage(JSON.stringify(response.plan, null, 2));
+                }, 500);
+              }
             }
           } catch (error: any) {
             if (error.message === 'QUOTA_EXCEEDED') {
