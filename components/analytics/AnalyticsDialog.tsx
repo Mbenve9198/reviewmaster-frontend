@@ -538,7 +538,10 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
                           {msg.content}
                         </ChatBubbleMessage>
                       ) : (
-                        <FormattedMessage content={msg.content} />
+                        <FormattedMessage 
+                          content={msg.content} 
+                          onMessage={(message) => handleAnalysis(message)}
+                        />
                       )}
                     </ChatBubble>
                   </div>

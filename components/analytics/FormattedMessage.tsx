@@ -4,12 +4,13 @@ import ReactMarkdown from 'react-markdown'
 import { Button } from "@/components/ui/button"
 import { TrendingUp, Wrench } from "lucide-react"
 import { toast } from "react-hot-toast"
-import { api } from "@/lib/api"
+import { api } from "@/services/api"
 
 interface FormattedMessageProps {
   content: string
   variant?: "sent" | "received"
   isLoading?: boolean
+  onMessage?: (message: string) => void
 }
 
 interface AnalysisData {
@@ -71,7 +72,7 @@ interface AnalysisData {
   }>
 }
 
-export function FormattedMessage({ content, variant = "received", isLoading = false }: FormattedMessageProps) {
+export function FormattedMessage({ content, variant = "received", isLoading = false, onMessage }: FormattedMessageProps) {
   // Se è in caricamento, mostra il feedback (spinner, ecc.)
   if (isLoading) {
     return (
@@ -148,6 +149,7 @@ export function FormattedMessage({ content, variant = "received", isLoading = fa
           try {
             const response = await api.analytics.getValuePlan(strength);
             toast.success("Piano di valorizzazione generato con successo");
+            onMessage?.(`Come possiamo massimizzare il valore di "${strength.title}"?`);
           } catch (error) {
             toast.error("Errore nella generazione del piano");
           }
@@ -156,6 +158,7 @@ export function FormattedMessage({ content, variant = "received", isLoading = fa
           try {
             const response = await api.analytics.getSolutionPlan(issue);
             toast.success("Piano di risoluzione generato con successo");
+            onMessage?.(`Come possiamo risolvere il problema "${issue.title}"?`);
           } catch (error) {
             toast.error("Errore nella generazione del piano");
           }
