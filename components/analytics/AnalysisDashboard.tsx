@@ -1,7 +1,8 @@
 import React from 'react';
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowDown, ArrowUp, ArrowRight, Star, AlertTriangle, CheckCircle, TrendingUp, TrendingDown } from 'lucide-react';
+import { ArrowDown, ArrowUp, ArrowRight, Star, AlertTriangle, CheckCircle, TrendingUp, TrendingDown, Wrench } from 'lucide-react';
+import { Button } from "@/components/ui/button";
 
 // Helper per il colore del trend
 const getTrendColor = (value: string): string => {
@@ -69,7 +70,7 @@ interface QuickWin {
   impact: string
 }
 
-const StrengthCard = ({ strength }: { strength: Strength }) => (
+const StrengthCard = ({ strength, onStrengthAction }: { strength: Strength, onStrengthAction?: (strength: any) => Promise<void> }) => (
   <Card className="overflow-hidden bg-gradient-to-br from-green-50 to-green-100/50">
     <div className="p-4">
       <div className="flex items-start justify-between mb-3">
@@ -93,11 +94,24 @@ const StrengthCard = ({ strength }: { strength: Strength }) => (
           {strength.mentions} mentions
         </Badge>
       </div>
+
+      <div className="mt-3 space-y-1">
+        {onStrengthAction && (
+          <Button
+            onClick={() => onStrengthAction(strength)}
+            variant="outline"
+            className="bg-green-100 hover:bg-green-200 text-green-700 border-green-200"
+          >
+            <TrendingUp className="w-4 h-4 mr-2" />
+            Maximize Value
+          </Button>
+        )}
+      </div>
     </div>
   </Card>
 );
 
-const IssueCard = ({ issue }: { issue: Issue }) => (
+const IssueCard = ({ issue, onIssueAction }: { issue: Issue, onIssueAction?: (issue: any) => Promise<void> }) => (
   <Card className="overflow-hidden bg-gradient-to-br from-red-50 to-red-100/50">
     <div className="p-4">
       <div className="flex items-start justify-between mb-3">
@@ -152,6 +166,19 @@ const IssueCard = ({ issue }: { issue: Issue }) => (
           </div>
         </Card>
       )}
+
+      <div className="mt-3 space-y-1">
+        {onIssueAction && (
+          <Button
+            onClick={() => onIssueAction(issue)}
+            variant="outline"
+            className="bg-red-100 hover:bg-red-200 text-red-700 border-red-200"
+          >
+            <Wrench className="w-4 h-4 mr-2" />
+            Create Action Plan
+          </Button>
+        )}
+      </div>
     </div>
   </Card>
 );
@@ -200,9 +227,11 @@ interface AnalysisDashboardProps {
       period: string
     }>
   }
+  onStrengthAction?: (strength: any) => Promise<void>
+  onIssueAction?: (issue: any) => Promise<void>
 }
 
-const AnalysisDashboard = ({ data }: AnalysisDashboardProps) => {
+const AnalysisDashboard = ({ data, onStrengthAction, onIssueAction }: AnalysisDashboardProps) => {
   if (!data) return null;
 
   return (
@@ -241,7 +270,30 @@ const AnalysisDashboard = ({ data }: AnalysisDashboardProps) => {
         <h2 className="text-xl font-semibold text-gray-900 mb-4">Key Strengths</h2>
         <div className="grid gap-4">
           {data.strengths.map((strength, i) => (
-            <StrengthCard key={i} strength={strength} />
+            <div key={i} className="bg-green-50 rounded-lg p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="font-medium text-green-800">{strength.title}</h4>
+                  <div className="text-sm text-green-600">
+                    Impact: {strength.impact} • {strength.mentions} mentions
+                  </div>
+                </div>
+                {onStrengthAction && (
+                  <Button
+                    onClick={() => onStrengthAction(strength)}
+                    variant="outline"
+                    className="bg-green-100 hover:bg-green-200 text-green-700 border-green-200"
+                  >
+                    <TrendingUp className="w-4 h-4 mr-2" />
+                    Maximize Value
+                  </Button>
+                )}
+              </div>
+              <blockquote className="pl-4 my-3 border-l-2 border-green-300 italic text-gray-600">
+                "{strength.quote}"
+              </blockquote>
+              <p className="text-gray-600 mb-3">{strength.details}</p>
+            </div>
           ))}
         </div>
       </div>
@@ -251,7 +303,62 @@ const AnalysisDashboard = ({ data }: AnalysisDashboardProps) => {
         <h2 className="text-xl font-semibold text-gray-900 mb-4">Critical Issues</h2>
         <div className="grid gap-4">
           {data.issues.map((issue, i) => (
-            <IssueCard key={i} issue={issue} />
+            <div key={i} className="bg-red-50 rounded-lg p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="font-medium text-red-800">{issue.title}</h4>
+                  <div className="text-sm text-red-600">
+                    Priority: {issue.priority} • {issue.mentions} mentions
+                  </div>
+                </div>
+                {onIssueAction && (
+                  <Button
+                    onClick={() => onIssueAction(issue)}
+                    variant="outline"
+                    className="bg-red-100 hover:bg-red-200 text-red-700 border-red-200"
+                  >
+                    <Wrench className="w-4 h-4 mr-2" />
+                    Create Action Plan
+                  </Button>
+                )}
+              </div>
+              <blockquote className="pl-4 my-3 border-l-2 border-red-300 italic text-gray-600">
+                "{issue.quote}"
+              </blockquote>
+              <p className="text-gray-600 mb-3">{issue.details}</p>
+
+              {issue.solution && (
+                <Card className="bg-white mt-3">
+                  <div className="p-3">
+                    <h5 className="font-medium text-red-800 mb-2">{issue.solution.title}</h5>
+                    <div className="grid grid-cols-3 gap-2 text-sm">
+                      <div className="text-center p-2 bg-gray-50 rounded">
+                        <span className="text-gray-500 text-xs block mb-1">Timeline</span>
+                        <span>{issue.solution.timeline}</span>
+                      </div>
+                      <div className="text-center p-2 bg-gray-50 rounded">
+                        <span className="text-gray-500 text-xs block mb-1">Cost</span>
+                        <span>{issue.solution.cost}</span>
+                      </div>
+                      <div className="text-center p-2 bg-gray-50 rounded">
+                        <span className="text-gray-500 text-xs block mb-1">ROI</span>
+                        <span>{issue.solution.roi}</span>
+                      </div>
+                    </div>
+                    {issue.solution.steps && (
+                      <div className="mt-3 space-y-1">
+                        {issue.solution.steps.map((step, i) => (
+                          <div key={i} className="flex items-center gap-2 text-sm">
+                            <CheckCircle className="w-4 h-4 text-red-500" />
+                            <span>{step}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </Card>
+              )}
+            </div>
           ))}
         </div>
       </div>
