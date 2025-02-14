@@ -108,11 +108,11 @@ export function FormattedMessage({
           onSuggestions?.(parsed.suggestions);
         }
       }
-    } else {
-      analysisData = content;
+    } else if (content && typeof content === 'object') {
+      analysisData = content as AnalysisData;
       // Aggiungi anche qui il controllo per i suggerimenti
-      if (content.suggestions) {
-        onSuggestions?.(content.suggestions);
+      if ('suggestions' in content) {
+        onSuggestions?.(content.suggestions as string[]);
       }
     }
   } catch (e) {
