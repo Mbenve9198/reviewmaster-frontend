@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowDown, ArrowUp, ArrowRight, Star, AlertTriangle, CheckCircle, TrendingUp, TrendingDown, Wrench } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { toast } from "react-hot-toast";
+import { api } from "@/services/api";
 
 // Helper per il colore del trend
 const getTrendColor = (value: string): string => {
