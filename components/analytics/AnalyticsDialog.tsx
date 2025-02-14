@@ -541,6 +541,7 @@ export function AnalyticsDialog({ isOpen, onClose, selectedReviews }: AnalyticsD
                         <FormattedMessage 
                           content={msg.content} 
                           onMessage={(message) => handleAnalysis(message)}
+                          onSuggestions={(newSuggestions) => setSuggestions(newSuggestions)}
                         />
                       )}
                     </ChatBubble>

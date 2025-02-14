@@ -5,12 +5,14 @@ import { Button } from "@/components/ui/button"
 import { TrendingUp, Wrench } from "lucide-react"
 import { toast } from "react-hot-toast"
 import { api } from "@/services/api"
+import { useEffect } from "react"
 
 interface FormattedMessageProps {
   content: string
   variant?: "sent" | "received"
   isLoading?: boolean
   onMessage?: (message: string) => void
+  onSuggestions?: (suggestions: string[]) => void
 }
 
 interface AnalysisData {
@@ -70,9 +72,16 @@ interface AnalysisData {
     change: string
     period: string
   }>
+  suggestions?: string[]
 }
 
-export function FormattedMessage({ content, variant = "received", isLoading = false, onMessage }: FormattedMessageProps) {
+export function FormattedMessage({ 
+  content, 
+  variant = "received", 
+  isLoading = false,
+  onMessage,
+  onSuggestions 
+}: FormattedMessageProps) {
   // Se è in caricamento, mostra il feedback (spinner, ecc.)
   if (isLoading) {
     return (
@@ -136,6 +145,13 @@ export function FormattedMessage({ content, variant = "received", isLoading = fa
       </ChatBubbleMessage>
     );
   }
+
+  // Quando viene parsato il JSON dell'analisi, estraiamo e inviamo i suggerimenti
+  useEffect(() => {
+    if (analysisData?.suggestions) {
+      onSuggestions?.(analysisData.suggestions);
+    }
+  }, [analysisData, onSuggestions]);
 
   // Rendering dell'analisi strutturata
   return (
