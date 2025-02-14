@@ -1,5 +1,6 @@
 import { ChatBubbleMessage } from "@/components/ui/chat-bubble"
 import AnalysisDashboard from "./AnalysisDashboard"
+import ReactMarkdown from 'react-markdown'
 
 interface FormattedMessageProps {
   content: string
@@ -93,17 +94,40 @@ export function FormattedMessage({ content, variant = "received", isLoading = fa
       analysisData = content;
     }
   } catch (e) {
-    // Non è JSON, lo trattiamo come testo normale
+    // Non è JSON, lo trattiamo come testo markdown
   }
 
-  // Se non è JSON strutturato, mostra come messaggio normale
+  // Se non è JSON strutturato, mostra come messaggio markdown
   if (!analysisData) {
     return (
       <ChatBubbleMessage 
         variant={variant}
-        className="text-base rounded-2xl whitespace-pre-wrap"
+        className="text-base rounded-2xl prose prose-blue max-w-none"
       >
-        {content}
+        <ReactMarkdown
+          components={{
+            // Personalizza lo stile dei vari elementi markdown
+            strong: ({ children }) => (
+              <span className="font-semibold text-blue-600">{children}</span>
+            ),
+            ul: ({ children }) => (
+              <ul className="list-disc pl-4 my-2 space-y-1">{children}</ul>
+            ),
+            li: ({ children }) => (
+              <li className="text-gray-700">{children}</li>
+            ),
+            p: ({ children }) => (
+              <p className="mb-4 last:mb-0">{children}</p>
+            ),
+            blockquote: ({ children }) => (
+              <blockquote className="border-l-4 border-blue-200 pl-4 my-2 text-gray-600 italic">
+                {children}
+              </blockquote>
+            ),
+          }}
+        >
+          {content}
+        </ReactMarkdown>
       </ChatBubbleMessage>
     );
   }
