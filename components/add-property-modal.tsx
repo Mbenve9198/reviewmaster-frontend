@@ -108,38 +108,38 @@ export function AddPropertyModal({ isOpen, onClose, onSuccess }: AddPropertyModa
   const [error, setError] = useState<string | null>(null)
 
   const handleContinue = async () => {
-    if (step < totalSteps - 1) {
-      if (step === 1) {
-        if (!hotelData.name || !hotelData.type) {
-          setError('Please fill in all required fields')
-          return
-        }
-      }
-      if (step === 2) {
-        if (!hotelData.description) {
-          setError('Please provide a description for your property')
-          return
-        }
-      }
-      if (step === 3) {
-        if (!hotelData.managerSignature) {
-          setError('Please provide a manager signature')
-          return
-        }
-      }
-      if (step === 5) {
-        if (!platformUrl) {
-          setError('Please provide a valid platform URL')
-          return
-        }
-      }
-
+    try {
       setError(null)
-      setStep(step + 1)
-    } else if (step === totalSteps - 1) {
-      try {
+
+      if (step < totalSteps - 1) {
+        if (step === 1) {
+          if (!hotelData.name || !hotelData.type) {
+            setError('Please fill in all required fields')
+            return
+          }
+        }
+        if (step === 2) {
+          if (!hotelData.description) {
+            setError('Please provide a description for your property')
+            return
+          }
+        }
+        if (step === 3) {
+          if (!hotelData.managerSignature) {
+            setError('Please provide a manager signature')
+            return
+          }
+        }
+        if (step === 5) {
+          if (!platformUrl) {
+            setError('Please provide a valid platform URL')
+            return
+          }
+        }
+
+        setStep(step + 1)
+      } else if (step === totalSteps - 1) {
         setIsLoading(true)
-        setError(null)
         const token = getCookie('token')
 
         if (!hotelData.name || !hotelData.type || !hotelData.description || 
@@ -225,15 +225,15 @@ export function AddPropertyModal({ isOpen, onClose, onSuccess }: AddPropertyModa
 
         setSetupCompleted(true)
         setStep(totalSteps)
-      } catch (error) {
-        console.error('Setup error:', error)
-        setError(error instanceof Error ? error.message : 'An unexpected error occurred')
-      } finally {
-        setIsLoading(false)
+      } else {
+        setSetupCompleted(true)
+        onSuccess()
+        onClose()
       }
-    } else {
-      onSuccess()
-      onClose()
+    } catch (error) {
+      console.error('Error:', error)
+      toast.error('Failed to save configuration')
+      setError('An error occurred while saving the configuration')
     }
   }
 
