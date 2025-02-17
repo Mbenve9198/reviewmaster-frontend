@@ -14,8 +14,9 @@ import {
 } from "@/components/ui/select"
 import { getCookie } from '@/lib/utils'
 import { toast } from "sonner"
-import { Loader2, Clock, Calendar, MessageSquare, QrCode } from "lucide-react"
+import { Loader2, Clock, Calendar, MessageSquare, QrCode, Check, X, Download } from "lucide-react"
 import { QRCodeSVG } from 'qrcode.react'
+import { useDebouncedCallback } from 'use-debounce'
 
 interface SetupAssistantModalProps {
   isOpen: boolean
@@ -99,6 +100,9 @@ export function SetupAssistantModal({ isOpen, onClose, onSuccess }: SetupAssista
   const [error, setError] = useState<string | null>(null)
   const [hotels, setHotels] = useState<Hotel[]>([])
   const [qrCodeData, setQrCodeData] = useState<string>("")
+  const [isCheckingName, setIsCheckingName] = useState(false)
+  const [isNameAvailable, setIsNameAvailable] = useState<boolean | null>(null)
+  const [nameError, setNameError] = useState<string | null>(null)
 
   const [config, setConfig] = useState<AssistantConfig>({
     hotelId: "",
@@ -161,6 +165,41 @@ export function SetupAssistantModal({ isOpen, onClose, onSuccess }: SetupAssista
       fetchHotels()
     }
   }, [isOpen])
+
+  // Funzione debounced per controllare la disponibilità del nome
+  const checkTriggerName = useDebouncedCallback(async (name: string) => {
+    if (!name || name.length < 3) {
+      setIsNameAvailable(null)
+      setNameError("Name must be at least 3 characters long")
+      return
+    }
+
+    if (!/^[a-zA-Z\s]+$/.test(name)) {
+      setIsNameAvailable(null)
+      setNameError("Only letters and spaces are allowed")
+      return
+    }
+
+    try {
+      setIsCheckingName(true)
+      const token = getCookie('token')
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/whatsapp-assistant/check-name/${name}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+
+      const data = await response.json()
+      setIsNameAvailable(data.available)
+      setNameError(data.available ? null : "This name is already in use")
+    } catch (error) {
+      console.error('Error checking name:', error)
+      setNameError("Error checking name availability")
+    } finally {
+      setIsCheckingName(false)
+    }
+  }, 500)
 
   const handleContinue = async () => {
     try {
@@ -260,9 +299,8 @@ export function SetupAssistantModal({ isOpen, onClose, onSuccess }: SetupAssista
           return
         }
 
-        // Validazione del formato del trigger name
-        if (!/^[a-zA-Z\s]+$/.test(config.triggerName)) {
-          setError("Trigger name can only contain letters and spaces")
+        if (!isNameAvailable) {
+          setError("Please choose an available trigger name")
           return
         }
 
@@ -307,454 +345,544 @@ export function SetupAssistantModal({ isOpen, onClose, onSuccess }: SetupAssista
     setStep(step - 1)
   }
 
+  const generateWhatsAppLink = () => {
+    const message = `Hi ${config.triggerName}`;
+    return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+  };
+
+  const handleDownloadQR = () => {
+    const canvas = document.createElement("canvas");
+    const svg = document.querySelector('.qr-code svg');
+    if (!svg) return;
+
+    const svgData = new XMLSerializer().serializeToString(svg);
+    const img = new Image();
+    
+    img.onload = () => {
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+      
+      // Sfondo bianco
+      ctx.fillStyle = "white";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      ctx.drawImage(img, 0, 0);
+      
+      // Download
+      const link = document.createElement("a");
+      link.download = `${config.triggerName}-whatsapp-qr.png`;
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+    };
+
+    img.src = 'data:image/svg+xml;base64,' + btoa(svgData);
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[900px] min-h-[600px] max-h-[90vh] overflow-y-auto p-0 bg-white">
-        <div className="p-12">
+      <DialogContent className="sm:max-w-[900px] max-h-[90vh] p-0 bg-white flex flex-col">
+        {/* Header fisso con progress bar */}
+        <div className="sticky top-0 z-10 bg-white pt-6 px-12 pb-4 shadow-sm">
           <Progress 
             value={(step / totalSteps) * 100} 
-            className="mb-12 h-2 w-[90%] mx-auto [&>div]:bg-primary"
+            className="h-2 w-[90%] mx-auto [&>div]:bg-primary"
           />
-          
-          <div className="max-w-3xl mx-auto space-y-10">
-            {/* Step 1: Hotel Selection and Timezone */}
-            {step === 1 && (
-              <div className="space-y-8">
-                <div className="text-center space-y-2">
-                  <h2 className="text-3xl font-bold text-gray-800">Select Hotel & Timezone</h2>
-                  <p className="text-gray-600">Choose the hotel you want to set up the WhatsApp assistant for</p>
-                </div>
+        </div>
 
-                <div className="space-y-6">
-                  <div className="space-y-3">
-                    <label className="text-sm font-medium text-gray-700">Select Hotel</label>
-                    <Select
-                      value={config.hotelId}
-                      onValueChange={(value) => 
-                        setConfig(prev => ({ ...prev, hotelId: value }))
-                      }
-                    >
-                      <SelectTrigger className="h-14 border-2 border-gray-200 focus:ring-primary focus:ring-offset-0 rounded-xl">
-                        <SelectValue placeholder="Choose a hotel" />
-                      </SelectTrigger>
-                      <SelectContent className="rounded-xl">
-                        {hotels.map((hotel) => (
-                          <SelectItem key={hotel._id} value={hotel._id}>
-                            {hotel.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-3">
-                    <label className="text-sm font-medium text-gray-700">Timezone</label>
-                    <Select
-                      value={config.timezone}
-                      onValueChange={(value) => 
-                        setConfig(prev => ({ ...prev, timezone: value }))
-                      }
-                    >
-                      <SelectTrigger className="h-14 border-2 border-gray-200 focus:ring-primary focus:ring-offset-0 rounded-xl">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent className="rounded-xl max-h-[300px]">
-                        {TIMEZONES.map((timezone) => (
-                          <SelectItem key={timezone.value} value={timezone.value}>
-                            {timezone.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Step 2: Orari */}
-            {step === 2 && (
-              <div className="space-y-12">
-                <div className="text-center space-y-2">
-                  <h2 className="text-3xl font-bold text-gray-800">Hotel Schedule</h2>
-                  <p className="text-gray-600">Set your hotel's breakfast and check-in times</p>
-                </div>
-
-                <div className="space-y-12">
-                  {/* Breakfast Times */}
-                  <div className="space-y-6">
-                    <h3 className="text-2xl font-semibold text-gray-700">Breakfast Time</h3>
-                    <div className="grid grid-cols-2 gap-8">
-                      <div className="space-y-3">
-                        <label className="text-sm font-medium text-gray-700">Start Time</label>
-                        <Select
-                          value={config.breakfast.startTime}
-                          onValueChange={(value) => 
-                            setConfig(prev => ({
-                              ...prev,
-                              breakfast: {
-                                ...prev.breakfast,
-                                startTime: value
-                              }
-                            }))
-                          }
-                        >
-                          <SelectTrigger className="h-14 border-2 border-gray-200 focus:ring-primary focus:ring-offset-0 rounded-xl">
-                            <SelectValue placeholder="Select time" />
-                          </SelectTrigger>
-                          <SelectContent className="max-h-[280px] rounded-xl border-2 border-gray-200">
-                            <div className="p-2">
-                              <div className="text-sm font-medium text-gray-500 px-2 py-1.5">
-                                Select start time
-                              </div>
-                              {timeOptions.map((time) => (
-                                <SelectItem
-                                  key={time.value}
-                                  value={time.value}
-                                  className="rounded-lg hover:bg-gray-50 focus:bg-gray-50 cursor-pointer py-2.5"
-                                >
-                                  <div className="flex items-center">
-                                    <Clock className="h-4 w-4 mr-2 text-gray-400" />
-                                    <span>{time.label}</span>
-                                  </div>
-                                </SelectItem>
-                              ))}
-                            </div>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="space-y-3">
-                        <label className="text-sm font-medium text-gray-700">End Time</label>
-                        <Select
-                          value={config.breakfast.endTime}
-                          onValueChange={(value) => 
-                            setConfig(prev => ({
-                              ...prev,
-                              breakfast: {
-                                ...prev.breakfast,
-                                endTime: value
-                              }
-                            }))
-                          }
-                        >
-                          <SelectTrigger className="h-14 border-2 border-gray-200 focus:ring-primary focus:ring-offset-0 rounded-xl">
-                            <SelectValue placeholder="Select time" />
-                          </SelectTrigger>
-                          <SelectContent className="max-h-[280px] rounded-xl border-2 border-gray-200">
-                            <div className="p-2">
-                              <div className="text-sm font-medium text-gray-500 px-2 py-1.5">
-                                Select end time
-                              </div>
-                              {timeOptions.map((time) => (
-                                <SelectItem
-                                  key={time.value}
-                                  value={time.value}
-                                  className="rounded-lg hover:bg-gray-50 focus:bg-gray-50 cursor-pointer py-2.5"
-                                >
-                                  <div className="flex items-center">
-                                    <Clock className="h-4 w-4 mr-2 text-gray-400" />
-                                    <span>{time.label}</span>
-                                  </div>
-                                </SelectItem>
-                              ))}
-                            </div>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Check-in Times */}
-                  <div className="space-y-6">
-                    <h3 className="text-2xl font-semibold text-gray-700">Check-in Time</h3>
-                    <div className="grid grid-cols-2 gap-8">
-                      <div className="space-y-3">
-                        <label className="text-sm font-medium text-gray-700">Start Time</label>
-                        <Select
-                          value={config.checkIn.startTime}
-                          onValueChange={(value) => 
-                            setConfig(prev => ({
-                              ...prev,
-                              checkIn: {
-                                ...prev.checkIn,
-                                startTime: value
-                              }
-                            }))
-                          }
-                        >
-                          <SelectTrigger className="h-14 border-2 border-gray-200 focus:ring-primary focus:ring-offset-0 rounded-xl">
-                            <SelectValue placeholder="Select time" />
-                          </SelectTrigger>
-                          <SelectContent className="max-h-[280px] rounded-xl border-2 border-gray-200">
-                            <div className="p-2">
-                              <div className="text-sm font-medium text-gray-500 px-2 py-1.5">
-                                Select start time
-                              </div>
-                              {timeOptions.map((time) => (
-                                <SelectItem
-                                  key={time.value}
-                                  value={time.value}
-                                  className="rounded-lg hover:bg-gray-50 focus:bg-gray-50 cursor-pointer py-2.5"
-                                >
-                                  <div className="flex items-center">
-                                    <Clock className="h-4 w-4 mr-2 text-gray-400" />
-                                    <span>{time.label}</span>
-                                  </div>
-                                </SelectItem>
-                              ))}
-                            </div>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="space-y-3">
-                        <label className="text-sm font-medium text-gray-700">End Time</label>
-                        <Select
-                          value={config.checkIn.endTime}
-                          onValueChange={(value) => 
-                            setConfig(prev => ({
-                              ...prev,
-                              checkIn: {
-                                ...prev.checkIn,
-                                endTime: value
-                              }
-                            }))
-                          }
-                        >
-                          <SelectTrigger className="h-14 border-2 border-gray-200 focus:ring-primary focus:ring-offset-0 rounded-xl">
-                            <SelectValue placeholder="Select time" />
-                          </SelectTrigger>
-                          <SelectContent className="max-h-[280px] rounded-xl border-2 border-gray-200">
-                            <div className="p-2">
-                              <div className="text-sm font-medium text-gray-500 px-2 py-1.5">
-                                Select end time
-                              </div>
-                              {timeOptions.map((time) => (
-                                <SelectItem
-                                  key={time.value}
-                                  value={time.value}
-                                  className="rounded-lg hover:bg-gray-50 focus:bg-gray-50 cursor-pointer py-2.5"
-                                >
-                                  <div className="flex items-center">
-                                    <Clock className="h-4 w-4 mr-2 text-gray-400" />
-                                    <span>{time.label}</span>
-                                  </div>
-                                </SelectItem>
-                              ))}
-                            </div>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Step 3: Review Settings */}
-            {step === 3 && (
-              <div className="space-y-8">
-                <div className="text-center space-y-2">
-                  <h2 className="text-3xl font-bold text-gray-800">Review Settings</h2>
-                  <p className="text-gray-600">Configure when and how to request reviews from your guests</p>
-                </div>
-
+        {/* Contenuto scrollabile */}
+        <div className="flex-1 overflow-y-auto">
+          <div className="px-12 py-8">
+            <div className="max-w-3xl mx-auto space-y-10">
+              {/* Step 1: Configurazione Base */}
+              {step === 1 && (
                 <div className="space-y-8">
-                  {/* Review Link */}
-                  <div className="space-y-3">
-                    <label className="text-sm font-medium text-gray-700">Review Link</label>
-                    <Input
-                      type="url"
-                      placeholder="https://www.google.com/business/..."
-                      value={config.reviewLink}
-                      onChange={(e) => 
-                        setConfig(prev => ({
-                          ...prev,
-                          reviewLink: e.target.value
-                        }))
-                      }
-                      className="h-14 border-2 border-gray-200 focus:ring-primary focus:ring-offset-0 rounded-xl"
-                    />
-                    <p className="text-sm text-gray-500">
-                      Enter the link where guests can leave a review (e.g., Google Business, TripAdvisor)
-                    </p>
+                  <div className="text-center space-y-2">
+                    <h2 className="text-3xl font-bold text-gray-800">Select Hotel & Timezone</h2>
+                    <p className="text-gray-600">Choose the hotel you want to set up the WhatsApp assistant for</p>
                   </div>
 
-                  {/* Review Request Delay */}
-                  <div className="space-y-3">
-                    <label className="text-sm font-medium text-gray-700">Days Before Requesting Review</label>
-                    <Select
-                      value={config.reviewRequestDelay.toString()}
-                      onValueChange={(value) => 
-                        setConfig(prev => ({
-                          ...prev,
-                          reviewRequestDelay: parseInt(value)
-                        }))
-                      }
-                    >
-                      <SelectTrigger className="h-14 border-2 border-gray-200 focus:ring-primary focus:ring-offset-0 rounded-xl">
-                        <SelectValue placeholder="Select days" />
-                      </SelectTrigger>
-                      <SelectContent className="rounded-xl">
-                        {[1, 2, 3, 4, 5, 6, 7].map((days) => (
-                          <SelectItem key={days} value={days.toString()}>
-                            {days} {days === 1 ? 'day' : 'days'} after check-out
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <p className="text-sm text-gray-500">
-                      Choose how many days after check-out the review request should be sent
-                    </p>
-                  </div>
-                </div>
-              </div>
-            )}
+                  <div className="space-y-6">
+                    <div className="space-y-3">
+                      <label className="text-sm font-medium text-gray-700">Select Hotel</label>
+                      <Select
+                        value={config.hotelId}
+                        onValueChange={(value) => 
+                          setConfig(prev => ({ ...prev, hotelId: value }))
+                        }
+                      >
+                        <SelectTrigger className="h-14 border-2 border-gray-200 focus:ring-primary focus:ring-offset-0 rounded-xl">
+                          <SelectValue placeholder="Choose a hotel" />
+                        </SelectTrigger>
+                        <SelectContent className="rounded-xl">
+                          {hotels.map((hotel) => (
+                            <SelectItem key={hotel._id} value={hotel._id}>
+                              {hotel.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-            {/* Step 4: Trigger Name */}
-            {step === 4 && (
-              <div className="space-y-8">
-                <div className="text-center space-y-2">
-                  <h2 className="text-3xl font-bold text-gray-800">Assistant Name</h2>
-                  <p className="text-gray-600">Choose a name that will trigger your WhatsApp assistant</p>
-                </div>
-
-                <div className="space-y-6">
-                  <div className="space-y-3">
-                    <label className="text-sm font-medium text-gray-700">Trigger Name</label>
-                    <Input
-                      type="text"
-                      placeholder="e.g., Concierge, Assistant, Helper"
-                      value={config.triggerName}
-                      onChange={(e) => {
-                        const value = e.target.value.trim()
-                        setConfig(prev => ({
-                          ...prev,
-                          triggerName: value
-                        }))
-                      }}
-                      className="h-14 border-2 border-gray-200 focus:ring-primary focus:ring-offset-0 rounded-xl"
-                    />
-                    <div className="space-y-2">
-                      <p className="text-sm text-gray-500">
-                        This name will be used to activate your assistant in WhatsApp conversations.
-                      </p>
-                      <p className="text-sm text-gray-500">
-                        Example: If you choose "Concierge", guests can type "Concierge, what are the breakfast hours?"
-                      </p>
+                    <div className="space-y-3">
+                      <label className="text-sm font-medium text-gray-700">Timezone</label>
+                      <Select
+                        value={config.timezone}
+                        onValueChange={(value) => 
+                          setConfig(prev => ({ ...prev, timezone: value }))
+                        }
+                      >
+                        <SelectTrigger className="h-14 border-2 border-gray-200 focus:ring-primary focus:ring-offset-0 rounded-xl">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent className="rounded-xl max-h-[300px]">
+                          {TIMEZONES.map((timezone) => (
+                            <SelectItem key={timezone.value} value={timezone.value}>
+                              {timezone.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
                   </div>
-
-                  <div className="bg-blue-50 p-6 rounded-xl space-y-3">
-                    <h4 className="font-medium text-blue-700">Tips for choosing a name:</h4>
-                    <ul className="list-disc list-inside text-sm text-blue-600 space-y-2">
-                      <li>Keep it simple and easy to remember</li>
-                      <li>Use a professional title that reflects your hotel's brand</li>
-                      <li>Avoid special characters or numbers</li>
-                      <li>Make sure it's unique to prevent conflicts</li>
-                    </ul>
-                  </div>
                 </div>
-              </div>
-            )}
-
-            {/* Step 5: QR Code e Completamento */}
-            {step === 5 && (
-              <div className="space-y-8">
-                <div className="text-center space-y-2">
-                  <h2 className="text-3xl font-bold text-gray-800">Setup Complete!</h2>
-                  <p className="text-gray-600">Scan the QR code to start using your WhatsApp assistant</p>
-                </div>
-
-                <div className="flex flex-col items-center space-y-8">
-                  <div className="bg-white p-8 rounded-2xl shadow-lg">
-                    <QRCodeSVG 
-                      value={`https://wa.me/${WHATSAPP_NUMBER}?text=Start%20${encodeURIComponent(config.triggerName)}`}
-                      size={200}
-                      level="H"
-                      includeMargin={true}
-                    />
-                  </div>
-
-                  <div className="space-y-4 text-center max-w-md">
-                    <h3 className="text-xl font-semibold text-gray-700">How to use your assistant:</h3>
-                    <ol className="text-left space-y-3 text-gray-600">
-                      <li className="flex items-start space-x-2">
-                        <span className="font-bold text-primary">1.</span>
-                        <span>Scan the QR code above with your phone's camera</span>
-                      </li>
-                      <li className="flex items-start space-x-2">
-                        <span className="font-bold text-primary">2.</span>
-                        <span>Click the link to open WhatsApp</span>
-                      </li>
-                      <li className="flex items-start space-x-2">
-                        <span className="font-bold text-primary">3.</span>
-                        <span>Send a message using your trigger word: "{config.triggerName}"</span>
-                      </li>
-                      <li className="flex items-start space-x-2">
-                        <span className="font-bold text-primary">4.</span>
-                        <span>Try asking about breakfast times or check-in hours!</span>
-                      </li>
-                    </ol>
-                  </div>
-
-                  <div className="bg-blue-50 p-6 rounded-xl w-full">
-                    <div className="flex items-center space-x-3 text-blue-700">
-                      <MessageSquare className="h-5 w-5" />
-                      <h4 className="font-medium">Example commands:</h4>
-                    </div>
-                    <ul className="mt-3 space-y-2 text-blue-600 text-sm">
-                      <li>"{config.triggerName}, what are the breakfast hours?"</li>
-                      <li>"{config.triggerName}, when can I check in?"</li>
-                      <li>"{config.triggerName}, how can I leave a review?"</li>
-                    </ul>
-                  </div>
-                </div>
-
-                <div className="flex justify-center pt-6">
-                  <Button
-                    onClick={() => {
-                      setSetupCompleted(true)
-                      onSuccess()
-                      onClose()
-                    }}
-                    className="h-14 px-12 rounded-xl bg-green-500 hover:bg-green-600 text-white"
-                  >
-                    Start Using Assistant
-                  </Button>
-                </div>
-              </div>
-            )}
-
-            {error && (
-              <div className="text-red-500 text-sm mt-4 text-center">
-                {error}
-              </div>
-            )}
-
-            <div className="flex justify-between pt-8">
-              {step > 1 && (
-                <Button
-                  onClick={handleBack}
-                  variant="outline"
-                  className="h-14 px-8 rounded-xl"
-                >
-                  Back
-                </Button>
               )}
-              <Button
-                onClick={handleContinue}
-                className="h-14 px-8 rounded-xl ml-auto"
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                    Saving...
-                  </>
-                ) : (
-                  step === totalSteps ? "Complete Setup" : "Continue"
-                )}
-              </Button>
+
+              {/* Step 2: Orari */}
+              {step === 2 && (
+                <div className="space-y-12">
+                  <div className="text-center space-y-2">
+                    <h2 className="text-3xl font-bold text-gray-800">Hotel Schedule</h2>
+                    <p className="text-gray-600">Set your hotel's breakfast and check-in times</p>
+                  </div>
+
+                  <div className="space-y-12">
+                    {/* Breakfast Times */}
+                    <div className="space-y-6">
+                      <h3 className="text-2xl font-semibold text-gray-700">Breakfast Time</h3>
+                      <div className="grid grid-cols-2 gap-8">
+                        <div className="space-y-3">
+                          <label className="text-sm font-medium text-gray-700">Start Time</label>
+                          <Select
+                            value={config.breakfast.startTime}
+                            onValueChange={(value) => 
+                              setConfig(prev => ({
+                                ...prev,
+                                breakfast: {
+                                  ...prev.breakfast,
+                                  startTime: value
+                                }
+                              }))
+                            }
+                          >
+                            <SelectTrigger className="h-14 border-2 border-gray-200 focus:ring-primary focus:ring-offset-0 rounded-xl">
+                              <SelectValue placeholder="Select time" />
+                            </SelectTrigger>
+                            <SelectContent className="max-h-[280px] rounded-xl border-2 border-gray-200">
+                              <div className="p-2">
+                                <div className="text-sm font-medium text-gray-500 px-2 py-1.5">
+                                  Select start time
+                                </div>
+                                {timeOptions.map((time) => (
+                                  <SelectItem
+                                    key={time.value}
+                                    value={time.value}
+                                    className="rounded-lg hover:bg-gray-50 focus:bg-gray-50 cursor-pointer py-2.5"
+                                  >
+                                    <div className="flex items-center">
+                                      <Clock className="h-4 w-4 mr-2 text-gray-400" />
+                                      <span>{time.label}</span>
+                                    </div>
+                                  </SelectItem>
+                                ))}
+                              </div>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="space-y-3">
+                          <label className="text-sm font-medium text-gray-700">End Time</label>
+                          <Select
+                            value={config.breakfast.endTime}
+                            onValueChange={(value) => 
+                              setConfig(prev => ({
+                                ...prev,
+                                breakfast: {
+                                  ...prev.breakfast,
+                                  endTime: value
+                                }
+                              }))
+                            }
+                          >
+                            <SelectTrigger className="h-14 border-2 border-gray-200 focus:ring-primary focus:ring-offset-0 rounded-xl">
+                              <SelectValue placeholder="Select time" />
+                            </SelectTrigger>
+                            <SelectContent className="max-h-[280px] rounded-xl border-2 border-gray-200">
+                              <div className="p-2">
+                                <div className="text-sm font-medium text-gray-500 px-2 py-1.5">
+                                  Select end time
+                                </div>
+                                {timeOptions.map((time) => (
+                                  <SelectItem
+                                    key={time.value}
+                                    value={time.value}
+                                    className="rounded-lg hover:bg-gray-50 focus:bg-gray-50 cursor-pointer py-2.5"
+                                  >
+                                    <div className="flex items-center">
+                                      <Clock className="h-4 w-4 mr-2 text-gray-400" />
+                                      <span>{time.label}</span>
+                                    </div>
+                                  </SelectItem>
+                                ))}
+                              </div>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Check-in Times */}
+                    <div className="space-y-6">
+                      <h3 className="text-2xl font-semibold text-gray-700">Check-in Time</h3>
+                      <div className="grid grid-cols-2 gap-8">
+                        <div className="space-y-3">
+                          <label className="text-sm font-medium text-gray-700">Start Time</label>
+                          <Select
+                            value={config.checkIn.startTime}
+                            onValueChange={(value) => 
+                              setConfig(prev => ({
+                                ...prev,
+                                checkIn: {
+                                  ...prev.checkIn,
+                                  startTime: value
+                                }
+                              }))
+                            }
+                          >
+                            <SelectTrigger className="h-14 border-2 border-gray-200 focus:ring-primary focus:ring-offset-0 rounded-xl">
+                              <SelectValue placeholder="Select time" />
+                            </SelectTrigger>
+                            <SelectContent className="max-h-[280px] rounded-xl border-2 border-gray-200">
+                              <div className="p-2">
+                                <div className="text-sm font-medium text-gray-500 px-2 py-1.5">
+                                  Select start time
+                                </div>
+                                {timeOptions.map((time) => (
+                                  <SelectItem
+                                    key={time.value}
+                                    value={time.value}
+                                    className="rounded-lg hover:bg-gray-50 focus:bg-gray-50 cursor-pointer py-2.5"
+                                  >
+                                    <div className="flex items-center">
+                                      <Clock className="h-4 w-4 mr-2 text-gray-400" />
+                                      <span>{time.label}</span>
+                                    </div>
+                                  </SelectItem>
+                                ))}
+                              </div>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="space-y-3">
+                          <label className="text-sm font-medium text-gray-700">End Time</label>
+                          <Select
+                            value={config.checkIn.endTime}
+                            onValueChange={(value) => 
+                              setConfig(prev => ({
+                                ...prev,
+                                checkIn: {
+                                  ...prev.checkIn,
+                                  endTime: value
+                                }
+                              }))
+                            }
+                          >
+                            <SelectTrigger className="h-14 border-2 border-gray-200 focus:ring-primary focus:ring-offset-0 rounded-xl">
+                              <SelectValue placeholder="Select time" />
+                            </SelectTrigger>
+                            <SelectContent className="max-h-[280px] rounded-xl border-2 border-gray-200">
+                              <div className="p-2">
+                                <div className="text-sm font-medium text-gray-500 px-2 py-1.5">
+                                  Select end time
+                                </div>
+                                {timeOptions.map((time) => (
+                                  <SelectItem
+                                    key={time.value}
+                                    value={time.value}
+                                    className="rounded-lg hover:bg-gray-50 focus:bg-gray-50 cursor-pointer py-2.5"
+                                  >
+                                    <div className="flex items-center">
+                                      <Clock className="h-4 w-4 mr-2 text-gray-400" />
+                                      <span>{time.label}</span>
+                                    </div>
+                                  </SelectItem>
+                                ))}
+                              </div>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Step 3: Review Settings */}
+              {step === 3 && (
+                <div className="space-y-8">
+                  <div className="text-center space-y-2">
+                    <h2 className="text-3xl font-bold text-gray-800">Review Settings</h2>
+                    <p className="text-gray-600">Configure when and how to request reviews from your guests</p>
+                  </div>
+
+                  <div className="space-y-8">
+                    {/* Review Link */}
+                    <div className="space-y-3">
+                      <label className="text-sm font-medium text-gray-700">Review Link</label>
+                      <Input
+                        type="url"
+                        placeholder="https://www.google.com/business/..."
+                        value={config.reviewLink}
+                        onChange={(e) => 
+                          setConfig(prev => ({
+                            ...prev,
+                            reviewLink: e.target.value
+                          }))
+                        }
+                        className="h-14 border-2 border-gray-200 focus:ring-primary focus:ring-offset-0 rounded-xl"
+                      />
+                      <p className="text-sm text-gray-500">
+                        Enter the link where guests can leave a review (e.g., Google Business, TripAdvisor)
+                      </p>
+                    </div>
+
+                    {/* Review Request Delay */}
+                    <div className="space-y-3">
+                      <label className="text-sm font-medium text-gray-700">Review Request Timing</label>
+                      <Select
+                        value={config.reviewRequestDelay.toString()}
+                        onValueChange={(value) => 
+                          setConfig(prev => ({
+                            ...prev,
+                            reviewRequestDelay: parseInt(value)
+                          }))
+                        }
+                      >
+                        <SelectTrigger className="h-14 border-2 border-gray-200 focus:ring-primary focus:ring-offset-0 rounded-xl">
+                          <SelectValue placeholder="Select days" />
+                        </SelectTrigger>
+                        <SelectContent className="rounded-xl">
+                          {[1, 2, 3, 4, 5, 6, 7].map((days) => (
+                            <SelectItem key={days} value={days.toString()}>
+                              {days} {days === 1 ? 'day' : 'days'} after first interaction
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <p className="text-sm text-gray-500">
+                        Choose how many days after the guest's first interaction with the assistant the review request should be sent
+                      </p>
+                      <div className="mt-2 p-4 bg-blue-50 rounded-lg">
+                        <div className="flex items-start space-x-2">
+                          <div className="flex-shrink-0 mt-0.5">
+                            <svg className="h-5 w-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                          </div>
+                          <p className="text-sm text-blue-700">
+                            The review request will be automatically sent after the specified number of days from when the guest first uses the assistant.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Step 4: Trigger Name */}
+              {step === 4 && (
+                <div className="space-y-8">
+                  <div className="text-center space-y-2">
+                    <h2 className="text-3xl font-bold text-gray-800">Assistant Name</h2>
+                    <p className="text-gray-600">Choose a name that will trigger your WhatsApp assistant</p>
+                  </div>
+
+                  <div className="space-y-6">
+                    <div className="space-y-3">
+                      <label className="text-sm font-medium text-gray-700">Trigger Name</label>
+                      <div className="relative">
+                        <Input
+                          type="text"
+                          placeholder="e.g., Concierge, Assistant, Helper"
+                          value={config.triggerName}
+                          onChange={(e) => {
+                            const value = e.target.value.trim()
+                            setConfig(prev => ({
+                              ...prev,
+                              triggerName: value
+                            }))
+                            checkTriggerName(value)
+                          }}
+                          className={`h-14 border-2 pr-12 ${
+                            isNameAvailable === true
+                              ? 'border-green-200 focus:border-green-300'
+                              : isNameAvailable === false
+                              ? 'border-red-200 focus:border-red-300'
+                              : 'border-gray-200'
+                          } focus:ring-primary focus:ring-offset-0 rounded-xl`}
+                        />
+                        <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                          {isCheckingName ? (
+                            <Loader2 className="h-5 w-5 animate-spin text-gray-400" />
+                          ) : isNameAvailable === true ? (
+                            <Check className="h-5 w-5 text-green-500" />
+                          ) : isNameAvailable === false ? (
+                            <X className="h-5 w-5 text-red-500" />
+                          ) : null}
+                        </div>
+                      </div>
+                      {nameError && (
+                        <p className="text-sm text-red-500">
+                          {nameError}
+                        </p>
+                      )}
+                      <div className="space-y-2">
+                        <p className="text-sm text-gray-500">
+                          This name will be used to activate your assistant in WhatsApp conversations.
+                        </p>
+                        <p className="text-sm text-gray-500">
+                          Example: If you choose "Concierge", guests can type "Concierge, what are the breakfast hours?"
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="bg-blue-50 p-6 rounded-xl space-y-3">
+                      <h4 className="font-medium text-blue-700">Tips for choosing a name:</h4>
+                      <ul className="list-disc list-inside text-sm text-blue-600 space-y-2">
+                        <li>Keep it simple and easy to remember</li>
+                        <li>Use a professional title that reflects your hotel's brand</li>
+                        <li>Avoid special characters or numbers</li>
+                        <li>The name must be unique across all hotels</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Step 5: QR Code */}
+              {step === 5 && (
+                <div className="space-y-8">
+                  <div className="text-center space-y-2">
+                    <h2 className="text-3xl font-bold text-gray-800">Setup Complete!</h2>
+                    <p className="text-gray-600">Your WhatsApp assistant is ready to use</p>
+                  </div>
+
+                  <div className="flex flex-col items-center space-y-8">
+                    <div className="bg-white p-8 rounded-2xl shadow-lg relative group">
+                      <div className="qr-code">
+                        <QRCodeSVG 
+                          value={generateWhatsAppLink()}
+                          size={200}
+                          level="H"
+                          includeMargin={true}
+                        />
+                      </div>
+                      <Button
+                        onClick={handleDownloadQR}
+                        className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 shadow-lg"
+                        variant="secondary"
+                        size="sm"
+                      >
+                        <Download className="h-4 w-4 mr-2" />
+                        Download QR
+                      </Button>
+                    </div>
+
+                    <div className="space-y-4 text-center max-w-md">
+                      <h3 className="text-xl font-semibold text-gray-700">How to use your assistant:</h3>
+                      <ol className="text-left space-y-3 text-gray-600">
+                        <li className="flex items-start space-x-2">
+                          <span className="font-bold text-primary">1.</span>
+                          <span>Scan the QR code above with your phone's camera</span>
+                        </li>
+                        <li className="flex items-start space-x-2">
+                          <span className="font-bold text-primary">2.</span>
+                          <span>Click the link to open WhatsApp</span>
+                        </li>
+                        <li className="flex items-start space-x-2">
+                          <span className="font-bold text-primary">3.</span>
+                          <span>The message "Hi {config.triggerName}" will be pre-filled</span>
+                        </li>
+                        <li className="flex items-start space-x-2">
+                          <span className="font-bold text-primary">4.</span>
+                          <span>Send the message to start using your assistant!</span>
+                        </li>
+                      </ol>
+                    </div>
+
+                    <div className="bg-blue-50 p-6 rounded-xl w-full">
+                      <div className="flex items-center space-x-3 text-blue-700">
+                        <MessageSquare className="h-5 w-5" />
+                        <h4 className="font-medium">Example commands:</h4>
+                      </div>
+                      <ul className="mt-3 space-y-2 text-blue-600 text-sm">
+                        <li>"{config.triggerName}, what are the breakfast hours?"</li>
+                        <li>"{config.triggerName}, when can I check in?"</li>
+                        <li>"{config.triggerName}, how can I leave a review?"</li>
+                      </ul>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-center pt-6">
+                    <Button
+                      onClick={() => {
+                        setSetupCompleted(true)
+                        onSuccess()
+                        onClose()
+                      }}
+                      className="h-14 px-12 rounded-xl bg-green-500 hover:bg-green-600 text-white"
+                    >
+                      Start Using Assistant
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {error && (
+                <div className="text-red-500 text-sm mt-4 text-center">
+                  {error}
+                </div>
+              )}
             </div>
+          </div>
+        </div>
+
+        {/* Footer fisso con pulsanti */}
+        <div className="sticky bottom-0 bg-white px-12 py-6 border-t border-gray-100 shadow-sm">
+          <div className="flex justify-between">
+            {step > 1 && (
+              <Button
+                onClick={handleBack}
+                variant="outline"
+                className="h-14 px-8 rounded-xl"
+              >
+                Back
+              </Button>
+            )}
+            <Button
+              onClick={handleContinue}
+              className="h-14 px-8 rounded-xl ml-auto"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                step === totalSteps ? "Complete Setup" : "Continue"
+              )}
+            </Button>
           </div>
         </div>
       </DialogContent>
