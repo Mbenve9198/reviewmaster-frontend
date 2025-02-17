@@ -4,14 +4,25 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Sparkles, MessageSquare, Zap } from 'lucide-react'
 import Image from "next/image"
+import { SetupAssistantModal } from "@/components/whatsapp-assistant/setup-assistant-modal"
 
 export default function WhatsAppAssistantPage() {
   const [isModalOpen, setIsModalOpen] = useState(false)
 
+  const handleSuccess = async () => {
+    // Qui andrà la logica post-setup (es. refresh della pagina, toast di successo, etc.)
+  }
+
   return (
     <div className="min-h-screen flex flex-col items-center px-6">
-      <div className="max-w-3xl w-full pt-24 pb-16">
+      <div className="max-w-3xl w-full pt-16 pb-16">
         <div className="text-center space-y-8 mb-12">
+          <h1 className="text-4xl font-bold text-gray-800">
+            Your AI WhatsApp Concierge
+          </h1>
+          <p className="text-xl text-gray-600 leading-relaxed max-w-2xl mx-auto">
+            Transform your guest communication with an intelligent WhatsApp assistant that handles inquiries 24/7, speaks multiple languages, and delivers personalized responses.
+          </p>
           <div className="relative">
             <Image
               src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Progetto%20senza%20titolo%20(14)-nQVrvC4MOc1FApRbTnUONYa8vcVqPT.png"
@@ -21,12 +32,6 @@ export default function WhatsAppAssistantPage() {
               className="mx-auto animate-pulse-subtle"
             />
           </div>
-          <h1 className="text-4xl font-bold text-gray-800">
-            Your AI WhatsApp Concierge
-          </h1>
-          <p className="text-xl text-gray-600 leading-relaxed max-w-2xl mx-auto">
-            Transform your guest communication with an intelligent WhatsApp assistant that handles inquiries 24/7, speaks multiple languages, and delivers personalized responses.
-          </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
@@ -70,6 +75,12 @@ export default function WhatsAppAssistantPage() {
           </p>
         </div>
       </div>
+
+      <SetupAssistantModal 
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSuccess={handleSuccess}
+      />
     </div>
   )
 }
