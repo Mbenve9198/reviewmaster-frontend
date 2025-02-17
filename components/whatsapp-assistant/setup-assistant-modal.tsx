@@ -881,7 +881,7 @@ export function SetupAssistantModal({ isOpen, onClose, onSuccess }: SetupAssista
                     Saving...
                   </>
                 ) : (
-                  step === totalSteps ? "Complete Setup" : "Continue"
+                  step === totalSteps ? "Start Using Assistant" : "Continue"
                 )}
               </Button>
             </div>
@@ -985,7 +985,85 @@ export function SetupAssistantModal({ isOpen, onClose, onSuccess }: SetupAssista
                 </div>
               )}
 
-              {/* Contenuti simili per gli altri step... */}
+              {step === 4 && (
+                <div className="space-y-8">
+                  <Image
+                    src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Progetto%20senza%20titolo%20(14)-nQVrvC4MOc1FApRbTnUONYa8vcVqPT.png"
+                    alt="AI Assistant"
+                    width={120}
+                    height={120}
+                    className="mx-auto animate-pulse-subtle"
+                  />
+                  <div className="bg-white p-8 rounded-2xl shadow-sm">
+                    <h3 className="text-2xl font-bold text-gray-800 mb-4">Personalizing Your Assistant</h3>
+                    <div className="space-y-6">
+                      <div className="space-y-2">
+                        <h4 className="font-semibold text-gray-700">Natural Interaction</h4>
+                        <p className="text-gray-600">
+                          A well-chosen trigger name makes interactions feel more natural and intuitive. 
+                          Guests can easily activate the assistant using a name that fits your hotel's 
+                          brand and style.
+                        </p>
+                      </div>
+                      <div className="space-y-2">
+                        <h4 className="font-semibold text-gray-700">Brand Identity</h4>
+                        <p className="text-gray-600">
+                          The trigger name becomes your AI assistant's identity. Choose a name that 
+                          reflects your hotel's values and creates a memorable experience for your guests.
+                        </p>
+                      </div>
+                      <div className="space-y-2">
+                        <h4 className="font-semibold text-gray-700">Easy Recognition</h4>
+                        <p className="text-gray-600">
+                          A distinct name helps guests quickly identify when they're talking to the AI 
+                          assistant versus regular WhatsApp messages, ensuring clear communication.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {step === 5 && (
+                <div className="space-y-8">
+                  <Image
+                    src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Progetto%20senza%20titolo%20(14)-nQVrvC4MOc1FApRbTnUONYa8vcVqPT.png"
+                    alt="AI Assistant"
+                    width={120}
+                    height={120}
+                    className="mx-auto animate-pulse-subtle"
+                  />
+                  <div className="bg-white p-8 rounded-2xl shadow-sm">
+                    <h3 className="text-2xl font-bold text-gray-800 mb-4">Maximizing QR Code Usage</h3>
+                    <div className="space-y-6">
+                      <div className="space-y-2">
+                        <h4 className="font-semibold text-gray-700">Strategic Placement</h4>
+                        <p className="text-gray-600">
+                          Place QR codes in high-visibility areas: reception desk, elevator lobbies, 
+                          room key cards, and inside guest rooms. Consider adding them to restaurant 
+                          tables and common areas.
+                        </p>
+                      </div>
+                      <div className="space-y-2">
+                        <h4 className="font-semibold text-gray-700">Review Generation</h4>
+                        <p className="text-gray-600">
+                          Every guest who scans and uses the QR code will receive a review request, 
+                          significantly increasing your review collection compared to traditional 
+                          booking-only requests.
+                        </p>
+                      </div>
+                      <div className="space-y-2">
+                        <h4 className="font-semibold text-gray-700">Promotion Tips</h4>
+                        <p className="text-gray-600">
+                          Train staff to mention the assistant during check-in. Add a small incentive 
+                          like a welcome drink when guests first message the assistant. Include QR code 
+                          in pre-arrival emails and welcome materials.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
