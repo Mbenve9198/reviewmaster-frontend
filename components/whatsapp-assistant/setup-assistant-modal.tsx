@@ -81,6 +81,16 @@ const TIMEZONES = [
 
 const WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '+393517279170'
 
+const timeOptions = Array.from({ length: 24 * 4 }, (_, i) => {
+  const hour = Math.floor(i / 4);
+  const minute = (i % 4) * 15;
+  const time = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+  return {
+    value: time,
+    label: time
+  };
+});
+
 export function SetupAssistantModal({ isOpen, onClose, onSuccess }: SetupAssistantModalProps) {
   const [step, setStep] = useState(1)
   const totalSteps = 5
@@ -363,91 +373,175 @@ export function SetupAssistantModal({ isOpen, onClose, onSuccess }: SetupAssista
 
             {/* Step 2: Orari */}
             {step === 2 && (
-              <div className="space-y-8">
+              <div className="space-y-12">
                 <div className="text-center space-y-2">
                   <h2 className="text-3xl font-bold text-gray-800">Hotel Schedule</h2>
                   <p className="text-gray-600">Set your hotel's breakfast and check-in times</p>
                 </div>
 
-                <div className="space-y-8">
+                <div className="space-y-12">
                   {/* Breakfast Times */}
-                  <div className="space-y-4">
-                    <h3 className="text-xl font-semibold text-gray-700">Breakfast Time</h3>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
+                  <div className="space-y-6">
+                    <h3 className="text-2xl font-semibold text-gray-700">Breakfast Time</h3>
+                    <div className="grid grid-cols-2 gap-8">
+                      <div className="space-y-3">
                         <label className="text-sm font-medium text-gray-700">Start Time</label>
-                        <Input
-                          type="time"
+                        <Select
                           value={config.breakfast.startTime}
-                          onChange={(e) => 
+                          onValueChange={(value) => 
                             setConfig(prev => ({
                               ...prev,
                               breakfast: {
                                 ...prev.breakfast,
-                                startTime: e.target.value
+                                startTime: value
                               }
                             }))
                           }
-                          className="h-14 border-2 border-gray-200 focus:ring-primary focus:ring-offset-0 rounded-xl"
-                        />
+                        >
+                          <SelectTrigger className="h-14 border-2 border-gray-200 focus:ring-primary focus:ring-offset-0 rounded-xl">
+                            <SelectValue placeholder="Select time" />
+                          </SelectTrigger>
+                          <SelectContent className="max-h-[280px] rounded-xl border-2 border-gray-200">
+                            <div className="p-2">
+                              <div className="text-sm font-medium text-gray-500 px-2 py-1.5">
+                                Select start time
+                              </div>
+                              {timeOptions.map((time) => (
+                                <SelectItem
+                                  key={time.value}
+                                  value={time.value}
+                                  className="rounded-lg hover:bg-gray-50 focus:bg-gray-50 cursor-pointer py-2.5"
+                                >
+                                  <div className="flex items-center">
+                                    <Clock className="h-4 w-4 mr-2 text-gray-400" />
+                                    <span>{time.label}</span>
+                                  </div>
+                                </SelectItem>
+                              ))}
+                            </div>
+                          </SelectContent>
+                        </Select>
                       </div>
-                      <div className="space-y-2">
+                      <div className="space-y-3">
                         <label className="text-sm font-medium text-gray-700">End Time</label>
-                        <Input
-                          type="time"
+                        <Select
                           value={config.breakfast.endTime}
-                          onChange={(e) => 
+                          onValueChange={(value) => 
                             setConfig(prev => ({
                               ...prev,
                               breakfast: {
                                 ...prev.breakfast,
-                                endTime: e.target.value
+                                endTime: value
                               }
                             }))
                           }
-                          className="h-14 border-2 border-gray-200 focus:ring-primary focus:ring-offset-0 rounded-xl"
-                        />
+                        >
+                          <SelectTrigger className="h-14 border-2 border-gray-200 focus:ring-primary focus:ring-offset-0 rounded-xl">
+                            <SelectValue placeholder="Select time" />
+                          </SelectTrigger>
+                          <SelectContent className="max-h-[280px] rounded-xl border-2 border-gray-200">
+                            <div className="p-2">
+                              <div className="text-sm font-medium text-gray-500 px-2 py-1.5">
+                                Select end time
+                              </div>
+                              {timeOptions.map((time) => (
+                                <SelectItem
+                                  key={time.value}
+                                  value={time.value}
+                                  className="rounded-lg hover:bg-gray-50 focus:bg-gray-50 cursor-pointer py-2.5"
+                                >
+                                  <div className="flex items-center">
+                                    <Clock className="h-4 w-4 mr-2 text-gray-400" />
+                                    <span>{time.label}</span>
+                                  </div>
+                                </SelectItem>
+                              ))}
+                            </div>
+                          </SelectContent>
+                        </Select>
                       </div>
                     </div>
                   </div>
 
                   {/* Check-in Times */}
-                  <div className="space-y-4">
-                    <h3 className="text-xl font-semibold text-gray-700">Check-in Time</h3>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
+                  <div className="space-y-6">
+                    <h3 className="text-2xl font-semibold text-gray-700">Check-in Time</h3>
+                    <div className="grid grid-cols-2 gap-8">
+                      <div className="space-y-3">
                         <label className="text-sm font-medium text-gray-700">Start Time</label>
-                        <Input
-                          type="time"
+                        <Select
                           value={config.checkIn.startTime}
-                          onChange={(e) => 
+                          onValueChange={(value) => 
                             setConfig(prev => ({
                               ...prev,
                               checkIn: {
                                 ...prev.checkIn,
-                                startTime: e.target.value
+                                startTime: value
                               }
                             }))
                           }
-                          className="h-14 border-2 border-gray-200 focus:ring-primary focus:ring-offset-0 rounded-xl"
-                        />
+                        >
+                          <SelectTrigger className="h-14 border-2 border-gray-200 focus:ring-primary focus:ring-offset-0 rounded-xl">
+                            <SelectValue placeholder="Select time" />
+                          </SelectTrigger>
+                          <SelectContent className="max-h-[280px] rounded-xl border-2 border-gray-200">
+                            <div className="p-2">
+                              <div className="text-sm font-medium text-gray-500 px-2 py-1.5">
+                                Select start time
+                              </div>
+                              {timeOptions.map((time) => (
+                                <SelectItem
+                                  key={time.value}
+                                  value={time.value}
+                                  className="rounded-lg hover:bg-gray-50 focus:bg-gray-50 cursor-pointer py-2.5"
+                                >
+                                  <div className="flex items-center">
+                                    <Clock className="h-4 w-4 mr-2 text-gray-400" />
+                                    <span>{time.label}</span>
+                                  </div>
+                                </SelectItem>
+                              ))}
+                            </div>
+                          </SelectContent>
+                        </Select>
                       </div>
-                      <div className="space-y-2">
+                      <div className="space-y-3">
                         <label className="text-sm font-medium text-gray-700">End Time</label>
-                        <Input
-                          type="time"
+                        <Select
                           value={config.checkIn.endTime}
-                          onChange={(e) => 
+                          onValueChange={(value) => 
                             setConfig(prev => ({
                               ...prev,
                               checkIn: {
                                 ...prev.checkIn,
-                                endTime: e.target.value
+                                endTime: value
                               }
                             }))
                           }
-                          className="h-14 border-2 border-gray-200 focus:ring-primary focus:ring-offset-0 rounded-xl"
-                        />
+                        >
+                          <SelectTrigger className="h-14 border-2 border-gray-200 focus:ring-primary focus:ring-offset-0 rounded-xl">
+                            <SelectValue placeholder="Select time" />
+                          </SelectTrigger>
+                          <SelectContent className="max-h-[280px] rounded-xl border-2 border-gray-200">
+                            <div className="p-2">
+                              <div className="text-sm font-medium text-gray-500 px-2 py-1.5">
+                                Select end time
+                              </div>
+                              {timeOptions.map((time) => (
+                                <SelectItem
+                                  key={time.value}
+                                  value={time.value}
+                                  className="rounded-lg hover:bg-gray-50 focus:bg-gray-50 cursor-pointer py-2.5"
+                                >
+                                  <div className="flex items-center">
+                                    <Clock className="h-4 w-4 mr-2 text-gray-400" />
+                                    <span>{time.label}</span>
+                                  </div>
+                                </SelectItem>
+                              ))}
+                            </div>
+                          </SelectContent>
+                        </Select>
                       </div>
                     </div>
                   </div>
