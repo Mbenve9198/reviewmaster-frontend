@@ -10,15 +10,15 @@ export default function WhatsAppAssistantPage() {
 
   return (
     <div className="min-h-screen flex flex-col items-center px-6">
-      <div className="max-w-3xl w-full pt-12">
+      <div className="max-w-3xl w-full pt-24 pb-16">
         <div className="text-center space-y-8 mb-12">
           <div className="relative">
             <Image
-              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/whatsapp-assistant-2x9KPWr0HqPEFpWxgvI8QMJIbfLdSB.png"
+              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Progetto%20senza%20titolo%20(14)-nQVrvC4MOc1FApRbTnUONYa8vcVqPT.png"
               alt="WhatsApp Assistant"
               width={180}
               height={180}
-              className="mx-auto animate-float"
+              className="mx-auto animate-pulse-subtle"
             />
           </div>
           <h1 className="text-4xl font-bold text-gray-800">
@@ -72,4 +72,33 @@ export default function WhatsAppAssistantPage() {
       </div>
     </div>
   )
+}
+
+// Aggiungi questi stili globali nel tuo CSS
+const styles = `
+  @keyframes pulse-subtle {
+    0% {
+      transform: scale(1);
+      opacity: 1;
+    }
+    50% {
+      transform: scale(1.05);
+      opacity: 0.9;
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+  
+  .animate-pulse-subtle {
+    animation: pulse-subtle 2s ease-in-out infinite;
+  }
+`;
+
+// Aggiungi lo style al documento
+if (typeof document !== 'undefined') {
+  const styleSheet = document.createElement("style")
+  styleSheet.innerText = styles
+  document.head.appendChild(styleSheet)
 } 
