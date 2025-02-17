@@ -902,7 +902,7 @@ export function SetupAssistantModal({ isOpen, onClose, onSuccess }: SetupAssista
                    }')`,
                    backgroundSize: "cover",
                    backgroundPosition: "center",
-                   opacity: "0.5"
+                   opacity: "0.3"
                  }}>
             </div>
             <div className="w-full max-w-2xl mx-auto space-y-10 relative z-10">
