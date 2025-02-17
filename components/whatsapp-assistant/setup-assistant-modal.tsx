@@ -886,7 +886,12 @@ export function SetupAssistantModal({ isOpen, onClose, onSuccess }: SetupAssista
           </div>
 
           {/* Colonna destra - Spiegazioni */}
-          <div className="w-1/2 overflow-y-auto px-12 py-8 bg-gray-50">
+          <div className="w-1/2 overflow-y-auto px-12 py-8 bg-[#f5f3f2]"
+               style={{
+                 backgroundImage: "url('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/breakfast_pattern-3oKhnEi63JR38u7pdvYqIPbNKFUxZ8.png')",
+                 backgroundSize: "cover",
+                 backgroundPosition: "center",
+               }}>
             <div className="max-w-2xl mx-auto space-y-10">
               {step === 1 && (
                 <div className="space-y-8">
