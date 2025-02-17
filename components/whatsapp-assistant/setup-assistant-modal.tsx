@@ -333,6 +333,17 @@ export function SetupAssistantModal({ isOpen, onClose, onSuccess }: SetupAssista
         toast.success('Trigger name saved successfully')
       }
 
+      // Quando siamo all'ultimo step
+      if (step === totalSteps) {
+        // Chiamiamo onSuccess che aggiorna lo stato dell'applicazione
+        await onSuccess()
+        // Chiudiamo la modal
+        onClose()
+        // Mostriamo un messaggio di successo
+        toast.success('WhatsApp assistant setup completed successfully!')
+        return
+      }
+
       // Procedi allo step successivo
       setStep(step + 1)
     } catch (error) {
@@ -835,19 +846,6 @@ export function SetupAssistantModal({ isOpen, onClose, onSuccess }: SetupAssista
                         <li>"{config.triggerName}, how can I leave a review?"</li>
                       </ul>
                     </div>
-                  </div>
-
-                  <div className="flex justify-center pt-6">
-                    <Button
-                      onClick={() => {
-                        setSetupCompleted(true)
-                        onSuccess()
-                        onClose()
-                      }}
-                      className="h-14 px-12 rounded-xl bg-green-500 hover:bg-green-600 text-white"
-                    >
-                      Start Using Assistant
-                    </Button>
                   </div>
                 </div>
               )}
