@@ -952,6 +952,39 @@ export function SetupAssistantModal({ isOpen, onClose, onSuccess }: SetupAssista
                 </div>
               )}
 
+              {step === 3 && (
+                <div className="space-y-8">
+                  <Image
+                    src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Progetto%20senza%20titolo%20(14)-nQVrvC4MOc1FApRbTnUONYa8vcVqPT.png"
+                    alt="AI Assistant"
+                    width={120}
+                    height={120}
+                    className="mx-auto animate-pulse-subtle"
+                  />
+                  <div className="bg-white p-8 rounded-2xl shadow-sm">
+                    <h3 className="text-2xl font-bold text-gray-800 mb-4">Improving Guest Feedback</h3>
+                    <div className="space-y-6">
+                      <div className="space-y-2">
+                        <h4 className="font-semibold text-gray-700">Review Collection</h4>
+                        <p className="text-gray-600">
+                          Automated review requests help maintain a steady flow of fresh feedback, 
+                          improving your hotel's online visibility and helping future guests make 
+                          informed decisions.
+                        </p>
+                      </div>
+                      <div className="space-y-2">
+                        <h4 className="font-semibold text-gray-700">Perfect Timing</h4>
+                        <p className="text-gray-600">
+                          Setting the right delay for review requests ensures guests have fully 
+                          experienced your services, leading to more detailed and authentic reviews 
+                          while maximizing response rates.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Contenuti simili per gli altri step... */}
             </div>
           </div>
