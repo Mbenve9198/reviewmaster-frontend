@@ -886,37 +886,44 @@ export function SetupAssistantModal({ isOpen, onClose, onSuccess }: SetupAssista
           </div>
 
           {/* Colonna destra - Spiegazioni */}
-          <div className="w-1/2 overflow-y-auto px-12 py-8 bg-[#f5f3f2] flex items-center"
-               style={{
-                 backgroundImage: `url('${
-                   step === 1 
-                     ? 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/time-TwOS9MlmcnNjFliDrzz3oYOiD1LvVk.png'
-                     : step === 3
-                     ? 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/star-edDN5Jr4obBxDxUzUa9hZvYsN8VR1v.png'
-                     : step === 4
-                     ? 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/trigger%20name-ykOAx3BcvzTLzzuq1etQy46OoBvSl2.png'
-                     : step === 5
-                     ? 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/travelqrcode-JlTUlUBXUf2Tibzrt6F78zXqg8HwFc.png'
-                     : 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/breakfast_pattern-3oKhnEi63JR38u7pdvYqIPbNKFUxZ8.png'
-                 }')`,
-                 backgroundSize: "cover",
-                 backgroundPosition: "center",
-               }}>
-            <div className="w-full max-w-2xl mx-auto space-y-10">
+          <div className="w-1/2 overflow-y-auto px-12 py-8 bg-[#f5f3f2] flex items-center relative">
+            <div className="absolute inset-0" 
+                 style={{
+                   backgroundImage: `url('${
+                     step === 1 
+                       ? 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/time-TwOS9MlmcnNjFliDrzz3oYOiD1LvVk.png'
+                       : step === 3
+                       ? 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/star-edDN5Jr4obBxDxUzUa9hZvYsN8VR1v.png'
+                       : step === 4
+                       ? 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/trigger%20name-ykOAx3BcvzTLzzuq1etQy46OoBvSl2.png'
+                       : step === 5
+                       ? 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/travelqrcode-JlTUlUBXUf2Tibzrt6F78zXqg8HwFc.png'
+                       : 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/breakfast_pattern-3oKhnEi63JR38u7pdvYqIPbNKFUxZ8.png'
+                   }')`,
+                   backgroundSize: "cover",
+                   backgroundPosition: "center",
+                   opacity: "0.5"
+                 }}>
+            </div>
+            <div className="w-full max-w-2xl mx-auto space-y-10 relative z-10">
               {step === 1 && (
                 <div className="space-y-8">
                   <div className="bg-white p-8 rounded-2xl shadow-lg">
                     <h3 className="text-2xl font-bold text-gray-800 mb-4">Why These Settings Matter</h3>
                     <div className="space-y-6">
                       <div className="space-y-2">
-                        <h4 className="font-semibold text-gray-700">Hotel Selection</h4>
+                        <h4 className="font-semibold text-gray-700 flex items-center gap-2">
+                          <span>🏨</span> Hotel Selection
+                        </h4>
                         <p className="text-gray-600">
                           Your AI assistant will be customized with specific details about your selected hotel, 
                           including amenities, services, and local information to provide accurate responses.
                         </p>
                       </div>
                       <div className="space-y-2">
-                        <h4 className="font-semibold text-gray-700">Timezone Configuration</h4>
+                        <h4 className="font-semibold text-gray-700 flex items-center gap-2">
+                          <span>🌍</span> Timezone Configuration
+                        </h4>
                         <p className="text-gray-600">
                           Setting the correct timezone ensures that all automated messages and responses 
                           consider local time, improving accuracy for time-sensitive information.
@@ -933,14 +940,18 @@ export function SetupAssistantModal({ isOpen, onClose, onSuccess }: SetupAssista
                     <h3 className="text-2xl font-bold text-gray-800 mb-4">Enhancing Guest Experience</h3>
                     <div className="space-y-6">
                       <div className="space-y-2">
-                        <h4 className="font-semibold text-gray-700">Breakfast Schedule</h4>
+                        <h4 className="font-semibold text-gray-700 flex items-center gap-2">
+                          <span>🍳</span> Breakfast Schedule
+                        </h4>
                         <p className="text-gray-600">
                           The AI will automatically inform guests about breakfast times and remind them 
                           about the service, improving their dining experience.
                         </p>
                       </div>
                       <div className="space-y-2">
-                        <h4 className="font-semibold text-gray-700">Check-in Management</h4>
+                        <h4 className="font-semibold text-gray-700 flex items-center gap-2">
+                          <span>🔑</span> Check-in Management
+                        </h4>
                         <p className="text-gray-600">
                           Your assistant will handle check-in inquiries and provide timely information 
                           about arrival procedures, reducing staff workload.
@@ -957,7 +968,9 @@ export function SetupAssistantModal({ isOpen, onClose, onSuccess }: SetupAssista
                     <h3 className="text-2xl font-bold text-gray-800 mb-4">Improving Guest Feedback</h3>
                     <div className="space-y-6">
                       <div className="space-y-2">
-                        <h4 className="font-semibold text-gray-700">Review Collection</h4>
+                        <h4 className="font-semibold text-gray-700 flex items-center gap-2">
+                          <span>⭐</span> Review Collection
+                        </h4>
                         <p className="text-gray-600">
                           Automated review requests help maintain a steady flow of fresh feedback, 
                           improving your hotel's online visibility and helping future guests make 
@@ -965,7 +978,9 @@ export function SetupAssistantModal({ isOpen, onClose, onSuccess }: SetupAssista
                         </p>
                       </div>
                       <div className="space-y-2">
-                        <h4 className="font-semibold text-gray-700">Perfect Timing</h4>
+                        <h4 className="font-semibold text-gray-700 flex items-center gap-2">
+                          <span>⏰</span> Perfect Timing
+                        </h4>
                         <p className="text-gray-600">
                           Setting the right delay for review requests ensures guests have fully 
                           experienced your services, leading to more detailed and authentic reviews 
@@ -983,7 +998,9 @@ export function SetupAssistantModal({ isOpen, onClose, onSuccess }: SetupAssista
                     <h3 className="text-2xl font-bold text-gray-800 mb-4">Personalizing Your Assistant</h3>
                     <div className="space-y-6">
                       <div className="space-y-2">
-                        <h4 className="font-semibold text-gray-700">Natural Interaction</h4>
+                        <h4 className="font-semibold text-gray-700 flex items-center gap-2">
+                          <span>💬</span> Natural Interaction
+                        </h4>
                         <p className="text-gray-600">
                           A well-chosen trigger name makes interactions feel more natural and intuitive. 
                           Guests can easily activate the assistant using a name that fits your hotel's 
@@ -991,14 +1008,18 @@ export function SetupAssistantModal({ isOpen, onClose, onSuccess }: SetupAssista
                         </p>
                       </div>
                       <div className="space-y-2">
-                        <h4 className="font-semibold text-gray-700">Brand Identity</h4>
+                        <h4 className="font-semibold text-gray-700 flex items-center gap-2">
+                          <span>🎯</span> Brand Identity
+                        </h4>
                         <p className="text-gray-600">
                           The trigger name becomes your AI assistant's identity. Choose a name that 
                           reflects your hotel's values and creates a memorable experience for your guests.
                         </p>
                       </div>
                       <div className="space-y-2">
-                        <h4 className="font-semibold text-gray-700">Easy Recognition</h4>
+                        <h4 className="font-semibold text-gray-700 flex items-center gap-2">
+                          <span>🔍</span> Easy Recognition
+                        </h4>
                         <p className="text-gray-600">
                           A distinct name helps guests quickly identify when they're talking to the AI 
                           assistant versus regular WhatsApp messages, ensuring clear communication.
@@ -1015,7 +1036,9 @@ export function SetupAssistantModal({ isOpen, onClose, onSuccess }: SetupAssista
                     <h3 className="text-2xl font-bold text-gray-800 mb-4">Maximizing QR Code Usage</h3>
                     <div className="space-y-6">
                       <div className="space-y-2">
-                        <h4 className="font-semibold text-gray-700">Strategic Placement</h4>
+                        <h4 className="font-semibold text-gray-700 flex items-center gap-2">
+                          <span>📱</span> Strategic Placement
+                        </h4>
                         <p className="text-gray-600">
                           Place QR codes in high-visibility areas: reception desk, elevator lobbies, 
                           room key cards, and inside guest rooms. Consider adding them to restaurant 
@@ -1023,7 +1046,9 @@ export function SetupAssistantModal({ isOpen, onClose, onSuccess }: SetupAssista
                         </p>
                       </div>
                       <div className="space-y-2">
-                        <h4 className="font-semibold text-gray-700">Review Generation</h4>
+                        <h4 className="font-semibold text-gray-700 flex items-center gap-2">
+                          <span>📈</span> Review Generation
+                        </h4>
                         <p className="text-gray-600">
                           Every guest who scans and uses the QR code will receive a review request, 
                           significantly increasing your review collection compared to traditional 
@@ -1031,7 +1056,9 @@ export function SetupAssistantModal({ isOpen, onClose, onSuccess }: SetupAssista
                         </p>
                       </div>
                       <div className="space-y-2">
-                        <h4 className="font-semibold text-gray-700">Promotion Tips</h4>
+                        <h4 className="font-semibold text-gray-700 flex items-center gap-2">
+                          <span>💡</span> Promotion Tips
+                        </h4>
                         <p className="text-gray-600">
                           Train staff to mention the assistant during check-in. Add a small incentive 
                           like a welcome drink when guests first message the assistant. Include QR code 
