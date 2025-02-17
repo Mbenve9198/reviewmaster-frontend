@@ -886,17 +886,23 @@ export function SetupAssistantModal({ isOpen, onClose, onSuccess }: SetupAssista
           </div>
 
           {/* Colonna destra - Spiegazioni */}
-          <div className="w-1/2 overflow-y-auto px-12 py-8 bg-[#f5f3f2]"
+          <div className="w-1/2 overflow-y-auto px-12 py-8 bg-[#f5f3f2] flex items-center"
                style={{
                  backgroundImage: `url('${
                    step === 1 
                      ? 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/time-TwOS9MlmcnNjFliDrzz3oYOiD1LvVk.png'
+                     : step === 3
+                     ? 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/star-edDN5Jr4obBxDxUzUa9hZvYsN8VR1v.png'
+                     : step === 4
+                     ? 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/trigger%20name-ykOAx3BcvzTLzzuq1etQy46OoBvSl2.png'
+                     : step === 5
+                     ? 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/travelqrcode-JlTUlUBXUf2Tibzrt6F78zXqg8HwFc.png'
                      : 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/breakfast_pattern-3oKhnEi63JR38u7pdvYqIPbNKFUxZ8.png'
                  }')`,
                  backgroundSize: "cover",
                  backgroundPosition: "center",
                }}>
-            <div className="max-w-2xl mx-auto space-y-10">
+            <div className="w-full max-w-2xl mx-auto space-y-10">
               {step === 1 && (
                 <div className="space-y-8">
                   <div className="bg-white p-8 rounded-2xl shadow-lg">
