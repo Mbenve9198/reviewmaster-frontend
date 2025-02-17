@@ -382,9 +382,9 @@ export function SetupAssistantModal({ isOpen, onClose, onSuccess }: SetupAssista
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[900px] max-h-[90vh] p-0 bg-white">
+      <DialogContent className="sm:max-w-[900px] max-h-[90vh] overflow-hidden rounded-t-2xl rounded-b-2xl bg-white">
         {/* Header fisso con progress bar */}
-        <div className="sticky top-0 z-10 bg-white pt-6 px-12 pb-4 shadow-sm">
+        <div className="sticky top-0 z-10 bg-white pt-6 px-12 pb-4 shadow-sm rounded-t-2xl">
           <Progress 
             value={(step / totalSteps) * 100} 
             className="h-2 w-[90%] mx-auto [&>div]:bg-primary"
@@ -392,7 +392,7 @@ export function SetupAssistantModal({ isOpen, onClose, onSuccess }: SetupAssista
         </div>
 
         {/* Contenuto scrollabile */}
-        <div className="overflow-y-auto px-12 py-8">
+        <div className="overflow-y-auto px-12 py-8 flex-1">
           <div className="max-w-3xl mx-auto space-y-10">
             {/* Step 1: Configurazione Base */}
             {step === 1 && (
