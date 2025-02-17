@@ -357,7 +357,7 @@ export function SetupAssistantModal({ isOpen, onClose, onSuccess }: SetupAssista
     if (!svg) return;
 
     const svgData = new XMLSerializer().serializeToString(svg);
-    const img = new Image();
+    const img = new Image(200, 200); // Specificare le dimensioni dell'immagine
     
     img.onload = () => {
       canvas.width = img.width;
