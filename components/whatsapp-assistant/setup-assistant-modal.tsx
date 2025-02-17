@@ -888,21 +888,18 @@ export function SetupAssistantModal({ isOpen, onClose, onSuccess }: SetupAssista
           {/* Colonna destra - Spiegazioni */}
           <div className="w-1/2 overflow-y-auto px-12 py-8 bg-[#f5f3f2]"
                style={{
-                 backgroundImage: "url('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/breakfast_pattern-3oKhnEi63JR38u7pdvYqIPbNKFUxZ8.png')",
+                 backgroundImage: `url('${
+                   step === 1 
+                     ? 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/time-TwOS9MlmcnNjFliDrzz3oYOiD1LvVk.png'
+                     : 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/breakfast_pattern-3oKhnEi63JR38u7pdvYqIPbNKFUxZ8.png'
+                 }')`,
                  backgroundSize: "cover",
                  backgroundPosition: "center",
                }}>
             <div className="max-w-2xl mx-auto space-y-10">
               {step === 1 && (
                 <div className="space-y-8">
-                  <Image
-                    src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Progetto%20senza%20titolo%20(14)-nQVrvC4MOc1FApRbTnUONYa8vcVqPT.png"
-                    alt="AI Assistant"
-                    width={120}
-                    height={120}
-                    className="mx-auto animate-pulse-subtle"
-                  />
-                  <div className="bg-white p-8 rounded-2xl shadow-sm">
+                  <div className="bg-white p-8 rounded-2xl shadow-lg">
                     <h3 className="text-2xl font-bold text-gray-800 mb-4">Why These Settings Matter</h3>
                     <div className="space-y-6">
                       <div className="space-y-2">
@@ -926,14 +923,7 @@ export function SetupAssistantModal({ isOpen, onClose, onSuccess }: SetupAssista
 
               {step === 2 && (
                 <div className="space-y-8">
-                  <Image
-                    src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Progetto%20senza%20titolo%20(14)-nQVrvC4MOc1FApRbTnUONYa8vcVqPT.png"
-                    alt="AI Assistant"
-                    width={120}
-                    height={120}
-                    className="mx-auto animate-pulse-subtle"
-                  />
-                  <div className="bg-white p-8 rounded-2xl shadow-sm">
+                  <div className="bg-white p-8 rounded-2xl shadow-lg">
                     <h3 className="text-2xl font-bold text-gray-800 mb-4">Enhancing Guest Experience</h3>
                     <div className="space-y-6">
                       <div className="space-y-2">
@@ -957,14 +947,7 @@ export function SetupAssistantModal({ isOpen, onClose, onSuccess }: SetupAssista
 
               {step === 3 && (
                 <div className="space-y-8">
-                  <Image
-                    src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Progetto%20senza%20titolo%20(14)-nQVrvC4MOc1FApRbTnUONYa8vcVqPT.png"
-                    alt="AI Assistant"
-                    width={120}
-                    height={120}
-                    className="mx-auto animate-pulse-subtle"
-                  />
-                  <div className="bg-white p-8 rounded-2xl shadow-sm">
+                  <div className="bg-white p-8 rounded-2xl shadow-lg">
                     <h3 className="text-2xl font-bold text-gray-800 mb-4">Improving Guest Feedback</h3>
                     <div className="space-y-6">
                       <div className="space-y-2">
@@ -990,14 +973,7 @@ export function SetupAssistantModal({ isOpen, onClose, onSuccess }: SetupAssista
 
               {step === 4 && (
                 <div className="space-y-8">
-                  <Image
-                    src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Progetto%20senza%20titolo%20(14)-nQVrvC4MOc1FApRbTnUONYa8vcVqPT.png"
-                    alt="AI Assistant"
-                    width={120}
-                    height={120}
-                    className="mx-auto animate-pulse-subtle"
-                  />
-                  <div className="bg-white p-8 rounded-2xl shadow-sm">
+                  <div className="bg-white p-8 rounded-2xl shadow-lg">
                     <h3 className="text-2xl font-bold text-gray-800 mb-4">Personalizing Your Assistant</h3>
                     <div className="space-y-6">
                       <div className="space-y-2">
@@ -1029,14 +1005,7 @@ export function SetupAssistantModal({ isOpen, onClose, onSuccess }: SetupAssista
 
               {step === 5 && (
                 <div className="space-y-8">
-                  <Image
-                    src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Progetto%20senza%20titolo%20(14)-nQVrvC4MOc1FApRbTnUONYa8vcVqPT.png"
-                    alt="AI Assistant"
-                    width={120}
-                    height={120}
-                    className="mx-auto animate-pulse-subtle"
-                  />
-                  <div className="bg-white p-8 rounded-2xl shadow-sm">
+                  <div className="bg-white p-8 rounded-2xl shadow-lg">
                     <h3 className="text-2xl font-bold text-gray-800 mb-4">Maximizing QR Code Usage</h3>
                     <div className="space-y-6">
                       <div className="space-y-2">
