@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils"
 import { Progress } from "@/components/ui/progress"
 import { Button } from "@/components/ui/button"
 import { useUserStats } from "@/hooks/useUserStats"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { SidebarContainer, SidebarBody } from "@/components/ui/sidebar"
 import { motion } from "framer-motion"
 import CreditPurchaseSlider from "@/components/billing/CreditPurchaseSlider"
@@ -115,6 +115,12 @@ export function Sidebar() {
     refetch
   } = useUserStats()
   const [expandedItems, setExpandedItems] = useState<string[]>([])
+  
+  useEffect(() => {
+    if (!open) {
+      setExpandedItems([])
+    }
+  }, [open])
 
   const formatDate = (dateString: string) => {
     if (!dateString) return "..."
@@ -159,7 +165,12 @@ export function Sidebar() {
             )}
           >
             <div className="flex items-center gap-3">
-              {item.icon}
+              <div className={cn(
+                "transition-transform",
+                !open && "scale-[1.4]"
+              )}>
+                {item.icon}
+              </div>
               <motion.span
                 animate={{
                   opacity: open ? 1 : 0,
@@ -170,12 +181,14 @@ export function Sidebar() {
                 {item.label}
               </motion.span>
             </div>
-            <ChevronDown 
-              className={cn(
-                "w-4 h-4 transition-transform",
-                isExpanded && "transform rotate-180"
-              )}
-            />
+            {open && (
+              <ChevronDown 
+                className={cn(
+                  "w-4 h-4 transition-transform",
+                  isExpanded && "transform rotate-180"
+                )}
+              />
+            )}
           </button>
         ) : (
           <Link
@@ -187,7 +200,12 @@ export function Sidebar() {
                 : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
             )}
           >
-            {item.icon}
+            <div className={cn(
+              "transition-transform",
+              !open && "scale-[1.4]"
+            )}>
+              {item.icon}
+            </div>
             <motion.span
               animate={{
                 opacity: open ? 1 : 0,
@@ -200,7 +218,7 @@ export function Sidebar() {
           </Link>
         )}
 
-        {hasChildren && isExpanded && item.children && (
+        {hasChildren && isExpanded && item.children && open && (
           <motion.div
             initial={{ height: 0 }}
             animate={{ height: "auto" }}
@@ -218,7 +236,12 @@ export function Sidebar() {
                     : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
                 )}
               >
-                {child.icon}
+                <div className={cn(
+                  "transition-transform",
+                  !open && "scale-[1.4]"
+                )}>
+                  {child.icon}
+                </div>
                 <motion.span
                   animate={{
                     opacity: open ? 1 : 0,
