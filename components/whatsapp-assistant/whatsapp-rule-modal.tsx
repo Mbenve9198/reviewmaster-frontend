@@ -5,15 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useState } from "react";
 import { MessageSquare, Info, ChevronRight, Loader2 } from "lucide-react";
-
-interface WhatsAppRule {
-  _id?: string;
-  topic: string;
-  customTopic?: string;
-  response: string;
-  isCustom: boolean;
-  isActive: boolean;
-}
+import { WhatsAppRule } from "@/types/whatsapp";
 
 interface WhatsAppRuleModalProps {
   isOpen: boolean;

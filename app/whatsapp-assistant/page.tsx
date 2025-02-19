@@ -14,36 +14,11 @@ import { EditIdentitySettingsModal } from "@/components/whatsapp-assistant/edit-
 import { QRCodeSVG } from 'qrcode.react'
 import { WhatsAppRuleModal } from "@/components/whatsapp-assistant/whatsapp-rule-modal"
 import { Switch } from "@/components/ui/switch"
+import { WhatsAppRule, WhatsAppConfig } from "@/types/whatsapp"
 
 interface Hotel {
   _id: string;
   name: string;
-}
-
-interface WhatsAppConfig {
-  hotelId: string;
-  timezone: string;
-  breakfast: {
-    startTime: string;
-    endTime: string;
-  };
-  checkIn: {
-    startTime: string;
-    endTime: string;
-  };
-  reviewLink: string;
-  reviewRequestDelay: number;
-  triggerName: string;
-  isActive: boolean;
-}
-
-interface WhatsAppRule {
-  _id: string;
-  topic: string;
-  response: string;
-  isCustom: boolean;
-  customTopic?: string;
-  isActive: boolean;
 }
 
 const WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '+393517279170'
