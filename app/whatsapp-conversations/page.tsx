@@ -119,7 +119,7 @@ export default function WhatsAppConversationsPage() {
   }
 
   return (
-    <div className="container mx-auto py-8 max-w-6xl space-y-8">
+    <div className="container mx-auto py-8 pl-24 pr-8 space-y-8">
       {/* Modern gradient background */}
       <div className="fixed inset-0 -z-10 bg-gradient-to-br from-[#FAFAFB] via-[#F0F0F2] to-[#FAFAFB] backdrop-blur-sm" />
 
@@ -137,9 +137,9 @@ export default function WhatsAppConversationsPage() {
       </div>
 
       {/* Main Content */}
-      <div className="flex h-[calc(100vh-12rem)] gap-6">
+      <div className="flex h-[calc(100vh-12rem)] gap-4">
         {/* Colonna sinistra */}
-        <div className="w-80 flex flex-col bg-white/50 backdrop-blur-sm rounded-2xl border border-gray-200/50 shadow-lg overflow-hidden">
+        <div className="w-96 flex flex-col bg-white/50 backdrop-blur-sm rounded-2xl border border-gray-200/50 shadow-lg overflow-hidden">
           <div className="p-4 border-b border-gray-100 space-y-4">
             <Select value={selectedHotelId} onValueChange={setSelectedHotelId}>
               <SelectTrigger className="h-9 bg-white rounded-xl border-gray-200 hover:border-gray-300 text-sm">
@@ -220,8 +220,8 @@ export default function WhatsAppConversationsPage() {
                 </div>
               </div>
 
-              <ScrollArea className="flex-1 px-6 py-6">
-                <div className="space-y-4 max-w-4xl mx-auto">
+              <ScrollArea className="flex-1">
+                <div className="space-y-4 p-4">
                   {selectedConversation.conversationHistory.map((message, index) => (
                     <div
                       key={index}
