@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { Sparkles, MessageSquare, Zap, Loader2, AlertCircle, Clock, Edit } from 'lucide-react'
+import { Sparkles, MessageSquare, Zap, Loader2, AlertCircle, Clock, Edit, Download } from 'lucide-react'
 import Image from "next/image"
 import { SetupAssistantModal } from "@/components/whatsapp-assistant/setup-assistant-modal"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -11,6 +11,7 @@ import { toast } from "sonner"
 import { EditTimeSettingsModal } from "@/components/whatsapp-assistant/edit-time-settings-modal"
 import { EditReviewSettingsModal } from "@/components/whatsapp-assistant/edit-review-settings-modal"
 import { EditIdentitySettingsModal } from "@/components/whatsapp-assistant/edit-identity-settings-modal"
+import { QRCodeSVG } from 'qrcode.react'
 
 interface Hotel {
   _id: string;
@@ -33,6 +34,8 @@ interface WhatsAppConfig {
   triggerName: string;
   isActive: boolean;
 }
+
+const WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '+393517279170'
 
 export default function WhatsAppAssistantPage() {
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -128,6 +131,19 @@ export default function WhatsAppAssistantPage() {
     }
   };
 
+  const handleDownloadQR = () => {
+    const canvas = document.querySelector('canvas')
+    if (canvas) {
+      const url = canvas.toDataURL('image/png')
+      const a = document.createElement('a')
+      a.download = 'whatsapp-qr.png'
+      a.href = url
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+    }
+  }
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -221,7 +237,7 @@ export default function WhatsAppAssistantPage() {
 
   // Se c'è configurazione, mostra la nuova UI
   return (
-    <div className="container mx-auto py-6 max-w-7xl">
+    <div className="container mx-auto py-8 max-w-6xl space-y-8">
       {/* Modern gradient background */}
       <div className="fixed inset-0 -z-10 bg-gradient-to-br from-[#FAFAFB] via-[#F0F0F2] to-[#FAFAFB] backdrop-blur-sm" />
 
@@ -350,6 +366,76 @@ export default function WhatsAppAssistantPage() {
               <div className="bg-gray-50 p-4 rounded-xl space-y-2">
                 <h4 className="font-medium text-gray-700">Trigger Name</h4>
                 <p className="text-gray-600">{config.triggerName}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* QR Code Section */}
+        <div className="bg-white rounded-3xl border border-gray-200 overflow-hidden">
+          <div className="px-8 py-6 border-b border-gray-200">
+            <h2 className="text-xl font-semibold">QR Code</h2>
+          </div>
+          <div className="p-8">
+            <div className="flex items-start gap-8">
+              <div className="bg-white p-8 rounded-xl border-2 border-gray-100">
+                <div className="flex flex-col items-center justify-center space-y-6">
+                  <div className="relative">
+                    <div className="absolute -inset-4">
+                      <div className="w-full h-full max-w-sm mx-auto lg:mx-0 animate-pulse-subtle">
+                        <div className="h-full w-full bg-gradient-to-r from-blue-500/20 to-blue-600/20 rounded-3xl blur-2xl" />
+                      </div>
+                    </div>
+                    {config && (
+                      <QRCodeSVG
+                        value={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(config.triggerName)}`}
+                        size={200}
+                        level="H"
+                        includeMargin={true}
+                      />
+                    )}
+                  </div>
+                  <div className="text-center space-y-2">
+                    <p className="text-sm text-gray-500">
+                      Scan this QR code or click below to download
+                    </p>
+                    <Button
+                      onClick={handleDownloadQR}
+                      variant="outline"
+                      className="rounded-xl border-gray-200"
+                    >
+                      <Download className="h-4 w-4 mr-2" />
+                      Download QR Code
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex-1 space-y-6">
+                <div className="space-y-2">
+                  <h3 className="text-lg font-semibold text-gray-900">Strategic Placement</h3>
+                  <p className="text-gray-600">
+                    Place QR codes in high-visibility areas: reception desk, elevator lobbies, 
+                    room key cards, and inside guest rooms. Consider adding them to restaurant 
+                    tables and common areas.
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  <h3 className="text-lg font-semibold text-gray-900">Review Generation</h3>
+                  <p className="text-gray-600">
+                    Every guest who scans and uses the QR code will receive a review request, 
+                    significantly increasing your review collection compared to traditional 
+                    booking-only requests.
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  <h3 className="text-lg font-semibold text-gray-900">Promotion Tips</h3>
+                  <p className="text-gray-600">
+                    Train staff to mention the assistant during check-in. Add a small incentive 
+                    like a welcome drink when guests first message the assistant. Include QR code 
+                    in pre-arrival emails and welcome materials.
+                  </p>
+                </div>
               </div>
             </div>
           </div>

@@ -5,10 +5,12 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useState } from "react"
 import { toast } from "sonner"
-import { Loader2, Check, X, Download } from "lucide-react"
+import { Loader2, Check, Download } from "lucide-react"
 import { getCookie } from "@/lib/utils"
 import { useDebouncedCallback } from 'use-debounce'
 import { QRCodeSVG } from 'qrcode.react'
+
+const WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '+393517279170'
 
 interface IdentitySettingsModalProps {
   isOpen: boolean
@@ -19,8 +21,6 @@ interface IdentitySettingsModalProps {
     triggerName: string
   }
 }
-
-const WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '+393517279170'
 
 export function EditIdentitySettingsModal({ isOpen, onClose, onSuccess, currentConfig }: IdentitySettingsModalProps) {
   const [step, setStep] = useState(1)
@@ -96,10 +96,8 @@ export function EditIdentitySettingsModal({ isOpen, onClose, onSuccess, currentC
       const message = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(config.triggerName)}`
       setQrCodeData(message)
       
-      // Move to QR code step
-      setStep(2)
-      
       onSuccess(updatedConfig)
+      setStep(2) // Move to QR code step
     } catch (error) {
       console.error('Error updating assistant identity:', error)
       toast.error('Failed to update assistant identity')
@@ -188,23 +186,37 @@ export function EditIdentitySettingsModal({ isOpen, onClose, onSuccess, currentC
               ) : (
                 <>
                   <div>
-                    <h3 className="text-lg font-semibold mb-4">Updated QR Code</h3>
+                    <h3 className="text-lg font-semibold mb-4">Your New QR Code</h3>
                     <div className="space-y-6">
-                      <div className="bg-white p-8 rounded-xl border-2 border-gray-100 flex flex-col items-center justify-center">
-                        <QRCodeSVG
-                          value={qrCodeData}
-                          size={200}
-                          level="H"
-                          includeMargin={true}
-                        />
-                        <Button
-                          onClick={handleDownloadQR}
-                          variant="outline"
-                          className="mt-4 rounded-xl border-gray-200"
-                        >
-                          <Download className="h-4 w-4 mr-2" />
-                          Download QR Code
-                        </Button>
+                      <div className="bg-white p-8 rounded-xl border-2 border-gray-100">
+                        <div className="flex flex-col items-center justify-center space-y-6">
+                          <div className="relative">
+                            <div className="absolute -inset-4">
+                              <div className="w-full h-full max-w-sm mx-auto lg:mx-0 animate-pulse-subtle">
+                                <div className="h-full w-full bg-gradient-to-r from-blue-500/20 to-blue-600/20 rounded-3xl blur-2xl" />
+                              </div>
+                            </div>
+                            <QRCodeSVG
+                              value={qrCodeData}
+                              size={200}
+                              level="H"
+                              includeMargin={true}
+                            />
+                          </div>
+                          <div className="text-center space-y-2">
+                            <p className="text-sm text-gray-500">
+                              Scan this QR code or click below to download
+                            </p>
+                            <Button
+                              onClick={handleDownloadQR}
+                              variant="outline"
+                              className="rounded-xl border-gray-200"
+                            >
+                              <Download className="h-4 w-4 mr-2" />
+                              Download QR Code
+                            </Button>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -224,14 +236,7 @@ export function EditIdentitySettingsModal({ isOpen, onClose, onSuccess, currentC
 
           {/* Colonna destra - Spiegazioni */}
           <div className="w-full overflow-y-auto px-12 py-8 bg-[#f5f3f2] flex items-center relative">
-            <div className="absolute inset-0" 
-                 style={{
-                   backgroundImage: `url('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/trigger%20name-ykOAx3BcvzTLzzuq1etQy46OoBvSl2.png')`,
-                   backgroundSize: "cover",
-                   backgroundPosition: "center",
-                   opacity: "0.3"
-                 }}>
-            </div>
+            <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,#00000003_25%,#00000003_50%,transparent_50%,transparent_75%,#00000003_75%)] bg-[length:16px_16px]" />
             <div className="w-full max-w-2xl mx-auto space-y-10 relative z-10">
               <div className="space-y-8">
                 <div className="bg-white p-8 rounded-2xl shadow-lg">

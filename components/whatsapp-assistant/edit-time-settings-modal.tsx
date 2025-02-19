@@ -141,18 +141,20 @@ export function EditTimeSettingsModal({ isOpen, onClose, onSuccess, currentConfi
                         <div className="text-sm font-medium text-gray-500 px-2 py-1.5">
                           Select timezone
                         </div>
-                        {TIMEZONES.map(tz => (
-                          <SelectItem
-                            key={tz.value}
-                            value={tz.value}
-                            className="rounded-lg hover:bg-gray-50 focus:bg-gray-50 cursor-pointer py-2.5 px-2"
-                          >
-                            <div className="flex items-center">
-                              <Clock className="h-4 w-4 mr-2 text-gray-400" />
-                              <span>{tz.label}</span>
-                            </div>
-                          </SelectItem>
-                        ))}
+                        <div className="overflow-y-auto max-h-[200px]">
+                          {TIMEZONES.map(tz => (
+                            <SelectItem
+                              key={tz.value}
+                              value={tz.value}
+                              className="rounded-lg hover:bg-gray-50 focus:bg-gray-50 cursor-pointer py-2.5 px-2"
+                            >
+                              <div className="flex items-center">
+                                <Clock className="h-4 w-4 mr-2 text-gray-400" />
+                                <span>{tz.label}</span>
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </div>
                       </div>
                     </SelectContent>
                   </Select>
@@ -258,10 +260,18 @@ export function EditTimeSettingsModal({ isOpen, onClose, onSuccess, currentConfi
               </div>
 
               <div className="flex justify-end gap-3">
-                <Button variant="outline" onClick={onClose}>
+                <Button 
+                  variant="outline" 
+                  onClick={onClose}
+                  className="rounded-xl border-gray-200 hover:bg-gray-50 hover:text-gray-900 transition-colors"
+                >
                   Cancel
                 </Button>
-                <Button onClick={handleSave} disabled={isLoading}>
+                <Button 
+                  onClick={handleSave} 
+                  disabled={isLoading}
+                  className="rounded-xl bg-blue-600 hover:bg-blue-700 transition-colors"
+                >
                   {isLoading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
