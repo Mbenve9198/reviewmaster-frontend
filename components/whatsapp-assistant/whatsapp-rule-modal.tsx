@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { MessageSquare, Info, ChevronRight, Loader2 } from "lucide-react";
 import { WhatsAppRule } from "@/types/whatsapp";
 
@@ -34,10 +34,27 @@ export function WhatsAppRuleModal({
   onSuccess, 
   currentRule = null 
 }: WhatsAppRuleModalProps) {
-  const [selectedTopic, setSelectedTopic] = useState<string>(currentRule?.topic || "");
-  const [customTopic, setCustomTopic] = useState<string>(currentRule?.customTopic || "");
-  const [response, setResponse] = useState<string>(currentRule?.response || "");
+  const [selectedTopic, setSelectedTopic] = useState<string>("");
+  const [customTopic, setCustomTopic] = useState<string>("");
+  const [response, setResponse] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (currentRule) {
+      if (currentRule.isCustom) {
+        setSelectedTopic('custom');
+        setCustomTopic(currentRule.customTopic || currentRule.topic);
+      } else {
+        setSelectedTopic(currentRule.topic);
+        setCustomTopic('');
+      }
+      setResponse(currentRule.response);
+    } else {
+      setSelectedTopic('');
+      setCustomTopic('');
+      setResponse('');
+    }
+  }, [currentRule, isOpen]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
