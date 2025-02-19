@@ -149,17 +149,44 @@ export function Sidebar() {
 
     return (
       <div key={item.label}>
-        <button
-          onClick={() => hasChildren ? toggleExpand(item.label) : undefined}
-          className={cn(
-            "flex items-center gap-3 px-3 h-12 w-full rounded-xl transition-colors",
-            item.href && pathname === item.href
-              ? "bg-primary text-primary-foreground shadow-sm"
-              : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
-            hasChildren && "justify-between"
-          )}
-        >
-          <div className="flex items-center gap-3">
+        {hasChildren ? (
+          <button
+            onClick={() => toggleExpand(item.label)}
+            className={cn(
+              "flex items-center gap-3 px-3 h-12 w-full rounded-xl transition-colors",
+              "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
+              "justify-between"
+            )}
+          >
+            <div className="flex items-center gap-3">
+              {item.icon}
+              <motion.span
+                animate={{
+                  opacity: open ? 1 : 0,
+                  width: open ? "auto" : 0
+                }}
+                className="whitespace-nowrap overflow-hidden"
+              >
+                {item.label}
+              </motion.span>
+            </div>
+            <ChevronDown 
+              className={cn(
+                "w-4 h-4 transition-transform",
+                isExpanded && "transform rotate-180"
+              )}
+            />
+          </button>
+        ) : (
+          <Link
+            href={item.href ?? '#'}
+            className={cn(
+              "flex items-center gap-3 px-3 h-12 w-full rounded-xl transition-colors",
+              pathname === item.href
+                ? "bg-primary text-primary-foreground shadow-sm"
+                : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+            )}
+          >
             {item.icon}
             <motion.span
               animate={{
@@ -170,16 +197,8 @@ export function Sidebar() {
             >
               {item.label}
             </motion.span>
-          </div>
-          {hasChildren && (
-            <ChevronDown 
-              className={cn(
-                "w-4 h-4 transition-transform",
-                isExpanded && "transform rotate-180"
-              )}
-            />
-          )}
-        </button>
+          </Link>
+        )}
 
         {hasChildren && isExpanded && item.children && (
           <motion.div
