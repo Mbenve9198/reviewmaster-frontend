@@ -8,6 +8,7 @@ import { SetupAssistantModal } from "@/components/whatsapp-assistant/setup-assis
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { getCookie } from "@/lib/utils"
 import { toast } from "sonner"
+import { EditTimeSettingsModal } from "@/components/whatsapp-assistant/edit-time-settings-modal"
 
 interface Hotel {
   _id: string;
@@ -38,6 +39,7 @@ export default function WhatsAppAssistantPage() {
   const [config, setConfig] = useState<WhatsAppConfig | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [isTimeSettingsModalOpen, setIsTimeSettingsModalOpen] = useState(false)
 
   // Fetch hotels
   useEffect(() => {
@@ -261,7 +263,12 @@ export default function WhatsAppAssistantPage() {
             <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <h3 className="text-xl font-semibold text-gray-800">Time Settings</h3>
-                <Button variant="outline" size="sm" className="gap-2">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="gap-2"
+                  onClick={() => setIsTimeSettingsModalOpen(true)}
+                >
                   <Edit className="h-4 w-4" />
                   Edit
                 </Button>
@@ -334,6 +341,16 @@ export default function WhatsAppAssistantPage() {
           </div>
         </div>
       </div>
+
+      <EditTimeSettingsModal
+        isOpen={isTimeSettingsModalOpen}
+        onClose={() => setIsTimeSettingsModalOpen(false)}
+        currentConfig={config}
+        onSuccess={(updatedConfig) => {
+          setConfig(updatedConfig)
+          setIsTimeSettingsModalOpen(false)
+        }}
+      />
     </div>
   );
 }
