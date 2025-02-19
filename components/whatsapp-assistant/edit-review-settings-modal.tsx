@@ -149,7 +149,7 @@ export function EditReviewSettingsModal({ isOpen, onClose, onSuccess, currentCon
           <div className="w-full overflow-y-auto px-12 py-8 bg-[#f5f3f2] flex items-center relative">
             <div className="absolute inset-0" 
                  style={{
-                   backgroundImage: `url('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/review-settings-bg.png')`,
+                   backgroundImage: `url('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/star-edDN5Jr4obBxDxUzUa9hZvYsN8VR1v.png')`,
                    backgroundSize: "cover",
                    backgroundPosition: "center",
                    opacity: "0.3"
