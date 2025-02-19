@@ -110,7 +110,7 @@ export function EditTimeSettingsModal({ isOpen, onClose, onSuccess, currentConfi
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="bg-white p-0 gap-0">
+      <DialogContent className="bg-white p-0 gap-0 rounded-3xl overflow-hidden">
         <div className="grid grid-cols-2 flex-1 divide-x">
           {/* Colonna sinistra - Form */}
           <div className="p-6">

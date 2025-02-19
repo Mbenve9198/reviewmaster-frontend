@@ -266,7 +266,7 @@ export default function WhatsAppAssistantPage() {
                 <Button 
                   variant="outline" 
                   size="sm" 
-                  className="gap-2"
+                  className="rounded-xl border-gray-200 hover:bg-gray-50 hover:text-gray-900 transition-colors gap-2"
                   onClick={() => setIsTimeSettingsModalOpen(true)}
                 >
                   <Edit className="h-4 w-4" />
@@ -303,7 +303,12 @@ export default function WhatsAppAssistantPage() {
             <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <h3 className="text-xl font-semibold text-gray-800">Review Settings</h3>
-                <Button variant="outline" size="sm" className="gap-2">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="rounded-xl border-gray-200 hover:bg-gray-50 hover:text-gray-900 transition-colors gap-2"
+                  onClick={() => setIsTimeSettingsModalOpen(true)}
+                >
                   <Edit className="h-4 w-4" />
                   Edit
                 </Button>
@@ -327,7 +332,12 @@ export default function WhatsAppAssistantPage() {
             <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <h3 className="text-xl font-semibold text-gray-800">Assistant Identity</h3>
-                <Button variant="outline" size="sm" className="gap-2">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="rounded-xl border-gray-200 hover:bg-gray-50 hover:text-gray-900 transition-colors gap-2"
+                  onClick={() => setIsTimeSettingsModalOpen(true)}
+                >
                   <Edit className="h-4 w-4" />
                   Edit
                 </Button>
