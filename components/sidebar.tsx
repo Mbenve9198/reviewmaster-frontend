@@ -1,6 +1,6 @@
 "use client"
 
-import { LogOut, Sparkles, MessageSquare, Star, Blocks, Building2, CreditCard, BarChart2, ScrollText, MessagesSquare } from 'lucide-react'
+import { LogOut, Sparkles, MessageSquare, Star, Blocks, Building2, CreditCard, BarChart2, ScrollText, MessagesSquare, Bot, MessageCircle, ChevronDown } from 'lucide-react'
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import Image from "next/image"
@@ -13,33 +13,34 @@ import { SidebarContainer, SidebarBody } from "@/components/ui/sidebar"
 import { motion } from "framer-motion"
 import CreditPurchaseSlider from "@/components/billing/CreditPurchaseSlider"
 
-const navigation = [
+interface NavigationItem {
+  label: string
+  href?: string
+  icon: React.ReactNode
+  children?: NavigationItem[]
+}
+
+const navigation: NavigationItem[] = [
   { 
     label: "Manual Responses", 
     href: "/manual-response",
-    icon: (
-      <MessageSquare 
-        className="w-5 h-5 text-gray-700 stroke-[1.5px]"
-      />
-    )
+    icon: <MessageCircle className="w-5 h-5 text-gray-700 stroke-[1.5px]" />
   },
   { 
-    label: "WhatsApp Assistant", 
-    href: "/whatsapp-assistant",
-    icon: (
-      <MessagesSquare 
-        className="w-5 h-5 text-gray-700 stroke-[1.5px]" 
-      />
-    )
-  },
-  { 
-    label: "WhatsApp Conversations", 
-    href: "/whatsapp-conversations",
-    icon: (
-      <MessageSquare 
-        className="w-5 h-5 text-gray-700 stroke-[1.5px]" 
-      />
-    )
+    label: "WhatsApp",
+    icon: <Bot className="w-5 h-5 text-gray-700 stroke-[1.5px]" />,
+    children: [
+      {
+        label: "Assistant Settings",
+        href: "/whatsapp-assistant",
+        icon: <Bot className="w-4 h-4 text-gray-700 stroke-[1.5px]" />
+      },
+      {
+        label: "Conversations",
+        href: "/whatsapp-conversations",
+        icon: <MessagesSquare className="w-4 h-4 text-gray-700 stroke-[1.5px]" />
+      }
+    ]
   },
   { 
     label: "Reviews", 
@@ -113,6 +114,7 @@ export function Sidebar() {
     isLoading,
     refetch
   } = useUserStats()
+  const [expandedItems, setExpandedItems] = useState<string[]>([])
 
   const formatDate = (dateString: string) => {
     if (!dateString) return "..."
@@ -133,6 +135,88 @@ export function Sidebar() {
     router.push('/login')
   }
 
+  const toggleExpand = (label: string) => {
+    setExpandedItems(prev => 
+      prev.includes(label) 
+        ? prev.filter(item => item !== label)
+        : [...prev, label]
+    )
+  }
+
+  const renderNavigationItem = (item: NavigationItem) => {
+    const isExpanded = expandedItems.includes(item.label)
+    const hasChildren = item.children && item.children.length > 0
+
+    return (
+      <div key={item.label}>
+        <button
+          onClick={() => hasChildren ? toggleExpand(item.label) : undefined}
+          className={cn(
+            "flex items-center gap-3 px-3 h-12 w-full rounded-xl transition-colors",
+            item.href && pathname === item.href
+              ? "bg-primary text-primary-foreground shadow-sm"
+              : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
+            hasChildren && "justify-between"
+          )}
+        >
+          <div className="flex items-center gap-3">
+            {item.icon}
+            <motion.span
+              animate={{
+                opacity: open ? 1 : 0,
+                width: open ? "auto" : 0
+              }}
+              className="whitespace-nowrap overflow-hidden"
+            >
+              {item.label}
+            </motion.span>
+          </div>
+          {hasChildren && (
+            <ChevronDown 
+              className={cn(
+                "w-4 h-4 transition-transform",
+                isExpanded && "transform rotate-180"
+              )}
+            />
+          )}
+        </button>
+
+        {hasChildren && isExpanded && (
+          <motion.div
+            initial={{ height: 0 }}
+            animate={{ height: "auto" }}
+            exit={{ height: 0 }}
+            className="ml-4 mt-2 space-y-2"
+          >
+            {item.children.map(child => (
+              <Link
+                key={child.href}
+                href={child.href!}
+                className={cn(
+                  "flex items-center gap-3 px-3 h-10 rounded-xl transition-colors",
+                  pathname === child.href
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                )}
+              >
+                {child.icon}
+                <motion.span
+                  animate={{
+                    opacity: open ? 1 : 0,
+                    width: open ? "auto" : 0
+                  }}
+                  className="whitespace-nowrap overflow-hidden"
+                >
+                  {child.label}
+                </motion.span>
+              </Link>
+            ))}
+          </motion.div>
+        )}
+      </div>
+    )
+  }
+
   return (
     <>
       <SidebarContainer 
@@ -150,29 +234,7 @@ export function Sidebar() {
 
             {/* Navigation */}
             <div className="space-y-4">
-              {navigation.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={cn(
-                    "flex items-center gap-3 px-3 h-12 rounded-xl transition-colors",
-                    pathname === item.href
-                      ? "bg-primary text-primary-foreground shadow-sm"
-                      : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-                  )}
-                >
-                  {item.icon}
-                  <motion.span
-                    animate={{
-                      opacity: open ? 1 : 0,
-                      width: open ? "auto" : 0
-                    }}
-                    className="whitespace-nowrap overflow-hidden"
-                  >
-                    {item.label}
-                  </motion.span>
-                </Link>
-              ))}
+              {navigation.map(renderNavigationItem)}
             </div>
 
             <motion.div 
