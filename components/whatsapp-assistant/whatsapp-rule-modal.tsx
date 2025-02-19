@@ -5,6 +5,22 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useState } from "react";
 
+interface WhatsAppRule {
+  _id?: string;
+  topic: string;
+  customTopic?: string;
+  response: string;
+  isCustom: boolean;
+  isActive: boolean;
+}
+
+interface WhatsAppRuleModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSuccess: (rule: WhatsAppRule) => void;
+  currentRule?: WhatsAppRule | null;
+}
+
 const COMMON_TOPICS = [
   { value: "check_in", label: "Check-in Process" },
   { value: "check_out", label: "Check-out Time" },
@@ -17,25 +33,39 @@ const COMMON_TOPICS = [
   { value: "transportation", label: "Transportation" },
   { value: "local_attractions", label: "Local Attractions" },
   { value: "custom", label: "Custom Topic" }
-];
+] as const;
 
-export function WhatsAppRuleModal({ isOpen, onClose, onSuccess, currentRule = null }) {
-  const [selectedTopic, setSelectedTopic] = useState(currentRule?.topic || "");
-  const [customTopic, setCustomTopic] = useState(currentRule?.customTopic || "");
-  const [response, setResponse] = useState(currentRule?.response || "");
+export function WhatsAppRuleModal({ 
+  isOpen, 
+  onClose, 
+  onSuccess, 
+  currentRule = null 
+}: WhatsAppRuleModalProps) {
+  const [selectedTopic, setSelectedTopic] = useState<string>(currentRule?.topic || "");
+  const [customTopic, setCustomTopic] = useState<string>(currentRule?.customTopic || "");
+  const [response, setResponse] = useState<string>(currentRule?.response || "");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
     
-    const ruleData = {
-      topic: selectedTopic === "custom" ? customTopic : selectedTopic,
-      response: response,
-      isCustom: selectedTopic === "custom"
-    };
+    try {
+      const ruleData: WhatsAppRule = {
+        topic: selectedTopic === "custom" ? customTopic : selectedTopic,
+        customTopic: selectedTopic === "custom" ? customTopic : undefined,
+        response: response,
+        isCustom: selectedTopic === "custom",
+        isActive: true
+      };
 
-    // Qui andrà la logica per salvare la regola
-    onSuccess(ruleData);
-    handleReset();
+      onSuccess(ruleData);
+      handleReset();
+    } catch (error) {
+      console.error('Error submitting rule:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleReset = () => {
@@ -101,11 +131,19 @@ export function WhatsAppRuleModal({ isOpen, onClose, onSuccess, currentRule = nu
           </div>
 
           <div className="flex justify-end gap-3">
-            <Button type="button" variant="ghost" onClick={handleReset}>
+            <Button 
+              type="button" 
+              variant="ghost" 
+              onClick={handleReset}
+              disabled={isLoading}
+            >
               Cancel
             </Button>
-            <Button type="submit">
-              {currentRule ? "Save Changes" : "Create Rule"}
+            <Button 
+              type="submit"
+              disabled={isLoading || !selectedTopic || (selectedTopic === "custom" && !customTopic) || !response}
+            >
+              {isLoading ? "Saving..." : currentRule ? "Save Changes" : "Create Rule"}
             </Button>
           </div>
         </form>
