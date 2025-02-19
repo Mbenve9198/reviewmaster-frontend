@@ -7,6 +7,7 @@ import { useState } from "react"
 import { toast } from "sonner"
 import { Loader2 } from "lucide-react"
 import { getCookie } from "@/lib/utils"
+import { Clock } from "lucide-react"
 
 interface TimeSettingsModalProps {
   isOpen: boolean
@@ -130,12 +131,29 @@ export function EditTimeSettingsModal({ isOpen, onClose, onSuccess, currentConfi
                     <SelectTrigger>
                       <SelectValue placeholder="Select timezone" />
                     </SelectTrigger>
-                    <SelectContent>
-                      {TIMEZONES.map(tz => (
-                        <SelectItem key={tz.value} value={tz.value}>
-                          {tz.label}
-                        </SelectItem>
-                      ))}
+                    <SelectContent 
+                      className="max-h-[280px] rounded-xl border-2 border-gray-200 p-0 overflow-hidden"
+                      position="popper"
+                      sideOffset={5}
+                      align="start"
+                    >
+                      <div className="p-2">
+                        <div className="text-sm font-medium text-gray-500 px-2 py-1.5">
+                          Select timezone
+                        </div>
+                        {TIMEZONES.map(tz => (
+                          <SelectItem
+                            key={tz.value}
+                            value={tz.value}
+                            className="rounded-lg hover:bg-gray-50 focus:bg-gray-50 cursor-pointer py-2.5 px-2"
+                          >
+                            <div className="flex items-center">
+                              <Clock className="h-4 w-4 mr-2 text-gray-400" />
+                              <span>{tz.label}</span>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </div>
                     </SelectContent>
                   </Select>
                 </div>

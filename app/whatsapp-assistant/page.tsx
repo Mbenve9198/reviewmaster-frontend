@@ -9,6 +9,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { getCookie } from "@/lib/utils"
 import { toast } from "sonner"
 import { EditTimeSettingsModal } from "@/components/whatsapp-assistant/edit-time-settings-modal"
+import { EditReviewSettingsModal } from "@/components/whatsapp-assistant/edit-review-settings-modal"
+import { EditIdentitySettingsModal } from "@/components/whatsapp-assistant/edit-identity-settings-modal"
 
 interface Hotel {
   _id: string;
@@ -40,6 +42,8 @@ export default function WhatsAppAssistantPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [isTimeSettingsModalOpen, setIsTimeSettingsModalOpen] = useState(false)
+  const [isReviewSettingsModalOpen, setIsReviewSettingsModalOpen] = useState(false)
+  const [isIdentitySettingsModalOpen, setIsIdentitySettingsModalOpen] = useState(false)
 
   // Fetch hotels
   useEffect(() => {
@@ -307,7 +311,7 @@ export default function WhatsAppAssistantPage() {
                   variant="outline" 
                   size="sm" 
                   className="rounded-xl border-gray-200 hover:bg-gray-50 hover:text-gray-900 transition-colors gap-2"
-                  onClick={() => setIsTimeSettingsModalOpen(true)}
+                  onClick={() => setIsReviewSettingsModalOpen(true)}
                 >
                   <Edit className="h-4 w-4" />
                   Edit
@@ -336,7 +340,7 @@ export default function WhatsAppAssistantPage() {
                   variant="outline" 
                   size="sm" 
                   className="rounded-xl border-gray-200 hover:bg-gray-50 hover:text-gray-900 transition-colors gap-2"
-                  onClick={() => setIsTimeSettingsModalOpen(true)}
+                  onClick={() => setIsIdentitySettingsModalOpen(true)}
                 >
                   <Edit className="h-4 w-4" />
                   Edit
@@ -359,6 +363,26 @@ export default function WhatsAppAssistantPage() {
         onSuccess={(updatedConfig) => {
           setConfig(updatedConfig)
           setIsTimeSettingsModalOpen(false)
+        }}
+      />
+
+      <EditReviewSettingsModal
+        isOpen={isReviewSettingsModalOpen}
+        onClose={() => setIsReviewSettingsModalOpen(false)}
+        currentConfig={config}
+        onSuccess={(updatedConfig) => {
+          setConfig(updatedConfig)
+          setIsReviewSettingsModalOpen(false)
+        }}
+      />
+
+      <EditIdentitySettingsModal
+        isOpen={isIdentitySettingsModalOpen}
+        onClose={() => setIsIdentitySettingsModalOpen(false)}
+        currentConfig={config}
+        onSuccess={(updatedConfig) => {
+          setConfig(updatedConfig)
+          setIsIdentitySettingsModalOpen(false)
         }}
       />
     </div>
