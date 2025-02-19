@@ -13,6 +13,7 @@ import { EditReviewSettingsModal } from "@/components/whatsapp-assistant/edit-re
 import { EditIdentitySettingsModal } from "@/components/whatsapp-assistant/edit-identity-settings-modal"
 import { QRCodeSVG } from 'qrcode.react'
 import { WhatsAppRuleModal } from "@/components/whatsapp-assistant/whatsapp-rule-modal"
+import { Switch } from "@/components/ui/switch"
 
 interface Hotel {
   _id: string;
@@ -36,6 +37,15 @@ interface WhatsAppConfig {
   isActive: boolean;
 }
 
+interface WhatsAppRule {
+  _id: string;
+  topic: string;
+  response: string;
+  isCustom: boolean;
+  customTopic?: string;
+  isActive: boolean;
+}
+
 const WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '+393517279170'
 
 export default function WhatsAppAssistantPage() {
@@ -49,8 +59,8 @@ export default function WhatsAppAssistantPage() {
   const [isReviewSettingsModalOpen, setIsReviewSettingsModalOpen] = useState(false)
   const [isIdentitySettingsModalOpen, setIsIdentitySettingsModalOpen] = useState(false)
   const [isRulesModalOpen, setIsRulesModalOpen] = useState(false)
-  const [selectedRule, setSelectedRule] = useState<any>(null)
-  const [rules, setRules] = useState<any[]>([])
+  const [selectedRule, setSelectedRule] = useState<WhatsAppRule | null>(null)
+  const [rules, setRules] = useState<WhatsAppRule[]>([])
 
   // Fetch hotels
   useEffect(() => {
@@ -148,15 +158,93 @@ export default function WhatsAppAssistantPage() {
     }
   }
 
-  const handleRuleSuccess = (newRule: any) => {
-    setRules([...rules, newRule])
-    setIsRulesModalOpen(false)
-  }
+  const handleEditRule = (rule: WhatsAppRule) => {
+    setSelectedRule(rule);
+    setIsRulesModalOpen(true);
+  };
 
-  const handleEditRule = (rule: any) => {
-    setSelectedRule(rule)
-    setIsRulesModalOpen(true)
-  }
+  const handleRuleSuccess = async (ruleData: WhatsAppRule) => {
+    try {
+      const token = getCookie('token');
+      const url = selectedRule 
+        ? `${process.env.NEXT_PUBLIC_API_URL}/api/whatsapp-assistant/${selectedHotelId}/rules/${selectedRule._id}`
+        : `${process.env.NEXT_PUBLIC_API_URL}/api/whatsapp-assistant/${selectedHotelId}/rules`;
+      
+      const response = await fetch(url, {
+        method: selectedRule ? 'PUT' : 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(ruleData)
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save rule');
+      }
+
+      const savedRule = await response.json();
+
+      if (selectedRule) {
+        // Aggiorna la regola esistente
+        setRules(prevRules => 
+          prevRules.map(rule => 
+            rule._id === selectedRule._id ? savedRule : rule
+          )
+        );
+        toast.success('Rule updated successfully');
+      } else {
+        // Aggiungi nuova regola
+        setRules(prevRules => [...prevRules, savedRule]);
+        toast.success('Rule created successfully');
+      }
+
+      setIsRulesModalOpen(false);
+      setSelectedRule(null);
+    } catch (error) {
+      console.error('Error saving rule:', error);
+      toast.error('Failed to save rule');
+    }
+  };
+
+  const handleCloseModal = () => {
+    setIsRulesModalOpen(false);
+    setSelectedRule(null);
+  };
+
+  const handleToggleRule = async (ruleId: string, isActive: boolean) => {
+    try {
+      const token = getCookie('token');
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/whatsapp-assistant/${selectedHotelId}/rules/${ruleId}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ isActive })
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to update rule');
+      }
+
+      const updatedRule = await response.json();
+
+      setRules(prevRules =>
+        prevRules.map(rule =>
+          rule._id === ruleId ? updatedRule : rule
+        )
+      );
+
+      toast.success(`Rule ${isActive ? 'activated' : 'deactivated'} successfully`);
+    } catch (error) {
+      console.error('Error toggling rule:', error);
+      toast.error('Failed to update rule');
+    }
+  };
 
   if (isLoading) {
     return (
@@ -418,28 +506,42 @@ export default function WhatsAppAssistantPage() {
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    {rules.map((rule, index) => (
+                    {rules.map((rule) => (
                       <div 
-                        key={index}
-                        className="bg-white p-4 rounded-xl border border-gray-200 flex items-center justify-between"
+                        key={rule._id}
+                        className="bg-white p-4 rounded-xl border border-gray-200 flex items-center justify-between group"
                       >
                         <div className="flex items-center gap-3">
                           <div className="p-2 bg-blue-50 rounded-lg">
                             <MessageSquare className="h-4 w-4 text-blue-500" />
                           </div>
                           <div>
-                            <h4 className="text-sm font-medium text-gray-900">{rule.trigger}</h4>
-                            <p className="text-xs text-gray-500">{rule.response}</p>
+                            <h4 className="text-sm font-medium text-gray-900">
+                              {rule.isCustom ? rule.customTopic : rule.topic}
+                            </h4>
+                            <p className="text-xs text-gray-500 line-clamp-1">{rule.response}</p>
                           </div>
                         </div>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleEditRule(rule)}
-                          className="text-gray-500 hover:text-gray-700"
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
+                        <div className="flex items-center gap-3">
+                          <div className="flex items-center gap-2">
+                            <Switch
+                              checked={rule.isActive}
+                              onCheckedChange={(checked) => handleToggleRule(rule._id!, checked)}
+                              className="data-[state=checked]:bg-blue-600"
+                            />
+                            <span className="text-sm text-gray-500">
+                              {rule.isActive ? 'Active' : 'Inactive'}
+                            </span>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleEditRule(rule)}
+                            className="h-8 w-8 p-0 rounded-full hover:bg-gray-100 opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <Edit className="h-4 w-4 text-gray-500" />
+                          </Button>
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -552,7 +654,7 @@ export default function WhatsAppAssistantPage() {
 
       <WhatsAppRuleModal
         isOpen={isRulesModalOpen}
-        onClose={() => setIsRulesModalOpen(false)}
+        onClose={handleCloseModal}
         onSuccess={handleRuleSuccess}
         currentRule={selectedRule}
       />
