@@ -181,7 +181,7 @@ export function Sidebar() {
           )}
         </button>
 
-        {hasChildren && isExpanded && (
+        {hasChildren && isExpanded && item.children && (
           <motion.div
             initial={{ height: 0 }}
             animate={{ height: "auto" }}
@@ -191,7 +191,7 @@ export function Sidebar() {
             {item.children.map(child => (
               <Link
                 key={child.href}
-                href={child.href!}
+                href={child.href ?? '#'}
                 className={cn(
                   "flex items-center gap-3 px-3 h-10 rounded-xl transition-colors",
                   pathname === child.href
