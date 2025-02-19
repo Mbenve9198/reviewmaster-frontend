@@ -199,64 +199,77 @@ export default function WhatsAppConversationsPage() {
         </div>
 
         {/* Colonna destra */}
-        <div className="flex-1 bg-white/50 backdrop-blur-sm rounded-2xl border border-gray-200/50 shadow-lg overflow-hidden">
-          {selectedConversation ? (
-            <div className="h-full flex flex-col">
-              <div className="shrink-0 bg-white border-b rounded-t-2xl px-6 py-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-blue-50 rounded-lg">
-                    <MessageSquare className="h-5 w-5 text-blue-500" />
-                  </div>
-                  <div>
-                    <h2 className="font-semibold text-gray-900">
-                      {selectedConversation.phoneNumber}
-                    </h2>
-                    <p className="text-sm text-gray-500">
-                      First interaction: {format(new Date(selectedConversation.firstInteraction), 'PPp', {
-                        locale: locales[getLanguageFromPhone(selectedConversation.phoneNumber) as keyof typeof locales] || locales.en
-                      })}
-                    </p>
-                  </div>
-                </div>
-              </div>
+        <div className="flex-1 bg-white/50 backdrop-blur-sm rounded-2xl border border-gray-200/50 shadow-lg overflow-hidden relative">
+          {/* Background pattern */}
+          <div className="absolute inset-0" 
+               style={{
+                 backgroundImage: `url('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/time-TwOS9MlmcnNjFliDrzz3oYOiD1LvVk.png')`,
+                 backgroundSize: "cover",
+                 backgroundPosition: "center",
+                 opacity: "0.3"
+               }}>
+          </div>
 
-              <ScrollArea className="flex-1">
-                <div className="space-y-4 p-4">
-                  {selectedConversation.conversationHistory.map((message, index) => (
-                    <div
-                      key={index}
-                      className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                    >
-                      <div
-                        className={`max-w-[80%] p-4 ${
-                          message.role === 'user'
-                            ? 'bg-blue-500 text-white rounded-[20px] rounded-tr-[5px]'
-                            : 'bg-gray-100 text-gray-900 rounded-[20px] rounded-tl-[5px]'
-                        }`}
-                      >
-                        <p className="text-sm leading-relaxed">{message.content}</p>
-                        <p className={`text-xs mt-2 ${
-                          message.role === 'user' ? 'text-blue-100' : 'text-gray-500'
-                        }`}>
-                          {format(new Date(message.timestamp), 'p', {
-                            locale: locales[getLanguageFromPhone(selectedConversation.phoneNumber) as keyof typeof locales] || locales.en
-                          })}
-                        </p>
-                      </div>
+          {/* Contenuto esistente con z-index per stare sopra il pattern */}
+          <div className="relative z-10 h-full">
+            {selectedConversation ? (
+              <div className="h-full flex flex-col">
+                <div className="shrink-0 bg-white border-b rounded-t-2xl px-6 py-4">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-blue-50 rounded-lg">
+                      <MessageSquare className="h-5 w-5 text-blue-500" />
                     </div>
-                  ))}
+                    <div>
+                      <h2 className="font-semibold text-gray-900">
+                        {selectedConversation.phoneNumber}
+                      </h2>
+                      <p className="text-sm text-gray-500">
+                        First interaction: {format(new Date(selectedConversation.firstInteraction), 'PPp', {
+                          locale: locales[getLanguageFromPhone(selectedConversation.phoneNumber) as keyof typeof locales] || locales.en
+                        })}
+                      </p>
+                    </div>
+                  </div>
                 </div>
-              </ScrollArea>
-            </div>
-          ) : (
-            <div className="h-full flex flex-col items-center justify-center text-gray-500 p-8">
-              <MessageSquare className="h-12 w-12 text-gray-300 mb-4" />
-              <p className="text-lg font-medium text-gray-900 mb-2">No Conversation Selected</p>
-              <p className="text-sm text-gray-500 text-center max-w-sm">
-                Choose a conversation from the list to view the message history
-              </p>
-            </div>
-          )}
+
+                <ScrollArea className="flex-1">
+                  <div className="space-y-4 p-4">
+                    {selectedConversation.conversationHistory.map((message, index) => (
+                      <div
+                        key={index}
+                        className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                      >
+                        <div
+                          className={`max-w-[80%] p-4 ${
+                            message.role === 'user'
+                              ? 'bg-blue-500 text-white rounded-[20px] rounded-tr-[5px]'
+                              : 'bg-gray-100 text-gray-900 rounded-[20px] rounded-tl-[5px]'
+                          }`}
+                        >
+                          <p className="text-sm leading-relaxed">{message.content}</p>
+                          <p className={`text-xs mt-2 ${
+                            message.role === 'user' ? 'text-blue-100' : 'text-gray-500'
+                          }`}>
+                            {format(new Date(message.timestamp), 'p', {
+                              locale: locales[getLanguageFromPhone(selectedConversation.phoneNumber) as keyof typeof locales] || locales.en
+                            })}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </ScrollArea>
+              </div>
+            ) : (
+              <div className="h-full flex flex-col items-center justify-center text-gray-500 p-8">
+                <MessageSquare className="h-12 w-12 text-gray-300 mb-4" />
+                <p className="text-lg font-medium text-gray-900 mb-2">No Conversation Selected</p>
+                <p className="text-sm text-gray-500 text-center max-w-sm">
+                  Choose a conversation from the list to view the message history
+                </p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
