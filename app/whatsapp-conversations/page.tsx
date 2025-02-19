@@ -199,7 +199,7 @@ export default function WhatsAppConversationsPage() {
         </div>
 
         {/* Colonna destra */}
-        <div className="flex-1 bg-white/50 backdrop-blur-sm rounded-2xl border border-gray-200/50 shadow-lg overflow-hidden relative">
+        <div className="flex-1 bg-[#f5f3f2] backdrop-blur-sm rounded-2xl border border-gray-200/50 shadow-lg overflow-hidden relative">
           {/* Background pattern */}
           <div className="absolute inset-0" 
                style={{
@@ -240,10 +240,10 @@ export default function WhatsAppConversationsPage() {
                         className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
                       >
                         <div
-                          className={`max-w-[80%] p-4 ${
+                          className={`max-w-[80%] p-4 shadow-md ${
                             message.role === 'user'
-                              ? 'bg-blue-500 text-white rounded-[20px] rounded-tr-[5px]'
-                              : 'bg-gray-100 text-gray-900 rounded-[20px] rounded-tl-[5px]'
+                              ? 'bg-blue-500 text-white rounded-[20px] rounded-tr-[5px] shadow-blue-500/20'
+                              : 'bg-white text-gray-900 rounded-[20px] rounded-tl-[5px] shadow-gray-200/80'
                           }`}
                         >
                           <p className="text-sm leading-relaxed">{message.content}</p>
