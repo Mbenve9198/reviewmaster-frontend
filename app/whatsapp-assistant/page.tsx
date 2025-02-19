@@ -78,31 +78,19 @@ export default function WhatsAppAssistantPage() {
       
       try {
         const token = getCookie('token');
-        const [configResponse, rulesResponse] = await Promise.all([
-          fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/whatsapp-assistant/${selectedHotelId}`, {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-            }
-          }),
-          fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/whatsapp-assistant/${selectedHotelId}/rules`, {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-            }
-          })
-        ]);
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/whatsapp-assistant/${selectedHotelId}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          }
+        });
         
-        if (!configResponse.ok) throw new Error('Failed to fetch WhatsApp configuration');
-        if (!rulesResponse.ok) throw new Error('Failed to fetch WhatsApp rules');
+        if (!response.ok) throw new Error('Failed to fetch WhatsApp configuration');
         
-        const [configData, rulesData] = await Promise.all([
-          configResponse.json(),
-          rulesResponse.json()
-        ]);
-
-        setConfig(configData);
-        setRules(rulesData);
+        const data = await response.json();
+        setConfig(data);
+        setRules(data.rules || []);
       } catch (error) {
-        console.error('Error fetching WhatsApp data:', error);
+        console.error('Error fetching WhatsApp config:', error);
         setConfig(null);
         setRules([]);
       }
