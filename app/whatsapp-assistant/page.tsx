@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { Sparkles, MessageSquare, Zap, Loader2, AlertCircle, Clock, Edit, Download } from 'lucide-react'
+import { Sparkles, MessageSquare, Zap, Loader2, AlertCircle, Clock, Edit, Download, Plus } from 'lucide-react'
 import Image from "next/image"
 import { SetupAssistantModal } from "@/components/whatsapp-assistant/setup-assistant-modal"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -12,6 +12,7 @@ import { EditTimeSettingsModal } from "@/components/whatsapp-assistant/edit-time
 import { EditReviewSettingsModal } from "@/components/whatsapp-assistant/edit-review-settings-modal"
 import { EditIdentitySettingsModal } from "@/components/whatsapp-assistant/edit-identity-settings-modal"
 import { QRCodeSVG } from 'qrcode.react'
+import { WhatsAppRuleModal } from "@/components/whatsapp-assistant/whatsapp-rule-modal"
 
 interface Hotel {
   _id: string;
@@ -47,6 +48,9 @@ export default function WhatsAppAssistantPage() {
   const [isTimeSettingsModalOpen, setIsTimeSettingsModalOpen] = useState(false)
   const [isReviewSettingsModalOpen, setIsReviewSettingsModalOpen] = useState(false)
   const [isIdentitySettingsModalOpen, setIsIdentitySettingsModalOpen] = useState(false)
+  const [isRulesModalOpen, setIsRulesModalOpen] = useState(false)
+  const [selectedRule, setSelectedRule] = useState<any>(null)
+  const [rules, setRules] = useState<any[]>([])
 
   // Fetch hotels
   useEffect(() => {
@@ -142,6 +146,16 @@ export default function WhatsAppAssistantPage() {
       a.click()
       document.body.removeChild(a)
     }
+  }
+
+  const handleRuleSuccess = (newRule: any) => {
+    setRules([...rules, newRule])
+    setIsRulesModalOpen(false)
+  }
+
+  const handleEditRule = (rule: any) => {
+    setSelectedRule(rule)
+    setIsRulesModalOpen(true)
   }
 
   if (isLoading) {
@@ -368,6 +382,70 @@ export default function WhatsAppAssistantPage() {
                 <p className="text-gray-600">{config.triggerName}</p>
               </div>
             </div>
+
+            {/* Rules Section */}
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <h3 className="text-xl font-semibold text-gray-800">Assistant Rules</h3>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="rounded-xl border-gray-200 hover:bg-gray-50 hover:text-gray-900 transition-colors gap-2"
+                  onClick={() => setIsRulesModalOpen(true)}
+                >
+                  <Plus className="h-4 w-4" />
+                  Add Rule
+                </Button>
+              </div>
+              
+              <div className="bg-gray-50 p-6 rounded-xl space-y-4">
+                {rules.length === 0 ? (
+                  <div className="text-center py-8">
+                    <div className="mb-3">
+                      <MessageSquare className="h-8 w-8 text-gray-400 mx-auto" />
+                    </div>
+                    <h4 className="text-sm font-medium text-gray-900 mb-1">No rules configured</h4>
+                    <p className="text-sm text-gray-500 mb-4">
+                      Add rules to customize how your assistant responds to specific queries
+                    </p>
+                    <Button
+                      onClick={() => setIsRulesModalOpen(true)}
+                      variant="outline"
+                      className="rounded-xl"
+                    >
+                      Create First Rule
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {rules.map((rule, index) => (
+                      <div 
+                        key={index}
+                        className="bg-white p-4 rounded-xl border border-gray-200 flex items-center justify-between"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 bg-blue-50 rounded-lg">
+                            <MessageSquare className="h-4 w-4 text-blue-500" />
+                          </div>
+                          <div>
+                            <h4 className="text-sm font-medium text-gray-900">{rule.trigger}</h4>
+                            <p className="text-xs text-gray-500">{rule.response}</p>
+                          </div>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleEditRule(rule)}
+                          className="text-gray-500 hover:text-gray-700"
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </div>
 
@@ -470,6 +548,13 @@ export default function WhatsAppAssistantPage() {
           setConfig(updatedConfig)
           setIsIdentitySettingsModalOpen(false)
         }}
+      />
+
+      <WhatsAppRuleModal
+        isOpen={isRulesModalOpen}
+        onClose={() => setIsRulesModalOpen(false)}
+        onSuccess={handleRuleSuccess}
+        currentRule={selectedRule}
       />
     </div>
   );
