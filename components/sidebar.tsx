@@ -1,6 +1,6 @@
 "use client"
 
-import { LogOut, Sparkles, MessageSquare, Star, Blocks, Building2, CreditCard, BarChart2, ScrollText } from 'lucide-react'
+import { LogOut, Sparkles, MessageSquare, Star, Blocks, Building2, CreditCard, BarChart2, ScrollText, MessagesSquare } from 'lucide-react'
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import Image from "next/image"
@@ -19,7 +19,25 @@ const navigation = [
     href: "/manual-response",
     icon: (
       <MessageSquare 
-        className="w-6 h-6 text-gray-700 stroke-[1.5px]" 
+        className="w-5 h-5 text-gray-700 stroke-[1.5px]"
+      />
+    )
+  },
+  { 
+    label: "WhatsApp Assistant", 
+    href: "/whatsapp-assistant",
+    icon: (
+      <MessagesSquare 
+        className="w-5 h-5 text-gray-700 stroke-[1.5px]" 
+      />
+    )
+  },
+  { 
+    label: "WhatsApp Conversations", 
+    href: "/whatsapp-conversations",
+    icon: (
+      <MessageSquare 
+        className="w-5 h-5 text-gray-700 stroke-[1.5px]" 
       />
     )
   },
@@ -28,7 +46,7 @@ const navigation = [
     href: "/reviews",
     icon: (
       <Star 
-        className="w-6 h-6 text-gray-700 stroke-[1.5px]" 
+        className="w-5 h-5 text-gray-700 stroke-[1.5px]" 
       />
     )
   },
@@ -37,7 +55,7 @@ const navigation = [
     href: "/analyses",
     icon: (
       <BarChart2 
-        className="w-6 h-6 text-gray-700 stroke-[1.5px]" 
+        className="w-5 h-5 text-gray-700 stroke-[1.5px]" 
       />
     )
   },
@@ -46,7 +64,7 @@ const navigation = [
     href: "/rules",
     icon: (
       <ScrollText 
-        className="w-6 h-6 text-gray-700 stroke-[1.5px]" 
+        className="w-5 h-5 text-gray-700 stroke-[1.5px]" 
       />
     )
   },
@@ -55,7 +73,7 @@ const navigation = [
     href: "/integrations",
     icon: (
       <Blocks 
-        className="w-6 h-6 text-gray-700 stroke-[1.5px]" 
+        className="w-5 h-5 text-gray-700 stroke-[1.5px]" 
       />
     )
   },
@@ -64,7 +82,7 @@ const navigation = [
     href: "/hotel-settings",
     icon: (
       <Building2 
-        className="w-6 h-6 text-gray-700 stroke-[1.5px]" 
+        className="w-5 h-5 text-gray-700 stroke-[1.5px]" 
       />
     )
   },
@@ -73,7 +91,7 @@ const navigation = [
     href: "/billing",
     icon: (
       <CreditCard 
-        className="w-6 h-6 text-gray-700 stroke-[1.5px]" 
+        className="w-5 h-5 text-gray-700 stroke-[1.5px]" 
       />
     )
   }
