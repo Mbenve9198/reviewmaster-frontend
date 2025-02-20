@@ -197,13 +197,34 @@ export default function IntegrationsPage() {
       
       const hotelsData = await response.json()
       
-      const formattedHotels = hotelsData.map((hotel: any) => ({
-        ...hotel,
-        id: hotel._id,
-        integrations: []
-      }))
+      const hotelsWithIntegrations = await Promise.all(
+        hotelsData.map(async (hotel: any) => {
+          const integrationsResponse = await fetch(
+            `${process.env.NEXT_PUBLIC_API_URL}/api/integrations/hotel/${hotel._id}`,
+            {
+              headers: {
+                'Authorization': `Bearer ${token}`,
+              }
+            }
+          )
+          
+          if (!integrationsResponse.ok) throw new Error('Failed to fetch integrations')
+          
+          const integrations = await integrationsResponse.json()
+          return {
+            ...hotel,
+            id: hotel._id,
+            integrations
+          }
+        })
+      )
       
-      setHotels(formattedHotels)
+      setHotels(hotelsWithIntegrations)
+      
+      if (hotelsWithIntegrations.length === 1) {
+        setSelectedHotel(hotelsWithIntegrations[0].id)
+        localStorage.setItem('lastSelectedHotel', hotelsWithIntegrations[0].id)
+      }
     } catch (error) {
       console.error('Error fetching hotels:', error)
       toast.error('Failed to refresh hotels list')
