@@ -10,7 +10,7 @@ import { ChatBubble, ChatBubbleMessage, ChatBubbleAvatar } from "@/components/ui
 import { Input } from "@/components/ui/input"
 import { AnalysesDropdown } from "@/components/analyses/AnalysesDropdown"
 import { ChatInput } from "@/components/ui/chat-input"
-import { AnalysisDashboard } from "@/components/analytics/AnalysisDashboard"
+import AnalysisDashboard from "@/components/analytics/AnalysisDashboard"
 
 interface Analysis {
   _id: string
