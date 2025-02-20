@@ -185,19 +185,16 @@ export default function AnalysesPage() {
       setMessages(prev => [...prev, { role: "user", content: prompt }])
       setInputValue("")
       
-      const { analysis } = await api.analytics.getFollowUpAnalysis(
+      const response = await api.analytics.getFollowUpAnalysis(
         selectedAnalysis._id,
         prompt,
         messages
       )
 
       // Usa typeMessage per l'effetto di typing
-      await typeMessage(analysis)
+      await typeMessage(response.analysis)
       
-      setMessages(prev => [...prev, { role: "assistant", content: analysis }])
-      
-      // I suggerimenti verranno gestiti dal componente FormattedMessage
-      // tramite la callback onSuggestions
+      setMessages(prev => [...prev, { role: "assistant", content: response.analysis }])
       
     } catch (error: any) {
       toast.error(error.message || "Error analyzing reviews")
