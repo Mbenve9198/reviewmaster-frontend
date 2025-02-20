@@ -1,6 +1,6 @@
 "use client"
 
-import { LogOut, Sparkles, MessageSquare, Star, Blocks, Building2, CreditCard, BarChart2, ScrollText, MessagesSquare, Bot, MessageCircle, ChevronDown } from 'lucide-react'
+import { LogOut, Sparkles, MessageSquare, Star, Blocks, Building2, CreditCard, BarChart2, ScrollText, MessagesSquare, Bot, MessageCircle, Settings, Hotel, Share2 } from 'lucide-react'
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import Image from "next/image"
@@ -22,79 +22,67 @@ interface NavigationItem {
 
 const navigation: NavigationItem[] = [
   { 
-    label: "Manual Responses", 
-    href: "/manual-response",
-    icon: <MessageCircle className="w-5 h-5 text-gray-700 stroke-[1.5px]" />
+    label: "Reviews",
+    icon: <Star className="w-5 h-5 text-gray-700 stroke-[1.5px]" />,
+    children: [
+      {
+        label: "All Reviews",
+        href: "/reviews",
+        icon: <Star className="w-4 h-4 text-gray-700 stroke-[1.5px]" />
+      },
+      {
+        label: "Manual Response",
+        href: "/manual-response",
+        icon: <MessageCircle className="w-4 h-4 text-gray-700 stroke-[1.5px]" />
+      },
+      {
+        label: "Review Analysis",
+        href: "/analyses",
+        icon: <BarChart2 className="w-4 h-4 text-gray-700 stroke-[1.5px]" />
+      },
+      {
+        label: "Response Rules",
+        href: "/rules",
+        icon: <ScrollText className="w-4 h-4 text-gray-700 stroke-[1.5px]" />
+      }
+    ]
   },
   { 
-    label: "WhatsApp",
+    label: "AI Concierge",
     icon: <Bot className="w-5 h-5 text-gray-700 stroke-[1.5px]" />,
     children: [
       {
-        label: "Assistant Settings",
+        label: "Train Your AI",
         href: "/whatsapp-assistant",
         icon: <Bot className="w-4 h-4 text-gray-700 stroke-[1.5px]" />
       },
       {
-        label: "Conversations",
+        label: "AI Conversations",
         href: "/whatsapp-conversations",
         icon: <MessagesSquare className="w-4 h-4 text-gray-700 stroke-[1.5px]" />
       }
     ]
   },
   { 
-    label: "Reviews", 
-    href: "/reviews",
-    icon: (
-      <Star 
-        className="w-5 h-5 text-gray-700 stroke-[1.5px]" 
-      />
-    )
-  },
-  { 
-    label: "Analyses",
-    href: "/analyses",
-    icon: (
-      <BarChart2 
-        className="w-5 h-5 text-gray-700 stroke-[1.5px]" 
-      />
-    )
-  },
-  { 
-    label: "Rules",
-    href: "/rules",
-    icon: (
-      <ScrollText 
-        className="w-5 h-5 text-gray-700 stroke-[1.5px]" 
-      />
-    )
-  },
-  { 
-    label: "Integrations", 
-    href: "/integrations",
-    icon: (
-      <Blocks 
-        className="w-5 h-5 text-gray-700 stroke-[1.5px]" 
-      />
-    )
-  },
-  { 
-    label: "Hotel Settings", 
-    href: "/hotel-settings",
-    icon: (
-      <Building2 
-        className="w-5 h-5 text-gray-700 stroke-[1.5px]" 
-      />
-    )
+    label: "Settings",
+    icon: <Settings className="w-5 h-5 text-gray-700 stroke-[1.5px]" />,
+    children: [
+      {
+        label: "Hotel Details",
+        href: "/hotel-settings",
+        icon: <Hotel className="w-4 h-4 text-gray-700 stroke-[1.5px]" />
+      },
+      {
+        label: "Connect Platforms",
+        href: "/integrations",
+        icon: <Share2 className="w-4 h-4 text-gray-700 stroke-[1.5px]" />
+      }
+    ]
   },
   { 
     label: "Billing", 
     href: "/billing",
-    icon: (
-      <CreditCard 
-        className="w-5 h-5 text-gray-700 stroke-[1.5px]" 
-      />
-    )
+    icon: <CreditCard className="w-5 h-5 text-gray-700 stroke-[1.5px]" />
   }
 ]
 
