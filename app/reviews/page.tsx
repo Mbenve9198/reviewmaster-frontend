@@ -18,6 +18,7 @@ import { AddPropertyModal } from "@/components/add-property-modal"
 import { AuroraBackground } from "@/components/ui/aurora-background"
 import { toast } from "react-hot-toast"
 import { AnalyticsDialog } from "@/components/analytics/AnalyticsDialog"
+import { useRouter } from 'next/navigation'
 
 interface Hotel {
   _id: string
@@ -90,6 +91,8 @@ const FiltersAndTable = ({
   selectedRows,
   setIsAnalyticsDialogOpen
 }: FiltersAndTableProps) => {
+  const router = useRouter()
+
   return (
     <div className="bg-white rounded-3xl border border-gray-200 shadow-lg overflow-hidden">
       <div className="p-6 border-b border-gray-100">
@@ -174,12 +177,34 @@ const FiltersAndTable = ({
             <Button
               variant="default"
               size="sm"
-              onClick={() => {
+              onClick={async () => {
                 if (selectedRows.length === 0) {
                   toast.error("Please select at least one review");
                   return;
                 }
-                setIsAnalyticsDialogOpen(true);
+                
+                try {
+                  const token = getCookie('token')
+                  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/analyses`, {
+                    method: 'POST',
+                    headers: {
+                      'Authorization': `Bearer ${token}`,
+                      'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                      hotelId: hotel,
+                      reviews: selectedRows.map(review => review._id)
+                    })
+                  })
+
+                  if (!response.ok) throw new Error('Failed to create analysis')
+                  
+                  const data = await response.json()
+                  router.push(`/analyses?id=${data._id}`)
+                } catch (error) {
+                  console.error('Error creating analysis:', error)
+                  toast.error("Failed to create analysis")
+                }
               }}
               className="rounded-xl flex items-center gap-2 bg-primary text-primary-foreground shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all"
               disabled={selectedRows.length === 0}
@@ -479,12 +504,6 @@ export default function ReviewsPage() {
             setIsAnalyticsDialogOpen={setIsAnalyticsDialogOpen}
           />
         </div>
-
-        <AnalyticsDialog 
-          isOpen={isAnalyticsDialogOpen}
-          onClose={() => setIsAnalyticsDialogOpen(false)}
-          selectedReviews={selectedRows}
-        />
       </div>
     </>
   )

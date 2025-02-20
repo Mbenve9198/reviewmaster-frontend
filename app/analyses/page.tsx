@@ -9,6 +9,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import SourcesCard from "./components/SourcesCard"
 import AnalysisCard from "./components/AnalysisCard"
 import ChatCard from "./components/ChatCard"
+import { useSearchParams } from 'next/navigation'
 
 interface Analysis {
   _id: string
@@ -30,6 +31,9 @@ export default function AnalysesPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [sourcesExpanded, setSourcesExpanded] = useState(true)
   const [chatExpanded, setChatExpanded] = useState(true)
+  const searchParams = useSearchParams()
+  const analysisId = searchParams.get('id')
+  const [isAnalysisReady, setIsAnalysisReady] = useState(false)
 
   // Calcolo delle larghezze delle card in base allo stato
   const getWidths = () => {
@@ -67,6 +71,37 @@ export default function AnalysesPage() {
     fetchAnalyses()
   }, [])
 
+  useEffect(() => {
+    if (analysisId) {
+      // Se c'è un ID nell'URL, selezionalo automaticamente
+      setSelectedAnalysis(analysisId)
+    }
+  }, [analysisId])
+
+  useEffect(() => {
+    if (!analysisId) return
+
+    const checkAnalysis = async () => {
+      try {
+        const token = getCookie('token')
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/analyses/${analysisId}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          }
+        })
+        
+        if (response.ok) {
+          setIsAnalysisReady(true)
+        }
+      } catch (error) {
+        console.error('Error checking analysis:', error)
+      }
+    }
+
+    const interval = setInterval(checkAnalysis, 2000) // Controlla ogni 2 secondi
+    return () => clearInterval(interval)
+  }, [analysisId])
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -78,7 +113,7 @@ export default function AnalysesPage() {
   const { sourcesWidth, analysisWidth, chatWidth } = getWidths()
 
   return (
-    <div className="py-6 pl-20 pr-6 space-y-6">
+    <div className="py-6 pl-24 pr-6 space-y-6">
       {/* Modern gradient background */}
       <div className="fixed inset-0 -z-10 bg-gradient-to-br from-[#FAFAFB] via-[#F0F0F2] to-[#FAFAFB] backdrop-blur-sm" />
 
@@ -110,6 +145,16 @@ export default function AnalysesPage() {
           </SelectContent>
         </Select>
       </div>
+
+      {!isAnalysisReady && analysisId && (
+        <div className="fixed inset-0 bg-white/80 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div className="text-center space-y-4">
+            <Loader2 className="h-8 w-8 animate-spin mx-auto text-blue-500" />
+            <p className="text-lg font-medium text-gray-900">Creating your analysis...</p>
+            <p className="text-sm text-gray-500">This may take a few moments</p>
+          </div>
+        </div>
+      )}
 
       {/* Main Content */}
       <div className="flex gap-3 h-[calc(100vh-8.5rem)]">

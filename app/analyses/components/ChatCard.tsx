@@ -176,6 +176,32 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
         </div>
       </ScrollArea>
 
+      {/* Input */}
+      <div className="p-4 border-t border-gray-100">
+        <div className="relative flex items-center">
+          <div className="relative flex-1">
+            <Input
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onKeyPress={handleKeyPress}
+              placeholder={isExpanded ? "Start typing..." : ""}
+              className="w-full bg-gray-50 border-gray-200 rounded-full pr-16 focus:ring-0 focus:border-gray-300 placeholder:text-gray-500"
+            />
+            <div className="absolute right-3 top-1/2 -translate-y-1/2">
+              <Button
+                onClick={() => sendMessage(inputValue)}
+                disabled={!inputValue.trim() || isLoading}
+                size="icon"
+                variant="ghost"
+                className="h-8 w-8 rounded-full bg-blue-500 hover:bg-blue-600 text-white"
+              >
+                <Send className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Suggested Questions */}
       {isExpanded && suggestedQuestions.length > 0 && (
         <div className="px-4 py-2 border-t border-gray-100">
@@ -201,39 +227,6 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
           </ScrollArea>
         </div>
       )}
-
-      {/* Input */}
-      <div className="p-4 border-t border-gray-100">
-        <div className="relative flex items-center">
-          <div className="relative flex-1">
-            <Input
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder={isExpanded ? "Start typing..." : ""}
-              className="w-full bg-gray-50 border-gray-200 rounded-full pr-16 focus:ring-0 focus:border-gray-300 placeholder:text-gray-500"
-            />
-            <div className="absolute right-3 top-1/2 -translate-y-1/2">
-              <Button
-                onClick={() => sendMessage(inputValue)}
-                disabled={!inputValue.trim() || isLoading}
-                size="icon"
-                variant="ghost"
-                className="h-8 w-8 rounded-full bg-blue-500 hover:bg-blue-600 text-white"
-              >
-                <Send className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        </div>
-
-        {/* Sources count */}
-        {isExpanded && (
-          <div className="absolute right-20 top-1/2 -translate-y-1/2 text-sm text-gray-500">
-            2 sources
-          </div>
-        )}
-      </div>
     </div>
   )
 } 
