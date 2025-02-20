@@ -45,10 +45,23 @@ export default function AnalysesPage() {
   // Carica i messaggi quando viene selezionata un'analisi
   useEffect(() => {
     if (selectedAnalysis) {
-      setMessages([
-        { role: "user", content: "Analyze these reviews" },
-        { role: "assistant", content: JSON.stringify(selectedAnalysis.analysis) }
-      ])
+      const loadFullAnalysis = async () => {
+        try {
+          setIsLoading(true);
+          // Aggiungi questo endpoint alla tua API
+          const { analysis } = await api.analytics.getFullAnalysis(selectedAnalysis._id);
+          setMessages([
+            { role: "user", content: "Analyze these reviews" },
+            { role: "assistant", content: JSON.stringify(analysis) }
+          ]);
+        } catch (error) {
+          toast.error("Errore nel caricamento dell'analisi completa");
+        } finally {
+          setIsLoading(false);
+        }
+      };
+
+      loadFullAnalysis();
     }
   }, [selectedAnalysis])
 
