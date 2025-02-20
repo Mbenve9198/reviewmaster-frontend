@@ -10,6 +10,7 @@ import { PlusCircle, Settings, X } from 'lucide-react'
 import { AddIntegrationModal } from "@/components/add-integration-modal"
 import { getCookie } from "@/lib/utils"
 import { toast } from "react-hot-toast"
+import { AddPropertyModal } from "@/components/add-property-modal"
 
 interface Hotel {
   id: string
@@ -57,6 +58,7 @@ export default function IntegrationsPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [showBanner, setShowBanner] = useState(true)
+  const [isAddPropertyModalOpen, setIsAddPropertyModalOpen] = useState(false)
 
   useEffect(() => {
     const fetchHotels = async () => {
@@ -182,6 +184,25 @@ export default function IntegrationsPage() {
     }
   }
 
+  const handleHotelAdded = async () => {
+    try {
+      const token = getCookie('token')
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/hotels`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        }
+      })
+      
+      if (!response.ok) throw new Error('Failed to fetch hotels')
+      
+      const hotelsData = await response.json()
+      setHotels(hotelsData)
+    } catch (error) {
+      console.error('Error fetching hotels:', error)
+      toast.error('Failed to refresh hotels list')
+    }
+  }
+
   const selectedHotelData = hotels.find(h => h.id === selectedHotel)
 
   if (isLoading) {
@@ -268,6 +289,14 @@ export default function IntegrationsPage() {
                 </Select>
 
                 <Button
+                  onClick={() => setIsAddPropertyModalOpen(true)}
+                  className="rounded-xl bg-primary text-primary-foreground shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all flex items-center gap-2"
+                >
+                  <PlusCircle className="w-4 h-4" />
+                  Add Hotel
+                </Button>
+
+                <Button
                   onClick={handleSettingsClick}
                   disabled={!selectedHotel}
                   className="rounded-xl bg-primary text-primary-foreground shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all"
@@ -318,6 +347,12 @@ export default function IntegrationsPage() {
         onClose={() => setIsAddModalOpen(false)}
         hotelId={selectedHotel || ''}
         onSuccess={handleIntegrationAdded}
+      />
+
+      <AddPropertyModal
+        isOpen={isAddPropertyModalOpen}
+        onClose={() => setIsAddPropertyModalOpen(false)}
+        onSuccess={handleHotelAdded}
       />
     </>
   )

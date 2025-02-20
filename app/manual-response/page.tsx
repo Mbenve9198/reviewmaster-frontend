@@ -14,7 +14,7 @@ import { PlusCircle, Send, Settings, Copy, CornerDownLeft, X } from 'lucide-reac
 import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import { useRouter } from 'next/navigation'
-import { AddHotelModal } from "@/components/add-hotel-modal"
+import { AddPropertyModal } from "@/components/add-property-modal"
 import {
   Dialog,
   DialogContent,
@@ -61,12 +61,9 @@ export default function HomePage() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
-  const [isAddHotelModalOpen, setIsAddHotelModalOpen] = useState(false)
+  const [isAddPropertyModalOpen, setIsAddPropertyModalOpen] = useState(false)
   const [newHotelName, setNewHotelName] = useState("")
   const [newHotelType, setNewHotelType] = useState("")
-  const [dialogOpen, setDialogOpen] = useState(false)
-  const [step, setStep] = useState(1)
-  const totalSteps = 3
   const [description, setDescription] = useState("")
   const [managerSignature, setManagerSignature] = useState("")
   const [isResponseModalOpen, setIsResponseModalOpen] = useState(false)
@@ -258,74 +255,24 @@ export default function HomePage() {
     }
   }
 
-  const handleAddHotel = async () => {
+  const handleHotelAdded = async () => {
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/hotels`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${getCookie('token')}`
-        },
-        body: JSON.stringify({
-          name: newHotelName,
-          type: newHotelType,
-          description: description,
-          managerSignature: managerSignature,
-          responseSettings: {
-            style: 'professional',
-            length: 'medium'
-          }
-        }),
-        credentials: 'include'
-      });
-
-      const data = await response.json();
-      console.log('Server response:', data);
-
-      if (!response.ok) {
-        throw new Error(data.message);
-      }
-
-      setDialogOpen(false);
-      const updatedResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/hotels`, {
+        credentials: 'include',
         headers: {
           'Authorization': `Bearer ${getCookie('token')}`,
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
-        credentials: 'include'
-      });
-      const updatedHotels = await updatedResponse.json();
-      setHotels(updatedHotels);
+      })
 
+      if (!response.ok) throw new Error('Failed to fetch hotels')
+      
+      const data = await response.json()
+      setHotels(data)
     } catch (error) {
-      console.error('Full error details:', error);
-      setError(error instanceof Error ? error.message : 'Error adding hotel');
+      console.error('Error fetching hotels:', error)
+      toast.error('Failed to refresh hotels list')
     }
-  };
-
-  const isStepValid = () => {
-    switch (step) {
-      case 1:
-        return newHotelName && newHotelType
-      case 2:
-        return description.length > 0
-      case 3:
-        return managerSignature.length > 0
-      default:
-        return false
-    }
-  }
-
-  const handleHotelAdded = async () => {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/hotels`, {
-      headers: {
-        'Authorization': `Bearer ${getCookie('token')}`,
-        'Content-Type': 'application/json'
-      },
-      credentials: 'include'
-    });
-    const updatedHotels = await response.json();
-    setHotels(updatedHotels);
   }
 
   const buttonClasses = "relative bg-primary hover:bg-primary/90 text-primary-foreground font-bold transition-all active:top-[2px] active:shadow-[0_0_0_0_#2563eb] disabled:opacity-50 disabled:hover:bg-primary disabled:active:top-0 disabled:active:shadow-[0_4px_0_0_#2563eb]"
@@ -391,8 +338,8 @@ export default function HomePage() {
               <Settings className="w-4 h-4" />
             </Button>
             <Button
-              onClick={() => setIsAddHotelModalOpen(true)}
-              className="rounded-xl bg-primary text-primary-foreground shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all flex items-center gap-2"
+              onClick={() => setIsAddPropertyModalOpen(true)}
+              className="relative bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-2 px-4 rounded-xl shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all flex items-center gap-2"
             >
               <PlusCircle className="w-4 h-4" />
               Add Hotel
@@ -496,99 +443,11 @@ export default function HomePage() {
         isError={!!error}
       />
 
-      <AddHotelModal
-        isOpen={isAddHotelModalOpen}
-        onClose={() => setIsAddHotelModalOpen(false)}
-        onHotelAdded={handleHotelAdded}
+      <AddPropertyModal
+        isOpen={isAddPropertyModalOpen}
+        onClose={() => setIsAddPropertyModalOpen(false)}
+        onSuccess={handleHotelAdded}
       />
-
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="bg-white max-w-4xl h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="text-4xl font-bold text-center">Add New Hotel</DialogTitle>
-            <DialogDescription className="text-xl text-center">
-              Let's set up your new property
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="mt-8">
-            <div className="max-w-3xl mx-auto">
-              <Progress value={(step / totalSteps) * 100} className="h-3 mb-8" />
-
-              {step === 1 && (
-                <div className="space-y-6">
-                  <div className="space-y-2">
-                    <label className="text-xl font-bold">Property Name</label>
-                    <Input
-                      value={newHotelName}
-                      onChange={(e) => setNewHotelName(e.target.value)}
-                      className="p-6 text-xl rounded-2xl border-2 border-gray-200 focus:border-[#58CC02] focus:ring-[#58CC02]"
-                      placeholder="Enter your property name"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-xl font-bold">Property Type</label>
-                    <Select value={newHotelType} onValueChange={setNewHotelType}>
-                      <SelectTrigger className="p-6 text-xl rounded-2xl border-2">
-                        <SelectValue placeholder="Select property type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="hotel">Hotel</SelectItem>
-                        <SelectItem value="b&b">B&B</SelectItem>
-                        <SelectItem value="resort">Resort</SelectItem>
-                        <SelectItem value="apartment">Apartment</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-              )}
-
-              {step === 2 && (
-                <div className="space-y-6">
-                  <div className="space-y-2">
-                    <label className="text-xl font-bold">Property Description</label>
-                    <Textarea
-                      value={description}
-                      onChange={(e) => setDescription(e.target.value)}
-                      className="p-6 text-xl rounded-2xl border-2 min-h-[200px]"
-                      placeholder="Describe your property..."
-                    />
-                  </div>
-                </div>
-              )}
-
-              {step === 3 && (
-                <div className="space-y-6">
-                  <div className="space-y-2">
-                    <label className="text-xl font-bold">Manager Signature</label>
-                    <Input
-                      value={managerSignature}
-                      onChange={(e) => setManagerSignature(e.target.value)}
-                      className="p-6 text-xl rounded-2xl border-2"
-                      placeholder="Your name and title"
-                    />
-                  </div>
-                </div>
-              )}
-
-              <div className="flex justify-end mt-8 gap-4">
-                {step > 1 && (
-                  <Button onClick={() => setStep(step - 1)} variant="outline" className="text-xl py-6 px-8">
-                    Back
-                  </Button>
-                )}
-                <Button
-                  onClick={step === totalSteps ? handleAddHotel : () => setStep(step + 1)}
-                  className="text-xl py-6 px-8"
-                  disabled={!isStepValid()}
-                >
-                  {step === totalSteps ? "Complete" : "Continue"}
-                </Button>
-              </div>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="sm:max-w-[500px] w-[95vw] max-h-[90vh] p-0 bg-white rounded-2xl border shadow-lg">
