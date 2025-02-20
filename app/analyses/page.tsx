@@ -188,7 +188,7 @@ export default function AnalysesPage() {
       const response = await api.analytics.getFollowUpAnalysis(
         selectedAnalysis._id,
         prompt,
-        messages
+        JSON.stringify(messages)
       )
 
       // Usa typeMessage per l'effetto di typing
