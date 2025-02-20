@@ -289,20 +289,22 @@ export default function IntegrationsPage() {
                 </Select>
 
                 <Button
-                  onClick={() => setIsAddPropertyModalOpen(true)}
-                  className="rounded-xl bg-primary text-primary-foreground shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all flex items-center gap-2"
-                >
-                  <PlusCircle className="w-4 h-4" />
-                  Add Hotel
-                </Button>
-
-                <Button
                   onClick={handleSettingsClick}
                   disabled={!selectedHotel}
                   className="rounded-xl bg-primary text-primary-foreground shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all"
                   aria-label="Hotel Settings"
                 >
                   <Settings className="w-4 h-4" />
+                </Button>
+
+                <div className="flex-1" />
+
+                <Button
+                  onClick={() => setIsAddPropertyModalOpen(true)}
+                  className="rounded-xl bg-primary text-primary-foreground shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all flex items-center gap-2"
+                >
+                  <PlusCircle className="w-4 h-4" />
+                  Add Hotel
                 </Button>
 
                 <Button

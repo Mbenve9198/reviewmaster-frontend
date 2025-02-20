@@ -16,7 +16,7 @@ import {
 import Image from "next/image"
 import { getCookie } from '@/lib/utils'
 import { toast } from "sonner"
-import { Loader2, ArrowLeft, Lightbulb, CheckSquare, Info } from "lucide-react"
+import { Loader2, ArrowLeft, Lightbulb, CheckSquare, Info, ArrowRight } from "lucide-react"
 
 const PLATFORMS = [
   {
@@ -131,8 +131,8 @@ export function AddPropertyModal({ isOpen, onClose, onSuccess }: AddPropertyModa
           }
         }
         if (step === 5) {
-          if (!platformUrl) {
-            setError('Please provide a valid platform URL')
+          if (selectedPlatform && !platformUrl) {
+            setError('Please provide a valid platform URL or skip the integration')
             return
           }
         }
@@ -143,7 +143,7 @@ export function AddPropertyModal({ isOpen, onClose, onSuccess }: AddPropertyModa
         const token = getCookie('token')
 
         if (!hotelData.name || !hotelData.type || !hotelData.description || 
-            !hotelData.managerSignature || !platformUrl || !selectedPlatform) {
+            !hotelData.managerSignature) {
           throw new Error('Missing required fields')
         }
 
@@ -173,54 +173,56 @@ export function AddPropertyModal({ isOpen, onClose, onSuccess }: AddPropertyModa
           throw new Error(createdHotel.message || 'Error creating hotel')
         }
 
-        const integrationPayload = {
-          hotelId: createdHotel._id,
-          platform: selectedPlatform,
-          url: platformUrl.trim(),
-          placeId: 'placeholder',
-          syncConfig: {
-            type: syncConfig.type,
-            frequency: syncConfig.frequency,
-            maxReviews: syncConfig.maxReviews,
-            language: 'en'
+        if (selectedPlatform && platformUrl) {
+          const integrationPayload = {
+            hotelId: createdHotel._id,
+            platform: selectedPlatform,
+            url: platformUrl.trim(),
+            placeId: 'placeholder',
+            syncConfig: {
+              type: syncConfig.type,
+              frequency: syncConfig.frequency,
+              maxReviews: syncConfig.maxReviews,
+              language: 'en'
+            }
           }
-        }
 
-        const integrationResponse = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/integrations/hotel/${createdHotel._id}`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify(integrationPayload)
+          const integrationResponse = await fetch(
+            `${process.env.NEXT_PUBLIC_API_URL}/api/integrations/hotel/${createdHotel._id}`,
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+              },
+              body: JSON.stringify(integrationPayload)
+            }
+          )
+
+          if (!integrationResponse.ok) {
+            const error = await integrationResponse.json()
+            throw new Error(error.message || 'Error creating integration')
           }
-        )
 
-        if (!integrationResponse.ok) {
-          const error = await integrationResponse.json()
-          throw new Error(error.message || 'Error creating integration')
-        }
+          const createdIntegration = await integrationResponse.json()
 
-        const createdIntegration = await integrationResponse.json()
+          const syncResponse = await fetch(
+            `${process.env.NEXT_PUBLIC_API_URL}/api/integrations/${createdIntegration._id}/sync`,
+            {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                maxReviews: parseInt(syncConfig.maxReviews)
+              })
+            }
+          )
 
-        const syncResponse = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/integrations/${createdIntegration._id}/sync`,
-          {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              maxReviews: parseInt(syncConfig.maxReviews)
-            })
+          if (!syncResponse.ok) {
+            console.error('Initial sync request failed, but setup was successful')
           }
-        )
-
-        if (!syncResponse.ok) {
-          console.error('Initial sync request failed, but setup was successful')
         }
 
         setSetupCompleted(true)
@@ -267,7 +269,7 @@ export function AddPropertyModal({ isOpen, onClose, onSuccess }: AddPropertyModa
                       setHotelData(prev => ({ ...prev, type: value }))
                     }
                   >
-                    <SelectTrigger className="border-2 border-gray-200 focus:ring-primary focus:ring-offset-0">
+                    <SelectTrigger className="h-14 rounded-2xl border-2 border-gray-200 focus:ring-[#58CC02] focus:border-[#58CC02] focus:ring-offset-0">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -443,6 +445,39 @@ export function AddPropertyModal({ isOpen, onClose, onSuccess }: AddPropertyModa
             {step === 5 && (
               <div className="space-y-6">
                 <div className="space-y-4">
+                  <div className="bg-blue-50 border-l-4 border-blue-500 rounded-xl p-6 mb-6">
+                    <div className="flex gap-3">
+                      <Info className="w-6 h-6 text-blue-500 flex-shrink-0 mt-1" />
+                      <div>
+                        <h3 className="text-lg font-semibold text-blue-800 mb-2">Platform Integration</h3>
+                        <p className="text-blue-700 leading-relaxed">
+                          You can choose to integrate a review platform now or skip this step and add integrations later from the Integrations page.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <Button
+                    onClick={() => {
+                      setSelectedPlatform('')
+                      setPlatformUrl('')
+                      setStep(6)
+                    }}
+                    className="w-full p-6 mb-4 rounded-xl border-2 border-gray-200 hover:border-primary bg-gray-50 hover:bg-gray-100 text-gray-700 transition-all flex items-center justify-center gap-2"
+                  >
+                    <ArrowRight className="w-4 h-4" />
+                    Skip platform integration for now
+                  </Button>
+
+                  <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                      <div className="w-full border-t border-gray-200" />
+                    </div>
+                    <div className="relative flex justify-center text-sm">
+                      <span className="px-2 bg-white text-gray-500">or choose a platform</span>
+                    </div>
+                  </div>
+
                   {PLATFORMS.map((platform) => (
                     <button
                       key={platform.id}
