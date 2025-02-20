@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { getCookie } from "@/lib/utils"
-import { Loader2, TrendingUp, TrendingDown, Star, AlertTriangle, Zap, ChartBar } from "lucide-react"
+import { Loader2, TrendingUp, TrendingDown, Star, AlertTriangle, Zap, BarChart } from "lucide-react"
 import { Progress } from "@/components/ui/progress"
 import { motion, AnimatePresence } from "framer-motion"
 
@@ -151,7 +151,7 @@ export default function AnalysisCard({ analysisId }: AnalysisCardProps) {
               transition={{ delay: 0.3 }}
             >
               <div className="flex items-center gap-2 mb-2">
-                <ChartBar className="h-5 w-5 text-amber-500" />
+                <BarChart className="h-5 w-5 text-amber-500" />
                 <h3 className="font-medium text-amber-900">Review Distribution</h3>
               </div>
               <div className="space-y-2">
