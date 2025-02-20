@@ -185,7 +185,7 @@ const FiltersAndTable = ({
                 
                 try {
                   const token = getCookie('token')
-                  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/analyses`, {
+                  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/analytics/analyze`, {
                     method: 'POST',
                     headers: {
                       'Authorization': `Bearer ${token}`,
@@ -197,13 +197,17 @@ const FiltersAndTable = ({
                     })
                   })
 
-                  if (!response.ok) throw new Error('Failed to create analysis')
+                  if (!response.ok) {
+                    const errorData = await response.json()
+                    console.error('Server response:', errorData)
+                    throw new Error(`Failed to create analysis: ${errorData.message || 'Unknown error'}`)
+                  }
                   
                   const data = await response.json()
                   router.push(`/analyses?id=${data._id}`)
                 } catch (error) {
-                  console.error('Error creating analysis:', error)
-                  toast.error("Failed to create analysis")
+                  console.error('Full error details:', error)
+                  toast.error(error.message || "Failed to create analysis")
                 }
               }}
               className="rounded-xl flex items-center gap-2 bg-primary text-primary-foreground shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all"
