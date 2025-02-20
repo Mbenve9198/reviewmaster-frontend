@@ -205,9 +205,9 @@ const FiltersAndTable = ({
                   
                   const data = await response.json()
                   router.push(`/analyses?id=${data._id}`)
-                } catch (error) {
+                } catch (error: any) {
                   console.error('Full error details:', error)
-                  toast.error(error.message || "Failed to create analysis")
+                  toast.error(typeof error === 'object' && error?.message ? error.message : "Failed to create analysis")
                 }
               }}
               className="rounded-xl flex items-center gap-2 bg-primary text-primary-foreground shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all"
