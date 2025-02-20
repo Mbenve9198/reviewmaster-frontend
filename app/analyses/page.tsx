@@ -12,36 +12,12 @@ import { AnalysesDropdown } from "@/components/analyses/AnalysesDropdown"
 import { ChatInput } from "@/components/ui/chat-input"
 import AnalysisDashboard from "@/components/analytics/AnalysisDashboard"
 
-interface Strength {
-  title: string;
-  impact: string;
-  mentions: number;
-  quote: string;
-  details: string;
-  marketingTips: Array<{
-    action: string;
-    cost: string;
-    roi: string;
-  }>;
-}
-
-interface Issue {
-  title: string;
-  priority: "HIGH" | "MEDIUM" | "LOW";
-  impact: string;
-  mentions: number;
-  quote: string;
-  details: string;
-  solution: {
-    title: string;
-    timeline: string;
-    cost: string;
-    roi: string;
-    steps: string[];
-  };
-}
-
 interface Analysis {
+  title: string;
+  hotelId: string;
+  hotelName: string;
+  createdAt: string;
+  updatedAt: string;
   meta: {
     hotelName: string;
     reviewCount: number;
@@ -60,8 +36,33 @@ interface Analysis {
       rating1: string;
     };
   };
-  strengths: Strength[];
-  issues: Issue[];
+  strengths: Array<{
+    title: string;
+    impact: string;
+    mentions: number;
+    quote: string;
+    details: string;
+    marketingTips: Array<{
+      action: string;
+      cost: string;
+      roi: string;
+    }>;
+  }>;
+  issues: Array<{
+    title: string;
+    priority: "HIGH" | "MEDIUM" | "LOW";
+    impact: string;
+    mentions: number;
+    quote: string;
+    details: string;
+    solution: {
+      title: string;
+      timeline: string;
+      cost: string;
+      roi: string;
+      steps: string[];
+    };
+  }>;
   quickWins: Array<{
     action: string;
     timeline: string;
@@ -77,8 +78,12 @@ interface Analysis {
 
 interface SelectedAnalysis {
   _id: string;
+  title: string;
+  hotelId: string;
+  hotelName: string;
+  createdAt: string;
+  updatedAt: string;
   analysis: Analysis;
-  // ... altri campi se necessari
 }
 
 interface Props {
