@@ -156,6 +156,10 @@ export default function AnalysesPage() {
   // Carica i messaggi quando viene selezionata un'analisi
   useEffect(() => {
     if (selectedAnalysis) {
+      console.log("Selected Analysis Data:", selectedAnalysis);
+      console.log("Analysis Object:", selectedAnalysis.analysis);
+      console.log("Sentiment Data:", selectedAnalysis.analysis?.sentiment);
+      
       const loadFullAnalysis = async () => {
         try {
           setIsLoading(true);
@@ -267,6 +271,8 @@ export default function AnalysesPage() {
               <div className="max-w-4xl mx-auto p-8">
                 {selectedAnalysis?.analysis ? (
                   <div className="bg-white rounded-xl shadow-sm">
+                    {console.log("Selected Analysis:", selectedAnalysis)}
+                    {console.log("Analysis Data:", selectedAnalysis.analysis)}
                     <AnalysisDashboard 
                       data={{
                         ...selectedAnalysis.analysis,
