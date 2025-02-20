@@ -12,6 +12,77 @@ import { AnalysesDropdown } from "@/components/analyses/AnalysesDropdown"
 import { ChatInput } from "@/components/ui/chat-input"
 import AnalysisDashboard from "@/components/analytics/AnalysisDashboard"
 
+// Prima definiamo l'interfaccia base per l'analisi che verrà usata dal dashboard
+interface DashboardAnalysis {
+  meta: {
+    hotelName: string;
+    reviewCount: number;
+    avgRating: number;  // Questo deve essere number per il dashboard
+    platforms: string;
+  };
+  sentiment: {
+    excellent: string;
+    average: string;
+    needsImprovement: string;
+    distribution?: {
+      rating5: string;
+      rating4: string;
+      rating3: string;
+      rating2: string;
+      rating1: string;
+    };
+  };
+  strengths: Array<{
+    title: string;
+    impact: string;
+    mentions: number;
+    quote: string;
+    details: string;
+    marketingTips: Array<{
+      action: string;
+      cost: string;
+      roi: string;
+    }>;
+  }>;
+  issues: Array<{
+    title: string;
+    priority: "HIGH" | "MEDIUM" | "LOW";
+    impact: string;
+    mentions: number;
+    quote: string;
+    details: string;
+    solution: {
+      title: string;
+      timeline: string;
+      cost: string;
+      roi: string;
+      steps: string[];
+    };
+  }>;
+  quickWins: Array<{
+    action: string;
+    timeline: string;
+    cost: string;
+    impact: string;
+  }>;
+  trends: Array<{
+    metric: string;
+    change: string;
+    period: string;
+  }>;
+}
+
+// Interfaccia per i dati che arrivano dall'API
+interface APIAnalysis extends Omit<DashboardAnalysis, 'meta'> {
+  meta: {
+    hotelName: string;
+    reviewCount: number;
+    avgRating: string;  // Questo arriva come string dall'API
+    platforms: string;
+  };
+}
+
+// Interfaccia per il dropdown
 interface DropdownAnalysis {
   _id: string;
   title: string;
@@ -28,64 +99,7 @@ interface DropdownAnalysis {
     platforms: string[];
     creditsUsed: number;
   };
-  analysis: {
-    meta: {
-      hotelName: string;
-      reviewCount: number;
-      avgRating: string;
-      platforms: string;
-    };
-    sentiment: {
-      excellent: string;
-      average: string;
-      needsImprovement: string;
-      distribution?: {
-        rating5: string;
-        rating4: string;
-        rating3: string;
-        rating2: string;
-        rating1: string;
-      };
-    };
-    strengths: Array<{
-      title: string;
-      impact: string;
-      mentions: number;
-      quote: string;
-      details: string;
-      marketingTips: Array<{
-        action: string;
-        cost: string;
-        roi: string;
-      }>;
-    }>;
-    issues: Array<{
-      title: string;
-      priority: "HIGH" | "MEDIUM" | "LOW";
-      impact: string;
-      mentions: number;
-      quote: string;
-      details: string;
-      solution: {
-        title: string;
-        timeline: string;
-        cost: string;
-        roi: string;
-        steps: string[];
-      };
-    }>;
-    quickWins: Array<{
-      action: string;
-      timeline: string;
-      cost: string;
-      impact: string;
-    }>;
-    trends: Array<{
-      metric: string;
-      change: string;
-      period: string;
-    }>;
-  };
+  analysis: APIAnalysis;
 }
 
 interface SelectedAnalysis extends DropdownAnalysis {}
@@ -220,10 +234,7 @@ export default function AnalysesPage() {
               <AnalysesDropdown 
                 value={selectedAnalysis} 
                 onChange={(analysis: any) => {
-                  setSelectedAnalysis({
-                    ...analysis,
-                    analysis: analysis.analysis
-                  } as SelectedAnalysis);
+                  setSelectedAnalysis(analysis as SelectedAnalysis);
                 }}
               />
             </div>
@@ -237,7 +248,13 @@ export default function AnalysesPage() {
                 {selectedAnalysis ? (
                   <div className="bg-white rounded-xl shadow-sm">
                     <AnalysisDashboard 
-                      data={selectedAnalysis.analysis}
+                      data={{
+                        ...selectedAnalysis.analysis,
+                        meta: {
+                          ...selectedAnalysis.analysis.meta,
+                          avgRating: parseFloat(selectedAnalysis.analysis.meta.avgRating)
+                        }
+                      }}
                       onIssueAction={async (issue) => {
                         try {
                           const response = await api.analytics.getSolutionPlan(issue);
