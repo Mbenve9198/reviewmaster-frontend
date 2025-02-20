@@ -218,8 +218,8 @@ export default function AnalysesPage() {
                 )}
               </div>
               <AnalysesDropdown 
-                value={selectedAnalysis as DropdownAnalysis} 
-                onChange={(analysis: DropdownAnalysis) => {
+                value={selectedAnalysis} 
+                onChange={(analysis: any) => {
                   setSelectedAnalysis({
                     ...analysis,
                     analysis: analysis.analysis
