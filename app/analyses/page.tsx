@@ -49,10 +49,11 @@ export default function AnalysesPage() {
         try {
           setIsLoading(true);
           const fullAnalysis = await api.analytics.getFullAnalysis(selectedAnalysis._id);
-          // Accedi al campo analysis che contiene l'analisi completa
+          
+          // Usa l'oggetto analysis completo
           setMessages([
             { role: "user", content: "Analyze these reviews" },
-            { role: "assistant", content: JSON.stringify(fullAnalysis.analysis) }
+            { role: "assistant", content: JSON.stringify(fullAnalysis) }
           ]);
         } catch (error) {
           toast.error("Errore nel caricamento dell'analisi completa");
