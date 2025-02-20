@@ -19,71 +19,76 @@ interface DropdownAnalysis {
   hotelName: string;
   createdAt: string;
   updatedAt: string;
-  analysis: Analysis;
-}
-
-interface Analysis {
-  meta: {
-    hotelName: string;
-    reviewCount: number;
-    avgRating: string;
-    platforms: string;
-  };
-  sentiment: {
-    excellent: string;
-    average: string;
-    needsImprovement: string;
-    distribution?: {
-      rating5: string;
-      rating4: string;
-      rating3: string;
-      rating2: string;
-      rating1: string;
+  reviewsAnalyzed: number;
+  metadata: {
+    dateRange: {
+      start: string;
+      end: string;
     };
+    platforms: string[];
+    creditsUsed: number;
   };
-  strengths: Array<{
-    title: string;
-    impact: string;
-    mentions: number;
-    quote: string;
-    details: string;
-    marketingTips: Array<{
-      action: string;
-      cost: string;
-      roi: string;
-    }>;
-  }>;
-  issues: Array<{
-    title: string;
-    priority: "HIGH" | "MEDIUM" | "LOW";
-    impact: string;
-    mentions: number;
-    quote: string;
-    details: string;
-    solution: {
+  analysis: {
+    meta: {
+      hotelName: string;
+      reviewCount: number;
+      avgRating: string;
+      platforms: string;
+    };
+    sentiment: {
+      excellent: string;
+      average: string;
+      needsImprovement: string;
+      distribution?: {
+        rating5: string;
+        rating4: string;
+        rating3: string;
+        rating2: string;
+        rating1: string;
+      };
+    };
+    strengths: Array<{
       title: string;
+      impact: string;
+      mentions: number;
+      quote: string;
+      details: string;
+      marketingTips: Array<{
+        action: string;
+        cost: string;
+        roi: string;
+      }>;
+    }>;
+    issues: Array<{
+      title: string;
+      priority: "HIGH" | "MEDIUM" | "LOW";
+      impact: string;
+      mentions: number;
+      quote: string;
+      details: string;
+      solution: {
+        title: string;
+        timeline: string;
+        cost: string;
+        roi: string;
+        steps: string[];
+      };
+    }>;
+    quickWins: Array<{
+      action: string;
       timeline: string;
       cost: string;
-      roi: string;
-      steps: string[];
-    };
-  }>;
-  quickWins: Array<{
-    action: string;
-    timeline: string;
-    cost: string;
-    impact: string;
-  }>;
-  trends: Array<{
-    metric: string;
-    change: string;
-    period: string;
-  }>;
+      impact: string;
+    }>;
+    trends: Array<{
+      metric: string;
+      change: string;
+      period: string;
+    }>;
+  };
 }
 
-interface SelectedAnalysis extends DropdownAnalysis {
-  analysis: Analysis;
-}
+interface SelectedAnalysis extends DropdownAnalysis {}
 
 interface Props {
   selectedAnalysis: SelectedAnalysis | null;
