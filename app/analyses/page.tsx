@@ -50,10 +50,10 @@ export default function AnalysesPage() {
           setIsLoading(true);
           const fullAnalysis = await api.analytics.getFullAnalysis(selectedAnalysis._id);
           
-          // Usa l'oggetto analysis completo
+          // Passa solo fullAnalysis.analysis al componente
           setMessages([
             { role: "user", content: "Analyze these reviews" },
-            { role: "assistant", content: JSON.stringify(fullAnalysis) }
+            { role: "assistant", content: JSON.stringify(fullAnalysis.analysis) }
           ]);
         } catch (error) {
           toast.error("Errore nel caricamento dell'analisi completa");
