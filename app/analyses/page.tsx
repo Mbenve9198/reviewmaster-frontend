@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { Loader2, X, Download, MessageSquare, Send, BarChart2, LineChart } from "lucide-react"
+import { Loader2, X, Download, MessageSquare, Send, BarChart2, LineChart, Bot } from "lucide-react"
 import { api } from "@/services/api"
 import { toast } from "sonner"
 import { FormattedMessage } from "@/components/analytics/FormattedMessage"
@@ -109,13 +109,49 @@ interface Props {
   // ... altri props se necessari
 }
 
+// Aggiungiamo il componente ThinkingMessage come in AnalyticsDialog
+const ThinkingMessage = () => (
+  <div className="flex items-start gap-3 bg-gray-50 p-4 rounded-xl">
+    <Bot className="h-6 w-6 text-blue-500 mt-1" />
+    <div className="flex flex-col gap-2">
+      <div className="font-medium text-gray-700">Thinking...</div>
+      <div className="flex gap-1">
+        <div className="h-2 w-2 rounded-full bg-blue-500 animate-bounce [animation-delay:-0.3s]"></div>
+        <div className="h-2 w-2 rounded-full bg-blue-500 animate-bounce [animation-delay:-0.15s]"></div>
+        <div className="h-2 w-2 rounded-full bg-blue-500 animate-bounce"></div>
+      </div>
+    </div>
+  </div>
+);
+
 export default function AnalysesPage() {
   const [selectedAnalysis, setSelectedAnalysis] = useState<SelectedAnalysis | null>(null)
   const [messages, setMessages] = useState<Array<{ role: string; content: string }>>([])
   const [currentTypingContent, setCurrentTypingContent] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const [isThinking, setIsThinking] = useState(false)
   const [inputValue, setInputValue] = useState("")
+  const [suggestions, setSuggestions] = useState<string[]>([])
   const chatContainerRef = useRef<HTMLDivElement>(null)
+
+  // Effetto di digitazione come in AnalyticsDialog
+  const typeMessage = (content: string, speed = 10) => {
+    return new Promise<void>((resolve) => {
+      let i = 0;
+      setCurrentTypingContent("");
+      
+      const interval = setInterval(() => {
+        setCurrentTypingContent(prev => prev + content[i]);
+        i++;
+        
+        if (i === content.length) {
+          clearInterval(interval);
+          setCurrentTypingContent("");
+          resolve();
+        }
+      }, speed);
+    });
+  };
 
   // Carica i messaggi quando viene selezionata un'analisi
   useEffect(() => {
@@ -145,44 +181,29 @@ export default function AnalysesPage() {
     if (!selectedAnalysis) return
     try {
       setIsLoading(true)
+      setIsThinking(true)
       setMessages(prev => [...prev, { role: "user", content: prompt }])
       setInputValue("")
       
-      const previousMessages = messages.length > 0 ? prompt : null
-      
-      const { analysis } = await api.analytics.getFollowUpAnalysis(
+      const { analysis, suggestions } = await api.analytics.getFollowUpAnalysis(
         selectedAnalysis._id,
         prompt,
-        previousMessages,
         messages
       )
 
+      // Usa typeMessage per l'effetto di typing
       await typeMessage(analysis)
+      
       setMessages(prev => [...prev, { role: "assistant", content: analysis }])
+      setSuggestions(suggestions || [])
       
     } catch (error: any) {
       toast.error(error.message || "Error analyzing reviews")
     } finally {
       setIsLoading(false)
-    }
-  }
-
-  const typeMessage = (content: string, speed = 10) => {
-    return new Promise<void>((resolve) => {
-      let i = 0
+      setIsThinking(false)
       setCurrentTypingContent("")
-      
-      const interval = setInterval(() => {
-        setCurrentTypingContent(prev => prev + content[i])
-        i++
-        
-        if (i === content.length) {
-          clearInterval(interval)
-          setCurrentTypingContent("")
-          resolve()
-        }
-      }, speed)
-    })
+    }
   }
 
   const handleDownloadPDF = async () => {
@@ -347,11 +368,36 @@ export default function AnalysesPage() {
                                 {msg.content}
                               </ChatBubbleMessage>
                             ) : (
-                              <FormattedMessage content={msg.content} />
+                              <FormattedMessage 
+                                content={msg.content}
+                                onMessage={(message) => {
+                                  setIsThinking(true);
+                                  setMessages(prev => [...prev, { role: 'user', content: message }]);
+                                  handleAnalysis(message);
+                                }}
+                                onSuggestions={(newSuggestions) => setSuggestions(newSuggestions)}
+                              />
                             )}
                           </ChatBubble>
                         </div>
                       ))}
+                      
+                      {isThinking && (
+                        <div className="relative group">
+                          <ChatBubble variant="received">
+                            <ChatBubbleAvatar>
+                              <div className="rounded-full overflow-hidden w-8 h-8">
+                                <img 
+                                  src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/ai_profile-image-5cGMUYt7uIe4gJLlE9iHrTqpTtVwOS.png"
+                                  alt="AI Assistant"
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
+                            </ChatBubbleAvatar>
+                            <ThinkingMessage />
+                          </ChatBubble>
+                        </div>
+                      )}
                       
                       {currentTypingContent && (
                         <div className="relative group">
@@ -365,7 +411,13 @@ export default function AnalysesPage() {
                                 />
                               </div>
                             </ChatBubbleAvatar>
-                            <FormattedMessage content={currentTypingContent} />
+                            <FormattedMessage 
+                              content={currentTypingContent}
+                              onMessage={(message) => {
+                                setIsThinking(true);
+                                handleAnalysis(message);
+                              }}
+                            />
                           </ChatBubble>
                         </div>
                       )}
@@ -374,6 +426,29 @@ export default function AnalysesPage() {
 
                   {/* Input area - ora fixed */}
                   <div className="absolute bottom-0 left-0 right-0 border-t bg-white p-4">
+                    <div className="py-3 flex items-center gap-2 overflow-x-auto scrollbar-hide">
+                      {isLoading ? (
+                        Array(3).fill(0).map((_, i) => (
+                          <div 
+                            key={i}
+                            className="h-9 w-32 rounded-full bg-gray-100 animate-pulse"
+                          />
+                        ))
+                      ) : suggestions.length > 0 ? (
+                        suggestions.map((suggestion, index) => (
+                          <Button
+                            key={index}
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleAnalysis(suggestion)}
+                            className="rounded-full text-sm whitespace-nowrap hover:bg-primary hover:text-white border-gray-200"
+                          >
+                            {suggestion}
+                          </Button>
+                        ))
+                      ) : null}
+                    </div>
+
                     <div className="relative">
                       <ChatInput
                         value={inputValue}
