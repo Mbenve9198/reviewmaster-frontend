@@ -8,25 +8,21 @@ import { toast } from "sonner"
 import { FormattedMessage } from "@/components/analytics/FormattedMessage"
 import { ChatBubble, ChatBubbleMessage, ChatBubbleAvatar } from "@/components/ui/chat-bubble"
 import { Input } from "@/components/ui/input"
-import { AnalysesDropdown, Analysis as DropdownAnalysis } from "@/components/analyses/AnalysesDropdown"
+import { AnalysesDropdown } from "@/components/analyses/AnalysesDropdown"
 import { ChatInput } from "@/components/ui/chat-input"
 import AnalysisDashboard from "@/components/analytics/AnalysisDashboard"
 
-interface Analysis {
+interface DropdownAnalysis {
+  _id: string;
   title: string;
   hotelId: string;
   hotelName: string;
   createdAt: string;
   updatedAt: string;
-  reviewsAnalyzed: number;
-  metadata: {
-    dateRange: {
-      start: string;
-      end: string;
-    };
-    platforms: string[];
-    creditsUsed: number;
-  };
+  analysis: Analysis;
+}
+
+interface Analysis {
   meta: {
     hotelName: string;
     reviewCount: number;
