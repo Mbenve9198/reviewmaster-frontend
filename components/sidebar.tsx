@@ -1,6 +1,6 @@
 "use client"
 
-import { LogOut, Sparkles, MessageSquare, Star, Blocks, Building2, CreditCard, BarChart2, ScrollText, MessagesSquare, Bot, MessageCircle, Settings, Hotel, Share2 } from 'lucide-react'
+import { LogOut, Sparkles, MessageSquare, Star, Blocks, Building2, CreditCard, BarChart2, ScrollText, MessagesSquare, Bot, MessageCircle, Settings, Hotel, Share2, ChevronDown } from 'lucide-react'
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import Image from "next/image"
