@@ -30,7 +30,7 @@ interface Analysis {
   meta: {
     hotelName: string;
     reviewCount: number;
-    avgRating: number;
+    avgRating: string;
     platforms: string;
   };
   sentiment: {
