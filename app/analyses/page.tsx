@@ -10,6 +10,7 @@ import { ChatBubble, ChatBubbleMessage, ChatBubbleAvatar } from "@/components/ui
 import { Input } from "@/components/ui/input"
 import { AnalysesDropdown } from "@/components/analyses/AnalysesDropdown"
 import { ChatInput } from "@/components/ui/chat-input"
+import { AnalysisDashboard } from "@/components/analytics/AnalysisDashboard"
 
 interface Analysis {
   _id: string
@@ -170,9 +171,21 @@ export default function AnalysesPage() {
               <div className="max-w-4xl mx-auto p-8">
                 {selectedAnalysis ? (
                   <div className="bg-white rounded-xl shadow-sm">
-                    <FormattedMessage 
-                      content={JSON.stringify(selectedAnalysis.analysis)} 
-                      variant="received" 
+                    <AnalysisDashboard 
+                      data={selectedAnalysis.analysis}
+                      onIssueAction={async (issue) => {
+                        try {
+                          const response = await api.analytics.getSolutionPlan(issue);
+                          if (response.plan) {
+                            handleAnalysis(`Come possiamo risolvere il problema "${issue.title}"?`);
+                            setTimeout(() => {
+                              handleAnalysis(JSON.stringify(response.plan, null, 2));
+                            }, 500);
+                          }
+                        } catch (error: any) {
+                          toast.error(error.message || "Error generating solution plan");
+                        }
+                      }}
                     />
                   </div>
                 ) : (
