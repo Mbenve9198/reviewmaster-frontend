@@ -12,31 +12,82 @@ import { AnalysesDropdown } from "@/components/analyses/AnalysesDropdown"
 import { ChatInput } from "@/components/ui/chat-input"
 import AnalysisDashboard from "@/components/analytics/AnalysisDashboard"
 
+interface Strength {
+  title: string;
+  impact: string;
+  mentions: number;
+  quote: string;
+  details: string;
+  marketingTips: Array<{
+    action: string;
+    cost: string;
+    roi: string;
+  }>;
+}
+
+interface Issue {
+  title: string;
+  priority: "HIGH" | "MEDIUM" | "LOW";
+  impact: string;
+  mentions: number;
+  quote: string;
+  details: string;
+  solution: {
+    title: string;
+    timeline: string;
+    cost: string;
+    roi: string;
+    steps: string[];
+  };
+}
+
 interface Analysis {
-  _id: string
-  title: string
-  hotelId: string
-  hotelName: string
-  createdAt: string
-  reviewsAnalyzed: number
-  metadata: {
-    platforms: string[]
-    dateRange: {
-      start: string
-      end: string
-    }
-    creditsUsed: number
-  }
-  analysis: {
-    meta: {
-      avgRating: string
-    }
-  }
-  followUpSuggestions?: string[]
+  meta: {
+    hotelName: string;
+    reviewCount: number;
+    avgRating: number;
+    platforms: string;
+  };
+  sentiment: {
+    excellent: string;
+    average: string;
+    needsImprovement: string;
+    distribution?: {
+      rating5: string;
+      rating4: string;
+      rating3: string;
+      rating2: string;
+      rating1: string;
+    };
+  };
+  strengths: Strength[];
+  issues: Issue[];
+  quickWins: Array<{
+    action: string;
+    timeline: string;
+    cost: string;
+    impact: string;
+  }>;
+  trends: Array<{
+    metric: string;
+    change: string;
+    period: string;
+  }>;
+}
+
+interface SelectedAnalysis {
+  _id: string;
+  analysis: Analysis;
+  // ... altri campi se necessari
+}
+
+interface Props {
+  selectedAnalysis: SelectedAnalysis | null;
+  // ... altri props se necessari
 }
 
 export default function AnalysesPage() {
-  const [selectedAnalysis, setSelectedAnalysis] = useState<Analysis | null>(null)
+  const [selectedAnalysis, setSelectedAnalysis] = useState<SelectedAnalysis | null>(null)
   const [messages, setMessages] = useState<Array<{ role: string; content: string }>>([])
   const [currentTypingContent, setCurrentTypingContent] = useState("")
   const [isLoading, setIsLoading] = useState(false)
@@ -221,18 +272,18 @@ export default function AnalysesPage() {
                       
                       {/* Suggestions directly in header */}
                       <div className="px-4 pb-4 space-y-2">
-                        {selectedAnalysis.followUpSuggestions?.map((suggestion, index) => (
+                        {selectedAnalysis.analysis.issues.map((issue, index) => (
                           <Button
                             key={index}
                             variant="outline"
                             size="sm"
-                            onClick={() => handleAnalysis(suggestion)}
+                            onClick={() => handleAnalysis(issue.title)}
                             disabled={isLoading}
                             className="bg-white/80 hover:bg-blue-50 border border-gray-200 
                                      rounded-full h-auto py-2 px-3 flex items-center gap-2 text-left w-full"
                           >
                             <BarChart2 className="w-5 h-5 text-blue-500" />
-                            <span className="text-base truncate">{suggestion}</span>
+                            <span className="text-base truncate">{issue.title}</span>
                           </Button>
                         ))}
                       </div>
