@@ -192,16 +192,19 @@ const FiltersAndTable = ({
                     return
                   }
 
+                  const requestBody = {
+                    hotelId: hotel,
+                    reviews: selectedRows.map(review => review._id)
+                  }
+                  console.log('Request body:', requestBody)
+
                   const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/analytics/analyze`, {
                     method: 'POST',
                     headers: {
-                      'Authorization': `Bearer ${token}`,
+                      'Authorization': `Bearer ${token}`, // Assicuriamoci che il formato sia corretto
                       'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({
-                      hotelId: hotel,
-                      reviews: selectedRows.map(review => review._id)
-                    })
+                    body: JSON.stringify(requestBody)
                   })
 
                   if (!response.ok) {
