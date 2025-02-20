@@ -458,15 +458,67 @@ export function AddPropertyModal({ isOpen, onClose, onSuccess }: AddPropertyModa
                   </div>
 
                   <Button
-                    onClick={() => {
-                      setSelectedPlatform('')
-                      setPlatformUrl('')
-                      setStep(6)
+                    onClick={async () => {
+                      try {
+                        setIsLoading(true)
+                        const token = getCookie('token')
+
+                        if (!hotelData.name || !hotelData.type || !hotelData.description || 
+                            !hotelData.managerSignature) {
+                          throw new Error('Missing required fields')
+                        }
+
+                        const hotelPayload = {
+                          ...hotelData,
+                          responseSettings: {
+                            style: responseSettings.style,
+                            length: responseSettings.length
+                          }
+                        }
+
+                        const hotelResponse = await fetch(
+                          `${process.env.NEXT_PUBLIC_API_URL}/api/hotels`,
+                          {
+                            method: 'POST',
+                            headers: {
+                              'Content-Type': 'application/json',
+                              'Authorization': `Bearer ${token}`
+                            },
+                            body: JSON.stringify(hotelPayload)
+                          }
+                        )
+
+                        const createdHotel = await hotelResponse.json()
+                        
+                        if (!hotelResponse.ok) {
+                          throw new Error(createdHotel.message || 'Error creating hotel')
+                        }
+
+                        toast.success('Hotel created successfully')
+                        await onSuccess()
+                        onClose()
+                      } catch (error) {
+                        console.error('Error:', error)
+                        toast.error('Failed to create hotel')
+                        setError('An error occurred while creating the hotel')
+                      } finally {
+                        setIsLoading(false)
+                      }
                     }}
+                    disabled={isLoading}
                     className="w-full p-6 mb-4 rounded-xl border-2 border-gray-200 hover:border-primary bg-gray-50 hover:bg-gray-100 text-gray-700 transition-all flex items-center justify-center gap-2"
                   >
-                    <ArrowRight className="w-4 h-4" />
-                    Skip platform integration for now
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Creating hotel...
+                      </>
+                    ) : (
+                      <>
+                        <ArrowRight className="w-4 h-4" />
+                        Skip platform integration for now
+                      </>
+                    )}
                   </Button>
 
                   <div className="relative">
