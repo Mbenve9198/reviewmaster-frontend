@@ -196,7 +196,14 @@ export default function IntegrationsPage() {
       if (!response.ok) throw new Error('Failed to fetch hotels')
       
       const hotelsData = await response.json()
-      setHotels(hotelsData)
+      
+      const formattedHotels = hotelsData.map((hotel: any) => ({
+        ...hotel,
+        id: hotel._id,
+        integrations: []
+      }))
+      
+      setHotels(formattedHotels)
     } catch (error) {
       console.error('Error fetching hotels:', error)
       toast.error('Failed to refresh hotels list')
