@@ -48,11 +48,11 @@ export default function AnalysesPage() {
       const loadFullAnalysis = async () => {
         try {
           setIsLoading(true);
-          // Aggiungi questo endpoint alla tua API
-          const { analysis } = await api.analytics.getFullAnalysis(selectedAnalysis._id);
+          const fullAnalysis = await api.analytics.getFullAnalysis(selectedAnalysis._id);
+          // Accedi al campo analysis che contiene l'analisi completa
           setMessages([
             { role: "user", content: "Analyze these reviews" },
-            { role: "assistant", content: JSON.stringify(analysis) }
+            { role: "assistant", content: JSON.stringify(fullAnalysis.analysis) }
           ]);
         } catch (error) {
           toast.error("Errore nel caricamento dell'analisi completa");

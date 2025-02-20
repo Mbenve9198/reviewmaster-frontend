@@ -327,6 +327,23 @@ export const analyticsApi = {
     
     return response.json();
   },
+
+  getFullAnalysis: async (analysisId: string) => {
+    const token = getCookie('token');
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/analytics/${analysisId}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to fetch full analysis');
+    }
+
+    return response.json();
+  },
 };
 
 // Export principale
