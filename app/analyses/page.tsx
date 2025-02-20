@@ -18,6 +18,15 @@ interface Analysis {
   hotelName: string;
   createdAt: string;
   updatedAt: string;
+  reviewsAnalyzed: number;
+  metadata: {
+    dateRange: {
+      start: string;
+      end: string;
+    };
+    platforms: string[];
+    creditsUsed: number;
+  };
   meta: {
     hotelName: string;
     reviewCount: number;
@@ -83,6 +92,15 @@ interface SelectedAnalysis {
   hotelName: string;
   createdAt: string;
   updatedAt: string;
+  reviewsAnalyzed: number;
+  metadata: {
+    dateRange: {
+      start: string;
+      end: string;
+    };
+    platforms: string[];
+    creditsUsed: number;
+  };
   analysis: Analysis;
 }
 
