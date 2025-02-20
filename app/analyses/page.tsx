@@ -323,7 +323,7 @@ export default function AnalysesPage() {
                       
                       {/* Suggestions directly in header */}
                       <div className="px-4 pb-4 space-y-2">
-                        {selectedAnalysis.analysis.issues.map((issue, index) => (
+                        {selectedAnalysis?.analysis?.issues?.map((issue, index) => (
                           <Button
                             key={index}
                             variant="outline"
@@ -336,7 +336,7 @@ export default function AnalysesPage() {
                             <BarChart2 className="w-5 h-5 text-blue-500" />
                             <span className="text-base truncate">{issue.title}</span>
                           </Button>
-                        ))}
+                        )) || null}
                       </div>
                     </div>
                   </div>
