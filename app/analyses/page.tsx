@@ -8,7 +8,7 @@ import { toast } from "sonner"
 import { FormattedMessage } from "@/components/analytics/FormattedMessage"
 import { ChatBubble, ChatBubbleMessage, ChatBubbleAvatar } from "@/components/ui/chat-bubble"
 import { Input } from "@/components/ui/input"
-import { AnalysesDropdown } from "@/components/analyses/AnalysesDropdown"
+import { AnalysesDropdown, Analysis as DropdownAnalysis } from "@/components/analyses/AnalysesDropdown"
 import { ChatInput } from "@/components/ui/chat-input"
 import AnalysisDashboard from "@/components/analytics/AnalysisDashboard"
 
@@ -85,22 +85,7 @@ interface Analysis {
   }>;
 }
 
-interface SelectedAnalysis {
-  _id: string;
-  title: string;
-  hotelId: string;
-  hotelName: string;
-  createdAt: string;
-  updatedAt: string;
-  reviewsAnalyzed: number;
-  metadata: {
-    dateRange: {
-      start: string;
-      end: string;
-    };
-    platforms: string[];
-    creditsUsed: number;
-  };
+interface SelectedAnalysis extends DropdownAnalysis {
   analysis: Analysis;
 }
 
@@ -232,8 +217,13 @@ export default function AnalysesPage() {
                 )}
               </div>
               <AnalysesDropdown 
-                value={selectedAnalysis} 
-                onChange={setSelectedAnalysis}
+                value={selectedAnalysis as DropdownAnalysis} 
+                onChange={(analysis: DropdownAnalysis) => {
+                  setSelectedAnalysis({
+                    ...analysis,
+                    analysis: analysis.analysis
+                  } as SelectedAnalysis);
+                }}
               />
             </div>
           </div>
