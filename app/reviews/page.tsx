@@ -185,6 +185,13 @@ const FiltersAndTable = ({
                 
                 try {
                   const token = getCookie('token')
+                  
+                  // Verifichiamo che hotel sia un ID valido
+                  if (!hotel || hotel === 'all') {
+                    toast.error("Please select a hotel first")
+                    return
+                  }
+
                   const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/analytics/analyze`, {
                     method: 'POST',
                     headers: {
