@@ -112,7 +112,11 @@ export default function AnalysisCard({ analysisId }: AnalysisCardProps) {
 
   return (
     <div className="h-full bg-white/50 backdrop-blur-sm rounded-2xl border border-gray-200/50 shadow-lg overflow-hidden">
-      <ScrollArea className="h-full">
+      {/* Header con bordo inferiore */}
+      <div className="p-4 border-b border-gray-100/80 bg-white/50">
+        <h2 className="font-semibold text-gray-900">Analysis Overview</h2>
+      </div>
+      <ScrollArea className="h-[calc(100%-4rem)]"> {/* Aggiustata altezza per compensare header */}
         <div className="p-6 space-y-8">
           {/* Overview Cards */}
           <div className="grid grid-cols-3 gap-4">

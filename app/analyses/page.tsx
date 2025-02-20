@@ -78,39 +78,41 @@ export default function AnalysesPage() {
   const { sourcesWidth, analysisWidth, chatWidth } = getWidths()
 
   return (
-    <div className="container mx-auto py-8 pl-24 pr-8 space-y-8">
+    <div className="py-6 pl-20 pr-6 space-y-6">
       {/* Modern gradient background */}
       <div className="fixed inset-0 -z-10 bg-gradient-to-br from-[#FAFAFB] via-[#F0F0F2] to-[#FAFAFB] backdrop-blur-sm" />
 
       {/* Header */}
-      <div className="flex flex-col items-start">
-        <div className="flex items-center gap-3 mb-2">
+      <div className="flex flex-col items-start px-2">
+        <div className="flex items-center gap-3 mb-1">
           <div className="h-8 w-1 rounded-full bg-gradient-to-b from-blue-600 to-blue-400" />
-          <h1 className="text-3xl sm:text-4xl font-semibold bg-gradient-to-b from-blue-800 to-blue-600 bg-clip-text text-transparent">
+          <h1 className="text-2xl sm:text-3xl font-semibold bg-gradient-to-b from-blue-800 to-blue-600 bg-clip-text text-transparent">
             Review Analysis
           </h1>
         </div>
-        <p className="text-base text-gray-500">
+        <p className="text-sm text-gray-500">
           View and analyze your review insights
         </p>
       </div>
 
       {/* Analysis Selector */}
-      <Select value={selectedAnalysis} onValueChange={setSelectedAnalysis}>
-        <SelectTrigger className="h-9 w-[300px] bg-white rounded-xl border-gray-200 hover:border-gray-300 text-sm">
-          <SelectValue placeholder="Select analysis" />
-        </SelectTrigger>
-        <SelectContent>
-          {analyses.map(analysis => (
-            <SelectItem key={analysis._id} value={analysis._id} className="text-sm">
-              {analysis.title}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      <div className="px-2">
+        <Select value={selectedAnalysis} onValueChange={setSelectedAnalysis}>
+          <SelectTrigger className="h-8 w-[250px] bg-white rounded-xl border-gray-200 hover:border-gray-300 text-sm">
+            <SelectValue placeholder="Select analysis" />
+          </SelectTrigger>
+          <SelectContent>
+            {analyses.map(analysis => (
+              <SelectItem key={analysis._id} value={analysis._id} className="text-sm">
+                {analysis.title}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
 
       {/* Main Content */}
-      <div className="flex gap-4 h-[calc(100vh-12rem)]">
+      <div className="flex gap-3 h-[calc(100vh-8.5rem)]">
         <motion.div 
           className="relative"
           animate={{ width: sourcesWidth }}

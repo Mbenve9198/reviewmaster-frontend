@@ -119,8 +119,8 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
 
   return (
     <div className="h-full bg-white/50 backdrop-blur-sm rounded-2xl border border-gray-200/50 shadow-lg overflow-hidden flex flex-col">
-      {/* Header */}
-      <div className="p-4 border-b border-gray-100 flex justify-between items-center shrink-0">
+      {/* Header con bordo inferiore */}
+      <div className="p-4 border-b border-gray-100/80 flex justify-between items-center bg-white/50">
         <h2 className="font-semibold text-gray-900">
           {isExpanded ? "AI Assistant" : ""}
         </h2>
@@ -182,22 +182,20 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
           <ScrollArea className="whitespace-nowrap">
             <div className="flex gap-2">
               {suggestedQuestions.map((question) => (
-                <Button
+                <div
                   key={question.id}
-                  variant="outline"
-                  size="sm"
-                  className={`shrink-0 text-sm ${
+                  className={`shrink-0 px-4 py-2 rounded-full border border-gray-200 cursor-pointer transition-colors ${
                     selectedQuestion === question.id
-                      ? 'bg-blue-50 text-blue-600 border-blue-200'
-                      : 'text-gray-600'
+                      ? 'bg-gray-100'
+                      : 'hover:bg-gray-50'
                   }`}
                   onClick={() => {
                     setSelectedQuestion(question.id)
                     setInputValue(question.text)
                   }}
                 >
-                  {question.text}
-                </Button>
+                  <span className="text-sm text-gray-700">{question.text}</span>
+                </div>
               ))}
             </div>
           </ScrollArea>
@@ -205,21 +203,36 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
       )}
 
       {/* Input */}
-      <div className="p-4 border-t border-gray-100 flex gap-2">
-        <Input
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          onKeyPress={handleKeyPress}
-          placeholder={isExpanded ? "Ask a question..." : ""}
-          className="bg-white"
-        />
-        <Button
-          onClick={() => sendMessage(inputValue)}
-          disabled={!inputValue.trim() || isLoading}
-          size="icon"
-        >
-          <Send className="h-4 w-4" />
-        </Button>
+      <div className="p-4 border-t border-gray-100">
+        <div className="relative flex items-center">
+          <div className="relative flex-1">
+            <Input
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onKeyPress={handleKeyPress}
+              placeholder={isExpanded ? "Start typing..." : ""}
+              className="w-full bg-gray-50 border-gray-200 rounded-full pr-16 focus:ring-0 focus:border-gray-300 placeholder:text-gray-500"
+            />
+            <div className="absolute right-3 top-1/2 -translate-y-1/2">
+              <Button
+                onClick={() => sendMessage(inputValue)}
+                disabled={!inputValue.trim() || isLoading}
+                size="icon"
+                variant="ghost"
+                className="h-8 w-8 rounded-full bg-blue-500 hover:bg-blue-600 text-white"
+              >
+                <Send className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* Sources count */}
+        {isExpanded && (
+          <div className="absolute right-20 top-1/2 -translate-y-1/2 text-sm text-gray-500">
+            2 sources
+          </div>
+        )}
       </div>
     </div>
   )

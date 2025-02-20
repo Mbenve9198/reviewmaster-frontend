@@ -55,8 +55,8 @@ export default function SourcesCard({ analysisId, isExpanded, onToggleExpand }: 
 
   return (
     <div className="h-full bg-white/50 backdrop-blur-sm rounded-2xl border border-gray-200/50 shadow-lg overflow-hidden relative">
-      {/* Header */}
-      <div className="p-4 border-b border-gray-100 flex justify-between items-center">
+      {/* Header con bordo inferiore */}
+      <div className="p-4 border-b border-gray-100/80 flex justify-between items-center bg-white/50">
         <h2 className="font-semibold text-gray-900">
           {isExpanded ? "Sources" : ""}
         </h2>
@@ -118,10 +118,10 @@ export default function SourcesCard({ analysisId, isExpanded, onToggleExpand }: 
           <Button
             onClick={handleUpload}
             variant="outline"
-            className="w-full flex items-center gap-2 text-sm"
+            className="w-full flex items-center justify-center gap-2 text-sm bg-gray-50 border-gray-200 rounded-xl py-3 hover:bg-gray-100 hover:border-gray-300 transition-colors"
           >
-            <Upload className="h-4 w-4" />
-            Upload PDF
+            <Upload className="h-4 w-4 text-gray-500" />
+            <span className="text-gray-700">Upload PDF</span>
           </Button>
         </div>
       )}
