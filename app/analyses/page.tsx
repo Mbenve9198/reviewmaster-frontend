@@ -33,6 +33,7 @@ export default function AnalysesPage() {
   const [chatExpanded, setChatExpanded] = useState(true)
   const searchParams = useSearchParams()
   const analysisId = searchParams.get('id')
+  const isLoading = searchParams.get('loading') === 'true'
   const [isAnalysisReady, setIsAnalysisReady] = useState(false)
 
   // Calcolo delle larghezze delle card in base allo stato
@@ -104,8 +105,16 @@ export default function AnalysesPage() {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+      <div className="h-full bg-white/50 backdrop-blur-sm rounded-2xl border border-gray-200/50 shadow-lg flex flex-col items-center justify-center p-8 space-y-4">
+        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+        <div className="text-center space-y-2">
+          <h3 className="text-lg font-semibold text-gray-900">
+            Analyzing Reviews...
+          </h3>
+          <p className="text-sm text-gray-500">
+            We're processing your selected reviews to generate insights. This may take a few moments.
+          </p>
+        </div>
       </div>
     )
   }

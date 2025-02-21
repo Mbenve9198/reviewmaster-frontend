@@ -186,7 +186,6 @@ const FiltersAndTable = ({
                 try {
                   const token = getCookie('token')
                   
-                  // Verifichiamo che hotel sia un ID valido
                   if (!hotel || hotel === 'all') {
                     toast.error("Please select a hotel first")
                     return
@@ -196,12 +195,14 @@ const FiltersAndTable = ({
                     hotelId: hotel,
                     reviews: selectedRows.map(review => review._id)
                   }
-                  console.log('Request body:', requestBody)
+
+                  const tempId = Date.now().toString()
+                  router.push(`/analyses?id=${tempId}&loading=true`)
 
                   const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/analytics/analyze`, {
                     method: 'POST',
                     headers: {
-                      'Authorization': `Bearer ${token}`, // Assicuriamoci che il formato sia corretto
+                      'Authorization': `Bearer ${token}`,
                       'Content-Type': 'application/json'
                     },
                     body: JSON.stringify(requestBody)
@@ -209,15 +210,19 @@ const FiltersAndTable = ({
 
                   if (!response.ok) {
                     const errorData = await response.json()
-                    console.error('Server response:', errorData)
                     throw new Error(`Failed to create analysis: ${errorData.message || 'Unknown error'}`)
                   }
                   
                   const data = await response.json()
-                  router.push(`/analyses?id=${data._id}`)
+                  if (!data._id) {
+                    throw new Error('Invalid response format');
+                  }
+
+                  router.replace(`/analyses?id=${data._id}`)
                 } catch (error: any) {
                   console.error('Full error details:', error)
                   toast.error(typeof error === 'object' && error?.message ? error.message : "Failed to create analysis")
+                  router.push('/reviews')
                 }
               }}
               className="rounded-xl flex items-center gap-2 bg-primary text-primary-foreground shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all"
