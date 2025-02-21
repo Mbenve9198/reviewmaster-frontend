@@ -228,26 +228,28 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
 
         {/* Suggested Questions scrollabili orizzontalmente */}
         {isExpanded && suggestedQuestions.length > 0 && (
-          <ScrollArea className="w-full" orientation="horizontal">
-            <div className="flex gap-2 pb-2">
-              {suggestedQuestions.map((question) => (
-                <button
-                  key={question.id}
-                  onClick={() => {
-                    setSelectedQuestion(question.id)
-                    setInputValue(question.text)
-                  }}
-                  className={`shrink-0 px-3 py-1.5 text-sm rounded-full transition-colors whitespace-nowrap
-                    ${selectedQuestion === question.id 
-                      ? 'bg-blue-100 text-blue-700 border-blue-200' 
-                      : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
-                    } border`}
-                >
-                  {question.text}
-                </button>
-              ))}
-            </div>
-          </ScrollArea>
+          <div className="w-full">
+            <ScrollArea className="w-full">
+              <div className="flex gap-2 pb-2 overflow-x-auto">
+                {suggestedQuestions.map((question) => (
+                  <button
+                    key={question.id}
+                    onClick={() => {
+                      setSelectedQuestion(question.id)
+                      setInputValue(question.text)
+                    }}
+                    className={`shrink-0 px-3 py-1.5 text-sm rounded-full transition-colors whitespace-nowrap
+                      ${selectedQuestion === question.id 
+                        ? 'bg-blue-100 text-blue-700 border-blue-200' 
+                        : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
+                      } border`}
+                  >
+                    {question.text}
+                  </button>
+                ))}
+              </div>
+            </ScrollArea>
+          </div>
         )}
       </div>
     </div>
