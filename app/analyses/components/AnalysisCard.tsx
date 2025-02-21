@@ -80,7 +80,7 @@ export default function AnalysisCard({ analysisId }: AnalysisCardProps) {
       setIsLoading(true)
       try {
         const token = getCookie('token')
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/analyses/${analysisId}`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/analytics/${analysisId}`, {
           headers: {
             'Authorization': `Bearer ${token}`,
           }
@@ -89,7 +89,7 @@ export default function AnalysisCard({ analysisId }: AnalysisCardProps) {
         if (!response.ok) throw new Error('Failed to fetch analysis')
         
         const data = await response.json()
-        setAnalysis(data.analysis)
+        setAnalysis(data)
       } catch (error) {
         console.error('Error fetching analysis:', error)
       } finally {
