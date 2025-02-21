@@ -230,7 +230,7 @@ const SourcesCard = forwardRef<SourcesCardRef, SourcesCardProps>(({
                   onClick={() => handleSourceClick(source)}
                   className={`
                     w-full
-                    ${isExpanded ? 'p-4' : 'p-2'} 
+                    ${isExpanded ? 'px-4 py-4' : 'p-2'} 
                     rounded-xl text-left transition-all hover:scale-[0.98] 
                     ${selectedSource === source.id
                       ? 'bg-gradient-to-br from-blue-50 to-blue-100/50 border-blue-200 shadow-md'
