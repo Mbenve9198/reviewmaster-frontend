@@ -22,9 +22,12 @@ interface Analysis {
       end: string
     }
   }
-  analysis: any
+  analysis: {
+    meta: {
+      hotelName: string
+    }
+  }
   createdAt: string
-  hotelName?: string
 }
 
 export default function AnalysesPage() {
@@ -169,8 +172,8 @@ export default function AnalysesPage() {
                     value={analysis._id}
                     className="text-gray-900"
                   >
-                    {analysis.hotelName 
-                      ? `${analysis.hotelName} - ${format(new Date(analysis.createdAt), 'dd MMM yyyy')}`
+                    {analysis.analysis?.meta?.hotelName 
+                      ? `${analysis.analysis.meta.hotelName} - ${format(new Date(analysis.createdAt), 'dd MMM yyyy')}`
                       : format(new Date(analysis.createdAt), 'PPP')
                     }
                   </SelectItem>

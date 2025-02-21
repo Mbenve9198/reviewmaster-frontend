@@ -42,16 +42,18 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
   const fetchSuggestedQuestions = async () => {
     try {
       const token = getCookie('token')
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/analytics/${analysisId}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/analytics/${analysisId}/follow-up`, {
+        method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
-        }
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ question: 'initial' })
       })
       
       if (!response.ok) throw new Error('Failed to fetch suggestions')
       
       const data = await response.json()
-      // Verifica che data.suggestions esista prima di fare il map
       if (data && data.suggestions) {
         setSuggestedQuestions(data.suggestions.map((q: string, i: number) => ({
           id: `q-${i}`,
@@ -82,20 +84,6 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
 
     try {
       const token = getCookie('token')
-      const analysisResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/analytics/${analysisId}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        }
-      })
-      
-      if (!analysisResponse.ok) throw new Error('Failed to fetch analysis')
-      const analysisData = await analysisResponse.json()
-      
-      // Verifichiamo che le reviews esistano e non siano vuote
-      if (!analysisData.analysis?.reviews || analysisData.analysis.reviews.length === 0) {
-        throw new Error('No reviews available for this analysis')
-      }
-
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/analytics/${analysisId}/follow-up`, {
         method: 'POST',
         headers: {
@@ -103,9 +91,7 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({ 
-          question: content,
-          hotelId: analysisData.hotelId,
-          reviews: analysisData.analysis.reviews // Prendiamo le reviews da analysis.reviews
+          question: content
         })
       })
       
@@ -115,7 +101,7 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
       
       const newAssistantMessage: Message = {
         role: 'assistant',
-        content: data.response,
+        content: data.response || data.analysis,
         timestamp: new Date()
       }
 
@@ -136,7 +122,7 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
         content: 'Mi dispiace, si è verificato un errore nel processare la tua richiesta. Per favore riprova.',
         timestamp: new Date()
       }])
-      setSuggestedQuestions([]) // Reset dei suggerimenti in caso di errore
+      setSuggestedQuestions([])
     } finally {
       setIsLoading(false)
     }
@@ -200,36 +186,56 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
       </div>
 
       {/* Messages */}
-      <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
-        <div className="space-y-4">
+      <ScrollArea className={`flex-1 ${!isExpanded ? 'px-2' : 'p-4'}`} ref={scrollAreaRef}>
+        <div className={`space-y-4 ${!isExpanded ? 'flex flex-col items-center' : ''}`}>
           {messages.map((message, index) => (
             <motion.div
               key={index}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+              className={`flex ${
+                isExpanded 
+                  ? message.role === 'user' ? 'justify-end' : 'justify-start'
+                  : 'justify-center w-full'
+              }`}
             >
-              <div
-                className={`max-w-[80%] p-3 rounded-2xl ${
-                  message.role === 'user'
-                    ? 'bg-blue-500 text-white ml-4'
-                    : 'bg-gray-100 text-gray-900 mr-4'
-                }`}
-              >
-                {message.role === 'assistant' && (
-                  <div className="flex items-center gap-2 mb-2">
-                    <Bot className="h-4 w-4" />
-                    <span className="text-xs font-medium">AI Assistant</span>
-                  </div>
-                )}
-                <p className="text-sm">{message.content}</p>
-                <p className="text-xs mt-1 opacity-70">
-                  {message.timestamp.toLocaleTimeString()}
-                </p>
-              </div>
+              {!isExpanded ? (
+                <div className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors">
+                  {message.role === 'user' ? (
+                    <div className="h-8 w-8 flex items-center justify-center text-gray-600">
+                      <span className="text-xs">You</span>
+                    </div>
+                  ) : (
+                    <Bot className="h-5 w-5 text-gray-600" />
+                  )}
+                </div>
+              ) : (
+                <div
+                  className={`max-w-[80%] p-3 rounded-2xl ${
+                    message.role === 'user'
+                      ? 'bg-blue-500 text-white ml-4'
+                      : 'bg-gray-100 text-gray-900 mr-4'
+                  }`}
+                >
+                  {message.role === 'assistant' && (
+                    <div className="flex items-center gap-2 mb-2">
+                      <Bot className="h-4 w-4" />
+                      <span className="text-xs font-medium">AI Assistant</span>
+                    </div>
+                  )}
+                  <p className="text-sm">{message.content}</p>
+                  <p className="text-xs mt-1 opacity-70">
+                    {message.timestamp.toLocaleTimeString()}
+                  </p>
+                </div>
+              )}
             </motion.div>
           ))}
-          {isLoading && <TypingIndicator />}
+          {isLoading && (
+            <div className={`flex ${!isExpanded ? 'justify-center' : 'justify-start'}`}>
+              <TypingIndicator />
+            </div>
+          )}
         </div>
       </ScrollArea>
 
@@ -243,7 +249,9 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
               onChange={(e) => setInputValue(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder={isExpanded ? "Start typing..." : ""}
-              className="w-full bg-gray-50 border-gray-200 rounded-xl pr-16 h-[60px] focus:ring-0 focus:border-gray-300 placeholder:text-gray-500"
+              className={`w-full bg-gray-50 border-gray-200 rounded-xl pr-16 ${
+                isExpanded ? 'h-[60px]' : 'h-[45px]'
+              } focus:ring-0 focus:border-gray-300 placeholder:text-gray-500`}
             />
             <div className="absolute right-3 top-1/2 -translate-y-1/2">
               <Button
@@ -259,7 +267,7 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
           </div>
         </div>
 
-        {/* Suggested Questions scrollabili orizzontalmente */}
+        {/* Suggested Questions solo quando è espanso */}
         {isExpanded && suggestedQuestions.length > 0 && (
           <div className="w-full">
             <ScrollArea className="w-full">
