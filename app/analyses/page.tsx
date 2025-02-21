@@ -206,6 +206,7 @@ export default function AnalysesPage() {
         <div className="flex gap-3 h-[calc(100vh-8.5rem)]">
           <motion.div 
             className="relative"
+            style={{ minWidth: sourcesExpanded ? "300px" : "60px" }}
             animate={{ width: sourcesWidth }}
             transition={{ duration: 0.3 }}
           >

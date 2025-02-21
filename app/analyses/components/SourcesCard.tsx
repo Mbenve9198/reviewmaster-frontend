@@ -230,7 +230,7 @@ const SourcesCard = forwardRef<SourcesCardRef, SourcesCardProps>(({
                   onClick={() => handleSourceClick(source)}
                   className={`
                     w-full
-                    ${isExpanded ? 'px-4 py-4' : 'p-2'} 
+                    ${isExpanded ? 'py-4' : 'p-2'} 
                     rounded-xl text-left transition-all hover:scale-[0.98] 
                     ${selectedSource === source.id
                       ? 'bg-gradient-to-br from-blue-50 to-blue-100/50 border-blue-200 shadow-md'
@@ -240,7 +240,7 @@ const SourcesCard = forwardRef<SourcesCardRef, SourcesCardProps>(({
                     max-w-full overflow-hidden
                   `}
                 >
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2 px-2">
                     <div className={`
                       ${isExpanded ? 'p-2.5' : 'p-0'} 
                       rounded-lg flex-shrink-0 text-blue-600
@@ -254,12 +254,12 @@ const SourcesCard = forwardRef<SourcesCardRef, SourcesCardProps>(({
                     </div>
                     {isExpanded && (
                       <div className="min-w-0 flex-1">
-                        <div className="flex justify-between items-start gap-3">
-                          <h3 className="font-medium text-sm text-gray-900 break-words line-clamp-2">
+                        <div className="flex justify-between items-start gap-1">
+                          <h3 className="font-medium text-sm text-gray-900 break-words line-clamp-2 max-w-[70%]">
                             {source.title}
                           </h3>
                           <span className={`
-                            px-2.5 py-1 rounded-full text-xs font-medium whitespace-nowrap flex-shrink-0
+                            px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap flex-shrink-0
                             ${selectedSource === source.id
                               ? 'bg-blue-100/50 text-blue-700'
                               : 'bg-gray-100/50 text-gray-600'
