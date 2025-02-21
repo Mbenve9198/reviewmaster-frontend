@@ -82,7 +82,7 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
 
     try {
       const token = getCookie('token')
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/analyses/${analysisId}/chat`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/analytics/${analysisId}/follow-up`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -121,6 +121,31 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
       scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight
     }
   }, [messages])
+
+  const TypingIndicator = () => (
+    <div className="flex justify-start">
+      <div className="bg-gray-100 p-3 rounded-2xl flex items-center gap-2">
+        <Bot className="h-4 w-4 text-gray-500" />
+        <div className="flex gap-1">
+          <motion.div
+            className="w-1.5 h-1.5 bg-gray-400 rounded-full"
+            animate={{ y: [0, -3, 0] }}
+            transition={{ duration: 0.6, repeat: Infinity, delay: 0 }}
+          />
+          <motion.div
+            className="w-1.5 h-1.5 bg-gray-400 rounded-full"
+            animate={{ y: [0, -3, 0] }}
+            transition={{ duration: 0.6, repeat: Infinity, delay: 0.2 }}
+          />
+          <motion.div
+            className="w-1.5 h-1.5 bg-gray-400 rounded-full"
+            animate={{ y: [0, -3, 0] }}
+            transition={{ duration: 0.6, repeat: Infinity, delay: 0.4 }}
+          />
+        </div>
+      </div>
+    </div>
+  )
 
   return (
     <div className="h-full bg-white/50 backdrop-blur-sm rounded-2xl border border-gray-200/50 shadow-lg overflow-hidden flex flex-col">
@@ -171,18 +196,13 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
               </div>
             </motion.div>
           ))}
-          {isLoading && (
-            <div className="flex justify-start">
-              <div className="bg-gray-100 p-3 rounded-2xl">
-                <Loader2 className="h-5 w-5 animate-spin text-gray-500" />
-              </div>
-            </div>
-          )}
+          {isLoading && <TypingIndicator />}
         </div>
       </ScrollArea>
 
-      {/* Input */}
-      <div className="p-4 border-t border-gray-100">
+      {/* Input e Suggested Questions */}
+      <div className="p-4 space-y-3 border-t border-gray-100">
+        {/* Input più alto */}
         <div className="relative flex items-center">
           <div className="relative flex-1">
             <Input
@@ -190,7 +210,7 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
               onChange={(e) => setInputValue(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder={isExpanded ? "Start typing..." : ""}
-              className="w-full bg-gray-50 border-gray-200 rounded-full pr-16 focus:ring-0 focus:border-gray-300 placeholder:text-gray-500"
+              className="w-full bg-gray-50 border-gray-200 rounded-xl pr-16 h-[60px] focus:ring-0 focus:border-gray-300 placeholder:text-gray-500"
             />
             <div className="absolute right-3 top-1/2 -translate-y-1/2">
               <Button
@@ -205,33 +225,31 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Suggested Questions */}
-      {isExpanded && suggestedQuestions.length > 0 && (
-        <div className="px-4 py-2 border-t border-gray-100">
-          <ScrollArea className="whitespace-nowrap">
-            <div className="flex gap-2">
+        {/* Suggested Questions scrollabili orizzontalmente */}
+        {isExpanded && suggestedQuestions.length > 0 && (
+          <ScrollArea className="w-full" orientation="horizontal">
+            <div className="flex gap-2 pb-2">
               {suggestedQuestions.map((question) => (
-                <div
+                <button
                   key={question.id}
-                  className={`shrink-0 px-4 py-2 rounded-full border border-gray-200 cursor-pointer transition-colors ${
-                    selectedQuestion === question.id
-                      ? 'bg-gray-100'
-                      : 'hover:bg-gray-50'
-                  }`}
                   onClick={() => {
                     setSelectedQuestion(question.id)
                     setInputValue(question.text)
                   }}
+                  className={`shrink-0 px-3 py-1.5 text-sm rounded-full transition-colors whitespace-nowrap
+                    ${selectedQuestion === question.id 
+                      ? 'bg-blue-100 text-blue-700 border-blue-200' 
+                      : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
+                    } border`}
                 >
-                  <span className="text-sm text-gray-700">{question.text}</span>
-                </div>
+                  {question.text}
+                </button>
               ))}
             </div>
           </ScrollArea>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   )
 } 
