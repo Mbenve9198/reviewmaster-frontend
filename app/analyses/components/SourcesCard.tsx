@@ -46,6 +46,28 @@ const logoUrls: Record<Platform, string> = {
   manual: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/manual%20response-O89S3zfgiDHVSo8aslEIqW3O8G9Q1n.png"
 }
 
+// Aggiungiamo una funzione helper per determinare il rating massimo per piattaforma
+const getMaxRating = (platform: Platform): number => {
+  switch (platform) {
+    case 'booking':
+      return 10;
+    default:
+      return 5;
+  }
+};
+
+// Aggiungiamo una funzione helper per determinare il colore del rating
+const getRatingColor = (rating: number, maxRating: number) => {
+  const normalizedRating = (rating / maxRating) * 5; // Normalizziamo su scala 5
+  if (normalizedRating >= 4) {
+    return 'text-emerald-700 bg-emerald-50';
+  } else if (normalizedRating >= 3) {
+    return 'text-amber-700 bg-amber-50';
+  } else {
+    return 'text-rose-700 bg-rose-50';
+  }
+};
+
 const SourcesCard = forwardRef<SourcesCardRef, SourcesCardProps>(({ 
   analysisId, 
   isExpanded, 
@@ -169,7 +191,7 @@ const SourcesCard = forwardRef<SourcesCardRef, SourcesCardProps>(({
   }
 
   return (
-    <div className="h-full bg-white/50 backdrop-blur-sm rounded-2xl border border-gray-200/50 shadow-lg overflow-hidden">
+    <div className="h-full bg-white/50 backdrop-blur-sm rounded-2xl border border-gray-200/50 shadow-lg overflow-hidden relative flex flex-col">
       {/* Header */}
       <div className="p-4 border-b border-gray-100/80 flex justify-between items-center bg-white/50">
         <h2 className="font-semibold text-gray-900 truncate flex-1">
@@ -198,22 +220,22 @@ const SourcesCard = forwardRef<SourcesCardRef, SourcesCardProps>(({
       </div>
 
       {/* Content */}
-      <ScrollArea className="h-[calc(100%-8rem)] w-full">
+      <ScrollArea className="flex-1 w-full">
         {viewMode === 'list' ? (
-          <div className="p-4 w-full">
+          <div className={`${isExpanded ? 'p-4' : 'p-2'} w-full`}>
             <div className={`space-y-3 w-full ${!isExpanded ? 'items-center' : ''}`}>
               {sources.map(source => (
                 <motion.button
                   key={source.id}
                   onClick={() => handleSourceClick(source)}
                   className={`
-                    ${isExpanded ? 'w-full p-4' : 'w-12 p-3'} 
+                    ${isExpanded ? 'w-full p-4' : 'w-10 p-2'} 
                     rounded-xl text-left transition-all hover:scale-[0.98] 
                     ${selectedSource === source.id
                       ? 'bg-gradient-to-br from-blue-50 to-blue-100/50 border-blue-200 shadow-md'
                       : 'bg-gradient-to-br from-white to-gray-50/50 hover:from-gray-50 hover:to-gray-100/50 border-gray-200'
                     } 
-                    border shadow-sm hover:shadow-md
+                    border shadow-sm hover:shadow-md max-w-full
                   `}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -291,7 +313,7 @@ const SourcesCard = forwardRef<SourcesCardRef, SourcesCardProps>(({
                     </div>
                     <div className="flex flex-col">
                       <span className="text-sm font-medium text-gray-900">
-                        {review.reviewer || 'Anonymous'}
+                        {review.author || 'Guest'}
                       </span>
                       <span className="text-xs text-gray-500">
                         {new Date(review.date).toLocaleDateString()}
@@ -299,24 +321,21 @@ const SourcesCard = forwardRef<SourcesCardRef, SourcesCardProps>(({
                     </div>
                   </div>
                   
-                  <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-gradient-to-br">
+                  <div className="flex items-center gap-1 px-2 py-1 rounded-lg">
                     <div className={`
-                      flex items-center gap-1 px-2 py-1 rounded-lg
-                      ${review.rating >= 4
-                        ? 'bg-emerald-50 text-emerald-700'
-                        : review.rating >= 3
-                        ? 'bg-amber-50 text-amber-700'
-                        : 'bg-rose-50 text-rose-700'
-                      }
+                      flex items-center gap-1.5 px-2.5 py-1 rounded-lg
+                      ${getRatingColor(review.rating, getMaxRating(review.platform as Platform))}
                     `}>
                       <Star className={`h-3.5 w-3.5 ${
-                        review.rating >= 4
+                        review.rating >= (getMaxRating(review.platform as Platform) * 0.8)
                           ? 'text-emerald-500 fill-emerald-500'
-                          : review.rating >= 3
+                          : review.rating >= (getMaxRating(review.platform as Platform) * 0.6)
                           ? 'text-amber-500 fill-amber-500'
                           : 'text-rose-500 fill-rose-500'
                       }`} />
-                      <span className="text-sm font-medium">{review.rating}</span>
+                      <span className="text-sm font-medium">
+                        {review.rating}/{getMaxRating(review.platform as Platform)}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -343,7 +362,7 @@ const SourcesCard = forwardRef<SourcesCardRef, SourcesCardProps>(({
 
       {/* Footer with upload button */}
       {isExpanded && (
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-100 bg-white/50 backdrop-blur-sm">
+        <div className="p-4 border-t border-gray-100 bg-white/50 backdrop-blur-sm">
           <Button
             onClick={handleUpload}
             variant="outline"
