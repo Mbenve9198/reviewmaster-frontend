@@ -89,7 +89,9 @@ export default function AnalysisCard({ analysisId }: AnalysisCardProps) {
         if (!response.ok) throw new Error('Failed to fetch analysis')
         
         const data = await response.json()
-        setAnalysis(data)
+        if (data && data.analysis) {
+          setAnalysis(data.analysis)
+        }
       } catch (error) {
         console.error('Error fetching analysis:', error)
       } finally {
@@ -103,12 +105,18 @@ export default function AnalysisCard({ analysisId }: AnalysisCardProps) {
   if (isLoading) {
     return (
       <div className="h-full bg-white/50 backdrop-blur-sm rounded-2xl border border-gray-200/50 shadow-lg flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+        <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
       </div>
     )
   }
 
-  if (!analysis) return null
+  if (!analysis || !analysis.meta) {
+    return (
+      <div className="h-full bg-white/50 backdrop-blur-sm rounded-2xl border border-gray-200/50 shadow-lg flex items-center justify-center">
+        <p className="text-gray-500">No analysis data available</p>
+      </div>
+    )
+  }
 
   return (
     <div className="h-full bg-white/50 backdrop-blur-sm rounded-2xl border border-gray-200/50 shadow-lg overflow-hidden">

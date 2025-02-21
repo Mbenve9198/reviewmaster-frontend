@@ -51,13 +51,18 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
       if (!response.ok) throw new Error('Failed to fetch suggestions')
       
       const data = await response.json()
-      // Assumiamo che le suggestions siano nell'oggetto data
-      setSuggestedQuestions(data.suggestions.map((q: string, i: number) => ({
-        id: `q-${i}`,
-        text: q
-      })))
+      // Verifica che data.suggestions esista prima di fare il map
+      if (data && data.suggestions) {
+        setSuggestedQuestions(data.suggestions.map((q: string, i: number) => ({
+          id: `q-${i}`,
+          text: q
+        })))
+      } else {
+        setSuggestedQuestions([])
+      }
     } catch (error) {
       console.error('Error fetching suggestions:', error)
+      setSuggestedQuestions([])
     }
   }
 

@@ -58,20 +58,28 @@ export default function AnalysesPage() {
         if (!response.ok) throw new Error('Failed to fetch analyses')
         
         const data = await response.json()
-        setAnalyses(data)
+        console.log('Analyses fetched:', data) // Debug log
         
-        if (data.length > 0) {
-          setSelectedAnalysis(data[0]._id)
+        if (Array.isArray(data)) {
+          setAnalyses(data)
+          // Se c'è un analysisId nell'URL, usalo, altrimenti usa il primo dell'array
+          if (data.length > 0) {
+            setSelectedAnalysis(analysisId || data[0]._id)
+          }
+        } else {
+          console.error('Expected array of analyses but got:', data)
+          setAnalyses([])
         }
       } catch (error) {
         console.error('Error fetching analyses:', error)
+        setAnalyses([])
       } finally {
         setIsLoadingData(false)
       }
     }
 
     fetchAnalyses()
-  }, [])
+  }, [analysisId]) // Aggiunto analysisId come dipendenza
 
   useEffect(() => {
     if (analysisId) {
