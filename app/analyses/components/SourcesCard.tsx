@@ -35,6 +35,9 @@ export interface SourcesCardRef {
   openDocument: (category: string, itemId: string, title: string) => void
 }
 
+// Aggiungiamo il tipo Platform
+type Platform = 'google' | 'booking' | 'tripadvisor' | 'manual'
+
 // Aggiungiamo gli stessi logoUrls che usiamo nella ReviewsTable
 const logoUrls: Record<Platform, string> = {
   google: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/gmg-logo-300x300-1-YhBm2cRJdd8cFKdb5h4uv3cwYooXY7.webp",
