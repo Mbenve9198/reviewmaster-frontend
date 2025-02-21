@@ -42,7 +42,7 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
   const fetchSuggestedQuestions = async () => {
     try {
       const token = getCookie('token')
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/analyses/${analysisId}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/analytics/${analysisId}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         }
