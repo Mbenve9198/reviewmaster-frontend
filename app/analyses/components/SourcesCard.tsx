@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, forwardRef, useImperativeHandle } from "react"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { getCookie } from "@/lib/utils"
 import { ChevronLeft, ChevronRight, FileText, Star, Upload, X } from "lucide-react"
@@ -29,13 +29,32 @@ interface Source {
   }>
 }
 
-export default function SourcesCard({ analysisId, isExpanded, onToggleExpand }: SourcesCardProps) {
+export interface SourcesCardRef {
+  openDocument: (category: string, itemId: string, title: string) => void
+}
+
+const SourcesCard = forwardRef<SourcesCardRef, SourcesCardProps>(({ 
+  analysisId, 
+  isExpanded, 
+  onToggleExpand 
+}, ref) => {
   const [sources, setSources] = useState<Source[]>([])
   const [selectedSource, setSelectedSource] = useState<string | null>(null)
   const [selectedReviews, setSelectedReviews] = useState<any[]>([])
   const [selectedTitle, setSelectedTitle] = useState<string>("")
   const [isLoading, setIsLoading] = useState(true)
   const [viewMode, setViewMode] = useState<'list' | 'document'>('list')
+
+  useImperativeHandle(ref, () => ({
+    openDocument: (category: string, itemId: string, title: string) => {
+      const source = sources.find(s => s.category === category && s.itemId === itemId)
+      if (source) {
+        setSelectedTitle(title)
+        setViewMode('document')
+        handleSourceClick(source)
+      }
+    }
+  }))
 
   const fetchGroupedReviews = async (source: Source) => {
     if (!source.itemId) return;
@@ -129,16 +148,6 @@ export default function SourcesCard({ analysisId, isExpanded, onToggleExpand }: 
     setViewMode('list')
     setSelectedSource(null)
     setSelectedReviews([])
-  }
-
-  // Funzione per aprire direttamente un documento specifico
-  const openDocument = async (category: string, itemId: string, title: string) => {
-    const source = sources.find(s => s.category === category && s.itemId === itemId)
-    if (source) {
-      setSelectedTitle(title)
-      setViewMode('document')
-      await fetchGroupedReviews(source)
-    }
   }
 
   const handleUpload = () => {
@@ -262,4 +271,8 @@ export default function SourcesCard({ analysisId, isExpanded, onToggleExpand }: 
       )}
     </div>
   )
-} 
+})
+
+SourcesCard.displayName = 'SourcesCard'
+
+export default SourcesCard 
