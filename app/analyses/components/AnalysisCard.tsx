@@ -131,22 +131,22 @@ export default function AnalysisCard({ analysisId }: AnalysisCardProps) {
       </div>
 
       {/* Content */}
-      <div className="relative z-10 h-full">
+      <div className="relative z-10 h-full flex flex-col">
+        {/* Header fisso */}
+        <div className="sticky top-0 p-4 border-b border-gray-100 bg-white">
+          <h2 className="font-semibold text-gray-900">Analysis Overview</h2>
+        </div>
+
         {isLoading ? (
-          <div className="h-full flex items-center justify-center">
+          <div className="flex-1 flex items-center justify-center">
             <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
           </div>
         ) : !analysis ? (
-          <div className="h-full flex items-center justify-center text-gray-500">
+          <div className="flex-1 flex items-center justify-center text-gray-500">
             Select an analysis to view details
           </div>
         ) : (
-          <ScrollArea className="h-full">
-            {/* Header con sfondo bianco solido */}
-            <div className="p-4 border-b border-gray-100 bg-white">
-              <h2 className="font-semibold text-gray-900">Analysis Overview</h2>
-            </div>
-
+          <ScrollArea className="flex-1">
             <div className="p-6 space-y-8">
               {/* Overview Cards */}
               <div className="grid grid-cols-3 gap-4">

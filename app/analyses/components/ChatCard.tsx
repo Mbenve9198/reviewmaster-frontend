@@ -91,6 +91,11 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
       if (!analysisResponse.ok) throw new Error('Failed to fetch analysis')
       const analysisData = await analysisResponse.json()
       
+      // Verifichiamo che le reviews esistano e non siano vuote
+      if (!analysisData.analysis?.reviews || analysisData.analysis.reviews.length === 0) {
+        throw new Error('No reviews available for this analysis')
+      }
+
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/analytics/${analysisId}/follow-up`, {
         method: 'POST',
         headers: {
@@ -100,7 +105,7 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
         body: JSON.stringify({ 
           question: content,
           hotelId: analysisData.hotelId,
-          reviews: analysisData.reviews || []
+          reviews: analysisData.analysis.reviews // Prendiamo le reviews da analysis.reviews
         })
       })
       
@@ -115,8 +120,23 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
       }
 
       setMessages(prev => [...prev, newAssistantMessage])
+      
+      // Aggiorniamo i suggerimenti con quelli ricevuti dalla risposta
+      if (data.suggestions && Array.isArray(data.suggestions)) {
+        setSuggestedQuestions(data.suggestions.map((text: string, i: number) => ({
+          id: `q-${i}`,
+          text
+        })))
+      }
+
     } catch (error) {
       console.error('Error sending message:', error)
+      setMessages(prev => [...prev, {
+        role: 'assistant',
+        content: 'Mi dispiace, si è verificato un errore nel processare la tua richiesta. Per favore riprova.',
+        timestamp: new Date()
+      }])
+      setSuggestedQuestions([]) // Reset dei suggerimenti in caso di errore
     } finally {
       setIsLoading(false)
     }

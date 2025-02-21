@@ -24,6 +24,7 @@ interface Analysis {
   }
   analysis: any
   createdAt: string
+  hotelName?: string
 }
 
 export default function AnalysesPage() {
@@ -141,8 +142,8 @@ export default function AnalysesPage() {
       {/* Modern gradient background */}
       <div className="fixed inset-0 -z-10 bg-gradient-to-br from-[#FAFAFB] via-[#F0F0F2] to-[#FAFAFB] backdrop-blur-sm" />
 
-      {/* Header fisso */}
-      <div className="fixed top-0 left-24 right-8 bg-[#FAFAFB]/80 backdrop-blur-sm z-10 pt-8 pb-4">
+      {/* Header normale (non fixed) */}
+      <div className="pt-8 pb-4">
         <div className="flex justify-between items-center">
           <div className="flex flex-col items-start">
             <div className="flex items-center gap-3 mb-2">
@@ -168,7 +169,10 @@ export default function AnalysesPage() {
                     value={analysis._id}
                     className="text-gray-900"
                   >
-                    {analysis.title || format(new Date(analysis.createdAt), 'PPP')}
+                    {analysis.hotelName 
+                      ? `${analysis.hotelName} - ${format(new Date(analysis.createdAt), 'dd MMM yyyy')}`
+                      : format(new Date(analysis.createdAt), 'PPP')
+                    }
                   </SelectItem>
                 ))}
               </ScrollArea>
@@ -177,8 +181,8 @@ export default function AnalysesPage() {
         </div>
       </div>
 
-      {/* Content con padding-top per compensare l'header fisso */}
-      <div className="pt-32">
+      {/* Content */}
+      <div className="mt-4">
         {!isAnalysisReady && analysisId && (
           <div className="fixed inset-0 bg-white/80 backdrop-blur-sm z-50 flex items-center justify-center">
             <div className="text-center space-y-4">
