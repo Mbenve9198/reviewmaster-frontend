@@ -220,10 +220,10 @@ const SourcesCard = forwardRef<SourcesCardRef, SourcesCardProps>(({
       </div>
 
       {/* Content */}
-      <ScrollArea className="flex-1 w-full">
+      <ScrollArea className="flex-1 w-full overflow-hidden">
         {viewMode === 'list' ? (
           <div className="p-4">
-            <div className="space-y-3">
+            <div className="space-y-3 pr-4">
               {sources.map(source => (
                 <motion.button
                   key={source.id}
@@ -237,6 +237,7 @@ const SourcesCard = forwardRef<SourcesCardRef, SourcesCardProps>(({
                       : 'bg-gradient-to-br from-white to-gray-50/50 hover:from-gray-50 hover:to-gray-100/50 border-gray-200'
                     } 
                     border shadow-sm hover:shadow-md
+                    max-w-full overflow-hidden
                   `}
                 >
                   <div className="flex items-center gap-4">
