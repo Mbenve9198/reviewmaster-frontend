@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { getCookie } from "@/lib/utils"
-import { ChevronLeft, ChevronRight, FileText, Star, Upload } from "lucide-react"
+import { ChevronLeft, ChevronRight, FileText, Star, Upload, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { motion } from "framer-motion"
 
@@ -33,7 +33,9 @@ export default function SourcesCard({ analysisId, isExpanded, onToggleExpand }: 
   const [sources, setSources] = useState<Source[]>([])
   const [selectedSource, setSelectedSource] = useState<string | null>(null)
   const [selectedReviews, setSelectedReviews] = useState<any[]>([])
+  const [selectedTitle, setSelectedTitle] = useState<string>("")
   const [isLoading, setIsLoading] = useState(true)
+  const [viewMode, setViewMode] = useState<'list' | 'document'>('list')
 
   const fetchGroupedReviews = async (source: Source) => {
     if (!source.itemId) return;
@@ -117,9 +119,27 @@ export default function SourcesCard({ analysisId, isExpanded, onToggleExpand }: 
   }, [analysisId]);
 
   const handleSourceClick = async (source: Source) => {
-    setSelectedSource(source.id);
-    await fetchGroupedReviews(source);
-  };
+    setSelectedSource(source.id)
+    setSelectedTitle(source.title)
+    setViewMode('document')
+    await fetchGroupedReviews(source)
+  }
+
+  const handleBackToList = () => {
+    setViewMode('list')
+    setSelectedSource(null)
+    setSelectedReviews([])
+  }
+
+  // Funzione per aprire direttamente un documento specifico
+  const openDocument = async (category: string, itemId: string, title: string) => {
+    const source = sources.find(s => s.category === category && s.itemId === itemId)
+    if (source) {
+      setSelectedTitle(title)
+      setViewMode('document')
+      await fetchGroupedReviews(source)
+    }
+  }
 
   const handleUpload = () => {
     // Implementare la logica di upload
@@ -127,81 +147,115 @@ export default function SourcesCard({ analysisId, isExpanded, onToggleExpand }: 
   }
 
   return (
-    <div className="h-full bg-white/50 backdrop-blur-sm rounded-2xl border border-gray-200/50 shadow-lg overflow-hidden relative">
-      {/* Header con bordo inferiore */}
+    <div className="h-full bg-white/50 backdrop-blur-sm rounded-2xl border border-gray-200/50 shadow-lg overflow-hidden">
+      {/* Header */}
       <div className="p-4 border-b border-gray-100/80 flex justify-between items-center bg-white/50">
         <h2 className="font-semibold text-gray-900">
-          {isExpanded ? "Sources" : ""}
+          {isExpanded ? (viewMode === 'list' ? "Sources" : selectedTitle) : ""}
         </h2>
-        <button
-          onClick={onToggleExpand}
-          className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
-        >
-          {isExpanded ? (
-            <ChevronLeft className="h-5 w-5 text-gray-500" />
-          ) : (
-            <ChevronRight className="h-5 w-5 text-gray-500" />
+        <div className="flex items-center gap-2">
+          {viewMode === 'document' && (
+            <button
+              onClick={handleBackToList}
+              className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              <X className="h-5 w-5 text-gray-500" />
+            </button>
           )}
-        </button>
+          <button
+            onClick={onToggleExpand}
+            className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
+          >
+            {isExpanded ? (
+              <ChevronRight className="h-5 w-5 text-gray-500" />
+            ) : (
+              <ChevronLeft className="h-5 w-5 text-gray-500" />
+            )}
+          </button>
+        </div>
       </div>
 
       {/* Content */}
       <ScrollArea className="h-[calc(100%-8rem)]">
-        <motion.div 
-          className={`p-2 space-y-2 ${!isExpanded ? 'flex flex-col items-center' : ''}`}
-          animate={{ opacity: isExpanded ? 1 : 0.5 }}
-        >
-          {sources.map(source => (
-            <button
-              key={source.id}
-              onClick={() => handleSourceClick(source)}
-              className={`${!isExpanded ? 'w-auto' : 'w-full'} p-3 rounded-xl text-left transition-all hover:scale-[0.98] ${
-                selectedSource === source.id
-                  ? 'bg-blue-50 border-blue-100 shadow-sm'
-                  : 'hover:bg-gray-50/80 border-transparent'
-              } border`}
-            >
-              <div className={`flex items-start gap-3 ${!isExpanded ? 'justify-center' : ''}`}>
-                <div className="p-2 bg-blue-50 rounded-lg shrink-0">
-                  {source.type === 'all-reviews' ? (
-                    <FileText className="h-4 w-4 text-blue-500" />
-                  ) : (
-                    <Star className="h-4 w-4 text-blue-500" />
-                  )}
-                </div>
-                {isExpanded && (
-                  <div className="min-w-0 flex-1">
-                    <div className="flex justify-between items-start">
-                      <p className="font-medium text-sm text-gray-900 truncate">
-                        {source.title}
-                      </p>
-                      <span className="text-xs text-gray-500 ml-2">
-                        {source.count} reviews
-                      </span>
-                    </div>
-                    {selectedSource === source.id && selectedReviews.length > 0 && (
-                      <motion.div
-                        initial={{ height: 0 }}
-                        animate={{ height: 'auto' }}
-                        className="mt-3 space-y-2"
-                      >
-                        {selectedReviews.map((review, idx) => (
-                          <div key={idx} className="text-sm bg-white/80 p-2 rounded-lg">
-                            <p className="text-gray-700">{review.text}</p>
-                            <div className="flex justify-between items-center mt-1 text-xs text-gray-500">
-                              <span>{review.platform}</span>
-                              <span>{new Date(review.date).toLocaleDateString()}</span>
-                            </div>
-                          </div>
-                        ))}
-                      </motion.div>
+        {viewMode === 'list' ? (
+          <motion.div className={`p-2 space-y-2 ${!isExpanded ? 'flex flex-col items-center' : ''}`}>
+            {sources.map(source => (
+              <button
+                key={source.id}
+                onClick={() => handleSourceClick(source)}
+                className={`${!isExpanded ? 'w-auto' : 'w-full'} p-3 rounded-xl text-left transition-all hover:scale-[0.98] ${
+                  selectedSource === source.id
+                    ? 'bg-blue-50 border-blue-100 shadow-sm'
+                    : 'hover:bg-gray-50/80 border-transparent'
+                } border`}
+              >
+                <div className={`flex items-start gap-3 ${!isExpanded ? 'justify-center' : ''}`}>
+                  <div className="p-2 bg-blue-50 rounded-lg shrink-0">
+                    {source.type === 'all-reviews' ? (
+                      <FileText className="h-4 w-4 text-blue-500" />
+                    ) : (
+                      <Star className="h-4 w-4 text-blue-500" />
                     )}
                   </div>
-                )}
+                  {isExpanded && (
+                    <div className="min-w-0 flex-1">
+                      <div className="flex justify-between items-start">
+                        <p className="font-medium text-sm text-gray-900 truncate">
+                          {source.title}
+                        </p>
+                        <span className="text-xs text-gray-500 ml-2">
+                          {source.count} reviews
+                        </span>
+                      </div>
+                      {selectedSource === source.id && selectedReviews.length > 0 && (
+                        <motion.div
+                          initial={{ height: 0 }}
+                          animate={{ height: 'auto' }}
+                          className="mt-3 space-y-2"
+                        >
+                          {selectedReviews.map((review, idx) => (
+                            <div key={idx} className="text-sm bg-white/80 p-2 rounded-lg">
+                              <p className="text-gray-700">{review.text}</p>
+                              <div className="flex justify-between items-center mt-1 text-xs text-gray-500">
+                                <span>{review.platform}</span>
+                                <span>{new Date(review.date).toLocaleDateString()}</span>
+                              </div>
+                            </div>
+                          ))}
+                        </motion.div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </button>
+            ))}
+          </motion.div>
+        ) : (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="p-4 space-y-4"
+          >
+            {selectedReviews.map((review, idx) => (
+              <div 
+                key={idx} 
+                className="bg-white rounded-lg p-4 shadow-sm border border-gray-100"
+              >
+                <p className="text-gray-800 mb-2">{review.text}</p>
+                <div className="flex justify-between items-center text-sm text-gray-500">
+                  <span>{review.platform}</span>
+                  <div className="flex items-center gap-2">
+                    <span>{new Date(review.date).toLocaleDateString()}</span>
+                    <div className="flex items-center gap-1">
+                      <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
+                      <span>{review.rating}</span>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </button>
-          ))}
-        </motion.div>
+            ))}
+          </motion.div>
+        )}
       </ScrollArea>
 
       {/* Footer with upload button */}

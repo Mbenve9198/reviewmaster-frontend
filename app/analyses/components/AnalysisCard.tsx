@@ -3,12 +3,13 @@
 import { useState, useEffect } from "react"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { getCookie } from "@/lib/utils"
-import { Loader2, TrendingUp, TrendingDown, Star, AlertTriangle, Zap, BarChart } from "lucide-react"
+import { Loader2, TrendingUp, TrendingDown, Star, AlertTriangle, Zap, BarChart, Link } from "lucide-react"
 import { Progress } from "@/components/ui/progress"
 import { motion, AnimatePresence } from "framer-motion"
 
 interface AnalysisCardProps {
   analysisId: string
+  onSourceClick: (category: string, itemId: string, title: string) => void
 }
 
 interface Analysis {
@@ -70,7 +71,7 @@ interface Analysis {
   }>
 }
 
-export default function AnalysisCard({ analysisId }: AnalysisCardProps) {
+export default function AnalysisCard({ analysisId, onSourceClick }: AnalysisCardProps) {
   const [analysis, setAnalysis] = useState<Analysis | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
@@ -234,15 +235,18 @@ export default function AnalysisCard({ analysisId }: AnalysisCardProps) {
                     >
                       <div className="flex justify-between items-start mb-3">
                         <h4 className="font-medium text-emerald-900">{strength.title}</h4>
-                        <span className="text-emerald-600 text-sm font-medium">{strength.impact}</span>
+                        <button 
+                          onClick={() => onSourceClick('strengths', strength._id, strength.title)}
+                          className="flex items-center gap-1 text-sm text-emerald-600 hover:text-emerald-700"
+                        >
+                          <Link className="h-4 w-4" />
+                          <span>{strength.mentions} reviews</span>
+                        </button>
                       </div>
                       <p className="text-sm text-gray-600 mb-2">{strength.details}</p>
                       <blockquote className="text-sm italic text-emerald-600 bg-emerald-50 p-2 rounded-lg mb-2">
                         "{strength.quote}"
                       </blockquote>
-                      <div className="text-sm text-emerald-700">
-                        {strength.mentions} mentions
-                      </div>
                     </motion.div>
                   ))}
                 </div>
@@ -262,21 +266,18 @@ export default function AnalysisCard({ analysisId }: AnalysisCardProps) {
                     >
                       <div className="flex justify-between items-start mb-3">
                         <h4 className="font-medium text-rose-900">{issue.title}</h4>
-                        <span className={`text-sm font-medium px-2 py-1 rounded-full ${
-                          issue.priority === 'HIGH' 
-                            ? 'bg-rose-100 text-rose-700'
-                            : 'bg-amber-100 text-amber-700'
-                        }`}>
-                          {issue.priority}
-                        </span>
+                        <button 
+                          onClick={() => onSourceClick('issues', issue._id, issue.title)}
+                          className="flex items-center gap-1 text-sm text-rose-600 hover:text-rose-700"
+                        >
+                          <Link className="h-4 w-4" />
+                          <span>{issue.mentions} reviews</span>
+                        </button>
                       </div>
                       <p className="text-sm text-gray-600 mb-2">{issue.details}</p>
                       <blockquote className="text-sm italic text-rose-600 bg-rose-50 p-2 rounded-lg mb-2">
                         "{issue.quote}"
                       </blockquote>
-                      <div className="text-sm text-rose-700">
-                        {issue.mentions} mentions
-                      </div>
                     </motion.div>
                   ))}
                 </div>

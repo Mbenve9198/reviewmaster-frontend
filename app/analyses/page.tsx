@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { getCookie } from "@/lib/utils"
@@ -41,6 +41,7 @@ export default function AnalysesPage() {
   const isGenerating = searchParams.get('loading') === 'true'
   const [isAnalysisReady, setIsAnalysisReady] = useState(false)
   const router = useRouter()
+  const sourcesRef = useRef<{ openDocument: (category: string, itemId: string, title: string) => void } | null>(null)
 
   // Calcolo delle larghezze delle card in base allo stato
   const getWidths = () => {
@@ -119,6 +120,12 @@ export default function AnalysesPage() {
     const interval = setInterval(checkAnalysis, 2000) // Controlla ogni 2 secondi
     return () => clearInterval(interval)
   }, [analysisId])
+
+  const handleSourceClick = (category: string, itemId: string, title: string) => {
+    if (sourcesRef.current) {
+      sourcesRef.current.openDocument(category, itemId, title)
+    }
+  }
 
   if (isLoadingData || isGenerating) {
     return (
@@ -203,6 +210,7 @@ export default function AnalysesPage() {
             transition={{ duration: 0.3 }}
           >
             <SourcesCard 
+              ref={sourcesRef}
               analysisId={selectedAnalysis}
               isExpanded={sourcesExpanded}
               onToggleExpand={() => setSourcesExpanded(!sourcesExpanded)}
@@ -214,7 +222,10 @@ export default function AnalysesPage() {
             animate={{ width: analysisWidth }}
             transition={{ duration: 0.3 }}
           >
-            <AnalysisCard analysisId={selectedAnalysis} />
+            <AnalysisCard 
+              analysisId={selectedAnalysis}
+              onSourceClick={handleSourceClick}
+            />
           </motion.div>
 
           <motion.div
