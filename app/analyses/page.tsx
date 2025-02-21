@@ -137,88 +137,91 @@ export default function AnalysesPage() {
   const { sourcesWidth, analysisWidth, chatWidth } = getWidths()
 
   return (
-    <div className="py-6 pl-24 pr-6 space-y-6">
+    <div className="min-h-screen pl-24 pr-8">
       {/* Modern gradient background */}
       <div className="fixed inset-0 -z-10 bg-gradient-to-br from-[#FAFAFB] via-[#F0F0F2] to-[#FAFAFB] backdrop-blur-sm" />
 
-      {/* Header */}
-      <div className="flex flex-col items-start px-2">
-        <div className="flex items-center gap-3 mb-1">
-          <div className="h-8 w-1 rounded-full bg-gradient-to-b from-blue-600 to-blue-400" />
-          <h1 className="text-2xl sm:text-3xl font-semibold bg-gradient-to-b from-blue-800 to-blue-600 bg-clip-text text-transparent">
-            Review Analysis
-          </h1>
-        </div>
-        <p className="text-sm text-gray-500">
-          View and analyze your review insights
-        </p>
-      </div>
-
-      {/* Analysis Selector */}
-      <div className="px-2">
-        <Select value={selectedAnalysis} onValueChange={setSelectedAnalysis}>
-          <SelectTrigger className="w-[300px] h-10 bg-white border-gray-200 hover:border-gray-300 rounded-xl">
-            <SelectValue placeholder="Select analysis" />
-          </SelectTrigger>
-          <SelectContent className="max-h-[200px]">
-            <ScrollArea className="h-full max-h-[200px]">
-              {analyses.map(analysis => (
-                <SelectItem 
-                  key={analysis._id} 
-                  value={analysis._id}
-                  className="text-gray-900"
-                >
-                  {analysis.title || format(new Date(analysis.createdAt), 'PPP')}
-                </SelectItem>
-              ))}
-            </ScrollArea>
-          </SelectContent>
-        </Select>
-      </div>
-
-      {!isAnalysisReady && analysisId && (
-        <div className="fixed inset-0 bg-white/80 backdrop-blur-sm z-50 flex items-center justify-center">
-          <div className="text-center space-y-4">
-            <Loader2 className="h-8 w-8 animate-spin mx-auto text-blue-500" />
-            <p className="text-lg font-medium text-gray-900">Creating your analysis...</p>
-            <p className="text-sm text-gray-500">This may take a few moments</p>
+      {/* Header fisso */}
+      <div className="fixed top-0 left-24 right-8 bg-[#FAFAFB]/80 backdrop-blur-sm z-10 pt-8 pb-4">
+        <div className="flex justify-between items-center">
+          <div className="flex flex-col items-start">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="h-8 w-1 rounded-full bg-gradient-to-b from-blue-600 to-blue-400" />
+              <h1 className="text-3xl sm:text-4xl font-semibold bg-gradient-to-b from-blue-800 to-blue-600 bg-clip-text text-transparent">
+                Analysis
+              </h1>
+            </div>
+            <p className="text-base text-gray-500">
+              View and analyze your hotel reviews
+            </p>
           </div>
+
+          <Select value={selectedAnalysis} onValueChange={setSelectedAnalysis}>
+            <SelectTrigger className="w-[300px] h-10 bg-white border-gray-200 hover:border-gray-300 rounded-xl">
+              <SelectValue placeholder="Select analysis" />
+            </SelectTrigger>
+            <SelectContent className="max-h-[200px]">
+              <ScrollArea className="h-full max-h-[200px]">
+                {analyses.map(analysis => (
+                  <SelectItem 
+                    key={analysis._id} 
+                    value={analysis._id}
+                    className="text-gray-900"
+                  >
+                    {analysis.title || format(new Date(analysis.createdAt), 'PPP')}
+                  </SelectItem>
+                ))}
+              </ScrollArea>
+            </SelectContent>
+          </Select>
         </div>
-      )}
+      </div>
 
-      {/* Main Content */}
-      <div className="flex gap-3 h-[calc(100vh-8.5rem)]">
-        <motion.div 
-          className="relative"
-          animate={{ width: sourcesWidth }}
-          transition={{ duration: 0.3 }}
-        >
-          <SourcesCard 
-            analysisId={selectedAnalysis}
-            isExpanded={sourcesExpanded}
-            onToggleExpand={() => setSourcesExpanded(!sourcesExpanded)}
-          />
-        </motion.div>
+      {/* Content con padding-top per compensare l'header fisso */}
+      <div className="pt-32">
+        {!isAnalysisReady && analysisId && (
+          <div className="fixed inset-0 bg-white/80 backdrop-blur-sm z-50 flex items-center justify-center">
+            <div className="text-center space-y-4">
+              <Loader2 className="h-8 w-8 animate-spin mx-auto text-blue-500" />
+              <p className="text-lg font-medium text-gray-900">Creating your analysis...</p>
+              <p className="text-sm text-gray-500">This may take a few moments</p>
+            </div>
+          </div>
+        )}
 
-        <motion.div
-          className="relative"
-          animate={{ width: analysisWidth }}
-          transition={{ duration: 0.3 }}
-        >
-          <AnalysisCard analysisId={selectedAnalysis} />
-        </motion.div>
+        <div className="flex gap-3 h-[calc(100vh-8.5rem)]">
+          <motion.div 
+            className="relative"
+            animate={{ width: sourcesWidth }}
+            transition={{ duration: 0.3 }}
+          >
+            <SourcesCard 
+              analysisId={selectedAnalysis}
+              isExpanded={sourcesExpanded}
+              onToggleExpand={() => setSourcesExpanded(!sourcesExpanded)}
+            />
+          </motion.div>
 
-        <motion.div
-          className="relative"
-          animate={{ width: chatWidth }}
-          transition={{ duration: 0.3 }}
-        >
-          <ChatCard 
-            analysisId={selectedAnalysis}
-            isExpanded={chatExpanded}
-            onToggleExpand={() => setChatExpanded(!chatExpanded)}
-          />
-        </motion.div>
+          <motion.div
+            className="relative"
+            animate={{ width: analysisWidth }}
+            transition={{ duration: 0.3 }}
+          >
+            <AnalysisCard analysisId={selectedAnalysis} />
+          </motion.div>
+
+          <motion.div
+            className="relative"
+            animate={{ width: chatWidth }}
+            transition={{ duration: 0.3 }}
+          >
+            <ChatCard 
+              analysisId={selectedAnalysis}
+              isExpanded={chatExpanded}
+              onToggleExpand={() => setChatExpanded(!chatExpanded)}
+            />
+          </motion.div>
+        </div>
       </div>
     </div>
   )

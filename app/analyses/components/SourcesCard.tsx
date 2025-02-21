@@ -75,20 +75,20 @@ export default function SourcesCard({ analysisId, isExpanded, onToggleExpand }: 
       {/* Content */}
       <ScrollArea className="h-[calc(100%-8rem)]">
         <motion.div 
-          className="p-2 space-y-2"
+          className={`p-2 space-y-2 ${!isExpanded ? 'flex flex-col items-center' : ''}`}
           animate={{ opacity: isExpanded ? 1 : 0.5 }}
         >
           {sources.map(source => (
             <button
               key={source.id}
               onClick={() => setSelectedSource(source.id)}
-              className={`w-full p-3 rounded-xl text-left transition-all hover:scale-[0.98] ${
+              className={`${!isExpanded ? 'w-auto' : 'w-full'} p-3 rounded-xl text-left transition-all hover:scale-[0.98] ${
                 selectedSource === source.id
                   ? 'bg-blue-50 border-blue-100 shadow-sm'
                   : 'hover:bg-gray-50/80 border-transparent'
               } border`}
             >
-              <div className="flex items-start gap-3">
+              <div className={`flex items-start gap-3 ${!isExpanded ? 'justify-center' : ''}`}>
                 <div className="p-2 bg-blue-50 rounded-lg shrink-0">
                   {source.type === 'review' ? (
                     <Star className="h-4 w-4 text-blue-500" />

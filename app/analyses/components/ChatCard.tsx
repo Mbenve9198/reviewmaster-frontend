@@ -81,7 +81,6 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
     setSelectedQuestion(null)
 
     try {
-      // Prima recuperiamo l'analisi per ottenere l'hotelId
       const token = getCookie('token')
       const analysisResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/analytics/${analysisId}`, {
         headers: {
@@ -92,7 +91,6 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
       if (!analysisResponse.ok) throw new Error('Failed to fetch analysis')
       const analysisData = await analysisResponse.json()
       
-      // Ora facciamo la richiesta di follow-up includendo l'hotelId
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/analytics/${analysisId}/follow-up`, {
         method: 'POST',
         headers: {
@@ -101,7 +99,8 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
         },
         body: JSON.stringify({ 
           question: content,
-          hotelId: analysisData.hotelId // Aggiungiamo l'hotelId alla richiesta
+          hotelId: analysisData.hotelId,
+          reviews: analysisData.reviews || []
         })
       })
       
