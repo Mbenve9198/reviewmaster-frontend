@@ -222,8 +222,8 @@ const SourcesCard = forwardRef<SourcesCardRef, SourcesCardProps>(({
       {/* Content */}
       <ScrollArea className="flex-1 w-full">
         {viewMode === 'list' ? (
-          <div className={`${isExpanded ? 'p-4' : 'p-2'} w-full`}>
-            <div className={`space-y-3 w-full ${!isExpanded ? 'items-center' : ''}`}>
+          <div className="p-4">
+            <div className="space-y-3">
               {sources.map(source => (
                 <motion.button
                   key={source.id}
