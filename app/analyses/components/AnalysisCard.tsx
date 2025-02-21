@@ -7,9 +7,35 @@ import { Loader2, TrendingUp, TrendingDown, Star, AlertTriangle, Zap, BarChart, 
 import { Progress } from "@/components/ui/progress"
 import { motion, AnimatePresence } from "framer-motion"
 
-interface AnalysisCardProps {
-  analysisId: string
-  onSourceClick: (category: string, itemId: string, title: string) => void
+interface Strength {
+  _id: string
+  title: string
+  impact: string
+  mentions: number
+  quote: string
+  details: string
+  marketingTips: Array<{
+    action: string
+    cost: string
+    roi: string
+  }>
+}
+
+interface Issue {
+  _id: string
+  title: string
+  priority: string
+  impact: string
+  mentions: number
+  quote: string
+  details: string
+  solution: {
+    title: string
+    timeline: string
+    cost: string
+    roi: string
+    steps: string[]
+  }
 }
 
 interface Analysis {
@@ -31,33 +57,8 @@ interface Analysis {
       rating1: string
     }
   }
-  strengths: Array<{
-    title: string
-    impact: string
-    mentions: number
-    quote: string
-    details: string
-    marketingTips: Array<{
-      action: string
-      cost: string
-      roi: string
-    }>
-  }>
-  issues: Array<{
-    title: string
-    priority: string
-    impact: string
-    mentions: number
-    quote: string
-    details: string
-    solution: {
-      title: string
-      timeline: string
-      cost: string
-      roi: string
-      steps: string[]
-    }
-  }>
+  strengths: Strength[]
+  issues: Issue[]
   quickWins: Array<{
     action: string
     timeline: string
@@ -69,6 +70,11 @@ interface Analysis {
     change: string
     period: string
   }>
+}
+
+interface AnalysisCardProps {
+  analysisId: string
+  onSourceClick: (category: string, itemId: string, title: string) => void
 }
 
 export default function AnalysisCard({ analysisId, onSourceClick }: AnalysisCardProps) {
