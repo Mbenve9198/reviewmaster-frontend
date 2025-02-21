@@ -232,27 +232,35 @@ export default function AnalysisCard({ analysisId, onSourceClick }: AnalysisCard
                 <h3 className="text-lg font-semibold text-gray-900">Key Strengths</h3>
                 <div className="grid grid-cols-2 gap-4">
                   {analysis.strengths.map((strength, index) => (
-                    <motion.div
-                      key={index}
-                      className="bg-gradient-to-br from-emerald-50 to-white p-4 rounded-xl border border-emerald-200/50"
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.1 }}
+                    <motion.div 
+                      key={index} 
+                      className="bg-white/80 backdrop-blur-sm rounded-xl p-4 shadow-sm border border-gray-100"
                     >
-                      <div className="flex justify-between items-start mb-3">
-                        <h4 className="font-medium text-emerald-900">{strength.title}</h4>
-                        <button 
-                          onClick={() => onSourceClick('strengths', strength._id, strength.title)}
-                          className="flex items-center gap-1 text-sm text-emerald-600 hover:text-emerald-700"
-                        >
-                          <Link className="h-4 w-4" />
-                          <span>{strength.mentions} reviews</span>
-                        </button>
+                      <h4 className="font-medium text-emerald-900 mb-2">
+                        {strength.title}
+                      </h4>
+                      
+                      <p className="text-gray-600 text-sm mb-3">
+                        {strength.details}
+                      </p>
+
+                      {/* Marketing Tips */}
+                      <div className="space-y-2 mb-4">
+                        {strength.marketingTips.map((tip, idx) => (
+                          <div key={idx} className="...">
+                            {/* ... existing marketing tips content ... */}
+                          </div>
+                        ))}
                       </div>
-                      <p className="text-sm text-gray-600 mb-2">{strength.details}</p>
-                      <blockquote className="text-sm italic text-emerald-600 bg-emerald-50 p-2 rounded-lg mb-2">
-                        "{strength.quote}"
-                      </blockquote>
+
+                      {/* Link alle recensioni spostato qui */}
+                      <button 
+                        onClick={() => onSourceClick('strengths', strength._id, strength.title)}
+                        className="flex items-center gap-1.5 text-xs text-emerald-600 hover:text-emerald-700 mt-3 py-2 px-3 bg-emerald-50/50 rounded-lg hover:bg-emerald-50 transition-colors"
+                      >
+                        <Link className="h-3.5 w-3.5" />
+                        <span>View {strength.mentions} related reviews</span>
+                      </button>
                     </motion.div>
                   ))}
                 </div>
@@ -263,27 +271,31 @@ export default function AnalysisCard({ analysisId, onSourceClick }: AnalysisCard
                 <h3 className="text-lg font-semibold text-gray-900">Areas for Improvement</h3>
                 <div className="grid grid-cols-2 gap-4">
                   {analysis.issues.map((issue, index) => (
-                    <motion.div
-                      key={index}
-                      className="bg-gradient-to-br from-rose-50 to-white p-4 rounded-xl border border-rose-200/50"
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.1 }}
+                    <motion.div 
+                      key={index} 
+                      className="bg-white/80 backdrop-blur-sm rounded-xl p-4 shadow-sm border border-gray-100"
                     >
-                      <div className="flex justify-between items-start mb-3">
-                        <h4 className="font-medium text-rose-900">{issue.title}</h4>
-                        <button 
-                          onClick={() => onSourceClick('issues', issue._id, issue.title)}
-                          className="flex items-center gap-1 text-sm text-rose-600 hover:text-rose-700"
-                        >
-                          <Link className="h-4 w-4" />
-                          <span>{issue.mentions} reviews</span>
-                        </button>
+                      <h4 className="font-medium text-rose-900 mb-2">
+                        {issue.title}
+                      </h4>
+                      
+                      <p className="text-gray-600 text-sm mb-3">
+                        {issue.details}
+                      </p>
+
+                      {/* Solution section */}
+                      <div className="bg-gray-50/80 rounded-lg p-3 mb-4">
+                        {/* ... existing solution content ... */}
                       </div>
-                      <p className="text-sm text-gray-600 mb-2">{issue.details}</p>
-                      <blockquote className="text-sm italic text-rose-600 bg-rose-50 p-2 rounded-lg mb-2">
-                        "{issue.quote}"
-                      </blockquote>
+
+                      {/* Link alle recensioni spostato qui */}
+                      <button 
+                        onClick={() => onSourceClick('issues', issue._id, issue.title)}
+                        className="flex items-center gap-1.5 text-xs text-rose-600 hover:text-rose-700 mt-3 py-2 px-3 bg-rose-50/50 rounded-lg hover:bg-rose-50 transition-colors"
+                      >
+                        <Link className="h-3.5 w-3.5" />
+                        <span>View {issue.mentions} related reviews</span>
+                      </button>
                     </motion.div>
                   ))}
                 </div>

@@ -187,43 +187,66 @@ const SourcesCard = forwardRef<SourcesCardRef, SourcesCardProps>(({
       {/* Content */}
       <ScrollArea className="h-[calc(100%-8rem)]">
         {viewMode === 'list' ? (
-          <motion.div className={`p-2 space-y-2 ${!isExpanded ? 'flex flex-col items-center' : ''}`}>
+          <motion.div 
+            className={`p-4 space-y-3 ${!isExpanded ? 'flex flex-col items-center' : ''}`}
+          >
             {sources.map(source => (
-              <button
+              <motion.button
                 key={source.id}
                 onClick={() => handleSourceClick(source)}
                 className={`
                   ${!isExpanded ? 'w-auto' : 'w-full'} 
-                  p-3 rounded-xl text-left transition-all hover:scale-[0.98] 
+                  p-4 rounded-xl text-left transition-all hover:scale-[0.98] 
                   ${selectedSource === source.id
-                    ? 'bg-blue-50 border-blue-100 shadow-sm'
-                    : 'hover:bg-gray-50/80 border-transparent'
+                    ? 'bg-gradient-to-br from-blue-50 to-blue-100/50 border-blue-200 shadow-md'
+                    : 'bg-gradient-to-br from-white to-gray-50/50 hover:from-gray-50 hover:to-gray-100/50 border-gray-200'
                   } 
-                  border
+                  border shadow-sm hover:shadow-md
                 `}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
               >
-                <div className={`flex items-start gap-3 ${!isExpanded ? 'justify-center' : ''}`}>
-                  <div className="p-2 bg-blue-50 rounded-lg shrink-0">
+                <div className={`flex items-start gap-4 ${!isExpanded ? 'justify-center' : ''}`}>
+                  <div className={`
+                    p-2.5 rounded-lg shrink-0
+                    ${selectedSource === source.id
+                      ? 'bg-blue-100/80 text-blue-600'
+                      : 'bg-gray-100/80 text-gray-600'
+                    }
+                  `}>
                     {source.type === 'all-reviews' ? (
-                      <FileText className="h-4 w-4 text-blue-500" />
+                      <FileText className="h-4 w-4" />
                     ) : (
-                      <Star className="h-4 w-4 text-blue-500" />
+                      <Star className="h-4 w-4" />
                     )}
                   </div>
                   {isExpanded && (
-                    <div className="min-w-0 flex-1">
-                      <div className="flex justify-between items-start gap-2">
-                        <p className="font-medium text-sm text-gray-900 break-words line-clamp-2">
+                    <div className="min-w-0 flex-1 space-y-1">
+                      <div className="flex justify-between items-start gap-3">
+                        <h3 className="font-medium text-sm text-gray-900 break-words line-clamp-2">
                           {source.title}
-                        </p>
-                        <span className="text-xs text-gray-500 whitespace-nowrap flex-shrink-0">
+                        </h3>
+                        <span className={`
+                          px-2.5 py-1 rounded-full text-xs font-medium whitespace-nowrap
+                          ${selectedSource === source.id
+                            ? 'bg-blue-100/50 text-blue-700'
+                            : 'bg-gray-100/50 text-gray-600'
+                          }
+                        `}>
                           {source.count} reviews
                         </span>
                       </div>
+                      <p className="text-xs text-gray-500">
+                        {source.type === 'all-reviews' 
+                          ? 'Complete analysis dataset'
+                          : `${source.category === 'strengths' ? 'Strength' : 'Issue'} analysis group`
+                        }
+                      </p>
                     </div>
                   )}
                 </div>
-              </button>
+              </motion.button>
             ))}
           </motion.div>
         ) : (
@@ -233,24 +256,29 @@ const SourcesCard = forwardRef<SourcesCardRef, SourcesCardProps>(({
             className="p-4 space-y-4"
           >
             {selectedReviews.map((review, idx) => (
-              <div 
+              <motion.div 
                 key={idx} 
-                className="bg-white rounded-lg p-4 shadow-sm border border-gray-100"
+                className="bg-gradient-to-br from-white to-gray-50/50 rounded-xl p-4 shadow-sm border border-gray-200"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: idx * 0.05 }}
               >
-                <p className="text-gray-800 mb-2 break-words">
+                <p className="text-gray-800 mb-3 break-words">
                   {review.text}
                 </p>
                 <div className="flex justify-between items-center text-sm text-gray-500 flex-wrap gap-2">
-                  <span className="break-words">{review.platform}</span>
+                  <span className="break-words bg-gray-100/80 px-2 py-1 rounded-md text-xs">
+                    {review.platform}
+                  </span>
                   <div className="flex items-center gap-2 flex-shrink-0">
-                    <span>{new Date(review.date).toLocaleDateString()}</span>
-                    <div className="flex items-center gap-1">
-                      <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
-                      <span>{review.rating}</span>
+                    <span className="text-xs">{new Date(review.date).toLocaleDateString()}</span>
+                    <div className="flex items-center gap-1 bg-amber-50 px-2 py-1 rounded-md">
+                      <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+                      <span className="text-xs text-amber-700">{review.rating}</span>
                     </div>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </motion.div>
         )}
