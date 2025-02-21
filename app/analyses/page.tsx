@@ -9,7 +9,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import SourcesCard from "./components/SourcesCard"
 import AnalysisCard from "./components/AnalysisCard"
 import ChatCard from "./components/ChatCard"
-import { useSearchParams } from 'next/navigation'
+import { useSearchParams, useRouter } from 'next/navigation'
 
 interface Analysis {
   _id: string
@@ -35,6 +35,7 @@ export default function AnalysesPage() {
   const analysisId = searchParams.get('id')
   const isGenerating = searchParams.get('loading') === 'true'
   const [isAnalysisReady, setIsAnalysisReady] = useState(false)
+  const router = useRouter()
 
   // Calcolo delle larghezze delle card in base allo stato
   const getWidths = () => {
@@ -85,7 +86,7 @@ export default function AnalysesPage() {
     const checkAnalysis = async () => {
       try {
         const token = getCookie('token')
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/analyses/${analysisId}`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/analytics/${analysisId}`, {
           headers: {
             'Authorization': `Bearer ${token}`,
           }
@@ -93,6 +94,9 @@ export default function AnalysesPage() {
         
         if (response.ok) {
           setIsAnalysisReady(true)
+          if (searchParams.get('loading')) {
+            router.replace(`/analyses?id=${analysisId}`)
+          }
         }
       } catch (error) {
         console.error('Error checking analysis:', error)
