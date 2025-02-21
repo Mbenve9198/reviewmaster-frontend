@@ -229,22 +229,17 @@ const SourcesCard = forwardRef<SourcesCardRef, SourcesCardProps>(({
                   key={source.id}
                   onClick={() => handleSourceClick(source)}
                   className={`
-                    ${isExpanded ? 'w-full p-4' : 'w-10 p-2'} 
+                    w-full
+                    ${isExpanded ? 'p-4' : 'p-2'} 
                     rounded-xl text-left transition-all hover:scale-[0.98] 
                     ${selectedSource === source.id
                       ? 'bg-gradient-to-br from-blue-50 to-blue-100/50 border-blue-200 shadow-md'
                       : 'bg-gradient-to-br from-white to-gray-50/50 hover:from-gray-50 hover:to-gray-100/50 border-gray-200'
                     } 
-                    border shadow-sm hover:shadow-md max-w-full
+                    border shadow-sm hover:shadow-md
                   `}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3 }}
                 >
-                  <div className={`
-                    flex items-start
-                    ${isExpanded ? 'gap-4 w-full' : 'justify-center'}
-                  `}>
+                  <div className="flex items-center gap-4">
                     <div className={`
                       ${isExpanded ? 'p-2.5' : 'p-0'} 
                       rounded-lg flex-shrink-0 text-blue-600
@@ -257,7 +252,7 @@ const SourcesCard = forwardRef<SourcesCardRef, SourcesCardProps>(({
                       )}
                     </div>
                     {isExpanded && (
-                      <div className="min-w-0 flex-1 space-y-1">
+                      <div className="min-w-0 flex-1">
                         <div className="flex justify-between items-start gap-3">
                           <h3 className="font-medium text-sm text-gray-900 break-words line-clamp-2">
                             {source.title}
@@ -272,7 +267,7 @@ const SourcesCard = forwardRef<SourcesCardRef, SourcesCardProps>(({
                             {source.count} reviews
                           </span>
                         </div>
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-gray-500 mt-1">
                           {source.type === 'all-reviews' 
                             ? 'Complete analysis dataset'
                             : `${source.category === 'strengths' ? 'Strength' : 'Issue'} analysis group`
@@ -341,7 +336,7 @@ const SourcesCard = forwardRef<SourcesCardRef, SourcesCardProps>(({
                 </div>
 
                 {/* Contenuto recensione */}
-                <p className="text-gray-700 text-sm leading-relaxed whitespace-pre-wrap break-words">
+                <p className="text-gray-700 text-sm leading-relaxed whitespace-pre-wrap break-words mt-3">
                   {review.text}
                 </p>
 
