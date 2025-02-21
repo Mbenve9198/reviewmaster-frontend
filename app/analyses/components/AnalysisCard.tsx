@@ -142,8 +142,8 @@ export default function AnalysisCard({ analysisId }: AnalysisCardProps) {
           </div>
         ) : (
           <ScrollArea className="h-full">
-            {/* Header */}
-            <div className="p-4 border-b border-gray-100/80 bg-white/50">
+            {/* Header con sfondo bianco solido */}
+            <div className="p-4 border-b border-gray-100 bg-white">
               <h2 className="font-semibold text-gray-900">Analysis Overview</h2>
             </div>
 
@@ -152,7 +152,7 @@ export default function AnalysisCard({ analysisId }: AnalysisCardProps) {
               <div className="grid grid-cols-3 gap-4">
                 {/* Review Count & Rating */}
                 <motion.div 
-                  className="bg-gradient-to-br from-blue-50 to-blue-100/50 p-4 rounded-xl border border-blue-200/50"
+                  className="bg-gradient-to-br from-blue-50 to-white p-4 rounded-xl border border-blue-200/50"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                 >
@@ -177,7 +177,7 @@ export default function AnalysisCard({ analysisId }: AnalysisCardProps) {
 
                 {/* Sentiment Distribution */}
                 <motion.div 
-                  className="bg-gradient-to-br from-amber-50 to-amber-100/50 p-4 rounded-xl border border-amber-200/50"
+                  className="bg-gradient-to-br from-amber-50 to-white p-4 rounded-xl border border-amber-200/50"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.1 }}
@@ -198,7 +198,7 @@ export default function AnalysisCard({ analysisId }: AnalysisCardProps) {
 
                 {/* Quick Stats */}
                 <motion.div 
-                  className="bg-gradient-to-br from-emerald-50 to-emerald-100/50 p-4 rounded-xl border border-emerald-200/50"
+                  className="bg-gradient-to-br from-emerald-50 to-white p-4 rounded-xl border border-emerald-200/50"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2 }}

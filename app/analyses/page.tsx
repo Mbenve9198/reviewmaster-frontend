@@ -10,6 +10,7 @@ import SourcesCard from "./components/SourcesCard"
 import AnalysisCard from "./components/AnalysisCard"
 import ChatCard from "./components/ChatCard"
 import { useSearchParams, useRouter } from 'next/navigation'
+import { format } from 'date-fns'
 
 interface Analysis {
   _id: string
@@ -156,15 +157,21 @@ export default function AnalysesPage() {
       {/* Analysis Selector */}
       <div className="px-2">
         <Select value={selectedAnalysis} onValueChange={setSelectedAnalysis}>
-          <SelectTrigger className="h-8 w-[250px] bg-white rounded-xl border-gray-200 hover:border-gray-300 text-sm">
+          <SelectTrigger className="w-[300px] h-10 bg-white border-gray-200 hover:border-gray-300 rounded-xl">
             <SelectValue placeholder="Select analysis" />
           </SelectTrigger>
-          <SelectContent>
-            {analyses.map(analysis => (
-              <SelectItem key={analysis._id} value={analysis._id} className="text-sm">
-                {analysis.title}
-              </SelectItem>
-            ))}
+          <SelectContent className="max-h-[200px]">
+            <ScrollArea className="h-full max-h-[200px]">
+              {analyses.map(analysis => (
+                <SelectItem 
+                  key={analysis._id} 
+                  value={analysis._id}
+                  className="text-gray-900"
+                >
+                  {analysis.title || format(new Date(analysis.createdAt), 'PPP')}
+                </SelectItem>
+              ))}
+            </ScrollArea>
           </SelectContent>
         </Select>
       </div>
