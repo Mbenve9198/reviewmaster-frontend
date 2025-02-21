@@ -15,38 +15,111 @@ interface SourcesCardProps {
 
 interface Source {
   id: string
-  type: 'review' | 'pdf'
+  type: 'review-group' | 'all-reviews'
   title: string
-  date: string
+  category: 'strengths' | 'issues'
+  itemId?: string
+  count: number
+  reviews?: Array<{
+    id: string
+    text: string
+    rating: number
+    date: string
+    platform: string
+  }>
 }
 
 export default function SourcesCard({ analysisId, isExpanded, onToggleExpand }: SourcesCardProps) {
   const [sources, setSources] = useState<Source[]>([])
   const [selectedSource, setSelectedSource] = useState<string | null>(null)
+  const [selectedReviews, setSelectedReviews] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
+
+  const fetchGroupedReviews = async (source: Source) => {
+    if (!source.itemId) return;
+    
+    try {
+      const token = getCookie('token')
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/analytics/${analysisId}/reviews/${source.category}/${source.itemId}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          }
+        }
+      );
+      
+      if (!response.ok) throw new Error('Failed to fetch reviews');
+      
+      const data = await response.json();
+      setSelectedReviews(data.reviews);
+    } catch (error) {
+      console.error('Error fetching grouped reviews:', error);
+    }
+  };
 
   useEffect(() => {
     const fetchSources = async () => {
-      if (!analysisId) return
-      setIsLoading(true)
+      if (!analysisId) return;
+      setIsLoading(true);
       try {
-        const token = getCookie('token')
-        // Simulated API call - replace with actual endpoint
-        const mockSources: Source[] = [
-          { id: '1', type: 'review', title: 'Review Analysis', date: '2024-03-15' },
-          { id: '2', type: 'pdf', title: 'Hotel Guidelines.pdf', date: '2024-03-14' },
-          { id: '3', type: 'pdf', title: 'Customer Feedback.pdf', date: '2024-03-13' }
-        ]
-        setSources(mockSources)
+        const token = getCookie('token');
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/analytics/${analysisId}`,
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+            }
+          }
+        );
+        
+        if (!response.ok) throw new Error('Failed to fetch analysis');
+        
+        const data = await response.json();
+        const analysis = data.analysis;
+        
+        // Creiamo le fonti dai dati dell'analisi
+        const sourcesData: Source[] = [
+          {
+            id: 'all',
+            type: 'all-reviews',
+            title: 'All Reviews',
+            category: 'all',
+            count: analysis.meta.reviewCount
+          },
+          ...analysis.strengths.map((s: any) => ({
+            id: s._id,
+            type: 'review-group',
+            title: s.title,
+            category: 'strengths',
+            itemId: s._id,
+            count: s.mentions
+          })),
+          ...analysis.issues.map((i: any) => ({
+            id: i._id,
+            type: 'review-group',
+            title: i.title,
+            category: 'issues',
+            itemId: i._id,
+            count: i.mentions
+          }))
+        ];
+        
+        setSources(sourcesData);
       } catch (error) {
-        console.error('Error fetching sources:', error)
+        console.error('Error fetching sources:', error);
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
-    }
+    };
 
-    fetchSources()
-  }, [analysisId])
+    fetchSources();
+  }, [analysisId]);
+
+  const handleSourceClick = async (source: Source) => {
+    setSelectedSource(source.id);
+    await fetchGroupedReviews(source);
+  };
 
   const handleUpload = () => {
     // Implementare la logica di upload
@@ -81,7 +154,7 @@ export default function SourcesCard({ analysisId, isExpanded, onToggleExpand }: 
           {sources.map(source => (
             <button
               key={source.id}
-              onClick={() => setSelectedSource(source.id)}
+              onClick={() => handleSourceClick(source)}
               className={`${!isExpanded ? 'w-auto' : 'w-full'} p-3 rounded-xl text-left transition-all hover:scale-[0.98] ${
                 selectedSource === source.id
                   ? 'bg-blue-50 border-blue-100 shadow-sm'
@@ -90,20 +163,39 @@ export default function SourcesCard({ analysisId, isExpanded, onToggleExpand }: 
             >
               <div className={`flex items-start gap-3 ${!isExpanded ? 'justify-center' : ''}`}>
                 <div className="p-2 bg-blue-50 rounded-lg shrink-0">
-                  {source.type === 'review' ? (
-                    <Star className="h-4 w-4 text-blue-500" />
-                  ) : (
+                  {source.type === 'all-reviews' ? (
                     <FileText className="h-4 w-4 text-blue-500" />
+                  ) : (
+                    <Star className="h-4 w-4 text-blue-500" />
                   )}
                 </div>
                 {isExpanded && (
-                  <div className="min-w-0">
-                    <p className="font-medium text-sm text-gray-900 truncate">
-                      {source.title}
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      {new Date(source.date).toLocaleDateString('it-IT')}
-                    </p>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex justify-between items-start">
+                      <p className="font-medium text-sm text-gray-900 truncate">
+                        {source.title}
+                      </p>
+                      <span className="text-xs text-gray-500 ml-2">
+                        {source.count} reviews
+                      </span>
+                    </div>
+                    {selectedSource === source.id && selectedReviews.length > 0 && (
+                      <motion.div
+                        initial={{ height: 0 }}
+                        animate={{ height: 'auto' }}
+                        className="mt-3 space-y-2"
+                      >
+                        {selectedReviews.map((review, idx) => (
+                          <div key={idx} className="text-sm bg-white/80 p-2 rounded-lg">
+                            <p className="text-gray-700">{review.text}</p>
+                            <div className="flex justify-between items-center mt-1 text-xs text-gray-500">
+                              <span>{review.platform}</span>
+                              <span>{new Date(review.date).toLocaleDateString()}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </motion.div>
+                    )}
                   </div>
                 )}
               </div>
