@@ -28,12 +28,12 @@ interface Analysis {
 export default function AnalysesPage() {
   const [analyses, setAnalyses] = useState<Analysis[]>([])
   const [selectedAnalysis, setSelectedAnalysis] = useState<string>("")
-  const [isLoading, setIsLoading] = useState(true)
+  const [isLoadingData, setIsLoadingData] = useState(true)
   const [sourcesExpanded, setSourcesExpanded] = useState(true)
   const [chatExpanded, setChatExpanded] = useState(true)
   const searchParams = useSearchParams()
   const analysisId = searchParams.get('id')
-  const isLoading = searchParams.get('loading') === 'true'
+  const isGenerating = searchParams.get('loading') === 'true'
   const [isAnalysisReady, setIsAnalysisReady] = useState(false)
 
   // Calcolo delle larghezze delle card in base allo stato
@@ -65,7 +65,7 @@ export default function AnalysesPage() {
       } catch (error) {
         console.error('Error fetching analyses:', error)
       } finally {
-        setIsLoading(false)
+        setIsLoadingData(false)
       }
     }
 
@@ -103,16 +103,18 @@ export default function AnalysesPage() {
     return () => clearInterval(interval)
   }, [analysisId])
 
-  if (isLoading) {
+  if (isLoadingData || isGenerating) {
     return (
       <div className="h-full bg-white/50 backdrop-blur-sm rounded-2xl border border-gray-200/50 shadow-lg flex flex-col items-center justify-center p-8 space-y-4">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
         <div className="text-center space-y-2">
           <h3 className="text-lg font-semibold text-gray-900">
-            Analyzing Reviews...
+            {isGenerating ? "Analyzing Reviews..." : "Loading..."}
           </h3>
           <p className="text-sm text-gray-500">
-            We're processing your selected reviews to generate insights. This may take a few moments.
+            {isGenerating 
+              ? "We're processing your selected reviews to generate insights. This may take a few moments."
+              : "Loading your analysis..."}
           </p>
         </div>
       </div>
