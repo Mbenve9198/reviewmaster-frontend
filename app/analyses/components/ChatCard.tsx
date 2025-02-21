@@ -25,6 +25,56 @@ interface SuggestedQuestion {
   text: string
 }
 
+const ChatInput = ({ value, onChange, onKeyPress, isExpanded, onSend, isLoading }: {
+  value: string
+  onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void
+  onKeyPress: (e: React.KeyboardEvent) => void
+  isExpanded: boolean
+  onSend: () => void
+  isLoading: boolean
+}) => {
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
+
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto'
+      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`
+    }
+  }, [value])
+
+  return (
+    <div className="relative flex items-start">
+      <div className="relative flex-1">
+        <textarea
+          ref={textareaRef}
+          value={value}
+          onChange={onChange}
+          onKeyDown={onKeyPress}
+          placeholder={isExpanded ? "Start typing..." : ""}
+          rows={1}
+          className={`w-full bg-gray-50 border border-gray-200 rounded-xl pr-16 py-3 px-4 resize-none overflow-hidden
+            ${isExpanded ? 'min-h-[60px]' : 'min-h-[45px]'}
+            focus:ring-0 focus:border-gray-300 placeholder:text-gray-500`}
+          style={{
+            maxHeight: '200px'  // Altezza massima prima dello scroll
+          }}
+        />
+        <div className="absolute right-3 top-1/2 -translate-y-1/2">
+          <Button
+            onClick={onSend}
+            disabled={!value.trim() || isLoading}
+            size="icon"
+            variant="ghost"
+            className="h-8 w-8 rounded-full bg-blue-500 hover:bg-blue-600 text-white"
+          >
+            <Send className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: ChatCardProps) {
   const [messages, setMessages] = useState<Message[]>([])
   const [inputValue, setInputValue] = useState("")
@@ -241,31 +291,19 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
 
       {/* Input e Suggested Questions */}
       <div className="p-4 space-y-3 border-t border-gray-100">
-        {/* Input più alto */}
-        <div className="relative flex items-center">
-          <div className="relative flex-1">
-            <Input
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder={isExpanded ? "Start typing..." : ""}
-              className={`w-full bg-gray-50 border-gray-200 rounded-xl pr-16 ${
-                isExpanded ? 'h-[60px]' : 'h-[45px]'
-              } focus:ring-0 focus:border-gray-300 placeholder:text-gray-500`}
-            />
-            <div className="absolute right-3 top-1/2 -translate-y-1/2">
-              <Button
-                onClick={() => sendMessage(inputValue)}
-                disabled={!inputValue.trim() || isLoading}
-                size="icon"
-                variant="ghost"
-                className="h-8 w-8 rounded-full bg-blue-500 hover:bg-blue-600 text-white"
-              >
-                <Send className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        </div>
+        <ChatInput
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          onKeyPress={(e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+              e.preventDefault()
+              sendMessage(inputValue)
+            }
+          }}
+          isExpanded={isExpanded}
+          onSend={() => sendMessage(inputValue)}
+          isLoading={isLoading}
+        />
 
         {/* Suggested Questions solo quando è espanso */}
         {isExpanded && suggestedQuestions.length > 0 && (
