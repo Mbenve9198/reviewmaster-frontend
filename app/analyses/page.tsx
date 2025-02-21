@@ -47,7 +47,7 @@ export default function AnalysesPage() {
     const fetchAnalyses = async () => {
       try {
         const token = getCookie('token')
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/analyses`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/analytics`, {
           headers: {
             'Authorization': `Bearer ${token}`,
           }
