@@ -150,10 +150,10 @@ export default function SourcesCard({ analysisId, isExpanded, onToggleExpand }: 
     <div className="h-full bg-white/50 backdrop-blur-sm rounded-2xl border border-gray-200/50 shadow-lg overflow-hidden">
       {/* Header */}
       <div className="p-4 border-b border-gray-100/80 flex justify-between items-center bg-white/50">
-        <h2 className="font-semibold text-gray-900">
+        <h2 className="font-semibold text-gray-900 truncate flex-1">
           {isExpanded ? (viewMode === 'list' ? "Sources" : selectedTitle) : ""}
         </h2>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-shrink-0">
           {viewMode === 'document' && (
             <button
               onClick={handleBackToList}
@@ -183,11 +183,15 @@ export default function SourcesCard({ analysisId, isExpanded, onToggleExpand }: 
               <button
                 key={source.id}
                 onClick={() => handleSourceClick(source)}
-                className={`${!isExpanded ? 'w-auto' : 'w-full'} p-3 rounded-xl text-left transition-all hover:scale-[0.98] ${
-                  selectedSource === source.id
+                className={`
+                  ${!isExpanded ? 'w-auto' : 'w-full'} 
+                  p-3 rounded-xl text-left transition-all hover:scale-[0.98] 
+                  ${selectedSource === source.id
                     ? 'bg-blue-50 border-blue-100 shadow-sm'
                     : 'hover:bg-gray-50/80 border-transparent'
-                } border`}
+                  } 
+                  border
+                `}
               >
                 <div className={`flex items-start gap-3 ${!isExpanded ? 'justify-center' : ''}`}>
                   <div className="p-2 bg-blue-50 rounded-lg shrink-0">
@@ -199,31 +203,14 @@ export default function SourcesCard({ analysisId, isExpanded, onToggleExpand }: 
                   </div>
                   {isExpanded && (
                     <div className="min-w-0 flex-1">
-                      <div className="flex justify-between items-start">
-                        <p className="font-medium text-sm text-gray-900 truncate">
+                      <div className="flex justify-between items-start gap-2">
+                        <p className="font-medium text-sm text-gray-900 break-words line-clamp-2">
                           {source.title}
                         </p>
-                        <span className="text-xs text-gray-500 ml-2">
+                        <span className="text-xs text-gray-500 whitespace-nowrap flex-shrink-0">
                           {source.count} reviews
                         </span>
                       </div>
-                      {selectedSource === source.id && selectedReviews.length > 0 && (
-                        <motion.div
-                          initial={{ height: 0 }}
-                          animate={{ height: 'auto' }}
-                          className="mt-3 space-y-2"
-                        >
-                          {selectedReviews.map((review, idx) => (
-                            <div key={idx} className="text-sm bg-white/80 p-2 rounded-lg">
-                              <p className="text-gray-700">{review.text}</p>
-                              <div className="flex justify-between items-center mt-1 text-xs text-gray-500">
-                                <span>{review.platform}</span>
-                                <span>{new Date(review.date).toLocaleDateString()}</span>
-                              </div>
-                            </div>
-                          ))}
-                        </motion.div>
-                      )}
                     </div>
                   )}
                 </div>
@@ -241,10 +228,12 @@ export default function SourcesCard({ analysisId, isExpanded, onToggleExpand }: 
                 key={idx} 
                 className="bg-white rounded-lg p-4 shadow-sm border border-gray-100"
               >
-                <p className="text-gray-800 mb-2">{review.text}</p>
-                <div className="flex justify-between items-center text-sm text-gray-500">
-                  <span>{review.platform}</span>
-                  <div className="flex items-center gap-2">
+                <p className="text-gray-800 mb-2 break-words">
+                  {review.text}
+                </p>
+                <div className="flex justify-between items-center text-sm text-gray-500 flex-wrap gap-2">
+                  <span className="break-words">{review.platform}</span>
+                  <div className="flex items-center gap-2 flex-shrink-0">
                     <span>{new Date(review.date).toLocaleDateString()}</span>
                     <div className="flex items-center gap-1">
                       <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
