@@ -223,14 +223,16 @@ const SourcesCard = forwardRef<SourcesCardRef, SourcesCardProps>(({
       <ScrollArea className="flex-1 w-full overflow-hidden">
         {viewMode === 'list' ? (
           <div className="p-4">
-            <div className="space-y-3 pr-4">
+            <div className={`
+              ${isExpanded ? 'space-y-3 pr-4' : 'space-y-1'}
+            `}>
               {sources.map(source => (
                 <motion.button
                   key={source.id}
                   onClick={() => handleSourceClick(source)}
                   className={`
                     w-full
-                    ${isExpanded ? 'py-4' : 'p-2'} 
+                    ${isExpanded ? 'py-4' : 'py-3'} 
                     rounded-xl text-left transition-all hover:scale-[0.98] 
                     ${selectedSource === source.id
                       ? 'bg-gradient-to-br from-blue-50 to-blue-100/50 border-blue-200 shadow-md'
@@ -240,10 +242,14 @@ const SourcesCard = forwardRef<SourcesCardRef, SourcesCardProps>(({
                     max-w-full overflow-hidden
                   `}
                 >
-                  <div className="flex items-center gap-2 px-2">
+                  <div className={`
+                    ${isExpanded 
+                      ? 'flex items-center gap-2 px-2' 
+                      : 'flex justify-center items-center'}
+                  `}>
                     <div className={`
-                      ${isExpanded ? 'p-2.5' : 'p-0'} 
-                      rounded-lg flex-shrink-0 text-blue-600
+                      ${isExpanded ? 'p-2.5' : 'p-1'} 
+                      rounded-lg flex-shrink-0 
                       ${selectedSource === source.id ? 'text-blue-700' : 'text-blue-600'}
                     `}>
                       {source.type === 'all-reviews' ? (
