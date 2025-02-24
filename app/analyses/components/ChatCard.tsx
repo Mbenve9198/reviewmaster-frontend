@@ -29,7 +29,7 @@ interface ChatCardProps {
 interface Message {
   role: 'user' | 'assistant'
   content: string
-  timestamp: Date
+  timestamp: string | Date
 }
 
 interface SuggestedQuestion {
@@ -207,6 +207,14 @@ const SuggestedQuestionsNav = ({
       )}
     </div>
   )
+}
+
+// Aggiungi questa funzione helper
+const formatTimestamp = (timestamp: string | Date) => {
+  if (typeof timestamp === 'string') {
+    return new Date(timestamp).toLocaleTimeString()
+  }
+  return timestamp.toLocaleTimeString()
 }
 
 export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: ChatCardProps) {
@@ -537,6 +545,7 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
                       bg-gradient-to-br from-white to-gray-50/50 
                       hover:from-gray-50 hover:to-gray-100/50 
                       border border-gray-200 shadow-sm hover:shadow-md
+                      max-w-full overflow-hidden
                     `}
                   >
                     <div className={`
@@ -545,11 +554,11 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
                       <FileText className="h-4 w-4 text-gray-500" />
                       {isExpanded && (
                         <div className="flex-1 min-w-0">
-                          <div className="flex justify-between items-center">
-                            <h3 className="font-medium text-sm text-gray-900 truncate">
+                          <div className="flex justify-between items-start gap-1">
+                            <h3 className="font-medium text-sm text-gray-900 break-words line-clamp-2 max-w-[70%]">
                               {chat.title || "Chat"}
                             </h3>
-                            <span className="text-xs text-gray-500">
+                            <span className="text-xs text-gray-500 whitespace-nowrap flex-shrink-0">
                               {new Date(chat.createdAt).toLocaleDateString()}
                             </span>
                           </div>
@@ -645,7 +654,7 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
                           <p className="text-sm">{message.content}</p>
                         )}
                         <p className="text-xs mt-1 opacity-70">
-                          {message.timestamp.toLocaleTimeString()}
+                          {formatTimestamp(message.timestamp)}
                         </p>
                       </div>
                     )}
