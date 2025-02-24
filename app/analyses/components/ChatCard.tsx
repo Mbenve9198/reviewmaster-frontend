@@ -76,6 +76,121 @@ const ChatInput = ({ value, onChange, onKeyPress, isExpanded, onSend, isLoading 
   )
 }
 
+// Componente per la navigazione orizzontale delle domande suggerite
+const SuggestedQuestionsNav = ({ 
+  questions, 
+  selectedId, 
+  onSelectQuestion 
+}: {
+  questions: SuggestedQuestion[]
+  selectedId: string | null
+  onSelectQuestion: (id: string, text: string) => void
+}) => {
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
+  const [showLeftArrow, setShowLeftArrow] = useState(false)
+  const [showRightArrow, setShowRightArrow] = useState(false)
+  
+  useEffect(() => {
+    const checkScrollIndicators = () => {
+      const container = scrollContainerRef.current
+      if (container) {
+        setShowLeftArrow(container.scrollLeft > 0)
+        setShowRightArrow(
+          container.scrollLeft < container.scrollWidth - container.clientWidth - 10
+        )
+      }
+    }
+    
+    const container = scrollContainerRef.current
+    if (container) {
+      container.addEventListener('scroll', checkScrollIndicators)
+      window.addEventListener('resize', checkScrollIndicators)
+      checkScrollIndicators()
+      setTimeout(checkScrollIndicators, 300)
+      
+      return () => {
+        container.removeEventListener('scroll', checkScrollIndicators)
+        window.removeEventListener('resize', checkScrollIndicators)
+      }
+    }
+  }, [questions])
+  
+  const scrollLeft = () => {
+    const container = scrollContainerRef.current
+    if (container) {
+      container.scrollBy({ left: -200, behavior: 'smooth' })
+    }
+  }
+  
+  const scrollRight = () => {
+    const container = scrollContainerRef.current
+    if (container) {
+      container.scrollBy({ left: 200, behavior: 'smooth' })
+    }
+  }
+  
+  return (
+    <div className="relative w-full">
+      {showLeftArrow && (
+        <div className="absolute left-0 top-1/2 transform -translate-y-1/2 z-10">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="rounded-full shadow-md bg-white h-6 w-6"
+            onClick={scrollLeft}
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+        </div>
+      )}
+      
+      <div 
+        className="overflow-x-auto hide-scrollbar py-2 px-1 flex gap-2"
+        ref={scrollContainerRef}
+        style={{
+          scrollbarWidth: 'none',
+          msOverflowStyle: 'none'
+        }}
+      >
+        {questions.map((question) => (
+          <button
+            key={question.id}
+            onClick={() => onSelectQuestion(question.id, question.text)}
+            className={`shrink-0 px-3 py-1.5 text-sm rounded-full transition-colors whitespace-nowrap
+              ${selectedId === question.id 
+                ? 'bg-blue-100 text-blue-700 border-blue-200' 
+                : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
+              } border`}
+          >
+            {question.text}
+          </button>
+        ))}
+      </div>
+      
+      {showRightArrow && (
+        <div className="absolute right-0 top-1/2 transform -translate-y-1/2 z-10">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="rounded-full shadow-md bg-white h-6 w-6"
+            onClick={scrollRight}
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
+      )}
+      
+      {showLeftArrow && (
+        <div className="absolute left-0 top-0 h-full w-8 bg-gradient-to-r from-white to-transparent pointer-events-none z-0" />
+      )}
+      
+      {showRightArrow && (
+        <div className="absolute right-0 top-0 h-full w-8 bg-gradient-to-l from-white to-transparent pointer-events-none z-0" />
+      )}
+    </div>
+  )
+}
+
 export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: ChatCardProps) {
   const [messages, setMessages] = useState<Message[]>([])
   const [inputValue, setInputValue] = useState("")
@@ -221,6 +336,11 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
     </div>
   )
 
+  const handleSelectQuestion = (id: string, text: string) => {
+    setSelectedQuestion(id)
+    setInputValue(text)
+  }
+
   return (
     <div className="h-full bg-white/50 backdrop-blur-sm rounded-2xl border border-gray-200/50 shadow-lg overflow-hidden flex flex-col">
       {/* Header con bordo inferiore */}
@@ -321,26 +441,11 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
         {/* Suggested Questions solo quando è espanso */}
         {isExpanded && suggestedQuestions.length > 0 && (
           <div className="w-full">
-            <ScrollArea className="w-full">
-              <div className="flex gap-2 pb-2 overflow-x-auto">
-                {suggestedQuestions.map((question) => (
-                  <button
-                    key={question.id}
-                    onClick={() => {
-                      setSelectedQuestion(question.id)
-                      setInputValue(question.text)
-                    }}
-                    className={`shrink-0 px-3 py-1.5 text-sm rounded-full transition-colors whitespace-nowrap
-                      ${selectedQuestion === question.id 
-                        ? 'bg-blue-100 text-blue-700 border-blue-200' 
-                        : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
-                      } border`}
-                  >
-                    {question.text}
-                  </button>
-                ))}
-              </div>
-            </ScrollArea>
+            <SuggestedQuestionsNav 
+              questions={suggestedQuestions}
+              selectedId={selectedQuestion}
+              onSelectQuestion={handleSelectQuestion}
+            />
           </div>
         )}
       </div>
