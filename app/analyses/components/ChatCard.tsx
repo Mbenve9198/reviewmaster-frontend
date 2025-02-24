@@ -199,8 +199,37 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
   const scrollAreaRef = useRef<HTMLDivElement>(null)
   const [selectedQuestion, setSelectedQuestion] = useState<string | null>(null)
 
+  const fetchChatHistory = async () => {
+    try {
+      const token = getCookie('token')
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/analytics/${analysisId}/chat-history`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch chat history')
+      }
+
+      const data = await response.json()
+      if (data && Array.isArray(data.messages)) {
+        const formattedMessages = data.messages.map((msg: any) => ({
+          ...msg,
+          timestamp: new Date(msg.timestamp)
+        }))
+        setMessages(formattedMessages)
+      }
+    } catch (error) {
+      console.error('Error fetching chat history:', error)
+    }
+  }
+
   useEffect(() => {
     if (analysisId) {
+      fetchChatHistory()
       fetchSuggestedQuestions()
     }
   }, [analysisId])
@@ -261,7 +290,8 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({ 
-          question: content
+          question: content,
+          messages: messages
         })
       })
       
@@ -277,7 +307,6 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
 
       setMessages(prev => [...prev, newAssistantMessage])
       
-      // Aggiorniamo i suggerimenti con quelli ricevuti dalla risposta
       if (data.suggestions && Array.isArray(data.suggestions)) {
         setSuggestedQuestions(data.suggestions.map((text: string, i: number) => ({
           id: `q-${i}`,
