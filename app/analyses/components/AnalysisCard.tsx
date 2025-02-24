@@ -109,6 +109,15 @@ export default function AnalysisCard({ analysisId, onSourceClick }: AnalysisCard
     fetchAnalysis()
   }, [analysisId])
 
+  // Funzione helper per verificare la presenza dei dati necessari
+  const hasSentimentData = (analysis: Analysis | null): boolean => {
+    return !!(
+      analysis?.sentiment?.distribution?.rating5 &&
+      analysis?.sentiment?.excellent &&
+      analysis?.sentiment?.needsImprovement
+    )
+  }
+
   if (isLoading) {
     return (
       <div className="h-full bg-white/50 backdrop-blur-sm rounded-2xl border border-gray-200/50 shadow-lg flex items-center justify-center">
@@ -121,6 +130,61 @@ export default function AnalysisCard({ analysisId, onSourceClick }: AnalysisCard
     return (
       <div className="h-full bg-white/50 backdrop-blur-sm rounded-2xl border border-gray-200/50 shadow-lg flex items-center justify-center">
         <p className="text-gray-500">No analysis data available</p>
+      </div>
+    )
+  }
+
+  // Modifica il rendering della Sentiment Distribution card
+  const renderSentimentDistribution = () => {
+    if (!analysis || !hasSentimentData(analysis)) {
+      return (
+        <div className="text-sm text-amber-700">
+          Sentiment data not available
+        </div>
+      )
+    }
+
+    return (
+      <div className="space-y-2">
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-amber-700 w-8">5★</span>
+          <Progress 
+            value={parseInt(analysis.sentiment.distribution.rating5)} 
+            className="h-2" 
+          />
+          <span className="text-xs text-amber-700 w-12">
+            {analysis.sentiment.distribution.rating5}
+          </span>
+        </div>
+        {/* Ripeti per gli altri rating se necessario */}
+      </div>
+    )
+  }
+
+  // Modifica il rendering della Quick Stats card
+  const renderQuickStats = () => {
+    if (!analysis || !hasSentimentData(analysis)) {
+      return (
+        <div className="text-sm text-emerald-700">
+          Stats not available
+        </div>
+      )
+    }
+
+    return (
+      <div className="space-y-2">
+        <div className="flex justify-between items-baseline">
+          <span className="text-sm text-emerald-700">Excellent</span>
+          <span className="text-lg font-medium text-emerald-900">
+            {analysis.sentiment.excellent}
+          </span>
+        </div>
+        <div className="flex justify-between items-baseline">
+          <span className="text-sm text-emerald-700">Needs Improvement</span>
+          <span className="text-lg font-medium text-emerald-900">
+            {analysis.sentiment.needsImprovement}
+          </span>
+        </div>
       </div>
     )
   }
@@ -170,12 +234,16 @@ export default function AnalysisCard({ analysisId, onSourceClick }: AnalysisCard
                   <div className="space-y-2">
                     <div className="flex justify-between items-baseline">
                       <span className="text-sm text-blue-700">Total Reviews</span>
-                      <span className="text-2xl font-semibold text-blue-900">{analysis.meta.reviewCount}</span>
+                      <span className="text-2xl font-semibold text-blue-900">
+                        {analysis?.meta?.reviewCount || 0}
+                      </span>
                     </div>
                     <div className="flex justify-between items-baseline">
                       <span className="text-sm text-blue-700">Average Rating</span>
                       <div className="flex items-center gap-1">
-                        <span className="text-2xl font-semibold text-blue-900">{analysis.meta.avgRating}</span>
+                        <span className="text-2xl font-semibold text-blue-900">
+                          {analysis?.meta?.avgRating?.toFixed(1) || "N/A"}
+                        </span>
                         <Star className="h-4 w-4 text-amber-400 fill-amber-400" />
                       </div>
                     </div>
@@ -193,14 +261,7 @@ export default function AnalysisCard({ analysisId, onSourceClick }: AnalysisCard
                     <BarChart className="h-5 w-5 text-amber-500" />
                     <h3 className="font-medium text-amber-900">Sentiment</h3>
                   </div>
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs text-amber-700 w-8">5★</span>
-                      <Progress value={parseInt(analysis.sentiment.distribution.rating5)} className="h-2" />
-                      <span className="text-xs text-amber-700 w-12">{analysis.sentiment.distribution.rating5}</span>
-                    </div>
-                    {/* ... altri rating ... */}
-                  </div>
+                  {renderSentimentDistribution()}
                 </motion.div>
 
                 {/* Quick Stats */}
@@ -214,16 +275,7 @@ export default function AnalysisCard({ analysisId, onSourceClick }: AnalysisCard
                     <TrendingUp className="h-5 w-5 text-emerald-500" />
                     <h3 className="font-medium text-emerald-900">Quick Stats</h3>
                   </div>
-                  <div className="space-y-2">
-                    <div className="flex justify-between items-baseline">
-                      <span className="text-sm text-emerald-700">Excellent</span>
-                      <span className="text-lg font-medium text-emerald-900">{analysis.sentiment.excellent}</span>
-                    </div>
-                    <div className="flex justify-between items-baseline">
-                      <span className="text-sm text-emerald-700">Needs Improvement</span>
-                      <span className="text-lg font-medium text-emerald-900">{analysis.sentiment.needsImprovement}</span>
-                    </div>
-                  </div>
+                  {renderQuickStats()}
                 </motion.div>
               </div>
 
