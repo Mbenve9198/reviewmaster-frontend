@@ -322,85 +322,90 @@ const SourcesCard = forwardRef<SourcesCardRef, SourcesCardProps>(({
             </div>
           </div>
         ) : (
-          selectedReviews.length > 0 ? (
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="p-4 space-y-4"
-            >
-              <div className="mb-4 text-sm text-gray-500">
-                Showing {selectedReviews.length} reviews
+          viewMode === 'document' ? (
+            selectedReviews.length > 0 ? (
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className={`p-4 ${isExpanded ? 'px-6' : 'px-4'} space-y-4`}
+              >
+                <div className="mb-4 text-sm text-gray-500">
+                  Showing {selectedReviews.length} reviews
+                </div>
+                {selectedReviews.map((review, idx) => (
+                  <motion.div 
+                    key={review.id}
+                    className={`
+                      bg-gradient-to-br from-white to-gray-50/50 rounded-xl 
+                      p-4 shadow-sm border border-gray-200
+                    `}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: idx * 0.05 }}
+                  >
+                    {/* Header con info recensore e rating */}
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-6 h-6 relative flex-shrink-0">
+                          <Image
+                            src={logoUrls[review.platform as Platform] || "/placeholder.svg"}
+                            alt={`${review.platform} logo`}
+                            width={24}
+                            height={24}
+                            className="object-contain"
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="text-sm font-medium text-gray-900">
+                            {review.author || 'Guest'}
+                          </span>
+                          <span className="text-xs text-gray-500">
+                            {new Date(review.date).toLocaleDateString()}
+                          </span>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center gap-1 px-2 py-1 rounded-lg">
+                        <div className={`
+                          flex items-center gap-1.5 px-2.5 py-1 rounded-lg
+                          ${getRatingColor(review.rating, getMaxRating(review.platform as Platform))}
+                        `}>
+                          <Star className={`h-3.5 w-3.5 ${
+                            review.rating >= (getMaxRating(review.platform as Platform) * 0.8)
+                              ? 'text-emerald-500 fill-emerald-500'
+                              : review.rating >= (getMaxRating(review.platform as Platform) * 0.6)
+                              ? 'text-amber-500 fill-amber-500'
+                              : 'text-rose-500 fill-rose-500'
+                          }`} />
+                          <span className="text-sm font-medium">
+                            {review.rating}/{getMaxRating(review.platform as Platform)}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Contenuto recensione */}
+                    <p className="text-gray-700 text-sm leading-relaxed whitespace-pre-wrap break-words mt-3">
+                      {review.text}
+                    </p>
+
+                    {/* Response status se presente */}
+                    {review.response && (
+                      <div className="mt-3 pt-3 border-t border-gray-100">
+                        <div className="flex items-center gap-2 text-xs text-gray-500">
+                          <MessageSquare className="h-3.5 w-3.5" />
+                          <span>Response sent {new Date(review.response.createdAt).toLocaleDateString()}</span>
+                        </div>
+                      </div>
+                    )}
+                  </motion.div>
+                ))}
+              </motion.div>
+            ) : (
+              <div className="p-4 text-center text-gray-500">
+                No reviews available
               </div>
-              {selectedReviews.map((review, idx) => (
-                <motion.div 
-                  key={review.id}
-                  className={`
-                    bg-gradient-to-br from-white to-gray-50/50 rounded-xl 
-                    ${isExpanded ? 'mx-2' : ''}
-                    p-4 shadow-sm border border-gray-200
-                  `}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: idx * 0.05 }}
-                >
-                  {/* Header con info recensore e rating */}
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-6 h-6 relative flex-shrink-0">
-                        <Image
-                          src={logoUrls[review.platform as Platform] || "/placeholder.svg"}
-                          alt={`${review.platform} logo`}
-                          width={24}
-                          height={24}
-                          className="object-contain"
-                        />
-                      </div>
-                      <div className="flex flex-col">
-                        <span className="text-sm font-medium text-gray-900">
-                          {review.author || 'Guest'}
-                        </span>
-                        <span className="text-xs text-gray-500">
-                          {new Date(review.date).toLocaleDateString()}
-                        </span>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center gap-1 px-2 py-1 rounded-lg">
-                      <div className={`
-                        flex items-center gap-1.5 px-2.5 py-1 rounded-lg
-                        ${getRatingColor(review.rating, getMaxRating(review.platform as Platform))}
-                      `}>
-                        <Star className={`h-3.5 w-3.5 ${
-                          review.rating >= (getMaxRating(review.platform as Platform) * 0.8)
-                            ? 'text-emerald-500 fill-emerald-500'
-                            : review.rating >= (getMaxRating(review.platform as Platform) * 0.6)
-                            ? 'text-amber-500 fill-amber-500'
-                            : 'text-rose-500 fill-rose-500'
-                        }`} />
-                        <span className="text-sm font-medium">
-                          {review.rating}/{getMaxRating(review.platform as Platform)}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Contenuto recensione */}
-                  <p className="text-gray-700 text-sm leading-relaxed whitespace-pre-wrap break-words mt-3">
-                    {review.text}
-                  </p>
-
-                  {/* Response status se presente */}
-                  {review.response && (
-                    <div className="mt-3 pt-3 border-t border-gray-100">
-                      <div className="flex items-center gap-2 text-xs text-gray-500">
-                        <MessageSquare className="h-3.5 w-3.5" />
-                        <span>Response sent {new Date(review.response.createdAt).toLocaleDateString()}</span>
-                      </div>
-                    </div>
-                  )}
-                </motion.div>
-              ))}
-            </motion.div>
+            )
           ) : (
             <div className="p-4 text-center text-gray-500">
               No reviews available
