@@ -101,20 +101,24 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
         body: JSON.stringify({ question: 'initial' })
       })
       
-      if (!response.ok) throw new Error('Failed to fetch suggestions')
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to fetch suggestions');
+      }
       
-      const data = await response.json()
-      if (data && data.suggestions) {
+      const data = await response.json();
+      if (data && Array.isArray(data.suggestions)) {
         setSuggestedQuestions(data.suggestions.map((q: string, i: number) => ({
           id: `q-${i}`,
           text: q
-        })))
+        })));
       } else {
-        setSuggestedQuestions([])
+        console.error('Invalid suggestions format:', data);
+        setSuggestedQuestions([]);
       }
     } catch (error) {
-      console.error('Error fetching suggestions:', error)
-      setSuggestedQuestions([])
+      console.error('Error fetching suggestions:', error);
+      setSuggestedQuestions([]);
     }
   }
 
