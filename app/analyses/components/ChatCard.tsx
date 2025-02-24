@@ -239,17 +239,40 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
 
       if (!response.ok) throw new Error('Failed to fetch chats')
       const data = await response.json()
-      setChats(data.conversations)
+      
+      // Filtra le chat valide (che hanno almeno un messaggio)
+      const validChats = data.conversations.filter((chat: Chat) => 
+        chat && chat.messages && chat.messages.length > 0
+      )
+      
+      setChats(validChats)
 
-      if (data.conversations.length > 0) {
-        const lastChat = data.conversations[data.conversations.length - 1]
-        setSelectedChat(lastChat)
-        setMessages(lastChat.messages)
+      if (validChats.length > 0) {
+        const lastChat = validChats[validChats.length - 1]
+        // Verifica che la chat sia valida prima di selezionarla
+        if (lastChat && lastChat.messages && lastChat.messages.length > 0) {
+          setSelectedChat(lastChat)
+          setMessages(lastChat.messages)
+          setViewMode('chat')
+        } else {
+          setSelectedChat(null)
+          setMessages([])
+          setViewMode('list')
+          loadInitialSuggestions()
+        }
       } else {
+        setSelectedChat(null)
+        setMessages([])
+        setViewMode('list')
         loadInitialSuggestions()
       }
     } catch (error) {
       console.error('Error fetching chats:', error)
+      // In caso di errore, resetta lo stato
+      setSelectedChat(null)
+      setMessages([])
+      setViewMode('list')
+      loadInitialSuggestions()
     }
   }
 
@@ -459,18 +482,22 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
                     <Trash2 className="h-5 w-5" />
                   </button>
                 </AlertDialogTrigger>
-                <AlertDialogContent>
+                <AlertDialogContent className="bg-white rounded-2xl border border-gray-200/50 shadow-lg">
                   <AlertDialogHeader>
-                    <AlertDialogTitle>Elimina chat</AlertDialogTitle>
-                    <AlertDialogDescription>
+                    <AlertDialogTitle className="text-xl font-semibold text-gray-900">
+                      Elimina chat
+                    </AlertDialogTitle>
+                    <AlertDialogDescription className="text-gray-600">
                       Sei sicuro di voler eliminare questa chat? L'azione non può essere annullata.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Annulla</AlertDialogCancel>
+                  <AlertDialogFooter className="gap-2">
+                    <AlertDialogCancel className="rounded-xl bg-gray-50 border border-gray-200 text-gray-700 hover:bg-gray-100 hover:text-gray-900">
+                      Annulla
+                    </AlertDialogCancel>
                     <AlertDialogAction
                       onClick={() => deleteChat(selectedChat._id)}
-                      className="bg-red-600 hover:bg-red-700"
+                      className="rounded-xl bg-red-600 text-white hover:bg-red-700"
                     >
                       Elimina
                     </AlertDialogAction>
@@ -582,18 +609,22 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
                           <Trash2 className="h-4 w-4" />
                         </button>
                       </AlertDialogTrigger>
-                      <AlertDialogContent>
+                      <AlertDialogContent className="bg-white rounded-2xl border border-gray-200/50 shadow-lg">
                         <AlertDialogHeader>
-                          <AlertDialogTitle>Elimina chat</AlertDialogTitle>
-                          <AlertDialogDescription>
+                          <AlertDialogTitle className="text-xl font-semibold text-gray-900">
+                            Elimina chat
+                          </AlertDialogTitle>
+                          <AlertDialogDescription className="text-gray-600">
                             Sei sicuro di voler eliminare questa chat? L'azione non può essere annullata.
                           </AlertDialogDescription>
                         </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Annulla</AlertDialogCancel>
+                        <AlertDialogFooter className="gap-2">
+                          <AlertDialogCancel className="rounded-xl bg-gray-50 border border-gray-200 text-gray-700 hover:bg-gray-100 hover:text-gray-900">
+                            Annulla
+                          </AlertDialogCancel>
                           <AlertDialogAction
                             onClick={() => deleteChat(chat._id)}
-                            className="bg-red-600 hover:bg-red-700"
+                            className="rounded-xl bg-red-600 text-white hover:bg-red-700"
                           >
                             Elimina
                           </AlertDialogAction>
