@@ -324,11 +324,11 @@ const SourcesCard = forwardRef<SourcesCardRef, SourcesCardProps>(({
         ) : (
           viewMode === 'document' ? (
             selectedReviews.length > 0 ? (
-              <div className={`p-4 ${isExpanded ? 'px-10' : 'px-4'}`}>
+              <div className="w-full p-4">
                 <motion.div 
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className="space-y-4 max-w-full"
+                  className="w-full space-y-4"
                 >
                   <div className="mb-4 text-sm text-gray-500">
                     Showing {selectedReviews.length} reviews
@@ -336,13 +336,12 @@ const SourcesCard = forwardRef<SourcesCardRef, SourcesCardProps>(({
                   {selectedReviews.map((review, idx) => (
                     <motion.div 
                       key={review.id}
-                      className="bg-gradient-to-br from-white to-gray-50/50 rounded-xl p-4 shadow-sm border border-gray-200 max-w-full"
+                      className="w-[calc(100%-16px)] mx-auto bg-gradient-to-br from-white to-gray-50/50 rounded-xl p-4 shadow-sm border border-gray-200"
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: idx * 0.05 }}
                     >
-                      {/* Header con info recensore e rating */}
-                      <div className="flex items-center justify-between mb-3">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
                         <div className="flex items-center gap-3">
                           <div className="w-6 h-6 relative flex-shrink-0">
                             <Image
@@ -354,7 +353,7 @@ const SourcesCard = forwardRef<SourcesCardRef, SourcesCardProps>(({
                             />
                           </div>
                           <div className="flex flex-col">
-                            <span className="text-sm font-medium text-gray-900">
+                            <span className="text-sm font-medium text-gray-900 truncate max-w-[120px]">
                               {review.author || 'Guest'}
                             </span>
                             <span className="text-xs text-gray-500">
@@ -363,7 +362,7 @@ const SourcesCard = forwardRef<SourcesCardRef, SourcesCardProps>(({
                           </div>
                         </div>
                         
-                        <div className="flex items-center gap-1 px-2 py-1 rounded-lg">
+                        <div className="flex-shrink-0">
                           <div className={`
                             flex items-center gap-1.5 px-2.5 py-1 rounded-lg
                             ${getRatingColor(review.rating, getMaxRating(review.platform as Platform))}
@@ -382,12 +381,12 @@ const SourcesCard = forwardRef<SourcesCardRef, SourcesCardProps>(({
                         </div>
                       </div>
 
-                      {/* Contenuto recensione */}
-                      <p className="text-gray-700 text-sm leading-relaxed whitespace-pre-wrap break-words mt-3">
-                        {review.text}
-                      </p>
+                      <div className="w-full overflow-hidden">
+                        <p className="text-gray-700 text-sm leading-relaxed whitespace-pre-wrap break-words mt-3">
+                          {review.text}
+                        </p>
+                      </div>
 
-                      {/* Response status se presente */}
                       {review.response && (
                         <div className="mt-3 pt-3 border-t border-gray-100">
                           <div className="flex items-center gap-2 text-xs text-gray-500">
