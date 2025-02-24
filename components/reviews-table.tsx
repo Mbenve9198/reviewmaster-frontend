@@ -1397,7 +1397,7 @@ export function ReviewsTable({
                 }
               }}
               variant="destructive"
-              className="bg-red-500 hover:bg-red-600 text-white shadow-[0_4px_0_0_#dc2626] hover:shadow-[0_2px_0_0_#dc2626] hover:translate-y-[2px] transition-all"
+              className="rounded-xl bg-red-500 hover:bg-red-600 text-white shadow-[0_4px_0_0_#dc2626] hover:shadow-[0_2px_0_0_#dc2626] hover:translate-y-[2px] transition-all"
             >
               <Trash2 className="h-4 w-4 mr-2" />
               Delete Reviews
