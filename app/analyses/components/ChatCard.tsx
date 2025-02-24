@@ -3,11 +3,22 @@
 import { useState, useEffect, useRef } from "react"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { getCookie } from "@/lib/utils"
-import { ChevronLeft, ChevronRight, Send, Bot, Loader2, FileText, Plus, X, MessageSquare } from "lucide-react"
+import { ChevronLeft, ChevronRight, Send, Bot, Loader2, FileText, Plus, X, MessageSquare, Trash2 } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { motion, AnimatePresence } from "framer-motion"
 import ReactMarkdown from 'react-markdown'
+import { 
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 
 interface ChatCardProps {
   analysisId: string
@@ -227,10 +238,6 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
         setSelectedChat(lastChat)
         setMessages(lastChat.messages)
       } else {
-        createNewChat()
-      }
-
-      if (!data.conversations.length || data.conversations[data.conversations.length - 1].messages.length === 0) {
         loadInitialSuggestions()
       }
     } catch (error) {
@@ -242,26 +249,24 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
     try {
       const token = getCookie('token')
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/analytics/${analysisId}/follow-up`, 
+        `${process.env.NEXT_PUBLIC_API_URL}/api/analytics/${analysisId}`, 
         {
-          method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ 
-            question: 'initial',
-            messages: []
-          })
+          }
         }
       )
 
-      if (!response.ok) throw new Error('Failed to fetch suggestions')
+      if (!response.ok) throw new Error('Failed to fetch analysis')
       const data = await response.json()
-      setSuggestedQuestions(data.suggestions.map((text: string, index: number) => ({
-        id: `suggestion-${index}`,
-        text
-      })))
+      
+      // Usa le followUpSuggestions salvate nell'analisi
+      if (data.followUpSuggestions && data.followUpSuggestions.length > 0) {
+        setSuggestedQuestions(data.followUpSuggestions.map((text: string, index: number) => ({
+          id: `suggestion-${index}`,
+          text
+        })))
+      }
     } catch (error) {
       console.error('Error loading initial suggestions:', error)
     }
@@ -273,29 +278,6 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
     }
   }, [analysisId])
 
-  const createNewChat = async () => {
-    try {
-      const token = getCookie('token')
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/analytics/${analysisId}/chats`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      })
-
-      if (!response.ok) throw new Error('Failed to create chat')
-      const newChat = await response.json()
-      setChats(prev => [...prev, newChat])
-      setSelectedChat(newChat)
-      setMessages([])
-      setViewMode('chat')
-      loadInitialSuggestions()
-    } catch (error) {
-      console.error('Error creating chat:', error)
-    }
-  }
-
   const sendMessage = async (content: string) => {
     if (!content.trim()) return
 
@@ -303,6 +285,30 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
       role: 'user',
       content,
       timestamp: new Date()
+    }
+
+    if (!selectedChat) {
+      try {
+        const token = getCookie('token')
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/analytics/${analysisId}/chats`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            firstMessage: content
+          })
+        })
+
+        if (!response.ok) throw new Error('Failed to create chat')
+        const newChat = await response.json()
+        setChats(prev => [...prev, newChat])
+        setSelectedChat(newChat)
+      } catch (error) {
+        console.error('Error creating chat:', error)
+        return
+      }
     }
 
     setMessages(prev => [...prev, newUserMessage])
@@ -321,7 +327,7 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
         body: JSON.stringify({ 
           question: content,
           messages: messages,
-          conversationId: null
+          conversationId: selectedChat?._id
         })
       })
       
@@ -400,6 +406,32 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
     setInputValue(text)
   }
 
+  const deleteChat = async (chatId: string) => {
+    try {
+      const token = getCookie('token')
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/analytics/${analysisId}/chats/${chatId}`,
+        {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          }
+        }
+      )
+
+      if (!response.ok) throw new Error('Failed to delete chat')
+      
+      setChats(prev => prev.filter(chat => chat._id !== chatId))
+      if (selectedChat?._id === chatId) {
+        setSelectedChat(null)
+        setMessages([])
+        loadInitialSuggestions()
+      }
+    } catch (error) {
+      console.error('Error deleting chat:', error)
+    }
+  }
+
   return (
     <div className="h-full bg-white/50 backdrop-blur-sm rounded-2xl border border-gray-200/50 shadow-lg overflow-hidden flex flex-col">
       {/* Header */}
@@ -409,16 +441,46 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
         </h2>
         <div className="flex items-center gap-2">
           {isExpanded && selectedChat && (
-            <button
-              onClick={() => setViewMode(viewMode === 'list' ? 'chat' : 'list')}
-              className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              {viewMode === 'chat' ? (
-                <FileText className="h-5 w-5 text-gray-500" />
-              ) : (
-                <MessageSquare className="h-5 w-5 text-gray-500" />
-              )}
-            </button>
+            <>
+              {/* Pulsante elimina nella vista chat */}
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <button
+                    className="p-1 hover:bg-gray-100 rounded-lg transition-colors text-gray-500 hover:text-red-600"
+                  >
+                    <Trash2 className="h-5 w-5" />
+                  </button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Elimina chat</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Sei sicuro di voler eliminare questa chat? L'azione non può essere annullata.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Annulla</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={() => deleteChat(selectedChat._id)}
+                      className="bg-red-600 hover:bg-red-700"
+                    >
+                      Elimina
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+
+              <button
+                onClick={() => setViewMode(viewMode === 'list' ? 'chat' : 'list')}
+                className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                {viewMode === 'chat' ? (
+                  <FileText className="h-5 w-5 text-gray-500" />
+                ) : (
+                  <MessageSquare className="h-5 w-5 text-gray-500" />
+                )}
+              </button>
+            </>
           )}
           <button
             onClick={onToggleExpand}
@@ -440,7 +502,11 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
             <div className={`${isExpanded ? 'space-y-3 pr-4' : 'space-y-1'}`}>
               {/* Pulsante Nuova Chat */}
               <motion.button
-                onClick={createNewChat}
+                onClick={() => {
+                  setSelectedChat(null)
+                  setMessages([])
+                  setViewMode('chat')
+                }}
                 className={`
                   w-full ${isExpanded ? 'py-4' : 'py-3'} 
                   rounded-xl text-left transition-all hover:scale-[0.98]
@@ -456,44 +522,77 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
                 </div>
               </motion.button>
 
-              {/* Lista delle chat esistenti */}
+              {/* Lista delle chat esistenti con pulsante elimina */}
               {chats.map(chat => (
-                <motion.button
-                  key={chat._id}
-                  onClick={() => {
-                    setSelectedChat(chat)
-                    setMessages(chat.messages)
-                    setViewMode('chat')
-                  }}
-                  className={`
-                    w-full ${isExpanded ? 'py-4' : 'py-3'} 
-                    rounded-xl text-left transition-all hover:scale-[0.98]
-                    bg-gradient-to-br from-white to-gray-50/50 
-                    hover:from-gray-50 hover:to-gray-100/50 
-                    border border-gray-200 shadow-sm hover:shadow-md
-                  `}
-                >
-                  <div className={`
-                    ${isExpanded ? 'flex items-center gap-2 px-4' : 'flex justify-center items-center'}
-                  `}>
-                    <FileText className="h-4 w-4 text-gray-500" />
-                    {isExpanded && (
-                      <div className="flex-1 min-w-0">
-                        <div className="flex justify-between items-center">
-                          <h3 className="font-medium text-sm text-gray-900 truncate">
-                            {chat.title || "Chat"}
-                          </h3>
-                          <span className="text-xs text-gray-500">
-                            {new Date(chat.createdAt).toLocaleDateString()}
-                          </span>
+                <div key={chat._id} className="relative group">
+                  <motion.button
+                    onClick={() => {
+                      setSelectedChat(chat)
+                      setMessages(chat.messages)
+                      setViewMode('chat')
+                    }}
+                    className={`
+                      w-full ${isExpanded ? 'py-4' : 'py-3'} 
+                      rounded-xl text-left transition-all hover:scale-[0.98]
+                      bg-gradient-to-br from-white to-gray-50/50 
+                      hover:from-gray-50 hover:to-gray-100/50 
+                      border border-gray-200 shadow-sm hover:shadow-md
+                    `}
+                  >
+                    <div className={`
+                      ${isExpanded ? 'flex items-center gap-2 px-4' : 'flex justify-center items-center'}
+                    `}>
+                      <FileText className="h-4 w-4 text-gray-500" />
+                      {isExpanded && (
+                        <div className="flex-1 min-w-0">
+                          <div className="flex justify-between items-center">
+                            <h3 className="font-medium text-sm text-gray-900 truncate">
+                              {chat.title || "Chat"}
+                            </h3>
+                            <span className="text-xs text-gray-500">
+                              {new Date(chat.createdAt).toLocaleDateString()}
+                            </span>
+                          </div>
+                          <p className="text-xs text-gray-500 mt-1 truncate">
+                            {chat.messages[chat.messages.length - 1]?.content || "No messages"}
+                          </p>
                         </div>
-                        <p className="text-xs text-gray-500 mt-1 truncate">
-                          {chat.messages[chat.messages.length - 1]?.content || "No messages"}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                </motion.button>
+                      )}
+                    </div>
+                  </motion.button>
+
+                  {/* Pulsante elimina nella vista lista */}
+                  {isExpanded && (
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <button
+                          className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 
+                            rounded-lg transition-all opacity-0 group-hover:opacity-100
+                            hover:bg-red-100 text-gray-400 hover:text-red-600"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Elimina chat</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Sei sicuro di voler eliminare questa chat? L'azione non può essere annullata.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Annulla</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => deleteChat(chat._id)}
+                            className="bg-red-600 hover:bg-red-700"
+                          >
+                            Elimina
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  )}
+                </div>
               ))}
             </div>
           </div>
