@@ -334,7 +334,11 @@ const SourcesCard = forwardRef<SourcesCardRef, SourcesCardProps>(({
               {selectedReviews.map((review, idx) => (
                 <motion.div 
                   key={review.id}
-                  className="bg-gradient-to-br from-white to-gray-50/50 rounded-xl p-4 shadow-sm border border-gray-200"
+                  className={`
+                    bg-gradient-to-br from-white to-gray-50/50 rounded-xl 
+                    ${isExpanded ? 'mx-2' : ''}
+                    p-4 shadow-sm border border-gray-200
+                  `}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: idx * 0.05 }}
