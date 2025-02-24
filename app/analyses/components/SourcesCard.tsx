@@ -31,6 +31,19 @@ interface Source {
   }>
 }
 
+interface Review {
+  id: string;
+  text: string;
+  rating: number;
+  date: string;
+  platform: string;
+  author?: string;
+  response?: {
+    createdAt: string;
+    text: string;
+  };
+}
+
 export interface SourcesCardRef {
   openDocument: (category: string, itemId: string, title: string) => void
 }
@@ -75,7 +88,7 @@ const SourcesCard = forwardRef<SourcesCardRef, SourcesCardProps>(({
 }, ref) => {
   const [sources, setSources] = useState<Source[]>([])
   const [selectedSource, setSelectedSource] = useState<string | null>(null)
-  const [selectedReviews, setSelectedReviews] = useState<any[]>([])
+  const [selectedReviews, setSelectedReviews] = useState<Review[]>([])
   const [selectedTitle, setSelectedTitle] = useState<string>("")
   const [isLoading, setIsLoading] = useState(true)
   const [viewMode, setViewMode] = useState<'list' | 'document'>('list')
@@ -115,7 +128,7 @@ const SourcesCard = forwardRef<SourcesCardRef, SourcesCardProps>(({
       
       // Rimuoviamo i duplicati usando un Set con gli ID
       const uniqueReviews = Array.from(
-        new Map(data.reviews.map(review => [review.id, review])).values()
+        new Map(data.reviews.map((review: Review) => [review.id, review])).values()
       );
 
       console.log('After deduplication:', {
