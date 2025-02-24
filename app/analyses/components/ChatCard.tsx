@@ -215,12 +215,12 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
       }
 
       const data = await response.json()
-      if (data && Array.isArray(data.messages)) {
-        const formattedMessages = data.messages.map((msg: any) => ({
-          ...msg,
+      if (data && data.messages && data.messages.length > 0) {
+        setMessages(data.messages.map((msg: any) => ({
+          role: msg.role,
+          content: msg.content,
           timestamp: new Date(msg.timestamp)
-        }))
-        setMessages(formattedMessages)
+        })))
       }
     } catch (error) {
       console.error('Error fetching chat history:', error)
@@ -291,7 +291,8 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
         },
         body: JSON.stringify({ 
           question: content,
-          messages: messages
+          messages: messages,
+          conversationId: null
         })
       })
       
