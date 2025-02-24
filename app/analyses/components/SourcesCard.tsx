@@ -224,6 +224,16 @@ const SourcesCard = forwardRef<SourcesCardRef, SourcesCardProps>(({
     console.log('Upload clicked')
   }
 
+  // Aggiungiamo un useEffect per gestire il cambio di isExpanded
+  useEffect(() => {
+    if (!isExpanded) {
+      setViewMode('list')
+      setSelectedSource(null)
+      setSelectedReviews([])
+      setSelectedTitle("")
+    }
+  }, [isExpanded])
+
   return (
     <div className="h-full bg-white/50 backdrop-blur-sm rounded-2xl border border-gray-200/50 shadow-lg overflow-hidden relative flex flex-col">
       {/* Header */}
@@ -232,7 +242,7 @@ const SourcesCard = forwardRef<SourcesCardRef, SourcesCardProps>(({
           {isExpanded ? (viewMode === 'list' ? "Sources" : selectedTitle) : ""}
         </h2>
         <div className="flex items-center gap-2 flex-shrink-0">
-          {viewMode === 'document' && (
+          {isExpanded && viewMode === 'document' && (
             <button
               onClick={handleBackToList}
               className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
@@ -255,7 +265,7 @@ const SourcesCard = forwardRef<SourcesCardRef, SourcesCardProps>(({
 
       {/* Content */}
       <ScrollArea className="flex-1 w-full overflow-hidden">
-        {viewMode === 'list' ? (
+        {(!isExpanded || viewMode === 'list') ? (
           <div className="p-4">
             <div className={`
               ${isExpanded ? 'space-y-3 pr-4' : 'space-y-1'}
@@ -322,93 +332,87 @@ const SourcesCard = forwardRef<SourcesCardRef, SourcesCardProps>(({
             </div>
           </div>
         ) : (
-          viewMode === 'document' ? (
-            selectedReviews.length > 0 ? (
-              <div className="w-full p-4">
-                <motion.div 
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="w-full space-y-4"
-                >
-                  <div className="mb-4 text-sm text-gray-500">
-                    Showing {selectedReviews.length} reviews
-                  </div>
-                  {selectedReviews.map((review, idx) => (
-                    <motion.div 
-                      key={review.id}
-                      className="w-[calc(100%-16px)] mx-auto bg-gradient-to-br from-white to-gray-50/50 rounded-xl p-4 shadow-sm border border-gray-200"
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: idx * 0.05 }}
-                    >
-                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
-                        <div className="flex items-center gap-3">
-                          <div className="w-6 h-6 relative flex-shrink-0">
-                            <Image
-                              src={logoUrls[review.platform as Platform] || "/placeholder.svg"}
-                              alt={`${review.platform} logo`}
-                              width={24}
-                              height={24}
-                              className="object-contain"
-                            />
-                          </div>
-                          <div className="flex flex-col">
-                            <span className="text-sm font-medium text-gray-900 truncate max-w-[120px]">
-                              {review.author || 'Guest'}
-                            </span>
-                            <span className="text-xs text-gray-500">
-                              {new Date(review.date).toLocaleDateString()}
-                            </span>
-                          </div>
+          <div className="w-full p-4">
+            {selectedReviews.length > 0 ? (
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="w-full space-y-4"
+              >
+                <div className="mb-4 text-sm text-gray-500">
+                  Showing {selectedReviews.length} reviews
+                </div>
+                {selectedReviews.map((review, idx) => (
+                  <motion.div 
+                    key={review.id}
+                    className="w-[calc(100%-16px)] mx-auto bg-gradient-to-br from-white to-gray-50/50 rounded-xl p-4 shadow-sm border border-gray-200"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: idx * 0.05 }}
+                  >
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-6 h-6 relative flex-shrink-0">
+                          <Image
+                            src={logoUrls[review.platform as Platform] || "/placeholder.svg"}
+                            alt={`${review.platform} logo`}
+                            width={24}
+                            height={24}
+                            className="object-contain"
+                          />
                         </div>
-                        
-                        <div className="flex-shrink-0">
-                          <div className={`
-                            flex items-center gap-1.5 px-2.5 py-1 rounded-lg
-                            ${getRatingColor(review.rating, getMaxRating(review.platform as Platform))}
-                          `}>
-                            <Star className={`h-3.5 w-3.5 ${
-                              review.rating >= (getMaxRating(review.platform as Platform) * 0.8)
-                                ? 'text-emerald-500 fill-emerald-500'
-                                : review.rating >= (getMaxRating(review.platform as Platform) * 0.6)
-                                ? 'text-amber-500 fill-amber-500'
-                                : 'text-rose-500 fill-rose-500'
-                            }`} />
-                            <span className="text-sm font-medium">
-                              {review.rating}/{getMaxRating(review.platform as Platform)}
-                            </span>
-                          </div>
+                        <div className="flex flex-col">
+                          <span className="text-sm font-medium text-gray-900 truncate max-w-[120px]">
+                            {review.author || 'Guest'}
+                          </span>
+                          <span className="text-xs text-gray-500">
+                            {new Date(review.date).toLocaleDateString()}
+                          </span>
                         </div>
                       </div>
-
-                      <div className="w-full overflow-hidden">
-                        <p className="text-gray-700 text-sm leading-relaxed whitespace-pre-wrap break-words mt-3">
-                          {review.text}
-                        </p>
-                      </div>
-
-                      {review.response && (
-                        <div className="mt-3 pt-3 border-t border-gray-100">
-                          <div className="flex items-center gap-2 text-xs text-gray-500">
-                            <MessageSquare className="h-3.5 w-3.5" />
-                            <span>Response sent {new Date(review.response.createdAt).toLocaleDateString()}</span>
-                          </div>
+                      
+                      <div className="flex-shrink-0">
+                        <div className={`
+                          flex items-center gap-1.5 px-2.5 py-1 rounded-lg
+                          ${getRatingColor(review.rating, getMaxRating(review.platform as Platform))}
+                        `}>
+                          <Star className={`h-3.5 w-3.5 ${
+                            review.rating >= (getMaxRating(review.platform as Platform) * 0.8)
+                              ? 'text-emerald-500 fill-emerald-500'
+                              : review.rating >= (getMaxRating(review.platform as Platform) * 0.6)
+                              ? 'text-amber-500 fill-amber-500'
+                              : 'text-rose-500 fill-rose-500'
+                          }`} />
+                          <span className="text-sm font-medium">
+                            {review.rating}/{getMaxRating(review.platform as Platform)}
+                          </span>
                         </div>
-                      )}
-                    </motion.div>
-                  ))}
-                </motion.div>
-              </div>
+                      </div>
+                    </div>
+
+                    <div className="w-full overflow-hidden">
+                      <p className="text-gray-700 text-sm leading-relaxed whitespace-pre-wrap break-words mt-3">
+                        {review.text}
+                      </p>
+                    </div>
+
+                    {review.response && (
+                      <div className="mt-3 pt-3 border-t border-gray-100">
+                        <div className="flex items-center gap-2 text-xs text-gray-500">
+                          <MessageSquare className="h-3.5 w-3.5" />
+                          <span>Response sent {new Date(review.response.createdAt).toLocaleDateString()}</span>
+                        </div>
+                      </div>
+                    )}
+                  </motion.div>
+                ))}
+              </motion.div>
             ) : (
               <div className="p-4 text-center text-gray-500">
                 No reviews available
               </div>
-            )
-          ) : (
-            <div className="p-4 text-center text-gray-500">
-              No reviews available
-            </div>
-          )
+            )}
+          </div>
         )}
       </ScrollArea>
 

@@ -122,9 +122,17 @@ export default function AnalysesPage() {
   }, [analysisId])
 
   const handleSourceClick = (category: string, itemId: string, title: string) => {
-    if (sourcesRef.current) {
-      sourcesRef.current.openDocument(category, itemId, title)
+    // Espandi la SourcesCard se è contratta
+    if (!sourcesExpanded) {
+      setSourcesExpanded(true)
     }
+    
+    // Aspetta che l'espansione sia completata prima di aprire il documento
+    setTimeout(() => {
+      if (sourcesRef.current) {
+        sourcesRef.current.openDocument(category, itemId, title)
+      }
+    }, 300) // Corrisponde alla durata dell'animazione di espansione
   }
 
   if (isLoadingData || isGenerating) {
