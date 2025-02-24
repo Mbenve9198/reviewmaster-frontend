@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { getCookie } from "@/lib/utils"
-import { ChevronLeft, ChevronRight, Send, Bot, Loader2 } from "lucide-react"
+import { ChevronLeft, ChevronRight, Send, Bot, Loader2, FileText, Plus, X } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { motion, AnimatePresence } from "framer-motion"
@@ -24,6 +24,13 @@ interface Message {
 interface SuggestedQuestion {
   id: string
   text: string
+}
+
+interface Chat {
+  _id: string
+  messages: Message[]
+  createdAt: Date
+  title: string
 }
 
 const ChatInput = ({ value, onChange, onKeyPress, isExpanded, onSend, isLoading }: {
@@ -198,6 +205,9 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
   const [suggestedQuestions, setSuggestedQuestions] = useState<SuggestedQuestion[]>([])
   const scrollAreaRef = useRef<HTMLDivElement>(null)
   const [selectedQuestion, setSelectedQuestion] = useState<string | null>(null)
+  const [viewMode, setViewMode] = useState<'list' | 'chat'>('list')
+  const [chats, setChats] = useState<Chat[]>([])
+  const [selectedChat, setSelectedChat] = useState<Chat | null>(null)
 
   const fetchChatHistory = async () => {
     try {
@@ -371,114 +381,266 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
     setInputValue(text)
   }
 
+  const fetchChats = async () => {
+    try {
+      const token = getCookie('token')
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/analytics/${analysisId}/chats`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        }
+      })
+
+      if (!response.ok) throw new Error('Failed to fetch chats')
+      const data = await response.json()
+      setChats(data.conversations)
+    } catch (error) {
+      console.error('Error fetching chats:', error)
+    }
+  }
+
+  useEffect(() => {
+    if (analysisId) {
+      fetchChats()
+    }
+  }, [analysisId])
+
+  const createNewChat = async () => {
+    try {
+      const token = getCookie('token')
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/analytics/${analysisId}/chats`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      })
+
+      if (!response.ok) throw new Error('Failed to create chat')
+      const newChat = await response.json()
+      setChats(prev => [...prev, newChat])
+      setSelectedChat(newChat)
+      setViewMode('chat')
+    } catch (error) {
+      console.error('Error creating chat:', error)
+    }
+  }
+
+  const deleteChat = async (chatId: string) => {
+    try {
+      const token = getCookie('token')
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/analytics/${analysisId}/chats/${chatId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        }
+      })
+
+      if (!response.ok) throw new Error('Failed to delete chat')
+      setChats(prev => prev.filter(chat => chat._id !== chatId))
+      if (selectedChat?._id === chatId) {
+        setSelectedChat(null)
+        setViewMode('list')
+      }
+    } catch (error) {
+      console.error('Error deleting chat:', error)
+    }
+  }
+
+  const handleBackToList = () => {
+    setViewMode('list')
+    setSelectedChat(null)
+    setMessages([])
+    setInputValue('')
+  }
+
   return (
     <div className="h-full bg-white/50 backdrop-blur-sm rounded-2xl border border-gray-200/50 shadow-lg overflow-hidden flex flex-col">
-      {/* Header con bordo inferiore */}
+      {/* Header */}
       <div className="p-4 border-b border-gray-100/80 flex justify-between items-center bg-white/50">
         <h2 className="font-semibold text-gray-900">
-          {isExpanded ? "AI Assistant" : ""}
+          {isExpanded ? (viewMode === 'list' ? "AI Assistant" : selectedChat?.title || "Chat") : ""}
         </h2>
-        <button
-          onClick={onToggleExpand}
-          className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
-        >
-          {isExpanded ? (
-            <ChevronRight className="h-5 w-5 text-gray-500" />
-          ) : (
-            <ChevronLeft className="h-5 w-5 text-gray-500" />
+        <div className="flex items-center gap-2">
+          {isExpanded && viewMode === 'chat' && (
+            <button
+              onClick={handleBackToList}
+              className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              <X className="h-5 w-5 text-gray-500" />
+            </button>
           )}
-        </button>
+          <button
+            onClick={onToggleExpand}
+            className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
+          >
+            {isExpanded ? (
+              <ChevronRight className="h-5 w-5 text-gray-500" />
+            ) : (
+              <ChevronLeft className="h-5 w-5 text-gray-500" />
+            )}
+          </button>
+        </div>
       </div>
 
-      {/* Messages */}
-      <ScrollArea className={`flex-1 ${!isExpanded ? 'px-2' : 'p-4'}`} ref={scrollAreaRef}>
-        <div className={`space-y-4 ${!isExpanded ? 'flex flex-col items-center' : ''}`}>
-          {messages.map((message, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className={`flex ${
-                isExpanded 
-                  ? message.role === 'user' ? 'justify-end' : 'justify-start'
-                  : 'justify-center w-full'
-              }`}
-            >
-              {!isExpanded ? (
-                <div className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors">
-                  {message.role === 'user' ? (
-                    <div className="h-8 w-8 flex items-center justify-center text-gray-600">
-                      <span className="text-xs">You</span>
-                    </div>
-                  ) : (
-                    <Bot className="h-5 w-5 text-gray-600" />
-                  )}
+      {/* Content */}
+      <ScrollArea className="flex-1">
+        {(!isExpanded || viewMode === 'list') ? (
+          <div className="p-4">
+            <div className={`${isExpanded ? 'space-y-3 pr-4' : 'space-y-1'}`}>
+              {/* Pulsante Nuova Chat */}
+              <motion.button
+                onClick={createNewChat}
+                className={`
+                  w-full ${isExpanded ? 'py-4' : 'py-3'} 
+                  rounded-xl text-left transition-all hover:scale-[0.98]
+                  bg-gradient-to-br from-blue-50 to-blue-100/50 
+                  border border-blue-200 shadow-sm hover:shadow-md
+                `}
+              >
+                <div className={`
+                  ${isExpanded ? 'flex items-center gap-2 px-4' : 'flex justify-center items-center'}
+                `}>
+                  <Plus className="h-4 w-4 text-blue-600" />
+                  {isExpanded && <span className="text-blue-700">New Chat</span>}
                 </div>
-              ) : (
-                <div
-                  className={`max-w-[80%] p-3 rounded-2xl ${
-                    message.role === 'user'
-                      ? 'bg-blue-500 text-white ml-4'
-                      : 'bg-gray-100 text-gray-900 mr-4'
-                  }`}
+              </motion.button>
+
+              {/* Lista delle chat esistenti */}
+              {chats.map(chat => (
+                <motion.button
+                  key={chat._id}
+                  onClick={() => {
+                    setSelectedChat(chat)
+                    setMessages(chat.messages)
+                    setViewMode('chat')
+                  }}
+                  className={`
+                    w-full ${isExpanded ? 'py-4' : 'py-3'} 
+                    rounded-xl text-left transition-all hover:scale-[0.98]
+                    bg-gradient-to-br from-white to-gray-50/50 
+                    hover:from-gray-50 hover:to-gray-100/50 
+                    border border-gray-200 shadow-sm hover:shadow-md
+                  `}
                 >
-                  {message.role === 'assistant' && (
-                    <div className="flex items-center gap-2 mb-2">
-                      <Bot className="h-4 w-4" />
-                      <span className="text-xs font-medium">AI Assistant</span>
-                    </div>
-                  )}
-                  {message.role === 'assistant' ? (
-                    <div className="text-sm prose prose-sm max-w-none">
-                      <ReactMarkdown>
-                        {message.content}
-                      </ReactMarkdown>
-                    </div>
-                  ) : (
-                    <p className="text-sm">{message.content}</p>
-                  )}
-                  <p className="text-xs mt-1 opacity-70">
-                    {message.timestamp.toLocaleTimeString()}
-                  </p>
-                </div>
-              )}
-            </motion.div>
-          ))}
-          {isLoading && (
-            <div className={`flex ${!isExpanded ? 'justify-center' : 'justify-start'}`}>
-              <TypingIndicator />
+                  <div className={`
+                    ${isExpanded ? 'flex items-center gap-2 px-4' : 'flex justify-center items-center'}
+                  `}>
+                    <FileText className="h-4 w-4 text-gray-500" />
+                    {isExpanded && (
+                      <div className="flex-1 min-w-0">
+                        <div className="flex justify-between items-center">
+                          <h3 className="font-medium text-sm text-gray-900 truncate">
+                            {chat.title || "Chat"}
+                          </h3>
+                          <span className="text-xs text-gray-500">
+                            {new Date(chat.createdAt).toLocaleDateString()}
+                          </span>
+                        </div>
+                        <p className="text-xs text-gray-500 mt-1 truncate">
+                          {chat.messages[chat.messages.length - 1]?.content || "No messages"}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </motion.button>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div className="flex-1 p-4">
+            <ScrollArea className={`flex-1 ${!isExpanded ? 'px-2' : 'p-4'}`} ref={scrollAreaRef}>
+              <div className={`space-y-4 ${!isExpanded ? 'flex flex-col items-center' : ''}`}>
+                {messages.map((message, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className={`flex ${
+                      isExpanded 
+                        ? message.role === 'user' ? 'justify-end' : 'justify-start'
+                        : 'justify-center w-full'
+                    }`}
+                  >
+                    {!isExpanded ? (
+                      <div className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors">
+                        {message.role === 'user' ? (
+                          <div className="h-8 w-8 flex items-center justify-center text-gray-600">
+                            <span className="text-xs">You</span>
+                          </div>
+                        ) : (
+                          <Bot className="h-5 w-5 text-gray-600" />
+                        )}
+                      </div>
+                    ) : (
+                      <div
+                        className={`max-w-[80%] p-3 rounded-2xl ${
+                          message.role === 'user'
+                            ? 'bg-blue-500 text-white ml-4'
+                            : 'bg-gray-100 text-gray-900 mr-4'
+                        }`}
+                      >
+                        {message.role === 'assistant' && (
+                          <div className="flex items-center gap-2 mb-2">
+                            <Bot className="h-4 w-4" />
+                            <span className="text-xs font-medium">AI Assistant</span>
+                          </div>
+                        )}
+                        {message.role === 'assistant' ? (
+                          <div className="text-sm prose prose-sm max-w-none">
+                            <ReactMarkdown>
+                              {message.content}
+                            </ReactMarkdown>
+                          </div>
+                        ) : (
+                          <p className="text-sm">{message.content}</p>
+                        )}
+                        <p className="text-xs mt-1 opacity-70">
+                          {message.timestamp.toLocaleTimeString()}
+                        </p>
+                      </div>
+                    )}
+                  </motion.div>
+                ))}
+                {isLoading && (
+                  <div className={`flex ${!isExpanded ? 'justify-center' : 'justify-start'}`}>
+                    <TypingIndicator />
+                  </div>
+                )}
+              </div>
+            </ScrollArea>
+          </div>
+        )}
+      </ScrollArea>
+
+      {/* Input section */}
+      {isExpanded && viewMode === 'chat' && (
+        <div className="p-4 space-y-3 border-t border-gray-100">
+          <ChatInput
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            onKeyPress={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault()
+                sendMessage(inputValue)
+              }
+            }}
+            isExpanded={isExpanded}
+            onSend={() => sendMessage(inputValue)}
+            isLoading={isLoading}
+          />
+
+          {/* Suggested Questions solo quando è espanso */}
+          {isExpanded && suggestedQuestions.length > 0 && (
+            <div className="w-full">
+              <SuggestedQuestionsNav 
+                questions={suggestedQuestions}
+                selectedId={selectedQuestion}
+                onSelectQuestion={handleSelectQuestion}
+              />
             </div>
           )}
         </div>
-      </ScrollArea>
-
-      {/* Input e Suggested Questions */}
-      <div className="p-4 space-y-3 border-t border-gray-100">
-        <ChatInput
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          onKeyPress={(e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-              e.preventDefault()
-              sendMessage(inputValue)
-            }
-          }}
-          isExpanded={isExpanded}
-          onSend={() => sendMessage(inputValue)}
-          isLoading={isLoading}
-        />
-
-        {/* Suggested Questions solo quando è espanso */}
-        {isExpanded && suggestedQuestions.length > 0 && (
-          <div className="w-full">
-            <SuggestedQuestionsNav 
-              questions={suggestedQuestions}
-              selectedId={selectedQuestion}
-              onSelectQuestion={handleSelectQuestion}
-            />
-          </div>
-        )}
-      </div>
+      )}
     </div>
   )
 } 
