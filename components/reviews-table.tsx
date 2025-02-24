@@ -798,348 +798,400 @@ export function ReviewsTable({
 
   console.log('Rendering reviews:', reviews?.length || 0)
 
-  return (
-    <div className="space-y-4">
-      <div className="rounded-xl border bg-white">
-        <Table className="overflow-hidden">
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow 
-                key={headerGroup.id} 
-                className="bg-gray-50 hover:bg-gray-50 border-gray-200"
-              >
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead 
-                      key={header.id}
-                      className={cn(
-                        "text-gray-600 font-medium h-11 bg-gray-50",
-                        header.id === "select" && "[&_input[type='checkbox']]:rounded-lg [&_input[type='checkbox']]:border-gray-300"
-                      )}
-                    >
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </TableHead>
-                  )
-                })}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell 
-                      key={cell.id}
-                      className={cn(
-                        cell.column.id === "select" && "[&_input[type='checkbox']]:rounded-lg [&_input[type='checkbox']]:border-gray-300"
-                      )}
-                    >
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  No results.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
-      
-      <div className="mt-6 mb-4 px-2 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Select
-            value={pageSize.toString()}
-            onValueChange={handleResultsPerPageChange}
-          >
-            <SelectTrigger className="h-9 w-[160px] rounded-full border-gray-200 focus:border-primary focus:ring-primary bg-white text-sm">
-              <SelectValue placeholder="Results per page" />
-            </SelectTrigger>
-            <SelectContent>
-              {[10, 20, 30, 40, 50].map((value) => (
-                <SelectItem 
-                  key={value} 
-                  value={value.toString()}
-                  className="text-sm"
-                >
-                  {value} results
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+  const selectedRows = table.getSelectedRowModel().rows.map(row => row.original);
 
-        <div className="flex items-center gap-4">
-          <span className="text-sm text-gray-500">
-            Page {pageIndex + 1} of {table.getPageCount()}
-          </span>
-          
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => table.previousPage()}
-              disabled={!table.getCanPreviousPage()}
-              className="rounded-full border-gray-200 hover:bg-gray-50 hover:text-gray-900 text-gray-600"
+  return (
+    <div className="relative">
+      <div className="space-y-4">
+        <div className="rounded-xl border bg-white">
+          <Table className="overflow-hidden">
+            <TableHeader>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow 
+                  key={headerGroup.id} 
+                  className="bg-gray-50 hover:bg-gray-50 border-gray-200"
+                >
+                  {headerGroup.headers.map((header) => {
+                    return (
+                      <TableHead 
+                        key={header.id}
+                        className={cn(
+                          "text-gray-600 font-medium h-11 bg-gray-50",
+                          header.id === "select" && "[&_input[type='checkbox']]:rounded-lg [&_input[type='checkbox']]:border-gray-300"
+                        )}
+                      >
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                      </TableHead>
+                    )
+                  })}
+                </TableRow>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {table.getRowModel().rows?.length ? (
+                table.getRowModel().rows.map((row) => (
+                  <TableRow
+                    key={row.id}
+                    data-state={row.getIsSelected() && "selected"}
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell 
+                        key={cell.id}
+                        className={cn(
+                          cell.column.id === "select" && "[&_input[type='checkbox']]:rounded-lg [&_input[type='checkbox']]:border-gray-300"
+                        )}
+                      >
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-24 text-center"
+                  >
+                    No results.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
+        
+        <div className="mt-6 mb-4 px-2 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Select
+              value={pageSize.toString()}
+              onValueChange={handleResultsPerPageChange}
             >
-              Previous
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => table.nextPage()}
-              disabled={!table.getCanNextPage()}
-              className="rounded-full border-gray-200 hover:bg-gray-50 hover:text-gray-900 text-gray-600"
-            >
-              Next
-            </Button>
+              <SelectTrigger className="h-9 w-[160px] rounded-full border-gray-200 focus:border-primary focus:ring-primary bg-white text-sm">
+                <SelectValue placeholder="Results per page" />
+              </SelectTrigger>
+              <SelectContent>
+                {[10, 20, 30, 40, 50].map((value) => (
+                  <SelectItem 
+                    key={value} 
+                    value={value.toString()}
+                    className="text-sm"
+                  >
+                    {value} results
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <span className="text-sm text-gray-500">
+              Page {pageIndex + 1} of {table.getPageCount()}
+            </span>
+            
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => table.previousPage()}
+                disabled={!table.getCanPreviousPage()}
+                className="rounded-full border-gray-200 hover:bg-gray-50 hover:text-gray-900 text-gray-600"
+              >
+                Previous
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => table.nextPage()}
+                disabled={!table.getCanNextPage()}
+                className="rounded-full border-gray-200 hover:bg-gray-50 hover:text-gray-900 text-gray-600"
+              >
+                Next
+              </Button>
+            </div>
           </div>
         </div>
-      </div>
 
-      <SlidePanel 
-        open={isModalOpen} 
-        onOpenChange={(open) => {
-          setIsModalOpen(open);
-          if (!open) {
-            setMessages([]);
-            setInput('');
-            setIsGenerating(false);
-            setSelectedReview(null);
-          }
-        }}
-        className="!fixed !inset-0 !right-0 !left-auto"
-      >
-        <div className="h-screen flex flex-col">
-          <div className="px-6 py-4 border-b bg-gray-50/80 backdrop-blur-sm sticky top-0 z-10">
-            <div className="flex flex-col gap-2">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <h2 className="text-lg font-semibold">Generated Response</h2>
-                  {isGenerating && (
-                    <div className="flex items-center gap-2 px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-sm">
-                      <Loader2 className="h-3 w-3 animate-spin" />
-                      Generating...
-                    </div>
-                  )}
-                </div>
-              </div>
-              
-              {selectedReview && (
-                <div className="mt-2 p-3 bg-white rounded-xl border border-gray-200">
-                  <div className="flex items-start gap-3">
-                    <div className="shrink-0">
-                      <Image
-                        src={logoUrls[selectedReview.platform as Platform]}
-                        alt={selectedReview.platform}
-                        width={20}
-                        height={20}
-                        className="rounded-sm"
-                      />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between gap-2 mb-1">
-                        <span className="font-medium text-sm truncate">
-                          {selectedReview.content.reviewerName || "Anonymous"}
-                        </span>
-                        <div className="flex items-center gap-1 text-sm">
-                          <span className="font-medium">
-                            {selectedReview.platform === "booking" 
-                              ? `${selectedReview.content.rating}/10` 
-                              : `${selectedReview.content.rating}/5`}
-                          </span>
-                          {selectedReview.content.originalUrl && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => window.open(selectedReview.content.originalUrl, '_blank')}
-                              className="h-6 w-6 p-0 hover:bg-gray-100 rounded-full"
-                            >
-                              <ExternalLink className="h-3 w-3" />
-                            </Button>
-                          )}
-                        </div>
+        <SlidePanel 
+          open={isModalOpen} 
+          onOpenChange={(open) => {
+            setIsModalOpen(open);
+            if (!open) {
+              setMessages([]);
+              setInput('');
+              setIsGenerating(false);
+              setSelectedReview(null);
+            }
+          }}
+          className="!fixed !inset-0 !right-0 !left-auto"
+        >
+          <div className="h-screen flex flex-col">
+            <div className="px-6 py-4 border-b bg-gray-50/80 backdrop-blur-sm sticky top-0 z-10">
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <h2 className="text-lg font-semibold">Generated Response</h2>
+                    {isGenerating && (
+                      <div className="flex items-center gap-2 px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-sm">
+                        <Loader2 className="h-3 w-3 animate-spin" />
+                        Generating...
                       </div>
-                      <div 
-                        className="relative cursor-pointer" 
-                        onClick={() => setIsReviewExpanded(!isReviewExpanded)}
-                      >
-                        <p className={cn(
-                          "text-sm text-gray-600 transition-all duration-200",
-                          isReviewExpanded ? "" : "line-clamp-2"
-                        )}>
-                          {selectedReview.content.text}
-                        </p>
-                        <div className={cn(
-                          "absolute bottom-0 left-0 right-0 h-6",
-                          isReviewExpanded ? "hidden" : "bg-gradient-to-t from-white to-transparent"
-                        )} />
+                    )}
+                  </div>
+                </div>
+                
+                {selectedReview && (
+                  <div className="mt-2 p-3 bg-white rounded-xl border border-gray-200">
+                    <div className="flex items-start gap-3">
+                      <div className="shrink-0">
+                        <Image
+                          src={logoUrls[selectedReview.platform as Platform]}
+                          alt={selectedReview.platform}
+                          width={20}
+                          height={20}
+                          className="rounded-sm"
+                        />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between gap-2 mb-1">
+                          <span className="font-medium text-sm truncate">
+                            {selectedReview.content.reviewerName || "Anonymous"}
+                          </span>
+                          <div className="flex items-center gap-1 text-sm">
+                            <span className="font-medium">
+                              {selectedReview.platform === "booking" 
+                                ? `${selectedReview.content.rating}/10` 
+                                : `${selectedReview.content.rating}/5`}
+                            </span>
+                            {selectedReview.content.originalUrl && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => window.open(selectedReview.content.originalUrl, '_blank')}
+                                className="h-6 w-6 p-0 hover:bg-gray-100 rounded-full"
+                              >
+                                <ExternalLink className="h-3 w-3" />
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+                        <div 
+                          className="relative cursor-pointer" 
+                          onClick={() => setIsReviewExpanded(!isReviewExpanded)}
+                        >
+                          <p className={cn(
+                            "text-sm text-gray-600 transition-all duration-200",
+                            isReviewExpanded ? "" : "line-clamp-2"
+                          )}>
+                            {selectedReview.content.text}
+                          </p>
+                          <div className={cn(
+                            "absolute bottom-0 left-0 right-0 h-6",
+                            isReviewExpanded ? "hidden" : "bg-gradient-to-t from-white to-transparent"
+                          )} />
+                        </div>
                       </div>
                     </div>
                   </div>
+                )}
+
+                <div className="flex items-center gap-3 mt-2">
+                  <Select 
+                    value={responseTone} 
+                    onValueChange={(value: ResponseTone) => setResponseTone(value)}
+                  >
+                    <SelectTrigger className="h-8 w-[130px] text-sm rounded-full">
+                      <SelectValue placeholder="Style" />
+                    </SelectTrigger>
+                    <SelectContent className="z-[200]">
+                      <SelectItem value="professional">Professional</SelectItem>
+                      <SelectItem value="friendly">Friendly</SelectItem>
+                    </SelectContent>
+                  </Select>
+
+                  <Select 
+                    value={responseLength} 
+                    onValueChange={(value: ResponseLength) => setResponseLength(value)}
+                  >
+                    <SelectTrigger className="h-8 w-[130px] text-sm rounded-full">
+                      <SelectValue placeholder="Length" />
+                    </SelectTrigger>
+                    <SelectContent className="z-[200]">
+                      <SelectItem value="short">Short</SelectItem>
+                      <SelectItem value="medium">Medium</SelectItem>
+                      <SelectItem value="long">Long</SelectItem>
+                    </SelectContent>
+                  </Select>
+
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setMessages([]);
+                      handleGenerateResponse(selectedReview!);
+                    }}
+                    disabled={isGenerating}
+                    className="h-8 rounded-full text-sm"
+                  >
+                    Regenerate
+                  </Button>
                 </div>
-              )}
-
-              <div className="flex items-center gap-3 mt-2">
-                <Select 
-                  value={responseTone} 
-                  onValueChange={(value: ResponseTone) => setResponseTone(value)}
-                >
-                  <SelectTrigger className="h-8 w-[130px] text-sm rounded-full">
-                    <SelectValue placeholder="Style" />
-                  </SelectTrigger>
-                  <SelectContent className="z-[200]">
-                    <SelectItem value="professional">Professional</SelectItem>
-                    <SelectItem value="friendly">Friendly</SelectItem>
-                  </SelectContent>
-                </Select>
-
-                <Select 
-                  value={responseLength} 
-                  onValueChange={(value: ResponseLength) => setResponseLength(value)}
-                >
-                  <SelectTrigger className="h-8 w-[130px] text-sm rounded-full">
-                    <SelectValue placeholder="Length" />
-                  </SelectTrigger>
-                  <SelectContent className="z-[200]">
-                    <SelectItem value="short">Short</SelectItem>
-                    <SelectItem value="medium">Medium</SelectItem>
-                    <SelectItem value="long">Long</SelectItem>
-                  </SelectContent>
-                </Select>
-
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    setMessages([]);
-                    handleGenerateResponse(selectedReview!);
-                  }}
-                  disabled={isGenerating}
-                  className="h-8 rounded-full text-sm"
-                >
-                  Regenerate
-                </Button>
               </div>
             </div>
-          </div>
-          
-          <div 
-            className="flex-1 overflow-y-auto bg-gray-50/50 px-6" 
-            ref={chatContainerRef}
-            style={{ 
-              scrollbarWidth: 'thin',
-              scrollbarColor: '#E5E7EB transparent'
-            }}
-          >
-            <div className="py-6 max-w-3xl mx-auto">
-              <ChatMessageList>
-                {messages.map((message) => (
-                  <ChatBubble 
-                    key={message.id} 
-                    variant={message.sender === "user" ? "sent" : "received"}
-                    className="rounded-2xl group"
-                  >
-                    <ChatBubbleAvatar
-                      className="h-8 w-8 shrink-0 rounded-full border-2 border-white shadow-sm"
-                      src={message.sender === "user" ? "https://github.com/shadcn.png" : "https://github.com/vercel.png"}
-                      fallback={message.sender === "user" ? "US" : "AI"}
-                    />
-                    <div className="flex flex-col flex-1">
-                      <ChatBubbleMessage 
-                        variant={message.sender === "user" ? "sent" : "received"}
-                        className="rounded-2xl relative pr-10 shadow-sm group"
-                      >
-                        <div 
-                          onClick={async () => {
-                            if (message.sender === "ai") {
-                              await navigator.clipboard.writeText(message.content);
-                              toast.success("Response copied to clipboard");
-                            }
-                          }}
-                          className={cn(
-                            "w-full",
-                            message.sender === "ai" && "cursor-pointer hover:opacity-80 transition-opacity",
-                            message.sender === "ai" && "after:content-['Click_to_copy'] after:absolute after:top-2 after:right-2 after:text-xs after:text-gray-400 after:opacity-0 after:transition-opacity group-hover:after:opacity-100"
-                          )}
+            
+            <div 
+              className="flex-1 overflow-y-auto bg-gray-50/50 px-6" 
+              ref={chatContainerRef}
+              style={{ 
+                scrollbarWidth: 'thin',
+                scrollbarColor: '#E5E7EB transparent'
+              }}
+            >
+              <div className="py-6 max-w-3xl mx-auto">
+                <ChatMessageList>
+                  {messages.map((message) => (
+                    <ChatBubble 
+                      key={message.id} 
+                      variant={message.sender === "user" ? "sent" : "received"}
+                      className="rounded-2xl group"
+                    >
+                      <ChatBubbleAvatar
+                        className="h-8 w-8 shrink-0 rounded-full border-2 border-white shadow-sm"
+                        src={message.sender === "user" ? "https://github.com/shadcn.png" : "https://github.com/vercel.png"}
+                        fallback={message.sender === "user" ? "US" : "AI"}
+                      />
+                      <div className="flex flex-col flex-1">
+                        <ChatBubbleMessage 
+                          variant={message.sender === "user" ? "sent" : "received"}
+                          className="rounded-2xl relative pr-10 shadow-sm group"
                         >
-                          {message.content}
-                        </div>
-                        {message.sender === "ai" && selectedReview && (
-                          <div className="absolute right-2 bottom-2 flex items-center gap-2">
-                            {selectedReview.content?.originalUrl ? (
-                              <>
+                          <div 
+                            onClick={async () => {
+                              if (message.sender === "ai") {
+                                await navigator.clipboard.writeText(message.content);
+                                toast.success("Response copied to clipboard");
+                              }
+                            }}
+                            className={cn(
+                              "w-full",
+                              message.sender === "ai" && "cursor-pointer hover:opacity-80 transition-opacity",
+                              message.sender === "ai" && "after:content-['Click_to_copy'] after:absolute after:top-2 after:right-2 after:text-xs after:text-gray-400 after:opacity-0 after:transition-opacity group-hover:after:opacity-100"
+                            )}
+                          >
+                            {message.content}
+                          </div>
+                          {message.sender === "ai" && selectedReview && (
+                            <div className="absolute right-2 bottom-2 flex items-center gap-2">
+                              {selectedReview.content?.originalUrl ? (
+                                <>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={async () => {
+                                      if (!selectedReview) return;
+                                      try {
+                                        // Salva la risposta
+                                        const token = getCookie('token');
+                                        await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reviews/${selectedReview._id}`, {
+                                          method: 'PATCH',
+                                          headers: {
+                                            'Authorization': `Bearer ${token}`,
+                                            'Content-Type': 'application/json'
+                                          },
+                                          body: JSON.stringify({
+                                            response: {
+                                              text: message.content,
+                                              createdAt: new Date(),
+                                              settings: {
+                                                style: responseTone,
+                                                length: responseLength
+                                              }
+                                            }
+                                          })
+                                        });
+
+                                        // Copia e apri l'URL
+                                        navigator.clipboard.writeText(message.content);
+                                        window.open(selectedReview.content.originalUrl, '_blank');
+                                        
+                                        // Aggiorna lo stato locale
+                                        updateReviewResponse(selectedReview._id, message.content);
+                                        
+                                        toast.success("Response copied, saved and original review opened");
+                                        
+                                        if (onRefresh) {
+                                          onRefresh();
+                                        }
+                                      } catch (error) {
+                                        console.error('Error saving response:', error);
+                                        toast.error("Failed to save response");
+                                      }
+                                    }}
+                                    className="h-8 px-3 rounded-full bg-white shadow-sm border border-gray-100 hover:bg-gray-50 
+                                      text-gray-600 hover:text-gray-900 transition-colors
+                                      flex items-center gap-1.5"
+                                    title="Copy and go to original review"
+                                  >
+                                    <span className="text-xs font-medium">Copy & Go</span>
+                                    <ExternalLink className="h-3 w-3 ml-0.5" />
+                                  </Button>
+
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={async () => {
+                                      if (!selectedReview) return;
+                                      try {
+                                        // Salva la risposta
+                                        const token = getCookie('token');
+                                        await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reviews/${selectedReview._id}`, {
+                                          method: 'PATCH',
+                                          headers: {
+                                            'Authorization': `Bearer ${token}`,
+                                            'Content-Type': 'application/json'
+                                          },
+                                          body: JSON.stringify({
+                                            response: {
+                                              text: message.content,
+                                              createdAt: new Date(),
+                                              settings: {
+                                                style: responseTone,
+                                                length: responseLength
+                                              }
+                                            }
+                                          })
+                                        });
+
+                                        // Copia negli appunti
+                                        navigator.clipboard.writeText(message.content);
+                                        
+                                        // Aggiorna lo stato locale
+                                        updateReviewResponse(selectedReview._id, message.content);
+                                        
+                                        toast.success("Response copied and saved");
+                                        
+                                        if (onRefresh) {
+                                          onRefresh();
+                                        }
+                                      } catch (error) {
+                                        console.error('Error saving response:', error);
+                                        toast.error("Failed to save response");
+                                      }
+                                    }}
+                                    className="h-8 w-8 rounded-full hover:bg-gray-50 text-gray-500"
+                                    title="Copy response"
+                                  >
+                                    <Copy className="h-3.5 w-3.5" />
+                                  </Button>
+                                </>
+                              ) : (
                                 <Button
                                   variant="ghost"
                                   size="sm"
-                                  onClick={async () => {
-                                    if (!selectedReview) return;
-                                    try {
-                                      // Salva la risposta
-                                      const token = getCookie('token');
-                                      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reviews/${selectedReview._id}`, {
-                                        method: 'PATCH',
-                                        headers: {
-                                          'Authorization': `Bearer ${token}`,
-                                          'Content-Type': 'application/json'
-                                        },
-                                        body: JSON.stringify({
-                                          response: {
-                                            text: message.content,
-                                            createdAt: new Date(),
-                                            settings: {
-                                              style: responseTone,
-                                              length: responseLength
-                                            }
-                                          }
-                                        })
-                                      });
-
-                                      // Copia e apri l'URL
-                                      navigator.clipboard.writeText(message.content);
-                                      window.open(selectedReview.content.originalUrl, '_blank');
-                                      
-                                      // Aggiorna lo stato locale
-                                      updateReviewResponse(selectedReview._id, message.content);
-                                      
-                                      toast.success("Response copied, saved and original review opened");
-                                      
-                                      if (onRefresh) {
-                                        onRefresh();
-                                      }
-                                    } catch (error) {
-                                      console.error('Error saving response:', error);
-                                      toast.error("Failed to save response");
-                                    }
-                                  }}
-                                  className="h-8 px-3 rounded-full bg-white shadow-sm border border-gray-100 hover:bg-gray-50 
-                                    text-gray-600 hover:text-gray-900 transition-colors
-                                    flex items-center gap-1.5"
-                                  title="Copy and go to original review"
-                                >
-                                  <span className="text-xs font-medium">Copy & Go</span>
-                                  <ExternalLink className="h-3 w-3 ml-0.5" />
-                                </Button>
-
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
                                   onClick={async () => {
                                     if (!selectedReview) return;
                                     try {
@@ -1179,184 +1231,180 @@ export function ReviewsTable({
                                       toast.error("Failed to save response");
                                     }
                                   }}
-                                  className="h-8 w-8 rounded-full hover:bg-gray-50 text-gray-500"
+                                  className="h-8 px-3 rounded-full bg-white shadow-sm border border-gray-100 hover:bg-gray-50 
+                                    text-gray-600 hover:text-gray-900 transition-colors
+                                    flex items-center gap-1.5"
                                   title="Copy response"
                                 >
                                   <Copy className="h-3.5 w-3.5" />
+                                  <span className="text-xs font-medium">Copy</span>
                                 </Button>
-                              </>
-                            ) : (
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={async () => {
-                                  if (!selectedReview) return;
-                                  try {
-                                    // Salva la risposta
-                                    const token = getCookie('token');
-                                    await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reviews/${selectedReview._id}`, {
-                                      method: 'PATCH',
-                                      headers: {
-                                        'Authorization': `Bearer ${token}`,
-                                        'Content-Type': 'application/json'
-                                      },
-                                      body: JSON.stringify({
-                                        response: {
-                                          text: message.content,
-                                          createdAt: new Date(),
-                                          settings: {
-                                            style: responseTone,
-                                            length: responseLength
-                                          }
-                                        }
-                                      })
-                                    });
+                              )}
+                            </div>
+                          )}
+                        </ChatBubbleMessage>
+                      </div>
+                    </ChatBubble>
+                  ))}
 
-                                    // Copia negli appunti
-                                    navigator.clipboard.writeText(message.content);
-                                    
-                                    // Aggiorna lo stato locale
-                                    updateReviewResponse(selectedReview._id, message.content);
-                                    
-                                    toast.success("Response copied and saved");
-                                    
-                                    if (onRefresh) {
-                                      onRefresh();
-                                    }
-                                  } catch (error) {
-                                    console.error('Error saving response:', error);
-                                    toast.error("Failed to save response");
-                                  }
-                                }}
-                                className="h-8 px-3 rounded-full bg-white shadow-sm border border-gray-100 hover:bg-gray-50 
-                                  text-gray-600 hover:text-gray-900 transition-colors
-                                  flex items-center gap-1.5"
-                                title="Copy response"
-                              >
-                                <Copy className="h-3.5 w-3.5" />
-                                <span className="text-xs font-medium">Copy</span>
-                              </Button>
-                            )}
-                          </div>
-                        )}
-                      </ChatBubbleMessage>
-                    </div>
-                  </ChatBubble>
-                ))}
-
-                {isGenerating && (
-                  <ChatBubble variant="received" className="rounded-2xl">
-                    <ChatBubbleAvatar 
-                      className="h-8 w-8 shrink-0 rounded-full border-2 border-white shadow-sm" 
-                      src="https://github.com/vercel.png" 
-                      fallback="AI" 
-                    />
-                    <ChatBubbleMessage isLoading className="rounded-2xl shadow-sm" />
-                  </ChatBubble>
-                )}
-              </ChatMessageList>
-            </div>
-          </div>
-
-          <div className="border-t bg-white px-6">
-            <div className="max-w-3xl mx-auto">
-              <div className="py-3 flex items-center gap-2 overflow-x-auto scrollbar-hide">
-                {isGenerating ? (
-                  Array(3).fill(0).map((_, i) => (
-                    <div 
-                      key={i}
-                      className="h-9 w-32 rounded-full bg-gray-100 animate-pulse"
-                    />
-                  ))
-                ) : suggestions.length > 0 ? (
-                  suggestions.map((suggestion, index) => (
-                    <Button
-                      key={index}
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleChatSubmit(suggestion)}
-                      className="rounded-full text-sm whitespace-nowrap hover:bg-primary hover:text-white border-gray-200"
-                    >
-                      {suggestion}
-                    </Button>
-                  ))
-                ) : (
-                  <>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleChatSubmit("Could you make it more personal?")}
-                      className="rounded-full text-sm whitespace-nowrap hover:bg-primary hover:text-white border-gray-200"
-                    >
-                      Make it more personal
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleChatSubmit("Can you address specific points from the review?")}
-                      className="rounded-full text-sm whitespace-nowrap hover:bg-primary hover:text-white border-gray-200"
-                    >
-                      Address specific points
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleChatSubmit("Could you make it shorter?")}
-                      className="rounded-full text-sm whitespace-nowrap hover:bg-primary hover:text-white border-gray-200"
-                    >
-                      Make it shorter
-                    </Button>
-                  </>
-                )}
+                  {isGenerating && (
+                    <ChatBubble variant="received" className="rounded-2xl">
+                      <ChatBubbleAvatar 
+                        className="h-8 w-8 shrink-0 rounded-full border-2 border-white shadow-sm" 
+                        src="https://github.com/vercel.png" 
+                        fallback="AI" 
+                      />
+                      <ChatBubbleMessage isLoading className="rounded-2xl shadow-sm" />
+                    </ChatBubble>
+                  )}
+                </ChatMessageList>
               </div>
+            </div>
 
-              <form 
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  handleChatSubmit(input);
-                }}
-                className="relative py-4 pb-6"
-              >
-                <div className="relative">
-                  <textarea
-                    value={input}
-                    onChange={(e) => {
-                      setInput(e.target.value);
-                      e.target.style.height = 'inherit';
-                      const height = Math.min(e.target.scrollHeight, 120);
-                      e.target.style.height = `${height}px`;
-                    }}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        handleChatSubmit(input);
-                      }
-                    }}
-                    placeholder="Refine the response..."
-                    className="w-full min-h-[52px] max-h-[120px] pe-[90px] ps-4 py-3
-                      bg-gray-50 rounded-xl resize-none
-                      border border-gray-200 hover:border-gray-300
-                      focus:border-primary focus:ring-1 focus:ring-primary
-                      transition-colors text-base leading-relaxed
-                      scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent"
-                    style={{ 
-                      overflow: 'auto',
-                    }}
-                  />
-                  {input.trim() && (
-                    <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                      <kbd className="inline-flex h-6 select-none items-center gap-1 rounded border border-gray-200 bg-gray-50 px-1.5 font-mono text-[10px] font-medium text-gray-400">
-                        <span className="text-xs">⏎</span>
-                        Enter
-                      </kbd>
-                    </div>
+            <div className="border-t bg-white px-6">
+              <div className="max-w-3xl mx-auto">
+                <div className="py-3 flex items-center gap-2 overflow-x-auto scrollbar-hide">
+                  {isGenerating ? (
+                    Array(3).fill(0).map((_, i) => (
+                      <div 
+                        key={i}
+                        className="h-9 w-32 rounded-full bg-gray-100 animate-pulse"
+                      />
+                    ))
+                  ) : suggestions.length > 0 ? (
+                    suggestions.map((suggestion, index) => (
+                      <Button
+                        key={index}
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleChatSubmit(suggestion)}
+                        className="rounded-full text-sm whitespace-nowrap hover:bg-primary hover:text-white border-gray-200"
+                      >
+                        {suggestion}
+                      </Button>
+                    ))
+                  ) : (
+                    <>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleChatSubmit("Could you make it more personal?")}
+                        className="rounded-full text-sm whitespace-nowrap hover:bg-primary hover:text-white border-gray-200"
+                      >
+                        Make it more personal
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleChatSubmit("Can you address specific points from the review?")}
+                        className="rounded-full text-sm whitespace-nowrap hover:bg-primary hover:text-white border-gray-200"
+                      >
+                        Address specific points
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleChatSubmit("Could you make it shorter?")}
+                        className="rounded-full text-sm whitespace-nowrap hover:bg-primary hover:text-white border-gray-200"
+                      >
+                        Make it shorter
+                      </Button>
+                    </>
                   )}
                 </div>
-              </form>
+
+                <form 
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    handleChatSubmit(input);
+                  }}
+                  className="relative py-4 pb-6"
+                >
+                  <div className="relative">
+                    <textarea
+                      value={input}
+                      onChange={(e) => {
+                        setInput(e.target.value);
+                        e.target.style.height = 'inherit';
+                        const height = Math.min(e.target.scrollHeight, 120);
+                        e.target.style.height = `${height}px`;
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                          e.preventDefault();
+                          handleChatSubmit(input);
+                        }
+                      }}
+                      placeholder="Refine the response..."
+                      className="w-full min-h-[52px] max-h-[120px] pe-[90px] ps-4 py-3
+                        bg-gray-50 rounded-xl resize-none
+                        border border-gray-200 hover:border-gray-300
+                        focus:border-primary focus:ring-1 focus:ring-primary
+                        transition-colors text-base leading-relaxed
+                        scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent"
+                      style={{ 
+                        overflow: 'auto',
+                      }}
+                    />
+                    {input.trim() && (
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                        <kbd className="inline-flex h-6 select-none items-center gap-1 rounded border border-gray-200 bg-gray-50 px-1.5 font-mono text-[10px] font-medium text-gray-400">
+                          <span className="text-xs">⏎</span>
+                          Enter
+                        </kbd>
+                      </div>
+                    )}
+                  </div>
+                </form>
+              </div>
             </div>
           </div>
+        </SlidePanel>
+      </div>
+      
+      {/* Banner per le azioni bulk */}
+      {selectedRows.length > 0 && (
+        <div className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-sm border-t shadow-lg z-50">
+          <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium text-gray-700">
+                {selectedRows.length} {selectedRows.length === 1 ? 'recensione selezionata' : 'recensioni selezionate'}
+              </span>
+            </div>
+            <Button
+              onClick={async () => {
+                try {
+                  const token = getCookie('token');
+                  await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reviews/bulk-delete`, {
+                    method: 'POST',
+                    headers: {
+                      'Authorization': `Bearer ${token}`,
+                      'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                      reviewIds: selectedRows.map(row => row._id)
+                    })
+                  });
+
+                  toast.success(`${selectedRows.length} recensioni eliminate con successo`);
+                  handleRefresh();
+                  
+                  // Deseleziona tutte le righe
+                  table.toggleAllRowsSelected(false);
+                } catch (error) {
+                  console.error('Error deleting reviews:', error);
+                  toast.error("Errore durante l'eliminazione delle recensioni");
+                }
+              }}
+              variant="destructive"
+              className="bg-red-500 hover:bg-red-600 text-white shadow-[0_4px_0_0_#dc2626] hover:shadow-[0_2px_0_0_#dc2626] hover:translate-y-[2px] transition-all"
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Delete Reviews
+            </Button>
+          </div>
         </div>
-      </SlidePanel>
+      )}
     </div>
   )
 }
