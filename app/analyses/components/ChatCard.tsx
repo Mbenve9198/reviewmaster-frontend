@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { getCookie } from "@/lib/utils"
-import { ChevronLeft, ChevronRight, Send, Bot, Loader2, FileText, Plus, X } from "lucide-react"
+import { ChevronLeft, ChevronRight, Send, Bot, Loader2, FileText, Plus, X, MessageSquare } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { motion, AnimatePresence } from "framer-motion"
@@ -199,81 +199,100 @@ const SuggestedQuestionsNav = ({
 }
 
 export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: ChatCardProps) {
-  const [messages, setMessages] = useState<Message[]>([])
-  const [inputValue, setInputValue] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
-  const [suggestedQuestions, setSuggestedQuestions] = useState<SuggestedQuestion[]>([])
-  const scrollAreaRef = useRef<HTMLDivElement>(null)
-  const [selectedQuestion, setSelectedQuestion] = useState<string | null>(null)
-  const [viewMode, setViewMode] = useState<'list' | 'chat'>('list')
+  const [viewMode, setViewMode] = useState<'list' | 'chat'>('chat')
   const [chats, setChats] = useState<Chat[]>([])
   const [selectedChat, setSelectedChat] = useState<Chat | null>(null)
+  const [messages, setMessages] = useState<Message[]>([])
+  const [suggestedQuestions, setSuggestedQuestions] = useState<SuggestedQuestion[]>([])
+  const [isLoading, setIsLoading] = useState(false)
+  const [inputValue, setInputValue] = useState("")
+  const scrollAreaRef = useRef<HTMLDivElement>(null)
+  const [selectedQuestion, setSelectedQuestion] = useState<string | null>(null)
 
-  const fetchChatHistory = async () => {
+  const initializeChats = async () => {
     try {
       const token = getCookie('token')
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/analytics/${analysisId}/chat-history`, {
-        method: 'GET',
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/analytics/${analysisId}/chats`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        }
+      })
+
+      if (!response.ok) throw new Error('Failed to fetch chats')
+      const data = await response.json()
+      setChats(data.conversations)
+
+      if (data.conversations.length > 0) {
+        const lastChat = data.conversations[data.conversations.length - 1]
+        setSelectedChat(lastChat)
+        setMessages(lastChat.messages)
+      } else {
+        createNewChat()
+      }
+
+      if (!data.conversations.length || data.conversations[data.conversations.length - 1].messages.length === 0) {
+        loadInitialSuggestions()
+      }
+    } catch (error) {
+      console.error('Error fetching chats:', error)
+    }
+  }
+
+  const loadInitialSuggestions = async () => {
+    try {
+      const token = getCookie('token')
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/analytics/${analysisId}/follow-up`, 
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ 
+            question: 'initial',
+            messages: []
+          })
+        }
+      )
+
+      if (!response.ok) throw new Error('Failed to fetch suggestions')
+      const data = await response.json()
+      setSuggestedQuestions(data.suggestions.map((text: string, index: number) => ({
+        id: `suggestion-${index}`,
+        text
+      })))
+    } catch (error) {
+      console.error('Error loading initial suggestions:', error)
+    }
+  }
+
+  useEffect(() => {
+    if (analysisId) {
+      initializeChats()
+    }
+  }, [analysisId])
+
+  const createNewChat = async () => {
+    try {
+      const token = getCookie('token')
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/analytics/${analysisId}/chats`, {
+        method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         }
       })
 
-      if (!response.ok) {
-        throw new Error('Failed to fetch chat history')
-      }
-
-      const data = await response.json()
-      if (data && data.messages && data.messages.length > 0) {
-        setMessages(data.messages.map((msg: any) => ({
-          role: msg.role,
-          content: msg.content,
-          timestamp: new Date(msg.timestamp)
-        })))
-      }
+      if (!response.ok) throw new Error('Failed to create chat')
+      const newChat = await response.json()
+      setChats(prev => [...prev, newChat])
+      setSelectedChat(newChat)
+      setMessages([])
+      setViewMode('chat')
+      loadInitialSuggestions()
     } catch (error) {
-      console.error('Error fetching chat history:', error)
-    }
-  }
-
-  useEffect(() => {
-    if (analysisId) {
-      fetchChatHistory()
-      fetchSuggestedQuestions()
-    }
-  }, [analysisId])
-
-  const fetchSuggestedQuestions = async () => {
-    try {
-      const token = getCookie('token')
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/analytics/${analysisId}/follow-up`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ question: 'initial' })
-      })
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to fetch suggestions');
-      }
-      
-      const data = await response.json();
-      if (data && Array.isArray(data.suggestions)) {
-        setSuggestedQuestions(data.suggestions.map((q: string, i: number) => ({
-          id: `q-${i}`,
-          text: q
-        })));
-      } else {
-        console.error('Invalid suggestions format:', data);
-        setSuggestedQuestions([]);
-      }
-    } catch (error) {
-      console.error('Error fetching suggestions:', error);
-      setSuggestedQuestions([]);
+      console.error('Error creating chat:', error)
     }
   }
 
@@ -381,78 +400,6 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
     setInputValue(text)
   }
 
-  const fetchChats = async () => {
-    try {
-      const token = getCookie('token')
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/analytics/${analysisId}/chats`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        }
-      })
-
-      if (!response.ok) throw new Error('Failed to fetch chats')
-      const data = await response.json()
-      setChats(data.conversations)
-    } catch (error) {
-      console.error('Error fetching chats:', error)
-    }
-  }
-
-  useEffect(() => {
-    if (analysisId) {
-      fetchChats()
-    }
-  }, [analysisId])
-
-  const createNewChat = async () => {
-    try {
-      const token = getCookie('token')
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/analytics/${analysisId}/chats`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      })
-
-      if (!response.ok) throw new Error('Failed to create chat')
-      const newChat = await response.json()
-      setChats(prev => [...prev, newChat])
-      setSelectedChat(newChat)
-      setViewMode('chat')
-    } catch (error) {
-      console.error('Error creating chat:', error)
-    }
-  }
-
-  const deleteChat = async (chatId: string) => {
-    try {
-      const token = getCookie('token')
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/analytics/${analysisId}/chats/${chatId}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        }
-      })
-
-      if (!response.ok) throw new Error('Failed to delete chat')
-      setChats(prev => prev.filter(chat => chat._id !== chatId))
-      if (selectedChat?._id === chatId) {
-        setSelectedChat(null)
-        setViewMode('list')
-      }
-    } catch (error) {
-      console.error('Error deleting chat:', error)
-    }
-  }
-
-  const handleBackToList = () => {
-    setViewMode('list')
-    setSelectedChat(null)
-    setMessages([])
-    setInputValue('')
-  }
-
   return (
     <div className="h-full bg-white/50 backdrop-blur-sm rounded-2xl border border-gray-200/50 shadow-lg overflow-hidden flex flex-col">
       {/* Header */}
@@ -461,12 +408,16 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
           {isExpanded ? (viewMode === 'list' ? "AI Assistant" : selectedChat?.title || "Chat") : ""}
         </h2>
         <div className="flex items-center gap-2">
-          {isExpanded && viewMode === 'chat' && (
+          {isExpanded && selectedChat && (
             <button
-              onClick={handleBackToList}
+              onClick={() => setViewMode(viewMode === 'list' ? 'chat' : 'list')}
               className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
             >
-              <X className="h-5 w-5 text-gray-500" />
+              {viewMode === 'chat' ? (
+                <FileText className="h-5 w-5 text-gray-500" />
+              ) : (
+                <MessageSquare className="h-5 w-5 text-gray-500" />
+              )}
             </button>
           )}
           <button
@@ -484,7 +435,7 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
 
       {/* Content */}
       <ScrollArea className="flex-1">
-        {(!isExpanded || viewMode === 'list') ? (
+        {viewMode === 'list' ? (
           <div className="p-4">
             <div className={`${isExpanded ? 'space-y-3 pr-4' : 'space-y-1'}`}>
               {/* Pulsante Nuova Chat */}
@@ -629,8 +580,8 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
             isLoading={isLoading}
           />
 
-          {/* Suggested Questions solo quando è espanso */}
-          {isExpanded && suggestedQuestions.length > 0 && (
+          {/* Mostra i suggerimenti solo se non ci sono messaggi */}
+          {messages.length === 0 && suggestedQuestions.length > 0 && (
             <div className="w-full">
               <SuggestedQuestionsNav 
                 questions={suggestedQuestions}
