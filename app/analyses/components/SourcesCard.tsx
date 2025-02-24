@@ -129,7 +129,7 @@ const SourcesCard = forwardRef<SourcesCardRef, SourcesCardProps>(({
       // Rimuoviamo i duplicati usando un Set con gli ID
       const uniqueReviews = Array.from(
         new Map(data.reviews.map((review: Review) => [review.id, review])).values()
-      );
+      ) as Review[];
 
       console.log('After deduplication:', {
         originalCount: data.reviews.length,
@@ -138,7 +138,7 @@ const SourcesCard = forwardRef<SourcesCardRef, SourcesCardProps>(({
       });
       
       // Ordiniamo per data, più recenti prima
-      const sortedReviews = uniqueReviews.sort((a, b) => 
+      const sortedReviews = uniqueReviews.sort((a: Review, b: Review) => 
         new Date(b.date).getTime() - new Date(a.date).getTime()
       );
       
