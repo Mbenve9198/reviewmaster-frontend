@@ -190,21 +190,11 @@ export default function AnalysisCard({ analysisId, onSourceClick }: AnalysisCard
   }
 
   return (
-    <div className="h-full bg-[#f5f3f2] backdrop-blur-sm rounded-2xl border border-gray-200/50 shadow-lg overflow-hidden relative">
-      {/* Background pattern */}
-      <div className="absolute inset-0" 
-        style={{
-          backgroundImage: `url('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/time-TwOS9MlmcnNjFliDrzz3oYOiD1LvVk.png')`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          opacity: "0.3"
-        }}>
-      </div>
-
+    <div className="h-full bg-white/50 backdrop-blur-sm rounded-2xl border border-gray-200/50 shadow-lg overflow-hidden relative flex flex-col">
       {/* Content */}
       <div className="relative z-10 h-full flex flex-col">
         {/* Header fisso */}
-        <div className="sticky top-0 p-4 border-b border-gray-100 bg-white">
+        <div className="sticky top-0 p-4 border-b border-gray-100/80 bg-white/50">
           <h2 className="font-semibold text-gray-900">Analysis Overview</h2>
         </div>
 
@@ -220,10 +210,10 @@ export default function AnalysisCard({ analysisId, onSourceClick }: AnalysisCard
           <ScrollArea className="flex-1">
             <div className="p-6 space-y-8">
               {/* Overview Cards */}
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-3 gap-6">
                 {/* Review Count & Rating */}
                 <motion.div 
-                  className="bg-gradient-to-br from-blue-50 to-white p-4 rounded-xl border border-blue-200/50"
+                  className="bg-gradient-to-br from-sky-50 to-white p-4 rounded-xl border border-sky-200/50 hover:shadow-md transition-shadow duration-200"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                 >
@@ -252,7 +242,7 @@ export default function AnalysisCard({ analysisId, onSourceClick }: AnalysisCard
 
                 {/* Sentiment Distribution */}
                 <motion.div 
-                  className="bg-gradient-to-br from-amber-50 to-white p-4 rounded-xl border border-amber-200/50"
+                  className="bg-gradient-to-br from-amber-50 to-white p-4 rounded-xl border border-amber-200/50 hover:shadow-md transition-shadow duration-200"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.1 }}
@@ -266,7 +256,7 @@ export default function AnalysisCard({ analysisId, onSourceClick }: AnalysisCard
 
                 {/* Quick Stats */}
                 <motion.div 
-                  className="bg-gradient-to-br from-emerald-50 to-white p-4 rounded-xl border border-emerald-200/50"
+                  className="bg-gradient-to-br from-emerald-50 to-white p-4 rounded-xl border border-emerald-200/50 hover:shadow-md transition-shadow duration-200"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2 }}
@@ -281,34 +271,49 @@ export default function AnalysisCard({ analysisId, onSourceClick }: AnalysisCard
 
               {/* Strengths Section */}
               <section className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-900">Key Strengths</h3>
-                <div className="grid grid-cols-2 gap-4">
+                <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2 mb-4">
+                  <TrendingUp className="h-5 w-5 text-emerald-500" />
+                  Key Strengths
+                </h3>
+                <div className="grid grid-cols-2 gap-6">
                   {analysis.strengths.map((strength, index) => (
                     <motion.div 
-                      key={index} 
-                      className="bg-white/80 backdrop-blur-sm rounded-xl p-4 shadow-sm border border-gray-100"
+                      key={index}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      className="group bg-gradient-to-br from-emerald-50 to-white/80 backdrop-blur-sm rounded-xl p-6 shadow-sm border border-emerald-100 hover:shadow-md transition-all duration-200"
                     >
-                      <h4 className="font-medium text-emerald-900 mb-2">
+                      <h4 className="font-medium text-emerald-900 text-lg mb-3">
                         {strength.title}
                       </h4>
                       
-                      <p className="text-gray-600 text-sm mb-3">
+                      <p className="text-gray-600 text-sm leading-relaxed mb-4">
                         {strength.details}
                       </p>
 
-                      {/* Marketing Tips */}
-                      <div className="space-y-2 mb-4">
+                      {/* Marketing Tips con stile migliorato */}
+                      <div className="space-y-3 mb-4">
                         {strength.marketingTips.map((tip, idx) => (
-                          <div key={idx} className="...">
-                            {/* ... existing marketing tips content ... */}
+                          <div key={idx} className="bg-white/50 rounded-lg p-4 border border-emerald-100/50">
+                            <div className="text-sm text-emerald-800 font-medium mb-2">{tip.action}</div>
+                            <div className="grid grid-cols-2 gap-4 text-xs">
+                              <div className="flex items-center gap-2">
+                                <span className="text-gray-500">Cost:</span>
+                                <span className="text-emerald-700">{tip.cost}</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="text-gray-500">ROI:</span>
+                                <span className="text-emerald-700">{tip.roi}</span>
+                              </div>
+                            </div>
                           </div>
                         ))}
                       </div>
 
-                      {/* Link alle recensioni spostato qui */}
                       <button 
                         onClick={() => onSourceClick('strengths', strength._id, strength.title)}
-                        className="flex items-center gap-1.5 text-xs text-emerald-600 hover:text-emerald-700 mt-3 py-2 px-3 bg-emerald-50/50 rounded-lg hover:bg-emerald-50 transition-colors"
+                        className="flex items-center gap-1.5 text-xs text-emerald-600 hover:text-emerald-700 mt-4 py-2 px-3 bg-emerald-50/50 rounded-lg hover:bg-emerald-50 transition-colors w-full justify-center group-hover:bg-emerald-100/50"
                       >
                         <Link className="h-3.5 w-3.5" />
                         <span>View {strength.mentions} related reviews</span>
@@ -325,7 +330,7 @@ export default function AnalysisCard({ analysisId, onSourceClick }: AnalysisCard
                   {analysis.issues.map((issue, index) => (
                     <motion.div 
                       key={index} 
-                      className="bg-white/80 backdrop-blur-sm rounded-xl p-4 shadow-sm border border-gray-100"
+                      className="bg-gradient-to-br from-rose-50 to-white/80 backdrop-blur-sm rounded-xl p-4 shadow-sm border border-rose-100"
                     >
                       <h4 className="font-medium text-rose-900 mb-2">
                         {issue.title}
@@ -355,32 +360,35 @@ export default function AnalysisCard({ analysisId, onSourceClick }: AnalysisCard
 
               {/* Quick Wins Section */}
               <section className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-900">Quick Wins</h3>
-                <div className="grid grid-cols-3 gap-4">
+                <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                  <Zap className="h-5 w-5 text-violet-500" />
+                  Quick Wins
+                </h3>
+                <div className="grid grid-cols-3 gap-6">
                   {analysis.quickWins.map((win, index) => (
                     <motion.div
                       key={index}
-                      className="bg-gradient-to-br from-violet-50 to-white p-4 rounded-xl border border-violet-200/50"
+                      className="bg-gradient-to-br from-violet-50 to-white p-5 rounded-xl border border-violet-200/50 hover:shadow-md transition-all duration-200"
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.1 }}
                     >
-                      <div className="flex items-center gap-2 mb-3">
+                      <div className="flex items-center gap-2 mb-4">
                         <Zap className="h-5 w-5 text-violet-500" />
                         <h4 className="font-medium text-violet-900">{win.action}</h4>
                       </div>
-                      <div className="space-y-2 text-sm">
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">Timeline:</span>
-                          <span className="text-violet-700">{win.timeline}</span>
+                      <div className="space-y-3 text-sm">
+                        <div className="flex justify-between items-center p-2 bg-white/50 rounded-lg">
+                          <span className="text-gray-600">Timeline</span>
+                          <span className="text-violet-700 font-medium">{win.timeline}</span>
                         </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">Cost:</span>
-                          <span className="text-violet-700">{win.cost}</span>
+                        <div className="flex justify-between items-center p-2 bg-white/50 rounded-lg">
+                          <span className="text-gray-600">Cost</span>
+                          <span className="text-violet-700 font-medium">{win.cost}</span>
                         </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">Impact:</span>
-                          <span className="text-violet-700">{win.impact}</span>
+                        <div className="flex justify-between items-center p-2 bg-white/50 rounded-lg">
+                          <span className="text-gray-600">Impact</span>
+                          <span className="text-violet-700 font-medium">{win.impact}</span>
                         </div>
                       </div>
                     </motion.div>
