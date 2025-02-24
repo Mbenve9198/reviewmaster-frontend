@@ -325,30 +325,69 @@ export default function AnalysisCard({ analysisId, onSourceClick }: AnalysisCard
 
               {/* Issues Section */}
               <section className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-900">Areas for Improvement</h3>
-                <div className="grid grid-cols-2 gap-4">
+                <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                  <AlertTriangle className="h-5 w-5 text-rose-500" />
+                  Areas for Improvement
+                </h3>
+                <div className="grid grid-cols-2 gap-6">
                   {analysis.issues.map((issue, index) => (
                     <motion.div 
                       key={index} 
-                      className="bg-gradient-to-br from-rose-50 to-white/80 backdrop-blur-sm rounded-xl p-4 shadow-sm border border-rose-100"
+                      className="bg-gradient-to-br from-rose-50 to-white/80 backdrop-blur-sm rounded-xl p-6 shadow-sm border border-rose-100"
                     >
-                      <h4 className="font-medium text-rose-900 mb-2">
-                        {issue.title}
-                      </h4>
+                      <div className="flex items-center justify-between mb-3">
+                        <h4 className="font-medium text-rose-900 text-lg">{issue.title}</h4>
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium
+                          ${issue.priority === 'HIGH' 
+                            ? 'bg-rose-100 text-rose-700' 
+                            : issue.priority === 'MEDIUM'
+                            ? 'bg-amber-100 text-amber-700'
+                            : 'bg-blue-100 text-blue-700'
+                          }`}
+                        >
+                          {issue.priority}
+                        </span>
+                      </div>
                       
-                      <p className="text-gray-600 text-sm mb-3">
+                      <p className="text-gray-600 text-sm leading-relaxed mb-4">
                         {issue.details}
                       </p>
 
-                      {/* Solution section */}
-                      <div className="bg-gray-50/80 rounded-lg p-3 mb-4">
-                        {/* ... existing solution content ... */}
+                      {/* Solution Section - Aggiunto */}
+                      <div className="bg-white/50 rounded-lg p-4 border border-rose-100/50 mb-4">
+                        <div className="text-sm font-medium text-rose-900 mb-3">
+                          {issue.solution.title}
+                        </div>
+                        
+                        <div className="grid grid-cols-3 gap-3 mb-3">
+                          <div className="bg-rose-50/50 rounded-lg p-2">
+                            <span className="text-xs text-gray-500 block">Timeline</span>
+                            <span className="text-sm text-rose-700">{issue.solution.timeline}</span>
+                          </div>
+                          <div className="bg-rose-50/50 rounded-lg p-2">
+                            <span className="text-xs text-gray-500 block">Cost</span>
+                            <span className="text-sm text-rose-700">{issue.solution.cost}</span>
+                          </div>
+                          <div className="bg-rose-50/50 rounded-lg p-2">
+                            <span className="text-xs text-gray-500 block">ROI</span>
+                            <span className="text-sm text-rose-700">{issue.solution.roi}</span>
+                          </div>
+                        </div>
+
+                        <div className="space-y-2">
+                          <span className="text-xs text-gray-500 block">Implementation Steps</span>
+                          {issue.solution.steps.map((step, idx) => (
+                            <div key={idx} className="flex items-center gap-2 text-sm text-gray-700">
+                              <span className="h-1.5 w-1.5 rounded-full bg-rose-400" />
+                              {step}
+                            </div>
+                          ))}
+                        </div>
                       </div>
 
-                      {/* Link alle recensioni spostato qui */}
                       <button 
                         onClick={() => onSourceClick('issues', issue._id, issue.title)}
-                        className="flex items-center gap-1.5 text-xs text-rose-600 hover:text-rose-700 mt-3 py-2 px-3 bg-rose-50/50 rounded-lg hover:bg-rose-50 transition-colors"
+                        className="flex items-center gap-1.5 text-xs text-rose-600 hover:text-rose-700 mt-4 py-2 px-3 bg-rose-50/50 rounded-lg hover:bg-rose-50 transition-colors w-full justify-center"
                       >
                         <Link className="h-3.5 w-3.5" />
                         <span>View {issue.mentions} related reviews</span>
