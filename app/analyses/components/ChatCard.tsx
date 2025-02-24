@@ -7,6 +7,7 @@ import { ChevronLeft, ChevronRight, Send, Bot, Loader2 } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { motion, AnimatePresence } from "framer-motion"
+import ReactMarkdown from 'react-markdown'
 
 interface ChatCardProps {
   analysisId: string
@@ -277,7 +278,15 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
                       <span className="text-xs font-medium">AI Assistant</span>
                     </div>
                   )}
-                  <p className="text-sm">{message.content}</p>
+                  {message.role === 'assistant' ? (
+                    <div className="text-sm prose prose-sm max-w-none">
+                      <ReactMarkdown>
+                        {message.content}
+                      </ReactMarkdown>
+                    </div>
+                  ) : (
+                    <p className="text-sm">{message.content}</p>
+                  )}
                   <p className="text-xs mt-1 opacity-70">
                     {message.timestamp.toLocaleTimeString()}
                   </p>
