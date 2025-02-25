@@ -83,6 +83,7 @@ export default function AnalysisCard({ analysisId, onSourceClick }: AnalysisCard
   const [isLoading, setIsLoading] = useState(true)
   const [showSentimentTooltip, setShowSentimentTooltip] = useState(false)
   const [showStatsTooltip, setShowStatsTooltip] = useState(false)
+  const [expandedSummary, setExpandedSummary] = useState(false)
 
   useEffect(() => {
     const fetchAnalysis = async () => {
@@ -147,6 +148,10 @@ export default function AnalysisCard({ analysisId, onSourceClick }: AnalysisCard
       )
     }
 
+    const summaryText = analysis.sentiment.summary || "";
+    const isSummaryLong = summaryText.length > 80;
+    const truncatedSummary = isSummaryLong ? summaryText.substring(0, 80) + "..." : summaryText;
+
     return (
       <div className="space-y-3">
         <div className="space-y-2">
@@ -163,12 +168,21 @@ export default function AnalysisCard({ analysisId, onSourceClick }: AnalysisCard
           {/* Ripeti per gli altri rating se necessario */}
         </div>
         
-        {/* Sintesi argomentativa del sentiment */}
+        {/* Sintesi argomentativa del sentiment con espansione */}
         {analysis.sentiment.summary && (
           <div className="mt-3 p-2 bg-amber-50/50 rounded-lg border border-amber-100/50">
-            <p className="text-xs text-amber-800 leading-relaxed">
-              {analysis.sentiment.summary}
-            </p>
+            <div className="text-xs text-amber-800 leading-relaxed">
+              <p>{expandedSummary ? summaryText : truncatedSummary}</p>
+              
+              {isSummaryLong && (
+                <button 
+                  onClick={() => setExpandedSummary(!expandedSummary)}
+                  className="text-amber-600 hover:text-amber-700 font-medium mt-1 text-xs"
+                >
+                  {expandedSummary ? "Show less" : "Read more"}
+                </button>
+              )}
+            </div>
           </div>
         )}
       </div>
