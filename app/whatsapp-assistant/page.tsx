@@ -251,7 +251,7 @@ export default function WhatsAppAssistantPage() {
             </label>
             <Select value={selectedHotelId} onValueChange={handleHotelChange}>
               <SelectTrigger className="h-12 rounded-xl bg-white/50 border-gray-200 focus:border-primary focus:ring-primary">
-                <SelectValue placeholder="Seleziona hotel" />
+                <SelectValue placeholder="" />
               </SelectTrigger>
               <SelectContent>
                 {hotels.map(hotel => (
@@ -360,7 +360,7 @@ export default function WhatsAppAssistantPage() {
               <div className="flex-1 w-full sm:w-auto max-w-xs">
                 <Select value={selectedHotelId} onValueChange={handleHotelChange}>
                   <SelectTrigger className="h-12 rounded-xl bg-white/50 border-gray-200 focus:border-primary focus:ring-primary">
-                    <SelectValue placeholder="Select hotel" />
+                    <SelectValue placeholder="" />
                   </SelectTrigger>
                   <SelectContent>
                     {hotels.map(hotel => (
