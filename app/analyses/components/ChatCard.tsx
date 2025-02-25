@@ -463,6 +463,15 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
     }
   }
 
+  // Aggiungiamo un useEffect per gestire il cambio di isExpanded
+  useEffect(() => {
+    if (!isExpanded) {
+      setViewMode('list')
+      setSelectedChat(null)
+      setMessages([])
+    }
+  }, [isExpanded])
+
   return (
     <div className="h-full bg-white/50 backdrop-blur-sm rounded-2xl border border-gray-200/50 shadow-lg overflow-hidden flex flex-col">
       {/* Header */}
@@ -541,12 +550,14 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
                   setSelectedChat(null)
                   setMessages([])
                   setViewMode('chat')
+                  loadInitialSuggestions()
                 }}
                 className={`
                   w-full ${isExpanded ? 'py-4' : 'py-3'} 
                   rounded-xl text-left transition-all hover:scale-[0.98]
                   bg-gradient-to-br from-blue-50 to-blue-100/50 
                   border border-blue-200 shadow-sm hover:shadow-md
+                  max-w-full overflow-hidden
                 `}
               >
                 <div className={`
@@ -559,7 +570,7 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
 
               {/* Lista delle chat esistenti con pulsante elimina */}
               {chats.map(chat => (
-                <div key={chat._id} className="relative group">
+                <div key={chat._id} className="relative group w-full overflow-hidden">
                   <motion.button
                     onClick={() => {
                       setSelectedChat(chat)
@@ -577,19 +588,20 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
                   >
                     <div className={`
                       ${isExpanded ? 'flex items-center gap-2 px-4' : 'flex justify-center items-center'}
+                      max-w-full overflow-hidden
                     `}>
-                      <FileText className="h-4 w-4 text-gray-500" />
+                      <FileText className="h-4 w-4 text-gray-500 flex-shrink-0" />
                       {isExpanded && (
-                        <div className="flex-1 min-w-0">
-                          <div className="flex justify-between items-start gap-1">
-                            <h3 className="font-medium text-sm text-gray-900 break-words line-clamp-2 max-w-[70%]">
+                        <div className="flex-1 min-w-0 max-w-full overflow-hidden">
+                          <div className="flex justify-between items-start gap-1 max-w-full">
+                            <h3 className="font-medium text-sm text-gray-900 break-words line-clamp-2 max-w-[70%] overflow-hidden">
                               {chat.title || "Chat"}
                             </h3>
                             <span className="text-xs text-gray-500 whitespace-nowrap flex-shrink-0">
                               {new Date(chat.createdAt).toLocaleDateString()}
                             </span>
                           </div>
-                          <p className="text-xs text-gray-500 mt-1 truncate">
+                          <p className="text-xs text-gray-500 mt-1 truncate max-w-full">
                             {chat.messages[chat.messages.length - 1]?.content || "No messages"}
                           </p>
                         </div>
