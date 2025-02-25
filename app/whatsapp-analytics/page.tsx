@@ -39,6 +39,7 @@ interface AnalyticsData {
   userMessages: number
   assistantMessages: number
   reviewsSent: number
+  reviewsClicked: number
   messagesByDate: {
     date: string
     user: number
@@ -164,7 +165,7 @@ export default function WhatsAppAnalyticsPage() {
                 WhatsApp Analytics
               </h1>
               <p className="text-xs text-gray-500">
-                Monitora le performance e le metriche di engagement del tuo assistente AI
+                Monitor performance and engagement metrics of your AI assistant
               </p>
             </div>
           </div>
@@ -172,18 +173,18 @@ export default function WhatsAppAnalyticsPage() {
           <div className="flex items-center gap-3">
             <Select value={timeRange} onValueChange={setTimeRange}>
               <SelectTrigger className="w-[120px] h-8 bg-white rounded-xl border-gray-200 hover:border-gray-300 text-xs">
-                <SelectValue placeholder="Intervallo" />
+                <SelectValue placeholder="Time Range" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="7" className="text-xs py-1.5">Ultimi 7 giorni</SelectItem>
-                <SelectItem value="14" className="text-xs py-1.5">Ultimi 14 giorni</SelectItem>
-                <SelectItem value="30" className="text-xs py-1.5">Ultimi 30 giorni</SelectItem>
+                <SelectItem value="7" className="text-xs py-1.5">Last 7 days</SelectItem>
+                <SelectItem value="14" className="text-xs py-1.5">Last 14 days</SelectItem>
+                <SelectItem value="30" className="text-xs py-1.5">Last 30 days</SelectItem>
               </SelectContent>
             </Select>
 
             <Select value={selectedHotelId} onValueChange={handleHotelChange}>
               <SelectTrigger className="w-[220px] h-8 bg-white rounded-xl border-gray-200 hover:border-gray-300 text-xs">
-                <SelectValue placeholder="Seleziona hotel" className="text-xs" />
+                <SelectValue placeholder="Select hotel" className="text-xs" />
               </SelectTrigger>
               <SelectContent>
                 {hotels.map(hotel => (
@@ -206,7 +207,7 @@ export default function WhatsAppAnalyticsPage() {
       ) : !analyticsData ? (
         <div className="h-[calc(100vh-4.5rem)] bg-white/50 backdrop-blur-sm rounded-2xl border border-gray-200/50 shadow-lg flex flex-col items-center justify-center p-8">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <p className="mt-4 text-sm text-gray-500">Caricamento dati analytics...</p>
+          <p className="mt-4 text-sm text-gray-500">Loading analytics data...</p>
         </div>
       ) : (
         <div className="mt-4 space-y-6">
@@ -216,12 +217,12 @@ export default function WhatsAppAnalyticsPage() {
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium text-gray-500 flex items-center gap-2">
                   <MessageSquare className="h-4 w-4 text-blue-500" />
-                  Conversazioni Totali
+                  Total Conversations
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{analyticsData.totalInteractions}</div>
-                <p className="text-xs text-gray-500 mt-1">Numeri di telefono unici</p>
+                <p className="text-xs text-gray-500 mt-1">Unique phone numbers</p>
               </CardContent>
             </Card>
             
@@ -229,13 +230,13 @@ export default function WhatsAppAnalyticsPage() {
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium text-gray-500 flex items-center gap-2">
                   <MessageSquare className="h-4 w-4 text-purple-500" />
-                  Messaggi Totali
+                  Total Messages
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{analyticsData.totalMessages}</div>
                 <div className="flex justify-between text-xs text-gray-500 mt-1">
-                  <span>Utente: {analyticsData.userMessages} ({getPercentage(analyticsData.userMessages, analyticsData.totalMessages)})</span>
+                  <span>User: {analyticsData.userMessages} ({getPercentage(analyticsData.userMessages, analyticsData.totalMessages)})</span>
                   <span>AI: {analyticsData.assistantMessages} ({getPercentage(analyticsData.assistantMessages, analyticsData.totalMessages)})</span>
                 </div>
               </CardContent>
@@ -245,14 +246,19 @@ export default function WhatsAppAnalyticsPage() {
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium text-gray-500 flex items-center gap-2">
                   <Star className="h-4 w-4 text-yellow-500" />
-                  Richieste di Recensione
+                  Review Requests
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{analyticsData.reviewsSent}</div>
-                <p className="text-xs text-gray-500 mt-1">
-                  Conversione: {getPercentage(analyticsData.reviewsSent, analyticsData.totalInteractions)}
-                </p>
+                <div className="flex flex-col gap-1 text-xs text-gray-500 mt-1">
+                  <p>
+                    Sent: {analyticsData.reviewsSent} ({getPercentage(analyticsData.reviewsSent, analyticsData.totalInteractions)} of conversations)
+                  </p>
+                  <p>
+                    Clicked: {analyticsData.reviewsClicked} ({getPercentage(analyticsData.reviewsClicked, analyticsData.reviewsSent)} CTR)
+                  </p>
+                </div>
               </CardContent>
             </Card>
             
@@ -260,7 +266,7 @@ export default function WhatsAppAnalyticsPage() {
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium text-gray-500 flex items-center gap-2">
                   <TrendingUp className="h-4 w-4 text-green-500" />
-                  Rapporto Messaggi
+                  Message Ratio
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -269,7 +275,7 @@ export default function WhatsAppAnalyticsPage() {
                     ? (analyticsData.assistantMessages / analyticsData.userMessages).toFixed(1)
                     : '0'}
                 </div>
-                <p className="text-xs text-gray-500 mt-1">Messaggi AI per messaggio utente</p>
+                <p className="text-xs text-gray-500 mt-1">AI messages per user message</p>
               </CardContent>
             </Card>
           </div>
@@ -281,7 +287,7 @@ export default function WhatsAppAnalyticsPage() {
                 <div className="flex justify-between items-center">
                   <CardTitle className="text-lg font-semibold text-gray-800 flex items-center gap-2">
                     <BarChart3 className="h-5 w-5 text-blue-500" />
-                    Volume Messaggi
+                    Message Volume
                   </CardTitle>
                   <Button
                     variant="outline"
@@ -289,11 +295,11 @@ export default function WhatsAppAnalyticsPage() {
                     onClick={() => setIsSentimentModalOpen(true)}
                     className="rounded-xl border-gray-200 hover:bg-gray-50 hover:text-gray-900 transition-colors text-xs"
                   >
-                    Analisi del Sentiment
+                    Sentiment Analysis
                   </Button>
                 </div>
                 <CardDescription className="text-xs text-gray-500">
-                  Messaggi scambiati negli ultimi {timeRange} giorni
+                  Messages exchanged in the last {timeRange} days
                 </CardDescription>
               </CardHeader>
               <CardContent className="pt-4">
@@ -316,13 +322,13 @@ export default function WhatsAppAnalyticsPage() {
                       />
                       <Legend wrapperStyle={{ fontSize: '12px' }} />
                       <Bar
-                        name="Messaggi Utente"
+                        name="User Messages"
                         dataKey="user"
                         fill="#8884d8"
                         radius={[4, 4, 0, 0]}
                       />
                       <Bar
-                        name="Messaggi AI"
+                        name="AI Messages"
                         dataKey="assistant"
                         fill="#82ca9d"
                         radius={[4, 4, 0, 0]}
@@ -337,10 +343,10 @@ export default function WhatsAppAnalyticsPage() {
               <CardHeader className="pb-2">
                 <CardTitle className="text-lg font-semibold text-gray-800 flex items-center gap-2">
                   <TrendingUp className="h-5 w-5 text-purple-500" />
-                  Trend dei Messaggi
+                  Message Trends
                 </CardTitle>
                 <CardDescription className="text-xs text-gray-500">
-                  Volume totale dei messaggi nel tempo
+                  Total message volume over time
                 </CardDescription>
               </CardHeader>
               <CardContent className="pt-4">
@@ -364,7 +370,7 @@ export default function WhatsAppAnalyticsPage() {
                       <Legend wrapperStyle={{ fontSize: '12px' }} />
                       <Area
                         type="monotone"
-                        name="Messaggi Totali"
+                        name="Total Messages"
                         dataKey="total"
                         stroke="#8884d8"
                         fill="url(#colorTotal)"
@@ -385,7 +391,7 @@ export default function WhatsAppAnalyticsPage() {
         </div>
       )}
       
-      {/* Modal per l'analisi del sentiment */}
+      {/* Modal for sentiment analysis */}
       <SentimentAnalysisModal
         isOpen={isSentimentModalOpen}
         onClose={() => setIsSentimentModalOpen(false)}
