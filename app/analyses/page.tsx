@@ -158,7 +158,7 @@ export default function AnalysesPage() {
   return (
     <div className="min-h-screen pl-24 pr-8">
       {/* Modern gradient background */}
-      <div className="fixed inset-0 -z-10 bg-gradient-to-br from-[#FAFAFB] via-[#F0F0F2] to-[#FAFAFB] backdrop-blur-sm" />
+      <div className="fixed inset-0 -z-10 bg-gradient-to-br from-[#EEF1F6] via-[#E5E9F0] to-[#EDF0F5] backdrop-blur-sm" />
 
       {/* Header normale (non fixed) */}
       <div className="pt-4 pb-1">
