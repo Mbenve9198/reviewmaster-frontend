@@ -60,6 +60,11 @@ const navigation: NavigationItem[] = [
         label: "AI Conversations",
         href: "/whatsapp-conversations",
         icon: <MessagesSquare className="w-4 h-4 text-gray-700 stroke-[1.5px]" />
+      },
+      {
+        label: "Analytics",
+        href: "/whatsapp-analytics",
+        icon: <BarChart2 className="w-4 h-4 text-gray-700 stroke-[1.5px]" />
       }
     ]
   },
