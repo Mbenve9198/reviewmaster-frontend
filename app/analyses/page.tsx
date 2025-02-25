@@ -161,22 +161,22 @@ export default function AnalysesPage() {
       <div className="fixed inset-0 -z-10 bg-gradient-to-br from-[#FAFAFB] via-[#F0F0F2] to-[#FAFAFB] backdrop-blur-sm" />
 
       {/* Header normale (non fixed) */}
-      <div className="pt-8 pb-4">
+      <div className="pt-4 pb-3">
         <div className="flex justify-between items-center">
-          <div className="flex flex-col items-start">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="h-8 w-1 rounded-full bg-gradient-to-b from-blue-600 to-blue-400" />
-              <h1 className="text-3xl sm:text-4xl font-semibold bg-gradient-to-b from-blue-800 to-blue-600 bg-clip-text text-transparent">
+          <div className="flex items-center gap-2">
+            <div className="h-6 w-1 rounded-full bg-gradient-to-b from-blue-600 to-blue-400" />
+            <div>
+              <h1 className="text-xl font-semibold bg-gradient-to-b from-blue-800 to-blue-600 bg-clip-text text-transparent">
                 Analysis
               </h1>
+              <p className="text-xs text-gray-500">
+                View and analyze your hotel reviews
+              </p>
             </div>
-            <p className="text-base text-gray-500">
-              View and analyze your hotel reviews
-            </p>
           </div>
 
           <Select value={selectedAnalysis} onValueChange={setSelectedAnalysis}>
-            <SelectTrigger className="w-[300px] h-10 bg-white border-gray-200 hover:border-gray-300 rounded-xl">
+            <SelectTrigger className="w-[220px] h-8 bg-white border-gray-200 hover:border-gray-300 rounded-xl text-sm">
               <SelectValue placeholder="Select analysis" />
             </SelectTrigger>
             <SelectContent className="max-h-[200px]">
@@ -185,7 +185,7 @@ export default function AnalysesPage() {
                   <SelectItem 
                     key={analysis._id} 
                     value={analysis._id}
-                    className="text-gray-900"
+                    className="text-gray-900 text-sm"
                   >
                     {analysis.analysis?.meta?.hotelName 
                       ? `${analysis.analysis.meta.hotelName} - ${format(new Date(analysis.createdAt), 'dd MMM yyyy')}`
@@ -200,7 +200,7 @@ export default function AnalysesPage() {
       </div>
 
       {/* Content */}
-      <div className="mt-4">
+      <div className="mt-2">
         {!isAnalysisReady && analysisId && (
           <div className="fixed inset-0 bg-white/80 backdrop-blur-sm z-50 flex items-center justify-center">
             <div className="text-center space-y-4">
