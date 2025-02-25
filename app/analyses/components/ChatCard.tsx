@@ -542,8 +542,8 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
       {/* Content */}
       <ScrollArea className="flex-1">
         {viewMode === 'list' ? (
-          <div className="p-4">
-            <div className={`${isExpanded ? 'space-y-3 pr-4' : 'space-y-1'}`}>
+          <div className="p-4 overflow-hidden">
+            <div className={`${isExpanded ? 'space-y-3 pr-4' : 'space-y-1'} overflow-hidden`}>
               {/* Pulsante Nuova Chat */}
               <motion.button
                 onClick={() => {
@@ -551,31 +551,37 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
                   setMessages([])
                   setViewMode('chat')
                   loadInitialSuggestions()
+                  if (!isExpanded) {
+                    onToggleExpand()
+                  }
                 }}
                 className={`
                   w-full ${isExpanded ? 'py-4' : 'py-3'} 
                   rounded-xl text-left transition-all hover:scale-[0.98]
                   bg-gradient-to-br from-blue-50 to-blue-100/50 
                   border border-blue-200 shadow-sm hover:shadow-md
-                  max-w-full overflow-hidden
+                  overflow-hidden
                 `}
               >
                 <div className={`
                   ${isExpanded ? 'flex items-center gap-2 px-4' : 'flex justify-center items-center'}
                 `}>
-                  <Plus className="h-4 w-4 text-blue-600" />
-                  {isExpanded && <span className="text-blue-700">New Chat</span>}
+                  <Plus className="h-4 w-4 text-blue-600 flex-shrink-0" />
+                  {isExpanded && <span className="text-blue-700 truncate">New Chat</span>}
                 </div>
               </motion.button>
 
               {/* Lista delle chat esistenti con pulsante elimina */}
               {chats.map(chat => (
-                <div key={chat._id} className="relative group w-full overflow-hidden">
+                <div key={chat._id} className="relative group w-full">
                   <motion.button
                     onClick={() => {
                       setSelectedChat(chat)
                       setMessages(chat.messages)
                       setViewMode('chat')
+                      if (!isExpanded) {
+                        onToggleExpand()
+                      }
                     }}
                     className={`
                       w-full ${isExpanded ? 'py-4' : 'py-3'} 
@@ -583,25 +589,25 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
                       bg-gradient-to-br from-white to-gray-50/50 
                       hover:from-gray-50 hover:to-gray-100/50 
                       border border-gray-200 shadow-sm hover:shadow-md
-                      max-w-full overflow-hidden
+                      overflow-hidden
                     `}
                   >
                     <div className={`
                       ${isExpanded ? 'flex items-center gap-2 px-4' : 'flex justify-center items-center'}
-                      max-w-full overflow-hidden
+                      overflow-hidden
                     `}>
                       <FileText className="h-4 w-4 text-gray-500 flex-shrink-0" />
                       {isExpanded && (
-                        <div className="flex-1 min-w-0 max-w-full overflow-hidden">
-                          <div className="flex justify-between items-start gap-1 max-w-full">
-                            <h3 className="font-medium text-sm text-gray-900 break-words line-clamp-2 max-w-[70%] overflow-hidden">
+                        <div className="flex-1 min-w-0 overflow-hidden">
+                          <div className="flex items-start justify-between gap-1 w-full">
+                            <h3 className="font-medium text-sm text-gray-900 truncate overflow-hidden text-ellipsis max-w-[70%]">
                               {chat.title || "Chat"}
                             </h3>
                             <span className="text-xs text-gray-500 whitespace-nowrap flex-shrink-0">
                               {new Date(chat.createdAt).toLocaleDateString()}
                             </span>
                           </div>
-                          <p className="text-xs text-gray-500 mt-1 truncate max-w-full">
+                          <p className="text-xs text-gray-500 mt-1 truncate overflow-hidden text-ellipsis w-full">
                             {chat.messages[chat.messages.length - 1]?.content || "No messages"}
                           </p>
                         </div>
