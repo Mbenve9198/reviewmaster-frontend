@@ -245,6 +245,24 @@ export default function WhatsAppAssistantPage() {
     return (
       <div className="min-h-screen flex flex-col items-center px-6">
         <div className="max-w-3xl w-full pt-16 pb-16">
+          <div className="mb-8 max-w-xs mx-auto">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Seleziona hotel
+            </label>
+            <Select value={selectedHotelId} onValueChange={handleHotelChange}>
+              <SelectTrigger className="h-12 rounded-xl bg-white/50 border-gray-200 focus:border-primary focus:ring-primary">
+                <SelectValue placeholder="Seleziona hotel" />
+              </SelectTrigger>
+              <SelectContent>
+                {hotels.map(hotel => (
+                  <SelectItem key={hotel._id} value={hotel._id}>
+                    {hotel.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          
           <div className="text-center space-y-8 mb-12">
             <h1 className="text-4xl font-bold text-gray-800">
               Your AI WhatsApp Concierge

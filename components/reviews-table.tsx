@@ -1335,7 +1335,7 @@ export function ReviewsTable({
                           handleChatSubmit(input);
                         }
                       }}
-                      placeholder="Refine the response..."
+                      placeholder="Ask for changes..."
                       className="w-full min-h-[52px] max-h-[120px] pe-[90px] ps-4 py-3
                         bg-gray-50 rounded-xl resize-none
                         border border-gray-200 hover:border-gray-300
