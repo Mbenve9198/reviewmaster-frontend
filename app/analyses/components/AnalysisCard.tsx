@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { getCookie } from "@/lib/utils"
-import { Loader2, TrendingUp, TrendingDown, Star, AlertTriangle, Zap, BarChart, Link } from "lucide-react"
+import { Loader2, TrendingUp, TrendingDown, Star, AlertTriangle, Zap, BarChart, Link, Info } from "lucide-react"
 import { Progress } from "@/components/ui/progress"
 import { motion, AnimatePresence } from "framer-motion"
 
@@ -49,6 +49,7 @@ interface Analysis {
     excellent: string
     average: string
     needsImprovement: string
+    summary: string
     distribution: {
       rating5: string
       rating4: string
@@ -80,6 +81,8 @@ interface AnalysisCardProps {
 export default function AnalysisCard({ analysisId, onSourceClick }: AnalysisCardProps) {
   const [analysis, setAnalysis] = useState<Analysis | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [showSentimentTooltip, setShowSentimentTooltip] = useState(false)
+  const [showStatsTooltip, setShowStatsTooltip] = useState(false)
 
   useEffect(() => {
     const fetchAnalysis = async () => {
@@ -145,18 +148,29 @@ export default function AnalysisCard({ analysisId, onSourceClick }: AnalysisCard
     }
 
     return (
-      <div className="space-y-2">
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-amber-700 w-8">5★</span>
-          <Progress 
-            value={parseInt(analysis.sentiment.distribution.rating5)} 
-            className="h-2" 
-          />
-          <span className="text-xs text-amber-700 w-12">
-            {analysis.sentiment.distribution.rating5}
-          </span>
+      <div className="space-y-3">
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-amber-700 w-8">5★</span>
+            <Progress 
+              value={parseInt(analysis.sentiment.distribution.rating5)} 
+              className="h-2" 
+            />
+            <span className="text-xs text-amber-700 w-12">
+              {analysis.sentiment.distribution.rating5}
+            </span>
+          </div>
+          {/* Ripeti per gli altri rating se necessario */}
         </div>
-        {/* Ripeti per gli altri rating se necessario */}
+        
+        {/* Sintesi argomentativa del sentiment */}
+        {analysis.sentiment.summary && (
+          <div className="mt-3 p-2 bg-amber-50/50 rounded-lg border border-amber-100/50">
+            <p className="text-xs text-amber-800 leading-relaxed">
+              {analysis.sentiment.summary}
+            </p>
+          </div>
+        )}
       </div>
     )
   }
@@ -242,28 +256,61 @@ export default function AnalysisCard({ analysisId, onSourceClick }: AnalysisCard
 
                 {/* Sentiment Distribution */}
                 <motion.div 
-                  className="bg-gradient-to-br from-amber-50 to-white p-4 rounded-xl border border-amber-200/50 hover:shadow-md transition-shadow duration-200"
+                  className="bg-gradient-to-br from-amber-50 to-white p-4 rounded-xl border border-amber-200/50 hover:shadow-md transition-shadow duration-200 relative"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.1 }}
                 >
-                  <div className="flex items-center gap-2 mb-2">
-                    <BarChart className="h-5 w-5 text-amber-500" />
-                    <h3 className="font-medium text-amber-900">Sentiment</h3>
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <BarChart className="h-5 w-5 text-amber-500" />
+                      <h3 className="font-medium text-amber-900">Sentiment</h3>
+                    </div>
+                    <div 
+                      className="relative"
+                      onMouseEnter={() => setShowSentimentTooltip(true)}
+                      onMouseLeave={() => setShowSentimentTooltip(false)}
+                    >
+                      <Info className="h-4 w-4 text-amber-500 cursor-help" />
+                      {showSentimentTooltip && (
+                        <div className="absolute right-0 top-6 w-64 p-3 bg-white shadow-lg rounded-lg border border-amber-100 text-xs text-gray-700 z-20">
+                          <p className="font-medium text-amber-800 mb-1">Sentiment Distribution</p>
+                          <p className="mb-2">This shows how guests rated your hotel on a 5-star scale. The distribution helps identify whether ratings are consistent or polarized.</p>
+                          <p>Percentages indicate the proportion of reviews at each rating level, calculated from all analyzed reviews.</p>
+                        </div>
+                      )}
+                    </div>
                   </div>
                   {renderSentimentDistribution()}
                 </motion.div>
 
                 {/* Quick Stats */}
                 <motion.div 
-                  className="bg-gradient-to-br from-emerald-50 to-white p-4 rounded-xl border border-emerald-200/50 hover:shadow-md transition-shadow duration-200"
+                  className="bg-gradient-to-br from-emerald-50 to-white p-4 rounded-xl border border-emerald-200/50 hover:shadow-md transition-shadow duration-200 relative"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2 }}
                 >
-                  <div className="flex items-center gap-2 mb-2">
-                    <TrendingUp className="h-5 w-5 text-emerald-500" />
-                    <h3 className="font-medium text-emerald-900">Quick Stats</h3>
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <TrendingUp className="h-5 w-5 text-emerald-500" />
+                      <h3 className="font-medium text-emerald-900">Quick Stats</h3>
+                    </div>
+                    <div 
+                      className="relative"
+                      onMouseEnter={() => setShowStatsTooltip(true)}
+                      onMouseLeave={() => setShowStatsTooltip(false)}
+                    >
+                      <Info className="h-4 w-4 text-emerald-500 cursor-help" />
+                      {showStatsTooltip && (
+                        <div className="absolute right-0 top-6 w-64 p-3 bg-white shadow-lg rounded-lg border border-emerald-100 text-xs text-gray-700 z-20">
+                          <p className="font-medium text-emerald-800 mb-1">Quick Stats Summary</p>
+                          <p className="mb-2">This provides a quick overview of your positive and negative review percentages.</p>
+                          <p><span className="font-medium">Excellent:</span> Percentage of highly positive reviews (typically 4-5 stars).</p>
+                          <p><span className="font-medium">Needs Improvement:</span> Percentage of negative reviews that highlight issues (typically 1-2 stars).</p>
+                        </div>
+                      )}
+                    </div>
                   </div>
                   {renderQuickStats()}
                 </motion.div>
