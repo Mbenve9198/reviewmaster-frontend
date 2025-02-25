@@ -210,7 +210,7 @@ export default function AnalysesPage() {
           </div>
         )}
 
-        <div className="flex gap-3 h-[calc(100vh-6.5rem)]">
+        <div className="flex gap-3 h-[calc(100vh-4.5rem)]">
           <motion.div 
             className="relative"
             style={{ minWidth: sourcesExpanded ? "300px" : "60px" }}
