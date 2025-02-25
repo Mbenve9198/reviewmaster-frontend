@@ -599,14 +599,12 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
                       <FileText className="h-4 w-4 text-gray-500 flex-shrink-0" />
                       {isExpanded && (
                         <div className="flex-1 min-w-0 overflow-hidden">
-                          <div className="flex items-center justify-between gap-1 w-full">
-                            <h3 className="font-medium text-sm text-gray-900 truncate overflow-hidden text-ellipsis max-w-[80%]">
-                              {chat.title || "Chat"}
-                            </h3>
-                            <span className="text-xs text-gray-500 whitespace-nowrap flex-shrink-0">
-                              {new Date(chat.createdAt).toLocaleDateString()}
-                            </span>
-                          </div>
+                          <h3 className="font-medium text-sm text-gray-900 truncate overflow-hidden text-ellipsis w-full">
+                            {chat.title || "Chat"}
+                          </h3>
+                          <span className="text-xs text-gray-500 block mt-1 truncate">
+                            {new Date(chat.createdAt).toLocaleDateString()}
+                          </span>
                         </div>
                       )}
                     </div>

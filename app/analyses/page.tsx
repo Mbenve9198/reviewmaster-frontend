@@ -161,7 +161,7 @@ export default function AnalysesPage() {
       <div className="fixed inset-0 -z-10 bg-gradient-to-br from-[#FAFAFB] via-[#F0F0F2] to-[#FAFAFB] backdrop-blur-sm" />
 
       {/* Header normale (non fixed) */}
-      <div className="pt-4 pb-3">
+      <div className="pt-4 pb-1">
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-2">
             <div className="h-6 w-1 rounded-full bg-gradient-to-b from-blue-600 to-blue-400" />
@@ -176,8 +176,8 @@ export default function AnalysesPage() {
           </div>
 
           <Select value={selectedAnalysis} onValueChange={setSelectedAnalysis}>
-            <SelectTrigger className="w-[220px] h-8 bg-white border-gray-200 hover:border-gray-300 rounded-xl text-sm">
-              <SelectValue placeholder="Select analysis" />
+            <SelectTrigger className="w-[220px] h-8 bg-white border-gray-200 hover:border-gray-300 rounded-xl text-xs">
+              <SelectValue placeholder="Select analysis" className="text-xs" />
             </SelectTrigger>
             <SelectContent className="max-h-[200px]">
               <ScrollArea className="h-full max-h-[200px]">
@@ -185,12 +185,11 @@ export default function AnalysesPage() {
                   <SelectItem 
                     key={analysis._id} 
                     value={analysis._id}
-                    className="text-gray-900 text-sm"
+                    className="text-gray-900 text-xs py-1.5"
                   >
                     {analysis.analysis?.meta?.hotelName 
-                      ? `${analysis.analysis.meta.hotelName} - ${format(new Date(analysis.createdAt), 'dd MMM yyyy')}`
-                      : format(new Date(analysis.createdAt), 'PPP')
-                    }
+                      ? `${analysis.analysis.meta.hotelName.substring(0, 18)}${analysis.analysis.meta.hotelName.length > 18 ? '...' : ''} - ${format(new Date(analysis.createdAt), 'dd MMM yy')}`
+                      : format(new Date(analysis.createdAt), 'dd MMM yy')}
                   </SelectItem>
                 ))}
               </ScrollArea>
@@ -200,7 +199,7 @@ export default function AnalysesPage() {
       </div>
 
       {/* Content */}
-      <div className="mt-2">
+      <div className="mt-0">
         {!isAnalysisReady && analysisId && (
           <div className="fixed inset-0 bg-white/80 backdrop-blur-sm z-50 flex items-center justify-center">
             <div className="text-center space-y-4">
