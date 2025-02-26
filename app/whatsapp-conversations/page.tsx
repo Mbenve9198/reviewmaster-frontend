@@ -112,9 +112,9 @@ export default function WhatsAppConversationsPage() {
   )
 
   return (
-    <div className="min-h-screen pl-24 pr-8">
+    <div className="min-h-screen pl-24 pr-8 pb-8">
       {/* Modern gradient background */}
-      <div className="fixed inset-0 -z-10 bg-gradient-to-br from-[#FAFAFB] via-[#F0F0F2] to-[#FAFAFB] backdrop-blur-sm" />
+      <div className="fixed inset-0 -z-10 bg-gradient-to-br from-[#E8EAEF] via-[#D8DCE6] to-[#E0E4EC] backdrop-blur-sm" />
 
       {/* Header più compatto, simile alla pagina di analisi */}
       <div className="pt-4 pb-1">
