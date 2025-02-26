@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { getCookie } from "@/lib/utils"
-import { ChevronLeft, ChevronRight, Send, Bot, Loader2, FileText, Plus, X, MessageSquare, Trash2 } from "lucide-react"
+import { ChevronLeft, ChevronRight, Send, Bot, Loader2, FileText, Plus, X, MessageSquare, Trash2, Mic } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { motion, AnimatePresence } from "framer-motion"
@@ -19,6 +19,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import PodcastGenerator from "./PodcastGenerator"
 
 interface ChatCardProps {
   analysisId: string
@@ -218,7 +219,7 @@ const formatTimestamp = (timestamp: string | Date) => {
 }
 
 export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: ChatCardProps) {
-  const [viewMode, setViewMode] = useState<'list' | 'chat'>('chat')
+  const [viewMode, setViewMode] = useState<'list' | 'chat' | 'podcast'>('chat')
   const [chats, setChats] = useState<Chat[]>([])
   const [selectedChat, setSelectedChat] = useState<Chat | null>(null)
   const [messages, setMessages] = useState<Message[]>([])
@@ -477,11 +478,27 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
       {/* Header */}
       <div className="p-4 border-b border-gray-100/80 flex justify-between items-center bg-white/50">
         <h2 className="font-semibold text-gray-900">
-          {isExpanded ? (viewMode === 'list' ? "AI Assistant" : selectedChat?.title || "Chat") : ""}
+          {isExpanded ? (
+            viewMode === 'list' 
+              ? "AI Assistant" 
+              : viewMode === 'podcast'
+                ? "Podcast" 
+                : selectedChat?.title || "Chat"
+          ) : ""}
         </h2>
         <div className="flex items-center gap-2">
-          {isExpanded && selectedChat && (
+          {isExpanded && (
             <>
+              {/* Pulsante podcast nella vista list */}
+              {viewMode === 'list' && (
+                <button
+                  onClick={() => setViewMode('podcast')}
+                  className="p-1 hover:bg-gray-100 rounded-lg transition-colors text-gray-500 hover:text-blue-600"
+                >
+                  <Mic className="h-5 w-5" />
+                </button>
+              )}
+              
               {/* Pulsante elimina nella vista chat */}
               <AlertDialog>
                 <AlertDialogTrigger asChild>
@@ -649,6 +666,11 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
               ))}
             </div>
           </div>
+        ) : viewMode === 'podcast' ? (
+          <PodcastGenerator 
+            analysisId={analysisId} 
+            onBack={() => setViewMode('list')} 
+          />
         ) : (
           <div className="flex-1 p-4">
             <ScrollArea className={`flex-1 ${!isExpanded ? 'px-2' : 'p-4'}`} ref={scrollAreaRef}>
