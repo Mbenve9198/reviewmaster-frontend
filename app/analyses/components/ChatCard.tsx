@@ -522,7 +522,7 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
                       Annulla
                     </AlertDialogCancel>
                     <AlertDialogAction
-                      onClick={() => deleteChat(selectedChat._id)}
+                      onClick={() => selectedChat ? deleteChat(selectedChat._id) : null}
                       className="rounded-xl bg-red-600 text-white hover:bg-red-700"
                     >
                       Elimina
