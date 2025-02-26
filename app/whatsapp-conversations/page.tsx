@@ -149,14 +149,14 @@ export default function WhatsAppConversationsPage() {
       {/* Main Content - Usa più spazio verticale */}
       <div className="mt-2">
         {isLoading ? (
-          <div className="h-[calc(100vh-4.5rem)] bg-white/50 backdrop-blur-sm rounded-2xl border border-gray-200/50 shadow-lg flex flex-col items-center justify-center p-8">
+          <div className="h-[calc(100vh-6rem)] bg-white/50 backdrop-blur-sm rounded-2xl border border-gray-200/50 shadow-lg flex flex-col items-center justify-center p-8">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
             <p className="mt-4 text-sm text-gray-500">Loading conversations...</p>
           </div>
         ) : (
-          <div className="flex gap-3 h-[calc(100vh-4.5rem)]">
+          <div className="flex gap-3 h-[calc(100vh-6rem)]">
             {/* Colonna sinistra - più compatta */}
-            <div className="w-80 flex flex-col bg-white/50 backdrop-blur-sm rounded-2xl border border-gray-200/50 shadow-lg overflow-hidden">
+            <div className="w-80 flex flex-col bg-white backdrop-blur-sm rounded-2xl border border-gray-200/50 shadow-lg overflow-hidden">
               <div className="p-3 border-b border-gray-100">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
