@@ -377,7 +377,11 @@ export default function AnalysisCard({ analysisId, onSourceClick }: AnalysisCard
                         className="flex items-center gap-1.5 text-xs text-emerald-600 hover:text-emerald-700 mt-4 py-2 px-3 bg-emerald-50/50 rounded-lg hover:bg-emerald-50 transition-colors w-full justify-center group-hover:bg-emerald-100/50"
                       >
                         <Link className="h-3.5 w-3.5" />
-                        <span>View {strength.mentions} related reviews</span>
+                        <span>
+                          {strength.mentions > 50 
+                            ? `View top 50 of ${strength.mentions} related reviews` 
+                            : `View ${strength.mentions} related reviews`}
+                        </span>
                       </button>
                     </motion.div>
                   ))}
@@ -451,7 +455,11 @@ export default function AnalysisCard({ analysisId, onSourceClick }: AnalysisCard
                         className="flex items-center gap-1.5 text-xs text-rose-600 hover:text-rose-700 mt-4 py-2 px-3 bg-rose-50/50 rounded-lg hover:bg-rose-50 transition-colors w-full justify-center"
                       >
                         <Link className="h-3.5 w-3.5" />
-                        <span>View {issue.mentions} related reviews</span>
+                        <span>
+                          {issue.mentions > 50 
+                            ? `View top 50 of ${issue.mentions} related reviews` 
+                            : `View ${issue.mentions} related reviews`}
+                        </span>
                       </button>
                     </motion.div>
                   ))}
