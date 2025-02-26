@@ -398,17 +398,19 @@ export function ReviewsTable({
         const review = row.original;
         return (
           <div className="flex items-center gap-2">
-            {review.content?.originalUrl && (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => window.open(review.content.originalUrl, '_blank')}
-                className="h-8 w-8 rounded-full hover:bg-gray-100"
-                title="View original review"
-              >
-                <ExternalLink className="h-4 w-4 text-gray-500" />
-              </Button>
-            )}
+            <div className="w-8 h-8 flex justify-center items-center">
+              {review.content?.originalUrl ? (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => window.open(review.content.originalUrl, '_blank')}
+                  className="h-8 w-8 rounded-full hover:bg-gray-100"
+                  title="View original review"
+                >
+                  <ExternalLink className="h-4 w-4 text-gray-500" />
+                </Button>
+              ) : null}
+            </div>
             <Button
               variant="default"
               size="sm"
