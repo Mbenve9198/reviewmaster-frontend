@@ -111,12 +111,16 @@ export function IntegrationCard({ integration, onSync, onDelete }: IntegrationCa
           variant: "default"
         })
         
-        // Aspetta che i dati siano ricaricati
+        // Wait for data to be reloaded
         await onSync()
       } else {
+        // Improved error handling
+        const errorMessage = data.message || "Error during synchronization"
+        const errorDetails = data.error?.details ? `: ${data.error.details}` : ""
+        
         toast({
           title: "Error",
-          description: data.message || "Error during synchronization",
+          description: `${errorMessage}${errorDetails}`,
           variant: "destructive"
         })
       }
