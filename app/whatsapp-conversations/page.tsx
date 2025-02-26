@@ -112,7 +112,7 @@ export default function WhatsAppConversationsPage() {
   )
 
   return (
-    <div className="min-h-screen pl-24 pr-8 pb-8">
+    <div className="min-h-screen pl-24 pr-8 pb-4">
       {/* Modern gradient background */}
       <div className="fixed inset-0 -z-10 bg-gradient-to-br from-[#E8EAEF] via-[#D8DCE6] to-[#E0E4EC] backdrop-blur-sm" />
 
@@ -149,12 +149,12 @@ export default function WhatsAppConversationsPage() {
       {/* Main Content - Usa più spazio verticale */}
       <div className="mt-2">
         {isLoading ? (
-          <div className="h-[calc(100vh-6rem)] bg-white/50 backdrop-blur-sm rounded-2xl border border-gray-200/50 shadow-lg flex flex-col items-center justify-center p-8">
+          <div className="h-[calc(100vh-7rem)] bg-white/50 backdrop-blur-sm rounded-2xl border border-gray-200/50 shadow-lg flex flex-col items-center justify-center p-8">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
             <p className="mt-4 text-sm text-gray-500">Loading conversations...</p>
           </div>
         ) : (
-          <div className="flex gap-3 h-[calc(100vh-6rem)]">
+          <div className="flex gap-3 h-[calc(100vh-7rem)]">
             {/* Colonna sinistra - più compatta */}
             <div className="w-80 flex flex-col bg-white backdrop-blur-sm rounded-2xl border border-gray-200/50 shadow-lg overflow-hidden">
               <div className="p-3 border-b border-gray-100">
