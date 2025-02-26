@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Loader2, AlertCircle, Sparkles, ThumbsUp, ThumbsDown, Languages, Plus, CreditCard, Eye, MessageSquare, Star, ChevronRight, Badge, Check } from "lucide-react";
+import { Loader2, AlertCircle, Sparkles, ThumbsUp, ThumbsDown, Languages, Plus, CreditCard, Eye, MessageSquare, Star, ChevronRight, Badge, Check, Info } from "lucide-react";
 import { toast } from "sonner";
 import { getCookie } from "cookies-next";
 import { Rule } from "@/types/rule";
@@ -377,6 +377,12 @@ export function ThemesAnalysisDialog({
 
             {analysis && !isLoading && !error && (
               <div className="space-y-8">
+                {/* Note at the top of analysis results */}
+                <div className="flex items-center p-3 bg-blue-50 rounded-lg text-sm text-blue-700">
+                  <Info className="h-4 w-4 shrink-0 mr-2" />
+                  <p>All rules created from suggestions can be fully customized later in the Rules section.</p>
+                </div>
+                
                 {/* Recurring Themes Section */}
                 {analysis.recurringThemes?.length > 0 && (
                   <div className="space-y-4">
