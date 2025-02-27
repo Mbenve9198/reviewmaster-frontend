@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { getCookie } from "@/lib/utils"
-import { Loader2, Download, ArrowLeft } from "lucide-react"
+import { Loader2, Download, Share2 } from "lucide-react"
 import { motion } from "framer-motion"
 import { Card, CardContent } from "@/components/ui/card"
 import { AIVoiceInput } from "@/components/ui/ai-voice-input"
@@ -165,30 +165,24 @@ export default function PodcastGenerator({ analysisId, onBack }: PodcastGenerato
     }
   }
   
+  const handleShare = () => {
+    // Check if navigator.share is available (mobile browsers)
+    if (navigator.share) {
+      navigator.share({
+        title: 'Hotel Analysis Podcast',
+        text: 'Check out this AI-generated podcast about hotel analysis!'
+        // url: window.location.href // Uncomment to share the current URL
+      }).catch(err => {
+        console.error('Error sharing:', err);
+      });
+    } else {
+      // Fallback for desktop - open email
+      window.open(`mailto:?subject=Hotel Analysis Podcast&body=Check out this AI-generated podcast about hotel analysis!`);
+    }
+  };
+  
   return (
     <div className="flex flex-col space-y-4">
-      <div className="flex items-center justify-between mb-4">
-        <button 
-          onClick={onBack} 
-          className="flex items-center text-sm text-gray-500 hover:text-gray-700"
-        >
-          <ArrowLeft className="mr-1 h-4 w-4" />
-          Back
-        </button>
-        
-        {isAudioReady && (
-          <Button
-            onClick={handleDownload}
-            variant="outline"
-            size="sm"
-            className="rounded-full"
-          >
-            <Download className="h-4 w-4 mr-1" />
-            Download
-          </Button>
-        )}
-      </div>
-      
       {isCheckingExisting ? (
         <div className="flex justify-center items-center py-12">
           <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
@@ -197,15 +191,15 @@ export default function PodcastGenerator({ analysisId, onBack }: PodcastGenerato
         <Card className="border-none shadow-sm">
           <CardContent className="p-6">
             <div className="flex flex-col space-y-6 items-center">
-              <h2 className="text-xl font-medium">Genera un Podcast</h2>
+              <h2 className="text-xl font-medium">Generate a Podcast</h2>
               <p className="text-muted-foreground text-center max-w-md">
-                Crea un podcast professionale basato sull'analisi dell'hotel. 
-                Perfetto per condividere i risultati con il tuo team o ascoltare in movimento.
+                Create a professional podcast based on your hotel analysis. 
+                Perfect for sharing results with your team or listening on the go.
               </p>
               
               <div className="grid w-full max-w-md gap-2 mb-2">
                 <label className="text-sm font-medium">
-                  Seleziona la lingua
+                  Select language
                 </label>
                 <Select
                   value={language}
@@ -278,13 +272,36 @@ export default function PodcastGenerator({ analysisId, onBack }: PodcastGenerato
                 />
                 
                 <p className="text-sm text-muted-foreground text-center mt-3">
-                  Ascolta l'analisi del tuo hotel in formato podcast
+                  Listen to your hotel analysis in podcast format
                 </p>
               </div>
               
+              {/* Pulsanti di azione (download e condivisione) */}
+              <div className="flex justify-center gap-3 mt-4">
+                <Button
+                  onClick={handleDownload}
+                  variant="outline"
+                  size="sm"
+                  className="rounded-full"
+                >
+                  <Download className="h-4 w-4 mr-1.5" />
+                  Download
+                </Button>
+                
+                <Button
+                  onClick={handleShare}
+                  variant="outline"
+                  size="sm"
+                  className="rounded-full"
+                >
+                  <Share2 className="h-4 w-4 mr-1.5" />
+                  Share
+                </Button>
+              </div>
+              
               {/* Nota informativa */}
-              <div className="text-center text-sm text-muted-foreground mt-2">
-                <p>Il podcast è generato in base alla tua analisi e include consigli pratici da esperti del settore.</p>
+              <div className="text-center text-sm text-muted-foreground mt-6">
+                <p>The podcast is generated based on your analysis and includes practical advice from industry experts.</p>
               </div>
             </div>
           </CardContent>

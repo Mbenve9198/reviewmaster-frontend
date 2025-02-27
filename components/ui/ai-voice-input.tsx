@@ -1,6 +1,6 @@
 "use client";
 
-import { Mic } from "lucide-react";
+import { Play } from "lucide-react";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 
@@ -99,7 +99,7 @@ export function AIVoiceInput({
               style={{ animationDuration: "3s" }}
             />
           ) : (
-            <Mic className="w-6 h-6 text-black/70 dark:text-white/70" />
+            <Play className="w-6 h-6 text-black/70 dark:text-white/70" />
           )}
         </button>
 
@@ -137,7 +137,7 @@ export function AIVoiceInput({
         </div>
 
         <p className="h-4 text-xs text-black/70 dark:text-white/70">
-          {submitted ? "Listening..." : "Click to speak"}
+          {submitted ? "Listening..." : "Click to listen"}
         </p>
       </div>
     </div>
