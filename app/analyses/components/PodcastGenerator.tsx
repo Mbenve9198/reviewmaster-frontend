@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { getCookie } from "@/lib/utils"
-import { Loader2, Download, Share2 } from "lucide-react"
+import { Loader2, Download, MessageCircle } from "lucide-react"
 import { motion } from "framer-motion"
 import { Card, CardContent } from "@/components/ui/card"
 import { AIVoiceInput } from "@/components/ui/ai-voice-input"
@@ -165,20 +165,9 @@ export default function PodcastGenerator({ analysisId, onBack }: PodcastGenerato
     }
   }
   
-  const handleShare = () => {
-    // Check if navigator.share is available (mobile browsers)
-    if (navigator.share) {
-      navigator.share({
-        title: 'Hotel Analysis Podcast',
-        text: 'Check out this AI-generated podcast about hotel analysis!'
-        // url: window.location.href // Uncomment to share the current URL
-      }).catch(err => {
-        console.error('Error sharing:', err);
-      });
-    } else {
-      // Fallback for desktop - open email
-      window.open(`mailto:?subject=Hotel Analysis Podcast&body=Check out this AI-generated podcast about hotel analysis!`);
-    }
+  const handleWhatsAppShare = () => {
+    const message = encodeURIComponent('Check out this AI-generated podcast about hotel analysis!');
+    window.open(`https://wa.me/?text=${message}`);
   };
   
   return (
@@ -276,7 +265,7 @@ export default function PodcastGenerator({ analysisId, onBack }: PodcastGenerato
                 </p>
               </div>
               
-              {/* Pulsanti di azione (download e condivisione) */}
+              {/* Pulsanti di azione (download e WhatsApp) */}
               <div className="flex justify-center gap-3 mt-4">
                 <Button
                   onClick={handleDownload}
@@ -289,13 +278,13 @@ export default function PodcastGenerator({ analysisId, onBack }: PodcastGenerato
                 </Button>
                 
                 <Button
-                  onClick={handleShare}
+                  onClick={handleWhatsAppShare}
                   variant="outline"
                   size="sm"
                   className="rounded-full"
                 >
-                  <Share2 className="h-4 w-4 mr-1.5" />
-                  Share
+                  <MessageCircle className="h-4 w-4 mr-1.5" />
+                  WhatsApp
                 </Button>
               </div>
               
