@@ -4,9 +4,10 @@ import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { getCookie } from "@/lib/utils"
-import { Loader2, Play, Pause, Download, ArrowLeft } from "lucide-react"
+import { Loader2, Download, ArrowLeft } from "lucide-react"
 import { motion } from "framer-motion"
 import { Card, CardContent } from "@/components/ui/card"
+import { AIVoiceInput } from "@/components/ui/ai-voice-input"
 
 interface PodcastGeneratorProps {
   analysisId: string
@@ -22,6 +23,8 @@ export default function PodcastGenerator({ analysisId, onBack }: PodcastGenerato
   const [audioUrl, setAudioUrl] = useState<string>("")
   const audioRef = useRef<HTMLAudioElement>(null)
   const [isCheckingExisting, setIsCheckingExisting] = useState(true)
+  const [currentTime, setCurrentTime] = useState(0)
+  const [duration, setDuration] = useState(0)
   
   // Controllo se esiste già un podcast per questa analisi all'avvio
   useEffect(() => {
@@ -75,6 +78,32 @@ export default function PodcastGenerator({ analysisId, onBack }: PodcastGenerato
     checkExistingPodcast()
   }, [analysisId])
   
+  // Gestisce gli eventi dell'audio
+  useEffect(() => {
+    if (audioRef.current) {
+      const audio = audioRef.current
+
+      const updateProgress = () => {
+        if (audio.duration) {
+          setProgress((audio.currentTime / audio.duration) * 100)
+          setCurrentTime(Math.floor(audio.currentTime))
+        }
+      }
+      
+      const handleLoadedMetadata = () => {
+        setDuration(Math.floor(audio.duration))
+      }
+
+      audio.addEventListener('timeupdate', updateProgress)
+      audio.addEventListener('loadedmetadata', handleLoadedMetadata)
+      
+      return () => {
+        audio.removeEventListener('timeupdate', updateProgress)
+        audio.removeEventListener('loadedmetadata', handleLoadedMetadata)
+      }
+    }
+  }, [isAudioReady, audioUrl])
+  
   const handleGenerate = async () => {
     try {
       setIsGenerating(true)
@@ -100,95 +129,83 @@ export default function PodcastGenerator({ analysisId, onBack }: PodcastGenerato
       }
       
       // Creiamo un URL blob dall'audio ricevuto
-      const audioBlob = await response.blob()
-      const url = URL.createObjectURL(audioBlob)
+      const blob = await response.blob()
+      const url = URL.createObjectURL(blob)
+      
       setAudioUrl(url)
       setIsAudioReady(true)
       
     } catch (error) {
       console.error('Error generating podcast:', error)
+      alert('Failed to generate podcast. Please try again.')
     } finally {
       setIsGenerating(false)
     }
   }
   
-  const togglePlayPause = () => {
-    if (!audioRef.current) return
-    
-    if (isPlaying) {
-      audioRef.current.pause()
-    } else {
-      audioRef.current.play()
+  const handlePlayPause = () => {
+    if (audioRef.current) {
+      if (isPlaying) {
+        audioRef.current.pause()
+      } else {
+        audioRef.current.play()
+      }
+      setIsPlaying(!isPlaying)
     }
-    
-    setIsPlaying(!isPlaying)
   }
   
   const handleDownload = () => {
-    if (!audioUrl) return
-    
-    const link = document.createElement('a')
-    link.href = audioUrl
-    link.download = `hotel-analysis-podcast-${Date.now()}.mp3`
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
+    if (audioUrl) {
+      const a = document.createElement('a')
+      a.href = audioUrl
+      a.download = `hotel-analysis-podcast-${Date.now()}.mp3`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+    }
   }
   
-  useEffect(() => {
-    // Cleanup function per rilasciare l'URL del blob quando il componente viene smontato
-    return () => {
-      if (audioUrl) {
-        URL.revokeObjectURL(audioUrl)
-      }
-    }
-  }, [audioUrl])
-  
-  // Gestione dell'aggiornamento del progresso
-  useEffect(() => {
-    const audio = audioRef.current
-    if (!audio) return
-    
-    const updateProgress = () => {
-      const progress = (audio.currentTime / audio.duration) * 100
-      setProgress(progress)
-    }
-    
-    audio.addEventListener('timeupdate', updateProgress)
-    audio.addEventListener('ended', () => setIsPlaying(false))
-    
-    return () => {
-      audio.removeEventListener('timeupdate', updateProgress)
-      audio.removeEventListener('ended', () => setIsPlaying(false))
-    }
-  }, [isAudioReady])
-  
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex items-center mb-6">
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          onClick={onBack}
-          className="mr-2"
+    <div className="flex flex-col space-y-4">
+      <div className="flex items-center justify-between mb-4">
+        <button 
+          onClick={onBack} 
+          className="flex items-center text-sm text-gray-500 hover:text-gray-700"
         >
-          <ArrowLeft className="h-4 w-4 mr-1" />
+          <ArrowLeft className="mr-1 h-4 w-4" />
           Back
-        </Button>
-        <h2 className="font-semibold text-lg">Hotel Analysis Podcast</h2>
+        </button>
+        
+        {isAudioReady && (
+          <Button
+            onClick={handleDownload}
+            variant="outline"
+            size="sm"
+            className="rounded-full"
+          >
+            <Download className="h-4 w-4 mr-1" />
+            Download
+          </Button>
+        )}
       </div>
       
       {isCheckingExisting ? (
-        <div className="flex items-center justify-center h-64">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <div className="flex justify-center items-center py-12">
+          <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
         </div>
       ) : !isAudioReady ? (
         <Card className="border-none shadow-sm">
           <CardContent className="p-6">
-            <div className="flex flex-col items-center justify-center space-y-6">
-              <div className="w-full max-w-md">
-                <label className="block text-sm font-medium mb-2">
-                  Select language
+            <div className="flex flex-col space-y-6 items-center">
+              <h2 className="text-xl font-medium">Genera un Podcast</h2>
+              <p className="text-muted-foreground text-center max-w-md">
+                Crea un podcast professionale basato sull'analisi dell'hotel. 
+                Perfetto per condividere i risultati con il tuo team o ascoltare in movimento.
+              </p>
+              
+              <div className="grid w-full max-w-md gap-2 mb-2">
+                <label className="text-sm font-medium">
+                  Seleziona la lingua
                 </label>
                 <Select
                   value={language}
@@ -233,56 +250,41 @@ export default function PodcastGenerator({ analysisId, onBack }: PodcastGenerato
         <Card className="border-none shadow-sm">
           <CardContent className="p-6">
             <div className="flex flex-col">
-              {/* Audio player */}
+              {/* Audio player con AIVoiceInput */}
               <div className="rounded-xl bg-accent/20 p-6 mb-4">
-                <div className="flex items-center justify-between mb-3">
-                  <Button
-                    onClick={togglePlayPause}
-                    variant="secondary"
-                    size="icon"
-                    className="w-12 h-12 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-md"
-                  >
-                    {isPlaying ? (
-                      <Pause className="h-5 w-5" />
-                    ) : (
-                      <Play className="h-5 w-5 ml-1" />
-                    )}
-                  </Button>
-                  
-                  <div className="w-full mx-6">
-                    <div className="w-full bg-background h-3 rounded-full overflow-hidden">
-                      <motion.div
-                        className="bg-primary h-full"
-                        style={{ width: `${progress}%` }}
-                      />
-                    </div>
-                  </div>
-                  
-                  <Button
-                    onClick={handleDownload}
-                    variant="outline"
-                    size="icon"
-                    className="w-10 h-10 rounded-full"
-                  >
-                    <Download className="h-4 w-4" />
-                  </Button>
-                </div>
+                <AIVoiceInput 
+                  demoMode={isPlaying}
+                  onStart={() => {
+                    if (audioRef.current) {
+                      audioRef.current.play();
+                      setIsPlaying(true);
+                    }
+                  }}
+                  onStop={() => {
+                    if (audioRef.current) {
+                      audioRef.current.pause();
+                      setIsPlaying(false);
+                    }
+                  }}
+                />
                 
                 <audio 
                   ref={audioRef} 
                   src={audioUrl} 
                   className="hidden"
                   onEnded={() => setIsPlaying(false)}
+                  onPlay={() => setIsPlaying(true)}
+                  onPause={() => setIsPlaying(false)}
                 />
                 
                 <p className="text-sm text-muted-foreground text-center mt-3">
-                  Listen to your hotel analysis in podcast format
+                  Ascolta l'analisi del tuo hotel in formato podcast
                 </p>
               </div>
               
               {/* Nota informativa */}
               <div className="text-center text-sm text-muted-foreground mt-2">
-                <p>The podcast is generated based on your analysis and includes practical advice from industry experts.</p>
+                <p>Il podcast è generato in base alla tua analisi e include consigli pratici da esperti del settore.</p>
               </div>
             </div>
           </CardContent>

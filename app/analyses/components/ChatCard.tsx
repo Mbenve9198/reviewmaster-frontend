@@ -614,8 +614,8 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
                 </div>
               </motion.button>
 
-              {/* Card dedicata per il Podcast - mostrata solo se esiste un podcast */}
-              {isExpanded && hasPodcast && (
+              {/* Card dedicata per il Podcast - mostrata in entrambe le modalità se esiste un podcast */}
+              {hasPodcast && (
                 <motion.button
                   onClick={() => {
                     setViewMode('podcast')
@@ -624,16 +624,18 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
                     }
                   }}
                   className={`
-                    w-full py-4
+                    w-full ${isExpanded ? 'py-4' : 'py-3'} 
                     rounded-xl text-left transition-all hover:scale-[0.98]
                     bg-gradient-to-br from-purple-50 to-purple-100/50 
                     border border-purple-200 shadow-sm hover:shadow-md
                     overflow-hidden
                   `}
                 >
-                  <div className="flex items-center gap-2 px-4">
+                  <div className={`
+                    ${isExpanded ? 'flex items-center gap-2 px-4' : 'flex justify-center items-center'}
+                  `}>
                     <Mic className="h-4 w-4 text-purple-600 flex-shrink-0" />
-                    <span className="text-purple-700 truncate">Ascolta Podcast</span>
+                    {isExpanded && <span className="text-purple-700 truncate">Audio Analysis</span>}
                   </div>
                 </motion.button>
               )}
@@ -677,19 +679,12 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
                     </div>
                   </motion.button>
 
-                  {/* Icone indicatori (chat e podcast) */}
+                  {/* Icone indicatori (chat) */}
                   {isExpanded && (
                     <div className="absolute bottom-2 right-2 flex space-x-1">
                       <span className="bg-primary/10 p-1 rounded-full">
                         <MessageSquare className="h-3.5 w-3.5 text-primary" />
                       </span>
-                      
-                      {/* Icona podcast se disponibile */}
-                      {hasPodcast && (
-                        <span className="bg-primary/10 p-1 rounded-full">
-                          <Mic className="h-3.5 w-3.5 text-primary" />
-                        </span>
-                      )}
                     </div>
                   )}
 
