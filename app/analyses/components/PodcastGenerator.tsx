@@ -3,10 +3,10 @@
 import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ScrollArea } from "@/components/ui/scroll-area"
 import { getCookie } from "@/lib/utils"
 import { Loader2, Play, Pause, Download, ArrowLeft } from "lucide-react"
 import { motion } from "framer-motion"
+import { Card, CardContent } from "@/components/ui/card"
 
 interface PodcastGeneratorProps {
   analysisId: string
@@ -17,36 +17,60 @@ export default function PodcastGenerator({ analysisId, onBack }: PodcastGenerato
   const [language, setLanguage] = useState<string>("English")
   const [isGenerating, setIsGenerating] = useState(false)
   const [isAudioReady, setIsAudioReady] = useState(false)
-  const [script, setScript] = useState<string>("")
   const [isPlaying, setIsPlaying] = useState(false)
   const [progress, setProgress] = useState(0)
   const [audioUrl, setAudioUrl] = useState<string>("")
   const audioRef = useRef<HTMLAudioElement>(null)
+  const [isCheckingExisting, setIsCheckingExisting] = useState(true)
+  
+  // Controllo se esiste già un podcast per questa analisi all'avvio
+  useEffect(() => {
+    const checkExistingPodcast = async () => {
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/podcast/${analysisId}`,
+          {
+            headers: {
+              'Authorization': `Bearer ${getCookie('token')}`,
+            }
+          }
+        )
+        
+        if (response.ok) {
+          // Podcast già esistente
+          const data = await response.json()
+          setLanguage(data.language)
+          
+          // Scarichiamo l'audio
+          const audioResponse = await fetch(
+            `${process.env.NEXT_PUBLIC_API_URL}/api/podcast/${analysisId}/audio`,
+            {
+              headers: {
+                'Authorization': `Bearer ${getCookie('token')}`,
+              }
+            }
+          )
+          
+          if (audioResponse.ok) {
+            const audioBlob = await audioResponse.blob()
+            const url = URL.createObjectURL(audioBlob)
+            setAudioUrl(url)
+            setIsAudioReady(true)
+          }
+        }
+      } catch (error) {
+        console.error('Error checking existing podcast:', error)
+      } finally {
+        setIsCheckingExisting(false)
+      }
+    }
+    
+    checkExistingPodcast()
+  }, [analysisId])
   
   const handleGenerate = async () => {
     try {
       setIsGenerating(true)
-      
-      // Check if script already exists
-      const scriptResponse = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/podcast/${analysisId}`,
-        {
-          headers: {
-            'Authorization': `Bearer ${getCookie('token')}`,
-          }
-        }
-      )
-      
-      if (scriptResponse.ok) {
-        // Script già esistente, lo carichiamo
-        const data = await scriptResponse.json()
-        setScript(data.script)
-        setLanguage(data.language)
-        // Facciamo finta che abbiamo generato anche l'audio
-        setIsAudioReady(true)
-        setIsGenerating(false)
-        return
-      }
       
       // Generiamo da zero
       const response = await fetch(
@@ -73,21 +97,6 @@ export default function PodcastGenerator({ analysisId, onBack }: PodcastGenerato
       const url = URL.createObjectURL(audioBlob)
       setAudioUrl(url)
       setIsAudioReady(true)
-      
-      // Recuperiamo lo script
-      const scriptRes = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/podcast/${analysisId}`,
-        {
-          headers: {
-            'Authorization': `Bearer ${getCookie('token')}`,
-          }
-        }
-      )
-      
-      if (scriptRes.ok) {
-        const data = await scriptRes.json()
-        setScript(data.script)
-      }
       
     } catch (error) {
       console.error('Error generating podcast:', error)
@@ -149,7 +158,7 @@ export default function PodcastGenerator({ analysisId, onBack }: PodcastGenerato
   
   return (
     <div className="flex flex-col h-full">
-      <div className="flex items-center mb-4">
+      <div className="flex items-center mb-6">
         <Button 
           variant="ghost" 
           size="sm" 
@@ -162,106 +171,115 @@ export default function PodcastGenerator({ analysisId, onBack }: PodcastGenerato
         <h2 className="font-semibold text-lg">Hotel Analysis Podcast</h2>
       </div>
       
-      {!isAudioReady ? (
-        <div className="flex flex-col items-center justify-center space-y-6 p-6">
-          <div className="w-full max-w-md">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Seleziona la lingua
-            </label>
-            <Select
-              value={language}
-              onValueChange={setLanguage}
-              disabled={isGenerating}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Seleziona lingua" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="English">English</SelectItem>
-                <SelectItem value="Italiano">Italiano</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          
-          <Button
-            onClick={handleGenerate}
-            disabled={isGenerating}
-            className="w-full max-w-md"
-          >
-            {isGenerating ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Generazione in corso...
-              </>
-            ) : (
-              "Genera Podcast"
-            )}
-          </Button>
-          
-          {isGenerating && (
-            <div className="text-sm text-gray-500 text-center mt-4">
-              <p>Questo processo può richiedere alcuni minuti.</p>
-              <p>Stiamo analizzando le recensioni e creando un podcast professionale.</p>
-            </div>
-          )}
+      {isCheckingExisting ? (
+        <div className="flex items-center justify-center h-64">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
-      ) : (
-        <div className="flex flex-col h-full">
-          {/* Audio player */}
-          <div className="bg-gray-50 p-4 rounded-lg mb-4">
-            <div className="flex items-center justify-between mb-2">
+      ) : !isAudioReady ? (
+        <Card className="border-none shadow-sm">
+          <CardContent className="p-6">
+            <div className="flex flex-col items-center justify-center space-y-6">
+              <div className="w-full max-w-md">
+                <label className="block text-sm font-medium mb-2">
+                  Seleziona la lingua
+                </label>
+                <Select
+                  value={language}
+                  onValueChange={setLanguage}
+                  disabled={isGenerating}
+                >
+                  <SelectTrigger className="w-full rounded-xl">
+                    <SelectValue placeholder="Seleziona lingua" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="English">English</SelectItem>
+                    <SelectItem value="Italiano">Italiano</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
               <Button
-                onClick={togglePlayPause}
-                variant="outline"
-                size="sm"
-                className="w-10 h-10 rounded-full p-0 flex items-center justify-center"
+                onClick={handleGenerate}
+                disabled={isGenerating}
+                className="w-full max-w-md rounded-xl"
               >
-                {isPlaying ? (
-                  <Pause className="h-4 w-4" />
+                {isGenerating ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Generazione in corso...
+                  </>
                 ) : (
-                  <Play className="h-4 w-4" />
+                  "Genera Podcast"
                 )}
               </Button>
               
-              <div className="w-full mx-4">
-                <div className="w-full bg-gray-200 h-2 rounded-full overflow-hidden">
-                  <motion.div
-                    className="bg-blue-600 h-full"
-                    style={{ width: `${progress}%` }}
-                  />
+              {isGenerating && (
+                <div className="text-sm text-muted-foreground text-center mt-4">
+                  <p>Questo processo può richiedere alcuni minuti.</p>
+                  <p>Stiamo analizzando le recensioni e creando un podcast professionale.</p>
                 </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      ) : (
+        <Card className="border-none shadow-sm">
+          <CardContent className="p-6">
+            <div className="flex flex-col">
+              {/* Audio player */}
+              <div className="rounded-xl bg-accent/20 p-6 mb-4">
+                <div className="flex items-center justify-between mb-3">
+                  <Button
+                    onClick={togglePlayPause}
+                    variant="secondary"
+                    size="icon"
+                    className="w-12 h-12 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-md"
+                  >
+                    {isPlaying ? (
+                      <Pause className="h-5 w-5" />
+                    ) : (
+                      <Play className="h-5 w-5 ml-1" />
+                    )}
+                  </Button>
+                  
+                  <div className="w-full mx-6">
+                    <div className="w-full bg-background h-3 rounded-full overflow-hidden">
+                      <motion.div
+                        className="bg-primary h-full"
+                        style={{ width: `${progress}%` }}
+                      />
+                    </div>
+                  </div>
+                  
+                  <Button
+                    onClick={handleDownload}
+                    variant="outline"
+                    size="icon"
+                    className="w-10 h-10 rounded-full"
+                  >
+                    <Download className="h-4 w-4" />
+                  </Button>
+                </div>
+                
+                <audio 
+                  ref={audioRef} 
+                  src={audioUrl} 
+                  className="hidden"
+                  onEnded={() => setIsPlaying(false)}
+                />
+                
+                <p className="text-sm text-muted-foreground text-center mt-3">
+                  Ascolta l'analisi del tuo hotel in formato podcast
+                </p>
               </div>
               
-              <Button
-                onClick={handleDownload}
-                variant="outline"
-                size="sm"
-                className="w-10 h-10 rounded-full p-0 flex items-center justify-center"
-              >
-                <Download className="h-4 w-4" />
-              </Button>
-            </div>
-            
-            <audio 
-              ref={audioRef} 
-              src={audioUrl} 
-              className="hidden"
-              onEnded={() => setIsPlaying(false)}
-            />
-          </div>
-          
-          {/* Script */}
-          <div className="flex-1 overflow-hidden">
-            <ScrollArea className="h-full pr-4">
-              <div className="prose prose-sm max-w-none">
-                <h3 className="text-lg font-medium mb-4">Script del Podcast</h3>
-                <div className="whitespace-pre-wrap bg-white p-4 rounded-lg border border-gray-200 text-sm">
-                  {script}
-                </div>
+              {/* Nota informativa */}
+              <div className="text-center text-sm text-muted-foreground mt-2">
+                <p>Il podcast è generato in base alla tua analisi e include consigli pratici basati su esperti del settore.</p>
               </div>
-            </ScrollArea>
-          </div>
-        </div>
+            </div>
+          </CardContent>
+        </Card>
       )}
     </div>
   )

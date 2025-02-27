@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { getCookie } from "@/lib/utils"
-import { ChevronLeft, ChevronRight, Send, Bot, Loader2, FileText, Plus, X, MessageSquare, Trash2, Mic } from "lucide-react"
+import { ChevronLeft, ChevronRight, Send, Bot, Loader2, FileText, Plus, X, MessageSquare, Trash2, Mic, Music } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { motion, AnimatePresence } from "framer-motion"
@@ -228,6 +228,26 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
   const [inputValue, setInputValue] = useState("")
   const scrollAreaRef = useRef<HTMLDivElement>(null)
   const [selectedQuestion, setSelectedQuestion] = useState<string | null>(null)
+  const [hasPodcast, setHasPodcast] = useState(false)
+
+  const checkPodcastExists = async () => {
+    try {
+      const token = getCookie('token')
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/podcast/${analysisId}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          }
+        }
+      )
+      
+      setHasPodcast(response.ok)
+    } catch (error) {
+      console.error('Error checking podcast existence:', error)
+      setHasPodcast(false)
+    }
+  }
 
   const initializeChats = async () => {
     try {
@@ -267,6 +287,9 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
         setViewMode('list')
         loadInitialSuggestions()
       }
+      
+      // Verifica se esiste un podcast
+      checkPodcastExists()
     } catch (error) {
       console.error('Error fetching chats:', error)
       // In caso di errore, resetta lo stato
@@ -474,7 +497,10 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
   }, [isExpanded])
 
   return (
-    <div className="h-full bg-white/50 backdrop-blur-sm rounded-2xl border border-gray-200/50 shadow-lg overflow-hidden flex flex-col">
+    <div className={`
+      flex flex-col bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden transition-all
+      ${isExpanded ? 'w-full h-full' : 'w-16 h-[600px]'}
+    `}>
       {/* Header */}
       <div className="p-4 border-b border-gray-100/80 flex justify-between items-center bg-white/50">
         <h2 className="font-semibold text-gray-900">
@@ -489,13 +515,13 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
         <div className="flex items-center gap-2">
           {isExpanded && (
             <>
-              {/* Pulsante podcast nella vista list */}
-              {viewMode === 'list' && (
+              {/* Pulsante podcast nella vista list - mostra solo se c'è un podcast */}
+              {viewMode === 'list' && hasPodcast && (
                 <button
                   onClick={() => setViewMode('podcast')}
                   className="p-1 hover:bg-gray-100 rounded-lg transition-colors text-gray-500 hover:text-blue-600"
                 >
-                  <Mic className="h-5 w-5" />
+                  <Music className="h-5 w-5" />
                 </button>
               )}
               
@@ -626,6 +652,22 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
                       )}
                     </div>
                   </motion.button>
+
+                  {/* Icone indicatori (chat e podcast) */}
+                  {isExpanded && (
+                    <div className="absolute bottom-2 right-2 flex space-x-1">
+                      <span className="bg-primary/10 p-1 rounded-full">
+                        <MessageSquare className="h-3.5 w-3.5 text-primary" />
+                      </span>
+                      
+                      {/* Icona podcast se disponibile */}
+                      {hasPodcast && (
+                        <span className="bg-primary/10 p-1 rounded-full">
+                          <Music className="h-3.5 w-3.5 text-primary" />
+                        </span>
+                      )}
+                    </div>
+                  )}
 
                   {/* Pulsante elimina nella vista lista */}
                   {isExpanded && (
