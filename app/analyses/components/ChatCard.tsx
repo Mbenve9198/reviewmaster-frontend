@@ -499,7 +499,7 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
   return (
     <div className={`
       flex flex-col bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden transition-all
-      ${isExpanded ? 'w-full h-full' : 'w-16 h-[600px]'}
+      ${isExpanded ? 'w-full h-full' : 'w-16 h-full'}
     `}>
       {/* Header */}
       <div className="p-4 border-b border-gray-100/80 flex justify-between items-center bg-white/50">
@@ -583,7 +583,7 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
       </div>
 
       {/* Content */}
-      <ScrollArea className="flex-1">
+      <ScrollArea className="flex-1 bg-white/50 backdrop-blur-sm">
         {viewMode === 'list' ? (
           <div className="p-4 overflow-hidden">
             <div className={`${isExpanded ? 'space-y-3 pr-4' : 'space-y-1'} overflow-hidden`}>

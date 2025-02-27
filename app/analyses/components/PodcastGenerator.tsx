@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { getCookie } from "@/lib/utils"
-import { Loader2, Download, MessageCircle } from "lucide-react"
+import { Loader2, Download } from "lucide-react"
 import { motion } from "framer-motion"
 import { Card, CardContent } from "@/components/ui/card"
 import { AIVoiceInput } from "@/components/ui/ai-voice-input"
@@ -165,11 +165,6 @@ export default function PodcastGenerator({ analysisId, onBack }: PodcastGenerato
     }
   }
   
-  const handleWhatsAppShare = () => {
-    const message = encodeURIComponent('Check out this AI-generated podcast about hotel analysis!');
-    window.open(`https://wa.me/?text=${message}`);
-  };
-  
   return (
     <div className="flex flex-col space-y-4">
       {isCheckingExisting ? (
@@ -265,8 +260,8 @@ export default function PodcastGenerator({ analysisId, onBack }: PodcastGenerato
                 </p>
               </div>
               
-              {/* Pulsanti di azione (download e WhatsApp) */}
-              <div className="flex justify-center gap-3 mt-4">
+              {/* Solo pulsante download */}
+              <div className="flex justify-center mt-4">
                 <Button
                   onClick={handleDownload}
                   variant="outline"
@@ -275,16 +270,6 @@ export default function PodcastGenerator({ analysisId, onBack }: PodcastGenerato
                 >
                   <Download className="h-4 w-4 mr-1.5" />
                   Download
-                </Button>
-                
-                <Button
-                  onClick={handleWhatsAppShare}
-                  variant="outline"
-                  size="sm"
-                  className="rounded-full"
-                >
-                  <MessageCircle className="h-4 w-4 mr-1.5" />
-                  WhatsApp
                 </Button>
               </div>
               
