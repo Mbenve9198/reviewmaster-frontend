@@ -46,8 +46,8 @@ export default function AnalysesPage() {
   // Calcolo delle larghezze delle card in base allo stato
   const getWidths = () => {
     const sourcesWidth = sourcesExpanded ? "20%" : "60px"
-    const chatWidth = chatExpanded ? "30%" : "10%"
-    const analysisWidth = `calc(100% - ${sourcesExpanded ? "20%" : "60px"} - ${chatExpanded ? "30%" : "10%"})`
+    const chatWidth = chatExpanded ? "30%" : "60px"
+    const analysisWidth = `calc(100% - ${sourcesExpanded ? "20%" : "60px"} - ${chatExpanded ? "30%" : "60px"})`
     return { sourcesWidth, analysisWidth, chatWidth }
   }
 
