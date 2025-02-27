@@ -27,6 +27,7 @@ export default function PodcastGenerator({ analysisId, onBack }: PodcastGenerato
   useEffect(() => {
     const checkExistingPodcast = async () => {
       try {
+        setIsCheckingExisting(true)
         const response = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL}/api/podcast/${analysisId}`,
           {
@@ -41,21 +42,27 @@ export default function PodcastGenerator({ analysisId, onBack }: PodcastGenerato
           const data = await response.json()
           setLanguage(data.language)
           
-          // Scarichiamo l'audio
-          const audioResponse = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL}/api/podcast/${analysisId}/audio`,
-            {
-              headers: {
-                'Authorization': `Bearer ${getCookie('token')}`,
+          // Se abbiamo trovato un podcast esistente con audio
+          if (data.hasAudio) {
+            try {
+              const audioResponse = await fetch(
+                `${process.env.NEXT_PUBLIC_API_URL}/api/podcast/${analysisId}/audio`,
+                {
+                  headers: {
+                    'Authorization': `Bearer ${getCookie('token')}`,
+                  }
+                }
+              )
+              
+              if (audioResponse.ok) {
+                const audioBlob = await audioResponse.blob()
+                const url = URL.createObjectURL(audioBlob)
+                setAudioUrl(url)
+                setIsAudioReady(true)
               }
+            } catch (audioError) {
+              console.error('Error getting podcast audio:', audioError)
             }
-          )
-          
-          if (audioResponse.ok) {
-            const audioBlob = await audioResponse.blob()
-            const url = URL.createObjectURL(audioBlob)
-            setAudioUrl(url)
-            setIsAudioReady(true)
           }
         }
       } catch (error) {
@@ -166,7 +173,7 @@ export default function PodcastGenerator({ analysisId, onBack }: PodcastGenerato
           className="mr-2"
         >
           <ArrowLeft className="h-4 w-4 mr-1" />
-          Indietro
+          Back
         </Button>
         <h2 className="font-semibold text-lg">Hotel Analysis Podcast</h2>
       </div>
@@ -181,7 +188,7 @@ export default function PodcastGenerator({ analysisId, onBack }: PodcastGenerato
             <div className="flex flex-col items-center justify-center space-y-6">
               <div className="w-full max-w-md">
                 <label className="block text-sm font-medium mb-2">
-                  Seleziona la lingua
+                  Select language
                 </label>
                 <Select
                   value={language}
@@ -189,11 +196,11 @@ export default function PodcastGenerator({ analysisId, onBack }: PodcastGenerato
                   disabled={isGenerating}
                 >
                   <SelectTrigger className="w-full rounded-xl">
-                    <SelectValue placeholder="Seleziona lingua" />
+                    <SelectValue placeholder="Select language" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="English">English</SelectItem>
-                    <SelectItem value="Italiano">Italiano</SelectItem>
+                    <SelectItem value="Italiano">Italian</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -206,17 +213,17 @@ export default function PodcastGenerator({ analysisId, onBack }: PodcastGenerato
                 {isGenerating ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Generazione in corso...
+                    Generating...
                   </>
                 ) : (
-                  "Genera Podcast"
+                  "Generate Podcast"
                 )}
               </Button>
               
               {isGenerating && (
                 <div className="text-sm text-muted-foreground text-center mt-4">
-                  <p>Questo processo può richiedere alcuni minuti.</p>
-                  <p>Stiamo analizzando le recensioni e creando un podcast professionale.</p>
+                  <p>This process may take a few minutes.</p>
+                  <p>We're analyzing the reviews and creating a professional podcast.</p>
                 </div>
               )}
             </div>
@@ -269,13 +276,13 @@ export default function PodcastGenerator({ analysisId, onBack }: PodcastGenerato
                 />
                 
                 <p className="text-sm text-muted-foreground text-center mt-3">
-                  Ascolta l'analisi del tuo hotel in formato podcast
+                  Listen to your hotel analysis in podcast format
                 </p>
               </div>
               
               {/* Nota informativa */}
               <div className="text-center text-sm text-muted-foreground mt-2">
-                <p>Il podcast è generato in base alla tua analisi e include consigli pratici basati su esperti del settore.</p>
+                <p>The podcast is generated based on your analysis and includes practical advice from industry experts.</p>
               </div>
             </div>
           </CardContent>

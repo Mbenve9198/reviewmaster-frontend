@@ -515,13 +515,13 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
         <div className="flex items-center gap-2">
           {isExpanded && (
             <>
-              {/* Pulsante podcast nella vista list - mostra solo se c'è un podcast */}
-              {viewMode === 'list' && hasPodcast && (
+              {/* Pulsante podcast nella vista list - deve essere sempre visibile */}
+              {viewMode === 'list' && (
                 <button
                   onClick={() => setViewMode('podcast')}
                   className="p-1 hover:bg-gray-100 rounded-lg transition-colors text-gray-500 hover:text-blue-600"
                 >
-                  <Music className="h-5 w-5" />
+                  <Mic className="h-5 w-5" />
                 </button>
               )}
               
@@ -614,6 +614,30 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
                 </div>
               </motion.button>
 
+              {/* Card dedicata per il Podcast - mostrata solo se esiste un podcast */}
+              {isExpanded && hasPodcast && (
+                <motion.button
+                  onClick={() => {
+                    setViewMode('podcast')
+                    if (!isExpanded) {
+                      onToggleExpand()
+                    }
+                  }}
+                  className={`
+                    w-full py-4
+                    rounded-xl text-left transition-all hover:scale-[0.98]
+                    bg-gradient-to-br from-purple-50 to-purple-100/50 
+                    border border-purple-200 shadow-sm hover:shadow-md
+                    overflow-hidden
+                  `}
+                >
+                  <div className="flex items-center gap-2 px-4">
+                    <Mic className="h-4 w-4 text-purple-600 flex-shrink-0" />
+                    <span className="text-purple-700 truncate">Ascolta Podcast</span>
+                  </div>
+                </motion.button>
+              )}
+
               {/* Lista delle chat esistenti con pulsante elimina */}
               {chats.map(chat => (
                 <div key={chat._id} className="relative group w-full">
@@ -663,7 +687,7 @@ export default function ChatCard({ analysisId, isExpanded, onToggleExpand }: Cha
                       {/* Icona podcast se disponibile */}
                       {hasPodcast && (
                         <span className="bg-primary/10 p-1 rounded-full">
-                          <Music className="h-3.5 w-3.5 text-primary" />
+                          <Mic className="h-3.5 w-3.5 text-primary" />
                         </span>
                       )}
                     </div>
