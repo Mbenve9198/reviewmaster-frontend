@@ -80,7 +80,9 @@ const extractPlaceId = (url: string, platform: Integration['platform']): string 
   try {
     switch (platform) {
       case 'google':
-        return url.split('/place/')[1]?.split('/')[0] || ''
+        // Estrai il nome del posto dall'URL
+        const placeMatch = url.match(/\/place\/([^\/]+)/);
+        return placeMatch ? placeMatch[1] : '';
       case 'tripadvisor':
         return url.split('Hotel_Review-')[1]?.split('-')[0] || ''
       case 'booking':
@@ -129,7 +131,7 @@ export function AddIntegrationModal({
 
   const validateUrl = (url: string, platform: Integration['platform']): boolean => {
     const patterns = {
-      google: /^https:\/\/(www\.)?google\.com\/maps\/place\/.*/,
+      google: /^https:\/\/(www\.)?google\.com\/maps\/place\/[^\/]+/,
       booking: /^https:\/\/www\.booking\.com\/hotel\/[a-z]{2}\/.*\..*\.html$/,
       tripadvisor: /^https:\/\/(www\.)?tripadvisor\.[a-z]+\/Hotel_Review-.*\.html$/
     }
