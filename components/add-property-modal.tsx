@@ -250,7 +250,7 @@ export function AddPropertyModal({ isOpen, onClose, onSuccess }: AddPropertyModa
 
   const validateUrl = (url: string, platform: string): boolean => {
     const patterns = {
-      google: /^https:\/\/(www\.)?google\.com\/maps\/place\/[^\/]+/,
+      google: /^https:\/\/(www\.)?google\.com\/maps\/place\//,
       booking: /^https:\/\/www\.booking\.com\/hotel\/[a-z]{2}\/.*\..*\.html$/,
       tripadvisor: /^https:\/\/(www\.)?tripadvisor\.[a-z]+\/Hotel_Review-.*\.html$/
     }
@@ -262,17 +262,27 @@ export function AddPropertyModal({ isOpen, onClose, onSuccess }: AddPropertyModa
     try {
       switch (platform) {
         case 'google':
-          const placeMatch = url.match(/\/place\/([^\/]+)/);
-          return placeMatch ? placeMatch[1] : '';
+          const placeNameMatch = url.match(/\/place\/([^@\/]+)/);
+          if (placeNameMatch && placeNameMatch[1]) {
+            return placeNameMatch[1];
+          }
+          
+          const idMatch = url.match(/!1s([^:!]+)/);
+          if (idMatch && idMatch[1]) {
+            return idMatch[1];
+          }
+          
+          return 'google-place';
+        
         case 'tripadvisor':
-          return url.split('Hotel_Review-')[1]?.split('-')[0] || '';
+          return url.split('Hotel_Review-')[1]?.split('-')[0] || ''
         case 'booking':
-          return url.split('/hotel/')[1]?.split('.')[0] || '';
+          return url.split('/hotel/')[1]?.split('.')[0] || ''
         default:
-          return '';
+          return ''
       }
     } catch {
-      return '';
+      return 'place-id-fallback'
     }
   }
 

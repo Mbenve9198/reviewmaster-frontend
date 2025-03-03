@@ -76,13 +76,34 @@ interface SyncConfig {
   maxReviews: string;
 }
 
+const validateUrl = (url: string, platform: Integration['platform']): boolean => {
+  const patterns = {
+    google: /^https:\/\/(www\.)?google\.com\/maps\/place\//,
+    booking: /^https:\/\/www\.booking\.com\/hotel\/[a-z]{2}\/.*\..*\.html$/,
+    tripadvisor: /^https:\/\/(www\.)?tripadvisor\.[a-z]+\/Hotel_Review-.*\.html$/
+  }
+
+  return patterns[platform].test(url)
+}
+
 const extractPlaceId = (url: string, platform: Integration['platform']): string => {
   try {
     switch (platform) {
       case 'google':
-        // Estrai il nome del posto dall'URL
-        const placeMatch = url.match(/\/place\/([^\/]+)/);
-        return placeMatch ? placeMatch[1] : '';
+        // Estrai il nome del posto dall'URL in modo più robusto
+        const placeNameMatch = url.match(/\/place\/([^@\/]+)/);
+        if (placeNameMatch && placeNameMatch[1]) {
+          return placeNameMatch[1];
+        }
+        
+        // Fallback: cerca l'ID nella parte finale dell'URL
+        const idMatch = url.match(/!1s([^:!]+)/);
+        if (idMatch && idMatch[1]) {
+          return idMatch[1];
+        }
+        
+        return 'google-place';  // Fallback generico
+        
       case 'tripadvisor':
         return url.split('Hotel_Review-')[1]?.split('-')[0] || ''
       case 'booking':
@@ -91,7 +112,7 @@ const extractPlaceId = (url: string, platform: Integration['platform']): string 
         return ''
     }
   } catch {
-    return ''
+    return 'place-id-fallback'  // Fallback in caso di errore
   }
 }
 
@@ -127,16 +148,6 @@ export function AddIntegrationModal({
 
   const handleBack = () => {
     setStep(1)
-  }
-
-  const validateUrl = (url: string, platform: Integration['platform']): boolean => {
-    const patterns = {
-      google: /^https:\/\/(www\.)?google\.com\/maps\/place\/[^\/]+/,
-      booking: /^https:\/\/www\.booking\.com\/hotel\/[a-z]{2}\/.*\..*\.html$/,
-      tripadvisor: /^https:\/\/(www\.)?tripadvisor\.[a-z]+\/Hotel_Review-.*\.html$/
-    }
-
-    return patterns[platform].test(url)
   }
 
   const handleSubmit = async () => {
