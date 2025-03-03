@@ -76,16 +76,6 @@ interface SyncConfig {
   maxReviews: string;
 }
 
-const validateUrl = (url: string, platform: Integration['platform']): boolean => {
-  const patterns = {
-    google: /^https:\/\/(www\.)?google\.com\/maps\/place\//,
-    booking: /^https:\/\/www\.booking\.com\/hotel\/[a-z]{2}\/.*\..*\.html$/,
-    tripadvisor: /^https:\/\/(www\.)?tripadvisor\.[a-z]+\/Hotel_Review-.*\.html$/
-  }
-
-  return patterns[platform].test(url)
-}
-
 const extractPlaceId = (url: string, platform: Integration['platform']): string => {
   try {
     switch (platform) {
@@ -157,11 +147,6 @@ export function AddIntegrationModal({
       const token = getCookie('token')
       if (!token) {
         throw new Error('Please log in to add an integration')
-      }
-
-      // Validazione URL
-      if (!validateUrl(url.trim(), selectedPlatform)) {
-        throw new Error(`Invalid ${selectedPlatform} URL format. Please check the example and try again.`)
       }
 
       // Estrai placeId dall'URL

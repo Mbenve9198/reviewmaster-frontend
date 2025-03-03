@@ -174,10 +174,6 @@ export function AddPropertyModal({ isOpen, onClose, onSuccess }: AddPropertyModa
         }
 
         if (selectedPlatform && platformUrl) {
-          if (!validateUrl(platformUrl.trim(), selectedPlatform)) {
-            throw new Error(`Invalid ${selectedPlatform} URL format. Please check the example and try again.`)
-          }
-          
           const placeId = extractPlaceId(platformUrl.trim(), selectedPlatform)
           if (!placeId) {
             throw new Error('Could not extract place ID from URL')
@@ -246,16 +242,6 @@ export function AddPropertyModal({ isOpen, onClose, onSuccess }: AddPropertyModa
       toast.error('Failed to save configuration')
       setError('An error occurred while saving the configuration')
     }
-  }
-
-  const validateUrl = (url: string, platform: string): boolean => {
-    const patterns = {
-      google: /^https:\/\/(www\.)?google\.com\/maps\/place\//,
-      booking: /^https:\/\/www\.booking\.com\/hotel\/[a-z]{2}\/.*\..*\.html$/,
-      tripadvisor: /^https:\/\/(www\.)?tripadvisor\.[a-z]+\/Hotel_Review-.*\.html$/
-    }
-
-    return patterns[platform as keyof typeof patterns]?.test(url) || false
   }
 
   const extractPlaceId = (url: string, platform: string): string => {
