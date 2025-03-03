@@ -276,7 +276,7 @@ export function AddPropertyModal({ isOpen, onClose, onSuccess }: AddPropertyModa
                       <SelectItem value="hotel">Hotel</SelectItem>
                       <SelectItem value="resort">Resort</SelectItem>
                       <SelectItem value="apartment">Apartment</SelectItem>
-                      <SelectItem value="bb">B&B</SelectItem>
+                      <SelectItem value="b&b">B&B</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
