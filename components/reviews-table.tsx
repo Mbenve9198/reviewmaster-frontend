@@ -131,7 +131,12 @@ export function ReviewsTable({
   const { reviews, loading, error, fetchReviews, setFilters, generateResponse, updateReviewResponse } = useReviews()
   const router = useRouter()
 
-  const [sorting, setSorting] = useState<SortingState>([])
+  const [sorting, setSorting] = useState<SortingState>([
+    {
+      id: "date",
+      desc: true
+    }
+  ])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
   const [rowSelection, setRowSelection] = useState({})
