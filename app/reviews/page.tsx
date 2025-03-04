@@ -336,6 +336,7 @@ export default function ReviewsPage() {
   const [tableInstance, setTableInstance] = useState<TableType<any> | null>(null);
   const [isAddPropertyModalOpen, setIsAddPropertyModalOpen] = useState(false)
   const [isAnalyticsDialogOpen, setIsAnalyticsDialogOpen] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
     const fetchHotels = async () => {
@@ -402,6 +403,24 @@ export default function ReviewsPage() {
 
   const handleTableReady = (table: TableType<any>) => {
     setTableInstance(table);
+  };
+
+  const handleSubmit = async () => {
+    if (isSubmitting) return;
+    
+    try {
+      setIsSubmitting(true);
+      
+      // Codice per inviare la richiesta
+      // ...
+      
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      setTimeout(() => {
+        setIsSubmitting(false);
+      }, 1000);
+    }
   };
 
   if (isLoading) {
