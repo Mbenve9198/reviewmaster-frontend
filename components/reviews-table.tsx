@@ -556,59 +556,59 @@ export function ReviewsTable({
   }, [property]);
 
   const handleGenerateResponse = async (review: Review) => {
+    // Aggiungiamo un controllo per evitare richieste multiple
+    if (isGenerating) return;
+    
     setMessages([]);
     setInput('');
-    setIsGenerating(false);
+    setIsGenerating(true); // Impostiamo subito a true per bloccare richieste multiple
     setSelectedReview(review);
     setIsModalOpen(true);
     setSuggestions([]);
     
-    setTimeout(async () => {
-      setIsGenerating(true);
-      try {
-        const token = getCookie('token');
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reviews/generate`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
+    try {
+      const token = getCookie('token');
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reviews/generate`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          hotelId: review.hotelId,
+          review: {
+            text: review.content.text,
+            rating: review.content.rating,
+            reviewerName: review.content.reviewerName
           },
-          body: JSON.stringify({
-            hotelId: review.hotelId,
-            review: {
-              text: review.content.text,
-              rating: review.content.rating,
-              reviewerName: review.content.reviewerName
-            },
-            responseSettings: {
-              style: responseTone,
-              length: responseLength
-            },
-            previousMessages: messages,
-            generateSuggestions: true,
-            isNewManualReview: false
-          })
-        });
-        
-        const data = await response.json();
-        if (!response.ok) {
-          throw new Error(data.message || 'Failed to generate response');
-        }
-        
-        if (data.response) {
-          setMessages([{ id: 1, content: data.response, sender: "ai" }]);
-        }
-        
-        if (data.suggestions) {
-          setSuggestions(data.suggestions);
-        }
-      } catch (error: any) {
-        console.error('Generate response error:', error);
-        toast.error(error.message || "Error generating response");
-      } finally {
-        setIsGenerating(false);
+          responseSettings: {
+            style: responseTone,
+            length: responseLength
+          },
+          previousMessages: messages,
+          generateSuggestions: true,
+          isNewManualReview: false
+        })
+      });
+      
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to generate response');
       }
-    }, 100);
+      
+      if (data.response) {
+        setMessages([{ id: 1, content: data.response, sender: "ai" }]);
+      }
+      
+      if (data.suggestions) {
+        setSuggestions(data.suggestions);
+      }
+    } catch (error: any) {
+      console.error('Generate response error:', error);
+      toast.error(error.message || "Error generating response");
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   const handleCustomResponse = (review: Review) => {
