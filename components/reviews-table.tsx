@@ -192,21 +192,21 @@ export function ReviewsTable({
               className="flex items-center gap-2"
             >
               <Check className="h-4 w-4" />
-              <span>Seleziona tutte ({table.getFilteredRowModel().rows.length})</span>
+              <span>Select all ({table.getFilteredRowModel().rows.length})</span>
             </DropdownMenuItem>
             <DropdownMenuItem 
               onClick={() => table.toggleAllPageRowsSelected(true)}
               className="flex items-center gap-2"
             >
               <ListFilter className="h-4 w-4" />
-              <span>Seleziona pagina ({table.getRowModel().rows.length})</span>
+              <span>Select page ({table.getRowModel().rows.length})</span>
             </DropdownMenuItem>
             <DropdownMenuItem 
               onClick={() => table.toggleAllRowsSelected(false)}
               className="flex items-center gap-2 text-red-600"
             >
               <X className="h-4 w-4" />
-              <span>Deseleziona tutto</span>
+              <span>Deselect all</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -1390,7 +1390,7 @@ export function ReviewsTable({
           <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium text-gray-700">
-                {selectedRows.length} {selectedRows.length === 1 ? 'recensione selezionata' : 'recensioni selezionate'}
+                {selectedRows.length} {selectedRows.length === 1 ? 'review selected' : 'reviews selected'}
               </span>
             </div>
             <Button
@@ -1408,14 +1408,14 @@ export function ReviewsTable({
                     })
                   });
 
-                  toast.success(`${selectedRows.length} recensioni eliminate con successo`);
+                  toast.success(`${selectedRows.length} reviews successfully deleted`);
                   handleRefresh();
                   
                   // Deseleziona tutte le righe
                   table.toggleAllRowsSelected(false);
                 } catch (error) {
                   console.error('Error deleting reviews:', error);
-                  toast.error("Errore durante l'eliminazione delle recensioni");
+                  toast.error("Error deleting reviews");
                 }
               }}
               variant="destructive"
