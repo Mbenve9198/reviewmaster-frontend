@@ -732,6 +732,7 @@ export function ReviewsTable({
             }
           }
         })
+      });
 
       if (!response.ok) {
         throw new Error('Failed to save response')
