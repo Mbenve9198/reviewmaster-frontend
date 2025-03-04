@@ -150,10 +150,13 @@ export function ReviewsTable({
   const [pageIndex, setPageIndex] = useState(0)
   const [pageSize, setPageSize] = useState(resultsPerPage)
   const [isSaving, setIsSaving] = useState(false)
-  const [hotelSettings, setHotelSettings] = useState<{
-    style: 'professional' | 'friendly';
-    length: 'short' | 'medium' | 'long';
-  } | null>(null);
+  const [hotelResponseSettings, setHotelResponseSettings] = useState<{
+    style: ResponseTone;
+    length: ResponseLength;
+  }>({
+    style: 'professional',
+    length: 'medium'
+  });
   const [isAddPropertyModalOpen, setIsAddPropertyModalOpen] = useState(false)
   const [isReviewExpanded, setIsReviewExpanded] = useState(false)
   const [suggestions, setSuggestions] = useState<string[]>([])
@@ -512,42 +515,45 @@ export function ReviewsTable({
     }
   }, [messages]);
 
-  // Modifica useEffect per usare l'hotelId dalla review selezionata
-  useEffect(() => {
-    const fetchHotelSettings = async () => {
-      if (!selectedReview?.hotelId) return;
+  // Aggiungiamo una funzione per recuperare le impostazioni dell'hotel
+  const fetchHotelSettings = async (hotelId: string) => {
+    try {
+      const token = getCookie('token');
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/hotels/${hotelId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
       
-      try {
-        const token = getCookie('token');
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/hotels/${selectedReview.hotelId}`, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          }
-        });
-        
-        if (!response.ok) throw new Error('Failed to fetch hotel settings');
-        
+      if (response.ok) {
         const hotel = await response.json();
         if (hotel.responseSettings) {
-          setHotelSettings(hotel.responseSettings);
-          // Imposta i valori dalle impostazioni dell'hotel o usa i valori predefiniti
-          setResponseTone(hotel.responseSettings.style || 'professional');
-          setResponseLength(hotel.responseSettings.length || 'medium');
-        } else {
-          // Se non ci sono impostazioni dell'hotel, usa i valori predefiniti
-          setResponseTone('professional');
-          setResponseLength('medium');
+          // Aggiorna le impostazioni predefinite con quelle dell'hotel
+          setHotelResponseSettings({
+            style: hotel.responseSettings.style as ResponseTone,
+            length: hotel.responseSettings.length as ResponseLength
+          });
+          
+          // Imposta anche i valori correnti
+          setResponseTone(hotel.responseSettings.style as ResponseTone);
+          setResponseLength(hotel.responseSettings.length as ResponseLength);
         }
-      } catch (error) {
-        console.error('Error fetching hotel settings:', error);
-        // In caso di errore, usa comunque i valori predefiniti
-        setResponseTone('professional');
-        setResponseLength('medium');
       }
-    };
-
-    fetchHotelSettings();
-  }, [selectedReview?.hotelId]);
+    } catch (error) {
+      console.error('Error fetching hotel settings:', error);
+    }
+  };
+  
+  // Modifichiamo useEffect per caricare le impostazioni dell'hotel quando cambia la proprietà
+  useEffect(() => {
+    if (property) {
+      fetchHotelSettings(property);
+    }
+    
+    // ... resto del codice esistente per il caricamento delle recensioni ...
+    
+  }, [property]);
 
   const handleGenerateResponse = async (review: Review) => {
     setMessages([]);
@@ -726,7 +732,6 @@ export function ReviewsTable({
             }
           }
         })
-      })
 
       if (!response.ok) {
         throw new Error('Failed to save response')
@@ -748,6 +753,14 @@ export function ReviewsTable({
       setIsSaving(false)
     }
   }
+
+  // Quando si apre il modale, resettiamo le impostazioni a quelle dell'hotel
+  useEffect(() => {
+    if (isModalOpen) {
+      setResponseTone(hotelResponseSettings.style);
+      setResponseLength(hotelResponseSettings.length);
+    }
+  }, [isModalOpen, hotelResponseSettings]);
 
   if (loading) {
     console.log('Loading reviews...')
