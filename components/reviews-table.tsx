@@ -561,7 +561,7 @@ export function ReviewsTable({
       setIsGenerating(true);
       try {
         const token = getCookie('token');
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reviews/generate-response`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reviews/generate`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`,
