@@ -561,7 +561,7 @@ export function ReviewsTable({
       setIsGenerating(true);
       try {
         const token = getCookie('token');
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reviews/generate`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reviews/generate-response`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -571,15 +571,16 @@ export function ReviewsTable({
             hotelId: review.hotelId,
             review: {
               text: review.content.text,
-              name: review.content.reviewerName,
               rating: review.content.rating,
-              platform: review.platform
+              reviewerName: review.content.reviewerName
             },
             responseSettings: {
               style: responseTone,
               length: responseLength
             },
-            generateSuggestions: true
+            previousMessages: messages,
+            generateSuggestions: true,
+            isNewManualReview: false
           })
         });
         

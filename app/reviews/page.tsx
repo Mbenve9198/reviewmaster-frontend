@@ -150,6 +150,7 @@ const FiltersAndTable = ({
                 <SelectItem value="google" className="text-sm">Google</SelectItem>
                 <SelectItem value="booking" className="text-sm">Booking.com</SelectItem>
                 <SelectItem value="tripadvisor" className="text-sm">TripAdvisor</SelectItem>
+                <SelectItem value="manual" className="text-sm">Manual</SelectItem>
               </SelectContent>
             </Select>
 
