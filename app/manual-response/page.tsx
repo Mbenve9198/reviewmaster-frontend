@@ -162,11 +162,16 @@ export default function HomePage() {
 
       const payload = {
         hotelId: selectedHotel,
-        review: review,
+        review: {
+          text: review,
+          reviewerName: "Guest" // Puoi aggiungere un campo per il nome del recensore se necessario
+        },
         responseSettings: {
           style: responseStyle,
           length: responseLength
-        }
+        },
+        isNewManualReview: true, // Imposta questo flag a true per creare una nuova recensione manuale
+        generateSuggestions: true
       };
 
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reviews/generate`, {
@@ -219,12 +224,15 @@ export default function HomePage() {
         },
         body: JSON.stringify({
           hotelId: selectedHotel,
-          review: review,
+          review: {
+            text: review
+          },
           responseSettings: {
             style: responseStyle,
             length: responseLength
           },
-          previousMessages: [...messages, newUserMessage]
+          previousMessages: [...messages, newUserMessage],
+          isNewManualReview: false // Imposta esplicitamente a false per le chat successive
         }),
         credentials: 'include'
       });
