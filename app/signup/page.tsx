@@ -15,6 +15,8 @@ export default function SignUpPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
+  const [phoneNumber, setPhoneNumber] = useState("")
+  const [companyName, setCompanyName] = useState("")
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
@@ -43,7 +45,9 @@ export default function SignUpPage() {
         body: JSON.stringify({ 
           email, 
           password,
-          name: email.split('@')[0]
+          name: email.split('@')[0],
+          phoneNumber,
+          companyName
         }),
         signal: controller.signal
       })
@@ -86,7 +90,7 @@ export default function SignUpPage() {
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
           <div className="flex flex-col items-center">
             <Image 
-              src="/logo-replai.svg?v=1" 
+              src="/logo-replai.png" 
               alt="Replai Logo" 
               width={180} 
               height={60} 
@@ -115,6 +119,44 @@ export default function SignUpPage() {
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                    className="p-4 text-lg rounded-xl border-2 border-gray-200 focus:border-primary focus:ring-primary"
+                    disabled={isLoading}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="companyName" className="block text-sm font-medium text-gray-700">
+                  Company name
+                </label>
+                <div className="mt-1">
+                  <Input
+                    id="companyName"
+                    name="companyName"
+                    type="text"
+                    autoComplete="organization"
+                    required
+                    value={companyName}
+                    onChange={(e) => setCompanyName(e.target.value)}
+                    className="p-4 text-lg rounded-xl border-2 border-gray-200 focus:border-primary focus:ring-primary"
+                    disabled={isLoading}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700">
+                  Phone number
+                </label>
+                <div className="mt-1">
+                  <Input
+                    id="phoneNumber"
+                    name="phoneNumber"
+                    type="tel"
+                    autoComplete="tel"
+                    required
+                    value={phoneNumber}
+                    onChange={(e) => setPhoneNumber(e.target.value)}
                     className="p-4 text-lg rounded-xl border-2 border-gray-200 focus:border-primary focus:ring-primary"
                     disabled={isLoading}
                   />
