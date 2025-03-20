@@ -175,11 +175,12 @@ export default function LoginPage() {
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
           <div className="flex flex-col items-center">
             <Image 
-              src="/logo-replai.svg" 
+              src="/logo-replai.svg?v=1" 
               alt="Replai Logo" 
               width={180} 
               height={60} 
               className="mb-4"
+              priority
             />
             <h2 className="text-xl text-gray-700 font-medium">
               {showForgotPassword 
