@@ -806,7 +806,7 @@ export function ReviewsTable({
       const token = getCookie('token');
       
       // First, get all integrations for this property
-      const integrationsResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/hotels/${property}/integrations`, {
+      const integrationsResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/integrations/hotel/${property}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
