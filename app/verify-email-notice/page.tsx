@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from "@/components/ui/button"
 import { Tiles } from "@/components/ui/tiles"
-import { FiMail, FiCheckCircle, FiArrowRight } from "react-icons/fi"
 import Image from "next/image"
 import Link from "next/link"
 
@@ -56,7 +55,11 @@ export default function VerifyEmailNoticePage() {
             <div className="flex flex-col items-center justify-center text-center">
               
               <div className="w-24 h-24 bg-blue-50 rounded-full flex items-center justify-center mb-6">
-                <FiMail className="w-12 h-12 text-primary" />
+                {/* Mail icon SVG */}
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                  <polyline points="22,6 12,13 2,6"></polyline>
+                </svg>
               </div>
               
               <h2 className="text-2xl font-bold text-gray-900 mb-2">
@@ -70,11 +73,19 @@ export default function VerifyEmailNoticePage() {
               
               <div className="bg-blue-50 p-4 rounded-xl w-full mb-6">
                 <div className="flex items-center space-x-2 text-sm text-gray-700">
-                  <FiCheckCircle className="text-green-500 flex-shrink-0" />
+                  {/* Check circle icon SVG */}
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-green-500 flex-shrink-0">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                  </svg>
                   <p>Check your spam folder if you don't see it in your inbox</p>
                 </div>
                 <div className="flex items-center space-x-2 text-sm text-gray-700 mt-2">
-                  <FiCheckCircle className="text-green-500 flex-shrink-0" />
+                  {/* Check circle icon SVG */}
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-green-500 flex-shrink-0">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                  </svg>
                   <p>The verification link will expire in 24 hours</p>
                 </div>
               </div>
@@ -84,7 +95,11 @@ export default function VerifyEmailNoticePage() {
                 className="flex items-center justify-center text-primary hover:text-primary/90"
               >
                 <span>Proceed to login</span>
-                <FiArrowRight className="ml-1" />
+                {/* Arrow right icon SVG */}
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="ml-1">
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                  <polyline points="12 5 19 12 12 19"></polyline>
+                </svg>
               </Link>
             </div>
           </div>

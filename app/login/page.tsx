@@ -8,7 +8,6 @@ import Link from "next/link"
 import { useRouter, useSearchParams } from 'next/navigation'
 import { toast } from "react-hot-toast"
 import { Tiles } from "@/components/ui/tiles"
-import { FiCheckCircle } from "react-icons/fi"
 import Image from "next/image"
 
 export default function LoginPage() {
