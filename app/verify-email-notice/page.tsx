@@ -38,7 +38,7 @@ export default function VerifyEmailNoticePage() {
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
           <div className="flex flex-col items-center">
             <Image 
-              src="/logo-replai.svg" 
+              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/logo-replai-rH6dlkgpJiikSzfAQvY6O8WGHny7V6.svg" 
               alt="Replai Logo" 
               width={180} 
               height={60} 
