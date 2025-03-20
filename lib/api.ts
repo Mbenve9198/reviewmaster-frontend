@@ -1,4 +1,5 @@
 // ... existing code ...
+import { Review } from '@/services/api';
 
 export const api = {
   analytics: {
