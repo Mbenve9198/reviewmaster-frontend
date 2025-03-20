@@ -7,29 +7,45 @@ import { motion, AnimatePresence } from "framer-motion"
 import Link from "next/link"
 import { useRouter, useSearchParams } from 'next/navigation'
 import { toast } from "react-hot-toast"
-import { HandWrittenTitle } from "@/components/ui/hand-writing-text"
 import { Tiles } from "@/components/ui/tiles"
+import { FiCheckCircle } from "react-icons/fi"
+import Image from "next/image"
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
+  const [resendEmail, setResendEmail] = useState("")
+  const [showResendVerification, setShowResendVerification] = useState(false)
+  const [isResending, setIsResending] = useState(false)
   const router = useRouter()
   const searchParams = useSearchParams()
   const [showForgotPassword, setShowForgotPassword] = useState(false)
   const [resetEmail, setResetEmail] = useState("")
   const [isResetting, setIsResetting] = useState(false)
 
-  // Controlla se l'utente è stato reindirizzato per scadenza token
+  // Controlla i parametri di ricerca
   useEffect(() => {
     const isExpired = searchParams.get('expired') === 'true'
+    const isVerified = searchParams.get('verified') === 'true'
+    const shouldResend = searchParams.get('resend') === 'true'
     
     if (isExpired) {
       toast.error('La tua sessione è scaduta. Effettua nuovamente il login.', {
         duration: 5000,
         position: 'top-center'
       })
+    }
+
+    if (isVerified) {
+      toast.success('Your email has been verified! You can now log in.', {
+        duration: 5000
+      })
+    }
+
+    if (shouldResend) {
+      setShowResendVerification(true)
     }
   }, [searchParams])
 
@@ -109,6 +125,42 @@ export default function LoginPage() {
     }
   }
 
+  const handleResendVerification = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    if (!resendEmail) {
+      toast.error('Please enter your email address')
+      return
+    }
+    
+    setIsResending(true)
+    const loadingToast = toast.loading('Sending verification email...')
+
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/resend-verification`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: resendEmail }),
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        toast.success('Verification email sent! Please check your inbox.', { id: loadingToast })
+        setShowResendVerification(false)
+      } else {
+        toast.error(data.message || 'Failed to send verification email', { id: loadingToast })
+      }
+    } catch (error) {
+      console.error('Resend verification error:', error)
+      toast.error('Failed to send verification email', { id: loadingToast })
+    } finally {
+      setIsResending(false)
+    }
+  }
+
   const buttonClasses = "relative bg-primary hover:bg-primary/90 text-primary-foreground font-bold transition-all active:top-[2px] active:shadow-[0_0_0_0_#2563eb] disabled:opacity-50 disabled:hover:bg-primary disabled:active:top-0 disabled:active:shadow-[0_4px_0_0_#2563eb]"
 
   return (
@@ -122,15 +174,75 @@ export default function LoginPage() {
       
       <div className="min-h-screen bg-white flex flex-col justify-center py-12 sm:px-6 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
-          <HandWrittenTitle 
-            title="Replai"
-            subtitle={showForgotPassword ? "Reset your password" : "Sign in to your account"}
-          />
+          <div className="flex flex-col items-center">
+            <Image 
+              src="/logo-replai.svg" 
+              alt="Replai Logo" 
+              width={180} 
+              height={60} 
+              className="mb-4"
+            />
+            <h2 className="text-xl text-gray-700 font-medium">
+              {showForgotPassword 
+                ? "Reset your password" 
+                : showResendVerification 
+                  ? "Resend verification email" 
+                  : "Sign in to your account"}
+            </h2>
+          </div>
         </div>
 
         <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
           <div className="bg-white py-8 px-4 shadow sm:rounded-3xl sm:px-10 border-2 border-gray-100">
-            {!showForgotPassword ? (
+            {showResendVerification ? (
+              <form onSubmit={handleResendVerification} className="space-y-6">
+                <div>
+                  <label htmlFor="resend-email" className="block text-sm font-medium text-gray-700">
+                    Email address
+                  </label>
+                  <div className="mt-1">
+                    <Input
+                      id="resend-email"
+                      name="email"
+                      type="email"
+                      required
+                      value={resendEmail}
+                      onChange={(e) => setResendEmail(e.target.value)}
+                      className="p-4 text-lg rounded-xl border-2 border-gray-200 focus:border-primary focus:ring-primary"
+                      disabled={isResending}
+                    />
+                  </div>
+                  <p className="mt-2 text-sm text-gray-600">
+                    Enter the email address you used to register
+                  </p>
+                </div>
+
+                <div className="flex gap-4">
+                  <Button
+                    type="button"
+                    onClick={() => setShowResendVerification(false)}
+                    className="flex-1 bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  >
+                    Back
+                  </Button>
+                  <Button
+                    type="submit"
+                    disabled={isResending}
+                    className={`${buttonClasses} flex-1 rounded-xl shadow-[0_4px_0_0_#2563eb] flex items-center justify-center`}
+                  >
+                    {isResending ? (
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                        className="w-6 h-6 border-2 border-white border-t-transparent rounded-full"
+                      />
+                    ) : (
+                      "Send verification email"
+                    )}
+                  </Button>
+                </div>
+              </form>
+            ) : !showForgotPassword ? (
               <>
                 <form className="space-y-6" onSubmit={handleLogin}>
                   <div>

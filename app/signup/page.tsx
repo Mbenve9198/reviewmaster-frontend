@@ -9,7 +9,6 @@ import Link from "next/link"
 import { useRouter } from 'next/navigation'
 import { setCookie } from 'cookies-next'
 import { toast } from "react-hot-toast"
-import { HandWrittenTitle } from "@/components/ui/hand-writing-text"
 import { Tiles } from "@/components/ui/tiles"
 
 export default function SignUpPage() {
@@ -85,10 +84,18 @@ export default function SignUpPage() {
       
       <div className="min-h-screen bg-white flex flex-col justify-center py-12 sm:px-6 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
-          <HandWrittenTitle 
-            title="Replai"
-            subtitle="Create your account"
-          />
+          <div className="flex flex-col items-center">
+            <Image 
+              src="/logo-replai.svg" 
+              alt="Replai Logo" 
+              width={180} 
+              height={60} 
+              className="mb-4"
+            />
+            <h2 className="text-xl text-gray-700 font-medium">
+              Create your account
+            </h2>
+          </div>
         </div>
 
         <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
