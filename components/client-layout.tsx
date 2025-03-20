@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation'
 import { Elements } from '@stripe/react-stripe-js'
 import { loadStripe } from '@stripe/stripe-js'
 import { Particles } from "@/components/ui/particles"
+import { WhatsAppSupport } from "@/components/ui/whatsapp-support"
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
 
@@ -36,6 +37,11 @@ export function ClientLayout({
           {children}
         </main>
       </div>
+      {/* WhatsApp Support Icon */}
+      <WhatsAppSupport 
+        phoneNumber="+393663153304" 
+        message="Hello, I need assistance with ReviewMaster." 
+      />
     </Elements>
   )
 }
