@@ -40,7 +40,7 @@ export function ClientLayout({
       {/* WhatsApp Support Icon */}
       <WhatsAppSupport 
         phoneNumber="+393663153304" 
-        message="Hello, I need assistance with ReviewMaster." 
+        message="Hello, I need assistance with Replai" 
       />
     </Elements>
   )
