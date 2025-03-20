@@ -21,6 +21,31 @@ axiosInstance.interceptors.request.use((config) => {
   return config;
 });
 
+// Interceptor per gestire le risposte e gli errori
+axiosInstance.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  (error) => {
+    // Gestisci errori 401 (non autorizzato) - token scaduto o invalido
+    if (error.response && error.response.status === 401) {
+      console.log('Token scaduto o non valido, reindirizzamento al login...');
+      
+      // Rimuovi il token dai cookie e dal localStorage
+      document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      
+      // Reindirizza alla pagina di login
+      if (typeof window !== 'undefined') {
+        window.location.href = '/login?expired=true';
+      }
+    }
+    
+    return Promise.reject(error);
+  }
+);
+
 export interface Review {
   _id: string;
   platform: 'google' | 'booking' | 'tripadvisor' | 'manual';

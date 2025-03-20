@@ -35,6 +35,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import { handleApiResponse } from "@/lib/api-utils"
 
 interface Hotel {
   _id: string
@@ -96,15 +97,8 @@ export default function HomePage() {
           },
         })
 
-        if (!response.ok) {
-          if (response.status === 401) {
-            console.log('Token invalid, redirecting to login...')
-            router.push('/login')
-            return
-          }
-          throw new Error('Failed to fetch hotels')
-        }
-
+        await handleApiResponse(response)
+        
         const data = await response.json()
         console.log('Hotels fetched:', data)
         setHotels(data)
@@ -120,10 +114,6 @@ export default function HomePage() {
         }
       } catch (error) {
         console.error('Error fetching hotels:', error)
-        if (error instanceof Error && error.message.includes('401')) {
-          router.push('/login')
-        }
-      } finally {
         setIsLoading(false)
       }
     }
