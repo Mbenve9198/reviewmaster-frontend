@@ -311,7 +311,7 @@ const FiltersAndTable = ({
                     onClick={syncAllPlatforms}
                     disabled={isSyncing || !hotel || hotel === 'all'}
                     className={cn(
-                      "h-9 rounded-full border-gray-200 text-gray-700 hover:bg-gray-50 flex items-center gap-2",
+                      "h-9 w-9 p-0 rounded-full border-gray-200 text-gray-700 hover:bg-gray-50 flex items-center justify-center",
                       syncStatus.status === 'syncing' && "border-blue-200 bg-blue-50 text-blue-700",
                       syncStatus.status === 'success' && "border-green-200 bg-green-50 text-green-700",
                       syncStatus.status === 'error' && "border-red-200 bg-red-50 text-red-700"
@@ -326,16 +326,9 @@ const FiltersAndTable = ({
                     ) : (
                       <RefreshCw className="h-4 w-4" />
                     )}
-                    {syncStatus.status === 'idle' ? (
-                      "Sync Platforms"
-                    ) : (
-                      <span className="flex items-center gap-2">
-                        {syncStatus.status === 'success' && syncStatus.count > 0 && (
-                          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-green-600 text-xs text-white">
-                            {syncStatus.count}
-                          </span>
-                        )}
-                        {syncStatus.message}
+                    {syncStatus.status === 'success' && syncStatus.count > 0 && (
+                      <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-green-600 text-[10px] text-white">
+                        {syncStatus.count}
                       </span>
                     )}
                   </Button>
