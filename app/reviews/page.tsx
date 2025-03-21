@@ -173,8 +173,6 @@ const FiltersAndTable = ({
           </div>
 
           <div className="flex items-center gap-3 shrink-0">
-            {tableInstance && <ColumnsDropdown table={tableInstance} />}
-
             <Button
               variant="default"
               size="sm"
@@ -248,6 +246,7 @@ const FiltersAndTable = ({
           onResultsPerPageChange={handleResultsPerPageChange}
           onSelectionChange={setSelectedRows}
           onTableReady={handleTableReady}
+          tableInstance={tableInstance}
         />
       </div>
     </div>
