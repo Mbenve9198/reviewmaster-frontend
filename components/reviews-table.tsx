@@ -80,6 +80,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { AuroraBackground } from "@/components/ui/aurora-background"
+import { ColumnsDropdown } from "@/components/columns-dropdown"
 
 type Platform = 'google' | 'booking' | 'tripadvisor' | 'manual'
 
@@ -133,6 +135,7 @@ interface ReviewsTableProps {
   onResultsPerPageChange: (value: number) => void
   onSelectionChange: (rows: any[]) => void
   onTableReady: (table: TableType<any>) => void
+  tableInstance?: TableType<any> | null
 }
 
 export function ReviewsTable({
@@ -145,7 +148,8 @@ export function ReviewsTable({
   onRefresh,
   onResultsPerPageChange,
   onSelectionChange,
-  onTableReady
+  onTableReady,
+  tableInstance
 }: ReviewsTableProps) {
   const { reviews, loading, error, fetchReviews, setFilters, generateResponse, updateReviewResponse } = useReviews()
   const router = useRouter()
@@ -1042,49 +1046,9 @@ export function ReviewsTable({
               </SelectContent>
             </Select>
             
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={syncAllPlatforms}
-                    disabled={isSyncing || !property || property === 'all'}
-                    className={cn(
-                      "h-9 rounded-full border-gray-200 text-gray-700 hover:bg-gray-50 flex items-center gap-2",
-                      syncStatus.status === 'syncing' && "border-blue-200 bg-blue-50 text-blue-700",
-                      syncStatus.status === 'success' && "border-green-200 bg-green-50 text-green-700",
-                      syncStatus.status === 'error' && "border-red-200 bg-red-50 text-red-700"
-                    )}
-                  >
-                    {syncStatus.status === 'syncing' ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : syncStatus.status === 'success' ? (
-                      <Check className="h-4 w-4" />
-                    ) : syncStatus.status === 'error' ? (
-                      <AlertCircle className="h-4 w-4" />
-                    ) : (
-                      <RefreshCw className="h-4 w-4" />
-                    )}
-                    {syncStatus.status === 'idle' ? (
-                      "Sync Platforms"
-                    ) : (
-                      <span className="flex items-center gap-2">
-                        {syncStatus.status === 'success' && syncStatus.count > 0 && (
-                          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-green-600 text-xs text-white">
-                            {syncStatus.count}
-                          </span>
-                        )}
-                        {syncStatus.message}
-                      </span>
-                    )}
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="bottom">
-                  <p>Sync reviews from all connected platforms</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+            {tableInstance && (
+              <ColumnsDropdown table={tableInstance} />
+            )}
           </div>
 
           <div className="flex items-center gap-4">

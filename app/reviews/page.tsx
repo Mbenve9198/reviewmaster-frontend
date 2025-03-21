@@ -5,20 +5,26 @@ import { ReviewsTable } from "@/components/reviews-table"
 import { Input } from "@/components/ui/input"
 import { ReviewTabs } from "@/components/ui/review-tabs"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Search, Filter, BarChart2, X } from "lucide-react"
+import { Search, Filter, BarChart2, X, RefreshCw, Check, AlertCircle, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Toaster } from "sonner"
 import { getCookie } from "@/lib/utils"
 import useReviews from "@/store/useReviews"
 import Image from "next/image"
 import { BulkActionsDropdown } from "@/components/bulk-actions-dropdown"
-import { ColumnsDropdown } from "@/components/columns-dropdown"
 import { type Table as TableType } from "@tanstack/react-table"
 import { AddPropertyModal } from "@/components/add-property-modal"
 import { AuroraBackground } from "@/components/ui/aurora-background"
 import { toast } from "react-hot-toast"
 import { AnalyticsDialog } from "@/components/analytics/AnalyticsDialog"
 import { useRouter } from 'next/navigation'
+import { cn } from "@/lib/utils"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 interface Hotel {
   _id: string
@@ -92,6 +98,129 @@ const FiltersAndTable = ({
   setIsAnalyticsDialogOpen
 }: FiltersAndTableProps) => {
   const router = useRouter()
+  const [isSyncing, setIsSyncing] = useState(false)
+  const [syncStatus, setSyncStatus] = useState<{
+    status: 'idle' | 'syncing' | 'success' | 'error';
+    message: string;
+    count: number;
+  }>({
+    status: 'idle',
+    message: '',
+    count: 0
+  });
+  
+  interface Integration {
+    _id: string;
+    platform: string;
+    hotelId: string;
+    status: string;
+    syncConfig?: {
+      type: string;
+      frequency: string;
+      lastSync?: string;
+    };
+  }
+  
+  const syncAllPlatforms = async () => {
+    if (isSyncing || !hotel || hotel === 'all') return;
+    
+    setIsSyncing(true);
+    setSyncStatus({
+      status: 'syncing',
+      message: 'Syncing platforms...',
+      count: 0
+    });
+    
+    try {
+      const token = getCookie('token');
+      
+      // First, get all integrations for this property
+      const integrationsResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/integrations/hotel/${hotel}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (!integrationsResponse.ok) {
+        throw new Error('Failed to fetch integrations');
+      }
+      
+      const integrations = await integrationsResponse.json() as Integration[];
+      
+      if (integrations.length === 0) {
+        setSyncStatus({
+          status: 'error',
+          message: 'No platforms connected to this property',
+          count: 0
+        });
+        toast.error('No platforms connected to this property');
+        return;
+      }
+      
+      setSyncStatus({
+        status: 'syncing',
+        message: `Syncing ${integrations.length} platforms...`,
+        count: 0
+      });
+      
+      // Sync all integrations one by one
+      const syncPromises = integrations.map(async (integration: Integration) => {
+        const syncResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/integrations/${integration._id}/sync`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (!syncResponse.ok) {
+          const errorData = await syncResponse.json();
+          throw new Error(errorData.message || `Failed to sync ${integration.platform}`);
+        }
+        
+        return syncResponse.json();
+      });
+      
+      const results = await Promise.all(syncPromises);
+      
+      // Count total new reviews
+      const totalNewReviews = results.reduce((total, result) => {
+        return total + (result.newReviews || 0);
+      }, 0);
+      
+      setSyncStatus({
+        status: 'success',
+        message: `Sync completed: ${totalNewReviews} new reviews`,
+        count: totalNewReviews
+      });
+      
+      toast.success(`Sync completed: ${totalNewReviews} new reviews imported`);
+      
+      // Refresh the reviews list
+      handleRefresh();
+      
+      // Reset the sync status after 5 seconds
+      setTimeout(() => {
+        setSyncStatus({
+          status: 'idle',
+          message: '',
+          count: 0
+        });
+      }, 5000);
+      
+    } catch (error: any) {
+      console.error('Sync error:', error);
+      setSyncStatus({
+        status: 'error',
+        message: error.message || 'Failed to sync platforms',
+        count: 0
+      });
+      toast.error(error.message || 'Failed to sync platforms');
+    } finally {
+      setIsSyncing(false);
+    }
+  };
 
   return (
     <div className="bg-white rounded-3xl border border-gray-200 shadow-lg overflow-hidden">
@@ -173,6 +302,50 @@ const FiltersAndTable = ({
           </div>
 
           <div className="flex items-center gap-3 shrink-0">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={syncAllPlatforms}
+                    disabled={isSyncing || !hotel || hotel === 'all'}
+                    className={cn(
+                      "h-9 rounded-full border-gray-200 text-gray-700 hover:bg-gray-50 flex items-center gap-2",
+                      syncStatus.status === 'syncing' && "border-blue-200 bg-blue-50 text-blue-700",
+                      syncStatus.status === 'success' && "border-green-200 bg-green-50 text-green-700",
+                      syncStatus.status === 'error' && "border-red-200 bg-red-50 text-red-700"
+                    )}
+                  >
+                    {syncStatus.status === 'syncing' ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : syncStatus.status === 'success' ? (
+                      <Check className="h-4 w-4" />
+                    ) : syncStatus.status === 'error' ? (
+                      <AlertCircle className="h-4 w-4" />
+                    ) : (
+                      <RefreshCw className="h-4 w-4" />
+                    )}
+                    {syncStatus.status === 'idle' ? (
+                      "Sync Platforms"
+                    ) : (
+                      <span className="flex items-center gap-2">
+                        {syncStatus.status === 'success' && syncStatus.count > 0 && (
+                          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-green-600 text-xs text-white">
+                            {syncStatus.count}
+                          </span>
+                        )}
+                        {syncStatus.message}
+                      </span>
+                    )}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom">
+                  <p>Sync reviews from all connected platforms</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+
             <Button
               variant="default"
               size="sm"
