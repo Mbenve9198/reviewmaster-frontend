@@ -112,6 +112,9 @@ export default function HomePage() {
           setSelectedHotel(data[0]._id)
           localStorage.setItem('lastSelectedHotel', data[0]._id)
         }
+        
+        // Imposta isLoading a false dopo aver caricato i dati
+        setIsLoading(false)
       } catch (error) {
         console.error('Error fetching hotels:', error)
         setIsLoading(false)
