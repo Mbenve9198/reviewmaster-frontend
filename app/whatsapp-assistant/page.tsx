@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { Sparkles, MessageSquare, Zap, Loader2, AlertCircle, Clock, Edit, Download, Plus } from 'lucide-react'
+import { Sparkles, MessageSquare, Zap, Loader2, AlertCircle, Clock, Edit, Download, Plus, Wallet } from 'lucide-react'
 import Image from "next/image"
 import { SetupAssistantModal } from "@/components/whatsapp-assistant/setup-assistant-modal"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -11,6 +11,7 @@ import { toast } from "sonner"
 import { EditTimeSettingsModal } from "@/components/whatsapp-assistant/edit-time-settings-modal"
 import { EditReviewSettingsModal } from "@/components/whatsapp-assistant/edit-review-settings-modal"
 import { EditIdentitySettingsModal } from "@/components/whatsapp-assistant/edit-identity-settings-modal"
+import { EditCreditSettingsModal } from "@/components/whatsapp-assistant/edit-credit-settings-modal"
 import { QRCodeSVG } from 'qrcode.react'
 import { WhatsAppRuleModal } from "@/components/whatsapp-assistant/whatsapp-rule-modal"
 import { Switch } from "@/components/ui/switch"
@@ -33,6 +34,7 @@ export default function WhatsAppAssistantPage() {
   const [isTimeSettingsModalOpen, setIsTimeSettingsModalOpen] = useState(false)
   const [isReviewSettingsModalOpen, setIsReviewSettingsModalOpen] = useState(false)
   const [isIdentitySettingsModalOpen, setIsIdentitySettingsModalOpen] = useState(false)
+  const [isCreditSettingsModalOpen, setIsCreditSettingsModalOpen] = useState(false)
   const [isRulesModalOpen, setIsRulesModalOpen] = useState(false)
   const [selectedRule, setSelectedRule] = useState<WhatsAppRule | null>(null)
   const [rules, setRules] = useState<WhatsAppRule[]>([])
@@ -543,6 +545,58 @@ export default function WhatsAppAssistantPage() {
                 )}
               </div>
             </div>
+
+            {/* Credit Settings */}
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <h3 className="text-xl font-semibold text-gray-800">Credit Settings</h3>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="rounded-xl border-gray-200 hover:bg-gray-50 hover:text-gray-900 transition-colors gap-2"
+                  onClick={() => setIsCreditSettingsModalOpen(true)}
+                >
+                  <Edit className="h-4 w-4" />
+                  Edit
+                </Button>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {/* Minimum Threshold */}
+                <div className="bg-gray-50 p-4 rounded-xl space-y-2">
+                  <h4 className="font-medium text-gray-700 flex items-center gap-2">
+                    <Wallet className="h-4 w-4 text-blue-500" />
+                    Minimum Threshold
+                  </h4>
+                  <p className="text-gray-600">
+                    {config.creditSettings?.minimumThreshold || 50} credits
+                  </p>
+                </div>
+
+                {/* Top-up Amount */}
+                <div className="bg-gray-50 p-4 rounded-xl space-y-2">
+                  <h4 className="font-medium text-gray-700 flex items-center gap-2">
+                    <Sparkles className="h-4 w-4 text-blue-500" />
+                    Auto Top-up Amount
+                  </h4>
+                  <p className="text-gray-600">
+                    {config.creditSettings?.topUpAmount || 200} credits
+                  </p>
+                </div>
+
+                {/* Auto Top-up Status */}
+                <div className="bg-gray-50 p-4 rounded-xl space-y-2">
+                  <h4 className="font-medium text-gray-700 flex items-center gap-2">
+                    <Zap className="h-4 w-4 text-blue-500" />
+                    Auto Top-up
+                  </h4>
+                  <p className="text-gray-600 flex items-center gap-2">
+                    <span className={`h-2 w-2 rounded-full ${config.creditSettings?.autoTopUp ? 'bg-green-500' : 'bg-red-500'}`}></span>
+                    {config.creditSettings?.autoTopUp ? 'Enabled' : 'Disabled'}
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -645,6 +699,20 @@ export default function WhatsAppAssistantPage() {
           setConfig(updatedConfig)
           setIsIdentitySettingsModalOpen(false)
         }}
+      />
+
+      <EditCreditSettingsModal
+        isOpen={isCreditSettingsModalOpen}
+        onClose={() => setIsCreditSettingsModalOpen(false)}
+        currentConfig={{
+          hotelId: config.hotelId,
+          creditSettings: config.creditSettings || {
+            minimumThreshold: 50,
+            topUpAmount: 200,
+            autoTopUp: false
+          }
+        }}
+        onSuccess={handleSuccess}
       />
 
       <WhatsAppRuleModal

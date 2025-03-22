@@ -13,7 +13,8 @@ import {
   PlusCircle, 
   MinusCircle, 
   Rocket, 
-  PencilRuler 
+  PencilRuler,
+  MessageSquare
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useUser } from "@/hooks/use-user";
@@ -41,7 +42,10 @@ export default function BillingPage() {
     { icon: Download, label: "Download Review", cost: "0.1" },
     { icon: Rocket, label: "Generate Response", cost: "2" },
     { icon: PencilRuler, label: "Edit Response", cost: "1" },
-    { icon: FileSpreadsheet, label: "Analysis Report", cost: "10-30" }
+    { icon: FileSpreadsheet, label: "Analysis Report", cost: "10-30" },
+    { icon: MessageSquare, label: "WhatsApp Inbound", cost: "0.5" },
+    { icon: MessageSquare, label: "WhatsApp Outbound", cost: "0.5" },
+    { icon: Clock, label: "WhatsApp Scheduled", cost: "1" }
   ];
 
   return (
