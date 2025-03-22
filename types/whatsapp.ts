@@ -5,6 +5,7 @@ export interface WhatsAppRule {
   customTopic?: string;
   response: string;
   isActive: boolean;
+  question?: string;
 }
 
 export interface WhatsAppConfig {

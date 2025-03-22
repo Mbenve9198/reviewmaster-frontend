@@ -229,6 +229,11 @@ export default function WhatsAppAssistantPage() {
       // Verifica token prima di procedere
       if (!verifyToken()) return;
       
+      // Assicuro che ci sia il campo question richiesto dal backend
+      if (!ruleData.question) {
+        ruleData.question = ruleData.isCustom ? ruleData.customTopic! : ruleData.topic;
+      }
+      
       const token = getCookie('token');
       const url = selectedRule 
         ? `${process.env.NEXT_PUBLIC_API_URL}/api/whatsapp-assistant/${selectedHotelId}/rules/${selectedRule._id}`
@@ -292,6 +297,12 @@ export default function WhatsAppAssistantPage() {
       // Verifica token prima di procedere
       if (!verifyToken()) return;
       
+      // Trova la regola corrente per ottenere i dati necessari
+      const currentRule = rules.find(rule => rule._id === ruleId);
+      if (!currentRule) {
+        throw new Error('Regola non trovata');
+      }
+      
       const token = getCookie('token');
       
       console.log('Invio richiesta di toggle regola:', {
@@ -308,7 +319,10 @@ export default function WhatsAppAssistantPage() {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
           },
-          body: JSON.stringify({ isActive })
+          body: JSON.stringify({ 
+            isActive,
+            question: currentRule.question || (currentRule.isCustom ? currentRule.customTopic : currentRule.topic)
+          })
         }
       );
 

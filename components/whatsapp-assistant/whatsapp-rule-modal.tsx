@@ -61,12 +61,15 @@ export function WhatsAppRuleModal({
     setIsLoading(true);
     
     try {
+      const topicValue = selectedTopic === "custom" ? customTopic : selectedTopic;
+      
       const ruleData: WhatsAppRule = {
-        topic: selectedTopic === "custom" ? customTopic : selectedTopic,
+        topic: topicValue,
         customTopic: selectedTopic === "custom" ? customTopic : undefined,
         response: response,
         isCustom: selectedTopic === "custom",
-        isActive: true
+        isActive: true,
+        question: topicValue
       };
 
       onSuccess(ruleData);
