@@ -22,6 +22,7 @@ import {
 import { useRouter } from 'next/navigation';
 import { useUser } from "@/hooks/use-user";
 import { useWallet } from "@/hooks/useWallet";
+import { getCookie } from "@/lib/utils";
 import CreditPurchaseSlider from "@/components/billing/CreditPurchaseSlider";
 import { HandWrittenTitle } from "@/components/ui/hand-writing-text";
 import { Tiles } from "@/components/ui/tiles";
@@ -32,7 +33,7 @@ type CardType = 'credits' | 'usage' | null;
 export default function BillingPage() {
   const router = useRouter();
   const { user } = useUser();
-  const { credits, freeScrapingRemaining, freeScrapingUsed, recentTransactions, isLoading } = useWallet();
+  const { credits, freeScrapingRemaining, freeScrapingUsed, recentTransactions, failedTransactions, isLoading } = useWallet();
   const [isSliderOpen, setIsSliderOpen] = useState(false);
   const [isTransactionsExpanded, setIsTransactionsExpanded] = useState(false);
   const [activeCard, setActiveCard] = useState<CardType>(null);
@@ -63,7 +64,11 @@ export default function BillingPage() {
     setIsStripeLoading(true);
     try {
       // Ottiene l'ID cliente Stripe dall'API
-      const token = localStorage.getItem('token');
+      const token = getCookie('token');
+      if (!token) {
+        throw new Error('No authentication token found. Please login again.');
+      }
+      
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/wallet/stripe-customer`, {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -297,6 +302,74 @@ export default function BillingPage() {
             </div>
           )}
         </div>
+        
+        {/* Failed Payments Card - Only shown if there are failed transactions */}
+        {failedTransactions && failedTransactions.length > 0 && (
+          <div className="bg-white rounded-3xl p-8 border border-red-200 shadow-lg hover:shadow-xl transition-all duration-300 mt-6">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <div className="p-3 bg-red-100 rounded-xl">
+                  <CreditCard className="w-6 h-6 text-red-600" />
+                </div>
+                <h2 className="text-2xl font-semibold text-gray-800">Failed Recharges</h2>
+              </div>
+            </div>
+            
+            <div className="space-y-4">
+              {failedTransactions.map((transaction) => (
+                <div 
+                  key={transaction.id} 
+                  className="flex items-center justify-between p-4 bg-red-50 rounded-xl hover:bg-red-100 transition-colors duration-200"
+                >
+                  <div className="flex items-center">
+                    <div className="p-2 rounded-lg bg-red-100">
+                      <CreditCard className="w-5 h-5 text-red-600" />
+                    </div>
+                    <div className="ml-3">
+                      <p className="font-medium text-gray-800">{transaction.description}</p>
+                      <p className="text-sm text-gray-500">
+                        {new Date(transaction.createdAt).toLocaleDateString('it-IT')}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="font-bold text-red-600">
+                    Failed: €{transaction.amount?.toFixed(2)}
+                  </div>
+                </div>
+              ))}
+              
+              <div className="mt-4 p-4 bg-red-50 rounded-xl border border-red-200">
+                <div className="flex items-center">
+                  <div className="p-2 rounded-lg bg-red-100 mr-3">
+                    <ExternalLink className="w-5 h-5 text-red-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-700 mb-1">
+                      <strong>Payment failed</strong> - Please update your payment method or try again
+                    </p>
+                    <div className="flex gap-2 mt-2">
+                      <Button
+                        onClick={handleStripePortalRedirect}
+                        disabled={isStripeLoading}
+                        className="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-xl text-sm flex items-center gap-1"
+                      >
+                        {isStripeLoading ? 'Loading...' : 'Update Payment Method'}
+                        <CreditCard className="w-4 h-4 ml-1" />
+                      </Button>
+                      <Button 
+                        onClick={() => setIsSliderOpen(true)}
+                        className="bg-primary hover:bg-primary/90 text-white py-2 px-4 rounded-xl text-sm flex items-center gap-1"
+                      >
+                        Try Again
+                        <ArrowRight className="w-4 h-4 ml-1" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {isSliderOpen && (

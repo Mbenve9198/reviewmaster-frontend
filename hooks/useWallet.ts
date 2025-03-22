@@ -20,6 +20,7 @@ interface WalletInfo {
   freeScrapingUsed: number
   freeScrapingRemaining: number
   recentTransactions: Transaction[]
+  failedTransactions: Transaction[]
 }
 
 export function useWallet() {
@@ -27,7 +28,8 @@ export function useWallet() {
     credits: 0,
     freeScrapingUsed: 0,
     freeScrapingRemaining: 0,
-    recentTransactions: []
+    recentTransactions: [],
+    failedTransactions: []
   })
   const [isLoading, setIsLoading] = useState(true)
   const [refreshTrigger, setRefreshTrigger] = useState(0)
