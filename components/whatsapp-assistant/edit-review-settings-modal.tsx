@@ -31,6 +31,13 @@ export function EditReviewSettingsModal({ isOpen, onClose, onSuccess, currentCon
     try {
       setIsLoading(true)
       const token = getCookie('token')
+      
+      // Log dei dati che stiamo inviando
+      console.log('Invio dati di recensione al server:', {
+        reviewLink: config.reviewLink,
+        reviewRequestDelay: config.reviewRequestDelay
+      })
+      
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/whatsapp-assistant/${currentConfig.hotelId}`, {
         method: 'PATCH',
         headers: {
@@ -43,15 +50,24 @@ export function EditReviewSettingsModal({ isOpen, onClose, onSuccess, currentCon
         })
       })
 
-      if (!response.ok) throw new Error('Failed to update settings')
+      // Log della risposta HTTP
+      console.log('Status risposta:', response.status, response.statusText)
+      
+      if (!response.ok) {
+        const errorText = await response.text()
+        console.error('Errore dal server:', errorText)
+        throw new Error(`Errore durante l'aggiornamento delle impostazioni di recensione: ${response.status} ${response.statusText}`)
+      }
 
       const updatedConfig = await response.json()
+      console.log('Configurazione aggiornata:', updatedConfig)
+      
       onSuccess(updatedConfig)
-      toast.success('Review settings updated successfully')
+      toast.success('Impostazioni di recensione aggiornate con successo')
       onClose()
     } catch (error) {
-      console.error('Error updating review settings:', error)
-      toast.error('Failed to update review settings')
+      console.error('Errore durante l\'aggiornamento delle impostazioni di recensione:', error)
+      toast.error(`Errore durante il salvataggio: ${error instanceof Error ? error.message : 'Errore sconosciuto'}`)
     } finally {
       setIsLoading(false)
     }

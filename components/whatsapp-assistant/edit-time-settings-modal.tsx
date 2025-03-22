@@ -94,6 +94,14 @@ export function EditTimeSettingsModal({ isOpen, onClose, onSuccess, currentConfi
     try {
       setIsLoading(true)
       const token = getCookie('token')
+      
+      // Log dei dati che stiamo inviando
+      console.log('Invio dati al server:', {
+        timezone: config.timezone,
+        breakfast: config.breakfast,
+        checkIn: config.checkIn
+      })
+      
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/whatsapp-assistant/${currentConfig.hotelId}`, {
         method: 'PATCH',
         headers: {
@@ -107,15 +115,24 @@ export function EditTimeSettingsModal({ isOpen, onClose, onSuccess, currentConfi
         })
       })
 
-      if (!response.ok) throw new Error('Failed to update settings')
+      // Log della risposta HTTP
+      console.log('Status risposta:', response.status, response.statusText)
+      
+      if (!response.ok) {
+        const errorText = await response.text()
+        console.error('Errore dal server:', errorText)
+        throw new Error(`Errore durante l'aggiornamento delle impostazioni: ${response.status} ${response.statusText}`)
+      }
 
       const updatedConfig = await response.json()
+      console.log('Configurazione aggiornata:', updatedConfig)
+      
       onSuccess(updatedConfig)
-      toast.success('Time settings updated successfully')
+      toast.success('Impostazioni orarie aggiornate con successo')
       onClose()
     } catch (error) {
-      console.error('Error updating time settings:', error)
-      toast.error('Failed to update time settings')
+      console.error('Errore durante l\'aggiornamento delle impostazioni orarie:', error)
+      toast.error(`Errore durante il salvataggio: ${error instanceof Error ? error.message : 'Errore sconosciuto'}`)
     } finally {
       setIsLoading(false)
     }

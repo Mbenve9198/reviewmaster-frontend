@@ -70,13 +70,19 @@ export function EditIdentitySettingsModal({ isOpen, onClose, onSuccess, currentC
 
   const handleSave = async () => {
     if (!isNameAvailable) {
-      toast.error("Please choose an available name")
+      toast.error("Scegli un nome disponibile")
       return
     }
 
     try {
       setIsLoading(true)
       const token = getCookie('token')
+      
+      // Log dei dati che stiamo inviando
+      console.log('Invio dati di identità al server:', {
+        triggerName: config.triggerName
+      })
+      
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/whatsapp-assistant/${currentConfig.hotelId}`, {
         method: 'PATCH',
         headers: {
@@ -88,9 +94,17 @@ export function EditIdentitySettingsModal({ isOpen, onClose, onSuccess, currentC
         })
       })
 
-      if (!response.ok) throw new Error('Failed to update settings')
+      // Log della risposta HTTP
+      console.log('Status risposta:', response.status, response.statusText)
+      
+      if (!response.ok) {
+        const errorText = await response.text()
+        console.error('Errore dal server:', errorText)
+        throw new Error(`Errore durante l'aggiornamento dell'identità: ${response.status} ${response.statusText}`)
+      }
 
       const updatedConfig = await response.json()
+      console.log('Configurazione aggiornata:', updatedConfig)
       
       // Generate QR code data
       const message = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(config.triggerName)}`
@@ -99,8 +113,8 @@ export function EditIdentitySettingsModal({ isOpen, onClose, onSuccess, currentC
       onSuccess(updatedConfig)
       setStep(2) // Move to QR code step
     } catch (error) {
-      console.error('Error updating assistant identity:', error)
-      toast.error('Failed to update assistant identity')
+      console.error('Errore durante l\'aggiornamento dell\'identità dell\'assistente:', error)
+      toast.error(`Errore durante il salvataggio: ${error instanceof Error ? error.message : 'Errore sconosciuto'}`)
     } finally {
       setIsLoading(false)
     }

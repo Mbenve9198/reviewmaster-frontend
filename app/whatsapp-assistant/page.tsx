@@ -43,6 +43,19 @@ export default function WhatsAppAssistantPage() {
     topUpAmount: 200,
     autoTopUp: false
   })
+  
+  // Funzione per verificare la validità del token
+  const verifyToken = () => {
+    const token = getCookie('token');
+    if (!token) {
+      toast.error('Sessione scaduta. Effettua nuovamente il login.');
+      setTimeout(() => {
+        window.location.href = '/login?expired=true';
+      }, 2000);
+      return false;
+    }
+    return true;
+  }
 
   // Fetch hotels
   useEffect(() => {
@@ -111,7 +124,12 @@ export default function WhatsAppAssistantPage() {
   const fetchUserCreditSettings = async () => {
     try {
       const token = getCookie('token')
-      if (!token) return
+      if (!token) {
+        console.error('Token mancante, impossibile recuperare le impostazioni di credito')
+        return
+      }
+      
+      console.log('Richiedo impostazioni credito utente');
       
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/wallet/user`, {
         method: 'GET',
@@ -120,12 +138,17 @@ export default function WhatsAppAssistantPage() {
         }
       })
       
+      console.log('Status risposta crediti:', response.status, response.statusText);
+      
       if (!response.ok) {
-        console.error('Failed to fetch user credit settings')
-        return
+        const errorText = await response.text();
+        console.error('Errore dal server (crediti):', errorText);
+        throw new Error(`Errore durante il recupero delle impostazioni di credito: ${response.status} ${response.statusText}`);
       }
       
       const data = await response.json()
+      console.log('Dati credito ricevuti:', data);
+      
       if (data.creditSettings) {
         setUserCreditSettings({
           minimumThreshold: data.creditSettings.minimumThreshold || 50,
@@ -134,7 +157,8 @@ export default function WhatsAppAssistantPage() {
         })
       }
     } catch (error) {
-      console.error('Error fetching user credit settings:', error)
+      console.error('Errore durante il recupero delle impostazioni di credito:', error)
+      toast.error(`Errore durante il recupero dei crediti: ${error instanceof Error ? error.message : 'Errore sconosciuto'}`)
     }
   }
 
@@ -144,24 +168,42 @@ export default function WhatsAppAssistantPage() {
   };
 
   const handleSuccess = async () => {
-    // Carica la configurazione aggiornata dell'assistente
-    if (selectedHotelId) {
-      const token = getCookie('token');
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/whatsapp-assistant/${selectedHotelId}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        }
-      });
+    try {
+      // Verifica token prima di procedere
+      if (!verifyToken()) return;
       
-      if (response.ok) {
+      // Carica la configurazione aggiornata dell'assistente
+      if (selectedHotelId) {
+        const token = getCookie('token');
+        console.log('Richiedo configurazione aggiornata:', selectedHotelId);
+        
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/whatsapp-assistant/${selectedHotelId}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          }
+        });
+        
+        console.log('Status risposta:', response.status, response.statusText);
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('Errore dal server:', errorText);
+          throw new Error(`Errore durante il recupero della configurazione: ${response.status} ${response.statusText}`);
+        }
+        
         const data = await response.json();
+        console.log('Configurazione ricevuta:', data);
+        
         setConfig(data);
         setRules(data.rules || []);
       }
+      
+      // Ricarica le impostazioni credito utente da server
+      await fetchUserCreditSettings();
+    } catch (error) {
+      console.error('Errore durante l\'aggiornamento della configurazione:', error);
+      toast.error(`Errore durante l'aggiornamento: ${error instanceof Error ? error.message : 'Errore sconosciuto'}`);
     }
-    
-    // Ricarica le impostazioni credito utente da server
-    await fetchUserCreditSettings();
   };
 
   const handleDownloadQR = () => {
@@ -184,10 +226,19 @@ export default function WhatsAppAssistantPage() {
 
   const handleRuleSuccess = async (ruleData: WhatsAppRule) => {
     try {
+      // Verifica token prima di procedere
+      if (!verifyToken()) return;
+      
       const token = getCookie('token');
       const url = selectedRule 
         ? `${process.env.NEXT_PUBLIC_API_URL}/api/whatsapp-assistant/${selectedHotelId}/rules/${selectedRule._id}`
         : `${process.env.NEXT_PUBLIC_API_URL}/api/whatsapp-assistant/${selectedHotelId}/rules`;
+      
+      console.log('Invio richiesta di salvataggio regola:', {
+        url,
+        method: selectedRule ? 'PUT' : 'POST', 
+        ruleData
+      });
       
       const response = await fetch(url, {
         method: selectedRule ? 'PUT' : 'POST',
@@ -198,11 +249,16 @@ export default function WhatsAppAssistantPage() {
         body: JSON.stringify(ruleData)
       });
 
+      console.log('Status risposta:', response.status, response.statusText);
+      
       if (!response.ok) {
-        throw new Error('Failed to save rule');
+        const errorText = await response.text();
+        console.error('Errore dal server:', errorText);
+        throw new Error(`Errore durante il salvataggio della regola: ${response.status} ${response.statusText}`);
       }
 
       const savedRule = await response.json();
+      console.log('Regola salvata:', savedRule);
 
       if (selectedRule) {
         // Aggiorna la regola esistente
@@ -211,18 +267,18 @@ export default function WhatsAppAssistantPage() {
             rule._id === selectedRule._id ? savedRule : rule
           )
         );
-        toast.success('Rule updated successfully');
+        toast.success('Regola aggiornata con successo');
       } else {
         // Aggiungi nuova regola
         setRules(prevRules => [...prevRules, savedRule]);
-        toast.success('Rule created successfully');
+        toast.success('Regola creata con successo');
       }
 
       setIsRulesModalOpen(false);
       setSelectedRule(null);
     } catch (error) {
-      console.error('Error saving rule:', error);
-      toast.error('Failed to save rule');
+      console.error('Errore durante il salvataggio della regola:', error);
+      toast.error(`Errore durante il salvataggio: ${error instanceof Error ? error.message : 'Errore sconosciuto'}`);
     }
   };
 
@@ -233,7 +289,17 @@ export default function WhatsAppAssistantPage() {
 
   const handleToggleRule = async (ruleId: string, isActive: boolean) => {
     try {
+      // Verifica token prima di procedere
+      if (!verifyToken()) return;
+      
       const token = getCookie('token');
+      
+      console.log('Invio richiesta di toggle regola:', {
+        url: `${process.env.NEXT_PUBLIC_API_URL}/api/whatsapp-assistant/${selectedHotelId}/rules/${ruleId}`,
+        method: 'PUT',
+        isActive
+      });
+      
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/whatsapp-assistant/${selectedHotelId}/rules/${ruleId}`,
         {
@@ -246,11 +312,16 @@ export default function WhatsAppAssistantPage() {
         }
       );
 
+      console.log('Status risposta:', response.status, response.statusText);
+      
       if (!response.ok) {
-        throw new Error('Failed to update rule');
+        const errorText = await response.text();
+        console.error('Errore dal server:', errorText);
+        throw new Error(`Errore durante l'aggiornamento della regola: ${response.status} ${response.statusText}`);
       }
 
       const updatedRule = await response.json();
+      console.log('Regola aggiornata:', updatedRule);
 
       setRules(prevRules =>
         prevRules.map(rule =>
@@ -258,10 +329,10 @@ export default function WhatsAppAssistantPage() {
         )
       );
 
-      toast.success(`Rule ${isActive ? 'activated' : 'deactivated'} successfully`);
+      toast.success(`Regola ${isActive ? 'attivata' : 'disattivata'} con successo`);
     } catch (error) {
-      console.error('Error toggling rule:', error);
-      toast.error('Failed to update rule');
+      console.error('Errore durante l\'aggiornamento della regola:', error);
+      toast.error(`Errore durante l'aggiornamento: ${error instanceof Error ? error.message : 'Errore sconosciuto'}`);
     }
   };
 
