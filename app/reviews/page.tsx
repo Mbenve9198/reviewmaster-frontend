@@ -5,7 +5,7 @@ import { ReviewsTable } from "@/components/reviews-table"
 import { Input } from "@/components/ui/input"
 import { ReviewTabs } from "@/components/ui/review-tabs"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Search, Filter, BarChart2, X, RefreshCw, Check, AlertCircle, Loader2 } from "lucide-react"
+import { Search, Filter, BarChart2, X, RefreshCw, Check, AlertCircle, Loader2, Clock, BrainCircuit, ListFilter } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Toaster } from "sonner"
 import { getCookie } from "@/lib/utils"
@@ -19,6 +19,8 @@ import { toast } from "react-hot-toast"
 import { AnalyticsDialog } from "@/components/analytics/AnalyticsDialog"
 import { useRouter } from 'next/navigation'
 import { cn } from "@/lib/utils"
+import { Progress } from "@/components/ui/progress"
+import { Dialog, DialogContent } from "@/components/ui/dialog"
 import {
   Tooltip,
   TooltipContent,
@@ -77,6 +79,8 @@ interface FiltersAndTableProps {
   tableInstance: TableType<any> | null;
   selectedRows: Review[];
   setIsAnalyticsDialogOpen: (value: boolean) => void;
+  isAnalyzing: boolean;
+  setIsAnalyzing: (value: boolean) => void;
 }
 
 const FiltersAndTable = ({ 
@@ -95,11 +99,12 @@ const FiltersAndTable = ({
   handleTableReady,
   tableInstance,
   selectedRows,
-  setIsAnalyticsDialogOpen
+  setIsAnalyticsDialogOpen,
+  isAnalyzing,
+  setIsAnalyzing
 }: FiltersAndTableProps) => {
   const router = useRouter()
   const [isSyncing, setIsSyncing] = useState(false)
-  const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [syncStatus, setSyncStatus] = useState<{
     status: 'idle' | 'syncing' | 'success' | 'error';
     message: string;
@@ -525,6 +530,102 @@ const OnboardingView = ({ onAddProperty }: { onAddProperty: () => void }) => (
   </div>
 )
 
+const AnalysisProgressDialog = ({ 
+  isOpen, 
+  progress, 
+  selectedReviewsCount 
+}: { 
+  isOpen: boolean, 
+  progress: number, 
+  selectedReviewsCount: number 
+}) => {
+  return (
+    <Dialog open={isOpen} onOpenChange={() => {
+      // Prevent closing during analysis
+      toast.error("Please wait until the analysis process completes")
+    }}>
+      <DialogContent className="sm:min-w-[600px] md:min-w-[700px] max-w-[90vw] max-h-[90vh] overflow-y-auto p-0 bg-white">
+        <div className="p-8 flex flex-col items-center justify-center min-h-[450px]">
+          <div className="w-full max-w-xl">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-gray-800">Analyzing Reviews</h2>
+              <div className="bg-blue-100 text-blue-800 py-1 px-3 rounded-full text-sm font-medium flex items-center">
+                <Clock className="w-4 h-4 mr-1" /> 2-3 minutes
+              </div>
+            </div>
+            
+            <div className="mb-6">
+              <Progress 
+                value={progress} 
+                className="h-3 w-full [&>div]:bg-primary rounded-full mb-2"
+              />
+              <div className="flex justify-between text-sm text-gray-500">
+                <span>Processing {selectedReviewsCount} reviews...</span>
+                <span>{progress}%</span>
+              </div>
+            </div>
+            
+            <div className="bg-amber-50 border-l-4 border-amber-400 p-6 rounded-r-xl mb-6">
+              <div className="flex gap-3">
+                <AlertCircle className="w-6 h-6 text-amber-500 flex-shrink-0" />
+                <div>
+                  <h3 className="text-lg font-semibold text-amber-800 mb-2">Please Don't Close This Window</h3>
+                  <p className="text-amber-700">
+                    We're currently analyzing your selected reviews to generate valuable insights.
+                    This process typically takes between 2-3 minutes depending on the number and complexity of reviews.
+                  </p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="bg-gray-50 rounded-xl p-6">
+              <h3 className="font-medium text-gray-800 mb-3">What's happening:</h3>
+              <div className="space-y-4">
+                <div className="flex items-start gap-3">
+                  <div className={`rounded-full w-6 h-6 flex items-center justify-center text-xs ${progress > 15 ? 'bg-green-500 text-white' : 'bg-gray-200'}`}>
+                    {progress > 15 ? '✓' : '1'}
+                  </div>
+                  <div>
+                    <p className="font-medium text-gray-700">Processing reviews</p>
+                    <p className="text-sm text-gray-500">Extracting key information from {selectedReviewsCount} reviews</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className={`rounded-full w-6 h-6 flex items-center justify-center text-xs ${progress > 40 ? 'bg-green-500 text-white' : 'bg-gray-200'}`}>
+                    {progress > 40 ? '✓' : '2'}
+                  </div>
+                  <div>
+                    <p className="font-medium text-gray-700">Identifying patterns</p>
+                    <p className="text-sm text-gray-500">Finding common themes and sentiments</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className={`rounded-full w-6 h-6 flex items-center justify-center text-xs ${progress > 70 ? 'bg-green-500 text-white' : 'bg-gray-200'}`}>
+                    {progress > 70 ? '✓' : '3'}
+                  </div>
+                  <div>
+                    <p className="font-medium text-gray-700">Generating insights</p>
+                    <p className="text-sm text-gray-500">Creating actionable recommendations</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className={`rounded-full w-6 h-6 flex items-center justify-center text-xs ${progress > 90 ? 'bg-green-500 text-white' : 'bg-gray-200'}`}>
+                    {progress > 90 ? '✓' : '4'}
+                  </div>
+                  <div>
+                    <p className="font-medium text-gray-700">Preparing report</p>
+                    <p className="text-sm text-gray-500">Organizing findings into comprehensive analysis</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
 export default function ReviewsPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [hotel, setHotel] = useState("all")
@@ -540,6 +641,9 @@ export default function ReviewsPage() {
   const [isAddPropertyModalOpen, setIsAddPropertyModalOpen] = useState(false)
   const [isAnalyticsDialogOpen, setIsAnalyticsDialogOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [analysisProgress, setAnalysisProgress] = useState(0)
+  const [isAnalysisDialogOpen, setIsAnalysisDialogOpen] = useState(false)
+  const [isAnalyzing, setIsAnalyzing] = useState(false)
 
   useEffect(() => {
     const fetchHotels = async () => {
@@ -626,6 +730,33 @@ export default function ReviewsPage() {
     }
   };
 
+  // Add progress animation effect
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    
+    if (isAnalyzing) {
+      setIsAnalysisDialogOpen(true)
+      // Start with 0% and go to 95% over 2 minutes (simulating progress)
+      setAnalysisProgress(0)
+      interval = setInterval(() => {
+        setAnalysisProgress(prev => {
+          if (prev >= 95) {
+            clearInterval(interval);
+            return 95;
+          }
+          return prev + 1;
+        });
+      }, 1200); // Increment approximately every 1.2 seconds to reach ~95% in 2 minutes
+    } else {
+      setAnalysisProgress(0)
+      setIsAnalysisDialogOpen(false)
+    }
+    
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isAnalyzing]);
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -644,6 +775,12 @@ export default function ReviewsPage() {
         <div className="fixed inset-0 -z-10 bg-gradient-to-br from-[#FAFAFB] via-[#F0F0F2] to-[#FAFAFB] backdrop-blur-sm" />
         
         <OnboardingView onAddProperty={() => setIsAddPropertyModalOpen(true)} />
+
+        <AnalysisProgressDialog 
+          isOpen={isAnalysisDialogOpen} 
+          progress={analysisProgress}
+          selectedReviewsCount={selectedRows.length}
+        />
 
         <AddPropertyModal 
           isOpen={isAddPropertyModalOpen}
@@ -678,6 +815,12 @@ export default function ReviewsPage() {
       {/* Sfondo aggiornato con gradiente */}
       <div className="fixed inset-0 -z-10 bg-gradient-to-br from-[#FAFAFB] via-[#F0F0F2] to-[#FAFAFB] backdrop-blur-sm" />
       
+      <AnalysisProgressDialog 
+        isOpen={isAnalysisDialogOpen} 
+        progress={analysisProgress}
+        selectedReviewsCount={selectedRows.length}
+      />
+
       <div className="flex flex-col px-10 md:pl-[96px] py-12 min-h-screen">
         <div className="max-w-[1400px] mx-auto w-full space-y-12">
           {/* Header modernizzato e allineato a sinistra */}
@@ -717,6 +860,8 @@ export default function ReviewsPage() {
             tableInstance={tableInstance}
             selectedRows={selectedRows}
             setIsAnalyticsDialogOpen={setIsAnalyticsDialogOpen}
+            isAnalyzing={isAnalyzing}
+            setIsAnalyzing={setIsAnalyzing}
           />
         </div>
       </div>
