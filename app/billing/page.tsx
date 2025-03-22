@@ -64,7 +64,8 @@ export default function BillingPage() {
         const token = getCookie('token');
         if (!token) return;
         
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/wallet/credit-settings`, {
+        // Use the same endpoint as WhatsApp Assistant
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/wallet/user`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -72,11 +73,14 @@ export default function BillingPage() {
         
         if (response.ok) {
           const data = await response.json();
-          setCreditSettings({
-            minimumThreshold: data.minimumThreshold || 50,
-            topUpAmount: data.topUpAmount || 200,
-            autoTopUp: data.autoTopUp || false
-          });
+          // Extract credit settings from user data
+          if (data.creditSettings) {
+            setCreditSettings({
+              minimumThreshold: data.creditSettings.minimumThreshold || 50,
+              topUpAmount: data.creditSettings.topUpAmount || 200,
+              autoTopUp: data.creditSettings.autoTopUp || false
+            });
+          }
         }
       } catch (error) {
         console.error('Error fetching credit settings:', error);
@@ -87,7 +91,38 @@ export default function BillingPage() {
   }, []);
 
   const handleCreditSettingsSuccess = async () => {
+    // Refresh wallet data and credit settings
     await refresh();
+    // Re-fetch credit settings to ensure UI is in sync
+    const fetchCreditSettings = async () => {
+      try {
+        const token = getCookie('token');
+        if (!token) return;
+        
+        // Use the same endpoint as WhatsApp Assistant
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/wallet/user`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          // Extract credit settings from user data
+          if (data.creditSettings) {
+            setCreditSettings({
+              minimumThreshold: data.creditSettings.minimumThreshold || 50,
+              topUpAmount: data.creditSettings.topUpAmount || 200,
+              autoTopUp: data.creditSettings.autoTopUp || false
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching credit settings:', error);
+      }
+    };
+    
+    fetchCreditSettings();
   };
 
   const creditUsageItems = [
@@ -470,6 +505,7 @@ export default function BillingPage() {
           hotelId: user?.id || '',
           creditSettings: creditSettings
         }}
+        isUserAccount={true}
       />
     </div>
   );
