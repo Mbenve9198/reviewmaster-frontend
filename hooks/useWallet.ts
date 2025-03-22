@@ -15,19 +15,12 @@ interface Transaction {
   }
 }
 
-interface AutoTopUpSettings {
-  minimumThreshold: number
-  topUpAmount: number
-  autoTopUp: boolean
-}
-
 interface WalletInfo {
   credits: number
   freeScrapingUsed: number
   freeScrapingRemaining: number
   recentTransactions: Transaction[]
   failedTransactions: Transaction[]
-  autoTopUpSettings?: AutoTopUpSettings
 }
 
 export function useWallet() {

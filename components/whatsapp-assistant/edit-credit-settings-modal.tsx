@@ -18,7 +18,24 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Switch } from '@/components/ui/switch'
 import { getCookie } from '@/lib/utils'
 import { toast } from 'sonner'
-import { Loader2, CreditCard, Wallet, DollarSign, Info } from 'lucide-react'
+import { Loader2, CreditCard, Wallet, Sparkles } from 'lucide-react'
+
+// Price calculation functions
+const calculatePricePerCredit = (credits: number) => {
+  if (credits >= 10000) return 0.10
+  if (credits >= 500) return 0.15
+  return 0.30
+}
+
+const calculateTotalPrice = (credits: number) => {
+  return credits * calculatePricePerCredit(credits)
+}
+
+const calculateSavings = (credits: number) => {
+  const regularPrice = credits * 0.30 // regular price without discounts
+  const actualPrice = calculateTotalPrice(credits)
+  return regularPrice - actualPrice
+}
 
 const creditSettingsSchema = z.object({
   minimumThreshold: z.coerce.number().min(10, 'Minimum threshold must be at least 10').max(1000, 'Minimum threshold must be at most 1000'),
@@ -42,18 +59,6 @@ interface EditCreditSettingsModalProps {
   }
 }
 
-// Function to calculate price per credit based on amount
-const calculatePricePerCredit = (credits: number) => {
-  if (credits >= 10000) return 0.10;
-  if (credits >= 500) return 0.15;
-  return 0.30;
-};
-
-// Function to calculate total price
-const calculateTotalPrice = (credits: number) => {
-  return credits * calculatePricePerCredit(credits);
-};
-
 export function EditCreditSettingsModal({ 
   isOpen, 
   onClose, 
@@ -61,8 +66,6 @@ export function EditCreditSettingsModal({
   currentConfig 
 }: EditCreditSettingsModalProps) {
   const [isLoading, setIsLoading] = useState(false)
-  const [topUpAmountEUR, setTopUpAmountEUR] = useState(0)
-  const [thresholdReachedEUR, setThresholdReachedEUR] = useState(0)
 
   const form = useForm<CreditSettingsFormValues>({
     resolver: zodResolver(creditSettingsSchema),
@@ -72,15 +75,11 @@ export function EditCreditSettingsModal({
       autoTopUp: currentConfig.creditSettings?.autoTopUp || false,
     },
   })
-
-  // Recalculate EUR amounts when credit values change
-  useEffect(() => {
-    const topUpAmount = form.watch('topUpAmount');
-    const minimumThreshold = form.watch('minimumThreshold');
-    
-    setTopUpAmountEUR(calculateTotalPrice(topUpAmount));
-    setThresholdReachedEUR(calculateTotalPrice(minimumThreshold));
-  }, [form.watch('topUpAmount'), form.watch('minimumThreshold')]);
+  
+  const topUpAmount = form.watch('topUpAmount')
+  const pricePerCredit = calculatePricePerCredit(topUpAmount)
+  const totalPrice = calculateTotalPrice(topUpAmount)
+  const savings = calculateSavings(topUpAmount)
 
   const onSubmit = async (data: CreditSettingsFormValues) => {
     try {
@@ -136,90 +135,95 @@ export function EditCreditSettingsModal({
               </DialogTitle>
             </div>
             <DialogDescription className="pt-2">
-              Configure credits usage and automatic top-up settings for your WhatsApp assistant
+              Configure credit usage and automatic top-up settings for your WhatsApp assistant
             </DialogDescription>
           </DialogHeader>
         </div>
         
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <div className="px-6 py-6 space-y-6">
-              <FormField
-                control={form.control}
-                name="minimumThreshold"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-sm font-medium text-gray-700">Minimum Credit Threshold</FormLabel>
-                    <FormControl>
-                      <div className="relative">
+        <div className="p-6 flex-1 overflow-y-auto">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <div className="grid gap-5">
+                <FormField
+                  control={form.control}
+                  name="minimumThreshold"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm font-medium text-gray-700">Minimum Credit Threshold</FormLabel>
+                      <FormControl>
                         <Input 
                           type="number" 
                           placeholder="50" 
-                          className="rounded-xl h-11 border-gray-200 focus:border-blue-500 focus:ring-blue-500 pr-12"
+                          className="rounded-xl h-11 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                           {...field} 
                         />
-                        <div className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500">
-                          credits
-                        </div>
-                      </div>
-                    </FormControl>
-                    <div className="flex justify-between items-center mt-1.5">
-                      <FormDescription className="text-xs text-gray-500">
-                        Auto top-up will trigger when credits drop below this threshold
+                      </FormControl>
+                      <FormDescription className="text-xs text-gray-500 mt-1.5">
+                        When credits fall below this threshold, automatic top-up will be triggered (if enabled)
                       </FormDescription>
-                      <div className="text-xs font-medium flex items-center text-blue-600">
-                        <DollarSign className="h-3 w-3 mr-1" />
-                        €{thresholdReachedEUR.toFixed(2)}
-                      </div>
-                    </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                 
-              <FormField
-                control={form.control}
-                name="topUpAmount"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-sm font-medium text-gray-700">Auto Top-up Amount</FormLabel>
-                    <FormControl>
-                      <div className="relative">
+                <FormField
+                  control={form.control}
+                  name="topUpAmount"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm font-medium text-gray-700">Automatic Top-up Amount</FormLabel>
+                      <FormControl>
                         <Input 
                           type="number" 
                           placeholder="200" 
-                          className="rounded-xl h-11 border-gray-200 focus:border-blue-500 focus:ring-blue-500 pr-12"
+                          className="rounded-xl h-11 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                           {...field} 
                         />
-                        <div className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500">
-                          credits
+                      </FormControl>
+                      <div className="mt-2 p-3 bg-blue-50 rounded-xl border border-blue-100">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-gray-600">Price per credit:</span>
+                          <span className="font-medium text-gray-800">€{pricePerCredit.toFixed(2)}</span>
+                        </div>
+                        <div className="flex items-center justify-between mt-1">
+                          <span className="text-sm text-gray-600">Total price:</span>
+                          <span className="font-bold text-blue-600">€{totalPrice.toFixed(2)}</span>
+                        </div>
+                        {savings > 0 && (
+                          <div className="flex items-center justify-between mt-1 pb-1">
+                            <span className="text-sm text-green-600 flex items-center">
+                              <Sparkles className="h-3.5 w-3.5 mr-1" />
+                              You save:
+                            </span>
+                            <span className="font-bold text-green-600">€{savings.toFixed(2)}</span>
+                          </div>
+                        )}
+                        <div className="text-xs text-gray-500 mt-2 pt-2 border-t border-blue-100">
+                          <p>
+                            More credits = Lower price per credit
+                          </p>
+                          <p className="mt-1">
+                            <span className="font-medium">Price tiers:</span> €0.30 (50-499), €0.15 (500-9999), €0.10 (10000+)
+                          </p>
                         </div>
                       </div>
-                    </FormControl>
-                    <div className="flex justify-between items-center mt-1.5">
-                      <FormDescription className="text-xs text-gray-500">
-                        Number of credits to add when auto top-up is triggered
+                      <FormDescription className="text-xs text-gray-500 mt-1.5">
+                        Number of credits to add when automatic top-up is triggered
                       </FormDescription>
-                      <div className="text-xs font-medium flex items-center text-blue-600">
-                        <DollarSign className="h-3 w-3 mr-1" />
-                        €{topUpAmountEUR.toFixed(2)}
-                      </div>
-                    </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                 
-              <FormField
-                control={form.control}
-                name="autoTopUp"
-                render={({ field }) => (
-                  <FormItem className="space-y-3 pt-2">
-                    <div className="flex items-center justify-between">
+                <FormField
+                  control={form.control}
+                  name="autoTopUp"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-xl border border-gray-200 p-4 bg-gray-50">
                       <div className="space-y-0.5">
-                        <FormLabel className="text-sm font-medium text-gray-700">Enable Auto Top-up</FormLabel>
-                        <FormDescription className="text-xs text-gray-500">
-                          Automatically add credits when your balance falls below the threshold
+                        <FormLabel className="text-base font-medium text-gray-700">Enable Automatic Top-up</FormLabel>
+                        <FormDescription className="text-sm text-gray-500">
+                          Automatically purchase credits when balance falls below threshold
                         </FormDescription>
                       </div>
                       <FormControl>
@@ -229,52 +233,40 @@ export function EditCreditSettingsModal({
                           className="data-[state=checked]:bg-blue-600"
                         />
                       </FormControl>
-                    </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {form.watch("autoTopUp") && (
-                <div className="bg-blue-50 p-4 rounded-xl border border-blue-100 mt-4">
-                  <div className="flex gap-3">
-                    <Info className="h-5 w-5 text-blue-500 flex-shrink-0 mt-0.5" />
-                    <div className="text-sm text-blue-700">
-                      <p className="font-medium mb-1">Auto Top-up Information</p>
-                      <p>Your account will be automatically charged <strong>€{topUpAmountEUR.toFixed(2)}</strong> whenever your credit balance falls below <strong>{form.watch("minimumThreshold")} credits</strong>.</p>
-                      <p className="mt-2">Price calculation: <strong>{form.watch("topUpAmount")} credits × €{calculatePricePerCredit(form.watch("topUpAmount")).toFixed(2)}/credit</strong></p>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <DialogFooter className="bg-gray-50 px-6 py-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={onClose}
-                className="mr-2 border-gray-300"
-              >
-                Cancel
-              </Button>
-              <Button 
-                type="submit" 
-                className="bg-blue-600 hover:bg-blue-700 text-white"
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Saving...
-                  </>
-                ) : (
-                  'Save Changes'
-                )}
-              </Button>
-            </DialogFooter>
-          </form>
-        </Form>
+                    </FormItem>
+                  )}
+                />
+              </div>
+              
+              <DialogFooter className="gap-3 pt-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={onClose}
+                  disabled={isLoading}
+                  className="rounded-xl border-gray-200 hover:bg-gray-50"
+                >
+                  Cancel
+                </Button>
+                
+                <Button 
+                  type="submit" 
+                  disabled={isLoading}
+                  className="rounded-xl bg-blue-600 hover:bg-blue-700"
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    'Save Changes'
+                  )}
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </div>
       </DialogContent>
     </Dialog>
   )

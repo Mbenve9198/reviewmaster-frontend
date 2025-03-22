@@ -18,7 +18,6 @@ import {
   Coins,
   CreditCard,
   ExternalLink,
-  Zap,
   Settings
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -26,7 +25,7 @@ import { useUser } from "@/hooks/use-user";
 import { useWallet } from "@/hooks/useWallet";
 import { getCookie } from "@/lib/utils";
 import CreditPurchaseSlider from "@/components/billing/CreditPurchaseSlider";
-import AutoTopUpSettingsModal from "@/components/billing/AutoTopUpSettingsModal";
+import { EditCreditSettingsModal } from "@/components/whatsapp-assistant/edit-credit-settings-modal";
 import { HandWrittenTitle } from "@/components/ui/hand-writing-text";
 import { Tiles } from "@/components/ui/tiles";
 import Image from "next/image"
@@ -36,12 +35,17 @@ type CardType = 'credits' | 'usage' | null;
 export default function BillingPage() {
   const router = useRouter();
   const { user } = useUser();
-  const { credits, freeScrapingRemaining, freeScrapingUsed, recentTransactions, failedTransactions, autoTopUpSettings, isLoading, refresh } = useWallet();
+  const { credits, freeScrapingRemaining, freeScrapingUsed, recentTransactions, failedTransactions, isLoading, refresh } = useWallet();
   const [isSliderOpen, setIsSliderOpen] = useState(false);
-  const [isAutoTopUpModalOpen, setIsAutoTopUpModalOpen] = useState(false);
   const [isTransactionsExpanded, setIsTransactionsExpanded] = useState(false);
   const [activeCard, setActiveCard] = useState<CardType>(null);
   const [isStripeLoading, setIsStripeLoading] = useState(false);
+  const [isCreditSettingsModalOpen, setIsCreditSettingsModalOpen] = useState(false);
+  const [creditSettings, setCreditSettings] = useState({
+    minimumThreshold: 50,
+    topUpAmount: 200,
+    autoTopUp: false
+  });
 
   // Calcola la percentuale di crediti gratuiti utilizzati
   const totalFreeCredits = freeScrapingRemaining + freeScrapingUsed;
@@ -53,6 +57,39 @@ export default function BillingPage() {
     ? recentTransactions 
     : recentTransactions.slice(0, 3);
 
+  // Fetch credit settings
+  useEffect(() => {
+    const fetchCreditSettings = async () => {
+      try {
+        const token = getCookie('token');
+        if (!token) return;
+        
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/wallet/credit-settings`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          setCreditSettings({
+            minimumThreshold: data.minimumThreshold || 50,
+            topUpAmount: data.topUpAmount || 200,
+            autoTopUp: data.autoTopUp || false
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching credit settings:', error);
+      }
+    };
+    
+    fetchCreditSettings();
+  }, []);
+
+  const handleCreditSettingsSuccess = async () => {
+    await refresh();
+  };
+
   const creditUsageItems = [
     { icon: Download, label: "Download Review", cost: "0.1" },
     { icon: Rocket, label: "Generate Response", cost: "2" },
@@ -62,13 +99,6 @@ export default function BillingPage() {
     { icon: MessageSquare, label: "WhatsApp Outbound", cost: "0.5" },
     { icon: Clock, label: "WhatsApp Scheduled", cost: "1" }
   ];
-
-  // Function to calculate price per credit based on amount
-  const calculatePricePerCredit = (credits: number) => {
-    if (credits >= 10000) return 0.10;
-    if (credits >= 500) return 0.15;
-    return 0.30;
-  };
 
   // Funzione per gestire il redirect al portale clienti di Stripe
   const handleStripePortalRedirect = async () => {
@@ -103,10 +133,6 @@ export default function BillingPage() {
     } finally {
       setIsStripeLoading(false);
     }
-  };
-
-  const handleAutoTopUpSuccess = async () => {
-    await refresh();
   };
 
   return (
@@ -185,48 +211,6 @@ export default function BillingPage() {
                 </div>
               )}
 
-              {/* Auto Top-up Status Card */}
-              <div className="mb-6 p-4 bg-gray-50 rounded-xl border border-gray-200">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <div className="p-2 bg-blue-100 rounded-lg mr-3">
-                      <Zap className="w-4 h-4 text-blue-600" />
-                    </div>
-                    <div>
-                      <p className="font-medium text-gray-800">Auto Top-up</p>
-                      <p className="text-xs text-gray-500">
-                        {autoTopUpSettings?.autoTopUp 
-                          ? `Enabled - Add ${autoTopUpSettings.topUpAmount} credits when balance falls below ${autoTopUpSettings.minimumThreshold}` 
-                          : 'Disabled - Enable to automatically recharge your account'}
-                      </p>
-                    </div>
-                  </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="rounded-lg border-gray-300 hover:bg-gray-100 px-3"
-                    onClick={() => setIsAutoTopUpModalOpen(true)}
-                  >
-                    <Settings className="h-4 w-4 mr-1" />
-                    {autoTopUpSettings?.autoTopUp ? 'Configure' : 'Enable'}
-                  </Button>
-                </div>
-                
-                {autoTopUpSettings?.autoTopUp && (
-                  <div className="mt-3 pt-3 border-t border-gray-200">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Auto top-up amount:</span>
-                      <span className="font-medium flex items-center">
-                        {autoTopUpSettings.topUpAmount} credits 
-                        <span className="text-xs text-blue-600 ml-2">
-                          (€{(autoTopUpSettings.topUpAmount * calculatePricePerCredit(autoTopUpSettings.topUpAmount)).toFixed(2)})
-                        </span>
-                      </span>
-                    </div>
-                  </div>
-                )}
-              </div>
-
               <Button
                 onClick={() => setIsSliderOpen(true)}
                 className="w-full bg-primary hover:bg-primary/90 text-white font-bold text-xl py-6 rounded-xl transition-all duration-300 transform hover:scale-[1.02] flex items-center justify-center gap-2 shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] mb-4"
@@ -235,23 +219,65 @@ export default function BillingPage() {
                 <Sparkles className="w-5 h-5" />
               </Button>
               
-              {/* Stripe Customer Portal Button */}
-              <Button
-                onClick={handleStripePortalRedirect}
-                variant="outline"
-                className="w-full border-gray-300 hover:bg-gray-50 text-gray-700 font-medium py-3 rounded-xl transition-all duration-200 flex items-center justify-center gap-2"
-                disabled={isStripeLoading}
-              >
-                {isStripeLoading ? (
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-700"></div>
-                ) : (
-                  <>
-                    Manage Payment Methods
-                    <CreditCard className="w-4 h-4 ml-1" />
-                    <ExternalLink className="w-3 h-3" />
-                  </>
-                )}
-              </Button>
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                {/* Stripe Customer Portal Button */}
+                <Button
+                  onClick={handleStripePortalRedirect}
+                  variant="outline"
+                  className="border-gray-300 hover:bg-gray-50 text-gray-700 font-medium py-3 rounded-xl transition-all duration-200 flex items-center justify-center gap-2"
+                  disabled={isStripeLoading}
+                >
+                  {isStripeLoading ? (
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-700"></div>
+                  ) : (
+                    <>
+                      Payment Methods
+                      <CreditCard className="w-4 h-4" />
+                      <ExternalLink className="w-3 h-3 ml-1" />
+                    </>
+                  )}
+                </Button>
+                
+                {/* Auto Top-up Settings Button */}
+                <Button
+                  onClick={() => setIsCreditSettingsModalOpen(true)}
+                  variant="outline"
+                  className="border-gray-300 hover:bg-gray-50 text-gray-700 font-medium py-3 rounded-xl transition-all duration-200 flex items-center justify-center gap-2"
+                >
+                  Auto Top-up
+                  {creditSettings.autoTopUp ? (
+                    <div className="flex items-center ml-1">
+                      <div className="h-2 w-2 bg-green-500 rounded-full mr-1"></div>
+                      <span className="text-xs text-green-600">ON</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center ml-1">
+                      <div className="h-2 w-2 bg-gray-300 rounded-full mr-1"></div>
+                      <span className="text-xs text-gray-500">OFF</span>
+                    </div>
+                  )}
+                  <Settings className="w-4 h-4" />
+                </Button>
+              </div>
+              
+              {/* Auto Top-up Status Indicator (shown only if enabled) */}
+              {creditSettings.autoTopUp && (
+                <div className="p-4 bg-blue-50 rounded-xl border border-blue-100 mb-4">
+                  <div className="flex items-center">
+                    <div className="p-2 bg-blue-100 rounded-full mr-3">
+                      <Sparkles className="w-4 h-4 text-blue-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-blue-700">
+                        Auto Top-up Enabled
+                      </p>
+                      <p className="text-xs text-gray-600 mt-1">
+                        Will add {creditSettings.topUpAmount} credits when balance falls below {creditSettings.minimumThreshold} credits
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
@@ -283,14 +309,7 @@ export default function BillingPage() {
                       </div>
                       <span className="ml-3">{item.label}</span>
                     </div>
-                    <div className="font-medium flex flex-col items-end">
-                      <span>{item.cost} credits</span>
-                      <span className="text-xs text-blue-600">
-                        {typeof item.cost === 'string' && !item.cost.includes('-') 
-                          ? `≈ €${(parseFloat(item.cost) * 0.30).toFixed(2)}` 
-                          : ''}
-                      </span>
-                    </div>
+                    <span className="font-medium">{item.cost} credits</span>
                   </div>
                 ))}
               </div>
@@ -340,11 +359,7 @@ export default function BillingPage() {
                     <div className="ml-3">
                       <p className="font-medium text-gray-800">{transaction.description}</p>
                       <p className="text-sm text-gray-500">
-                        {new Date(transaction.createdAt).toLocaleDateString('en-US', {
-                          year: 'numeric',
-                          month: 'short',
-                          day: 'numeric'
-                        })}
+                        {new Date(transaction.createdAt).toLocaleDateString('it-IT')}
                       </p>
                     </div>
                   </div>
@@ -396,11 +411,7 @@ export default function BillingPage() {
                     <div className="ml-3">
                       <p className="font-medium text-gray-800">{transaction.description}</p>
                       <p className="text-sm text-gray-500">
-                        {new Date(transaction.createdAt).toLocaleDateString('en-US', {
-                          year: 'numeric',
-                          month: 'short',
-                          day: 'numeric'
-                        })}
+                        {new Date(transaction.createdAt).toLocaleDateString('it-IT')}
                       </p>
                     </div>
                   </div>
@@ -450,12 +461,15 @@ export default function BillingPage() {
           onClose={() => setIsSliderOpen(false)} 
         />
       )}
-
-      <AutoTopUpSettingsModal
-        isOpen={isAutoTopUpModalOpen}
-        onClose={() => setIsAutoTopUpModalOpen(false)}
-        onSuccess={handleAutoTopUpSuccess}
-        currentSettings={autoTopUpSettings}
+      
+      <EditCreditSettingsModal 
+        isOpen={isCreditSettingsModalOpen}
+        onClose={() => setIsCreditSettingsModalOpen(false)}
+        onSuccess={handleCreditSettingsSuccess}
+        currentConfig={{
+          hotelId: user?.id || '',
+          creditSettings: creditSettings
+        }}
       />
     </div>
   );
