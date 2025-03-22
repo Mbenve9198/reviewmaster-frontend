@@ -220,13 +220,21 @@ export function AddPropertyModal({ isOpen, onClose, onSuccess }: AddPropertyModa
                 'Content-Type': 'application/json'
               },
               body: JSON.stringify({
-                maxReviews: parseInt(syncConfig.maxReviews)
+                maxReviews: parseInt(syncConfig.maxReviews, 10)
               })
             }
           )
 
           if (!syncResponse.ok) {
             console.error('Initial sync request failed, but setup was successful')
+          } else {
+            // Log della risposta per debug
+            try {
+              const syncResponseData = await syncResponse.json();
+              console.log('Sync response:', syncResponseData);
+            } catch (err) {
+              console.log('Could not parse sync response');
+            }
           }
         }
 
