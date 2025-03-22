@@ -345,100 +345,130 @@ const FiltersAndTable = ({
               </Tooltip>
             </TooltipProvider>
 
-            <Button
-              variant="default"
-              size="sm"
-              onClick={async () => {
-                if (selectedRows.length === 0) {
-                  toast.error("Please select at least one review");
-                  return;
-                }
-                
-                if (!hotel || hotel === 'all') {
-                  toast.error("Please select a hotel first")
-                  return
-                }
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="default"
+                    size="sm"
+                    onClick={async () => {
+                      if (selectedRows.length === 0) {
+                        toast.error("Please select at least one review");
+                        return;
+                      }
+                      
+                      if (!hotel || hotel === 'all') {
+                        toast.error("Please select a hotel first")
+                        return
+                      }
 
-                // Imposta lo stato di analisi in corso
-                setIsAnalyzing(true);
-                
-                try {
-                  const token = getCookie('token')
-                  
-                  const requestBody = {
-                    hotelId: hotel,
-                    reviews: selectedRows.map(review => review._id)
-                  }
+                      // Imposta lo stato di analisi in corso
+                      setIsAnalyzing(true);
+                      
+                      try {
+                        const token = getCookie('token')
+                        
+                        // Limitiamo a 1000 recensioni, ordinandole per data più recente
+                        const reviewsToAnalyze = selectedRows
+                          .sort((a, b) => {
+                            const dateA = new Date(a.metadata?.originalCreatedAt || 0).getTime();
+                            const dateB = new Date(b.metadata?.originalCreatedAt || 0).getTime();
+                            return dateB - dateA; // Ordine decrescente (più recenti prima)
+                          })
+                          .slice(0, 1000)
+                          .map(review => review._id);
+                        
+                        const requestBody = {
+                          hotelId: hotel,
+                          reviews: reviewsToAnalyze
+                        }
 
-                  // Mostra un toast di caricamento invece di reindirizzare con un ID temporaneo
-                  const toastId = toast.loading("Analyzing reviews, please wait...");
+                        // Mostra un toast di caricamento invece di reindirizzare con un ID temporaneo
+                        const toastId = toast.loading("Analyzing reviews, please wait...");
 
-                  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/analytics/analyze`, {
-                    method: 'POST',
-                    headers: {
-                      'Authorization': `Bearer ${token}`,
-                      'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(requestBody)
-                  })
+                        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/analytics/analyze`, {
+                          method: 'POST',
+                          headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                          },
+                          body: JSON.stringify(requestBody)
+                        })
 
-                  // Rimuovi il toast di caricamento
-                  toast.dismiss(toastId);
+                        // Rimuovi il toast di caricamento
+                        toast.dismiss(toastId);
 
-                  if (!response.ok) {
-                    const errorData = await response.json()
-                    throw new Error(`Failed to create analysis: ${errorData.message || 'Unknown error'}`)
-                  }
-                  
-                  const data = await response.json()
-                  
-                  // Stampa la struttura della risposta per debug
-                  console.log('Analysis response structure:', 
-                    Object.keys(data), 
-                    data.analysis ? Object.keys(data.analysis) : 'No analysis field'
-                  );
-                  
-                  // Estrai l'ID nel modo corretto in base alla struttura della risposta
-                  let analysisId;
-                  
-                  if (data._id) {
-                    // Formato diretto
-                    analysisId = data._id;
-                  } else if (data.analysis && data.analysis._id) {
-                    // Formato annidato in analysis
-                    analysisId = data.analysis._id;
-                  } else if (data.id) {
-                    // Formato alternativo (senza underscore)
-                    analysisId = data.id;
-                  } else if (data.analysis && data.analysis.id) {
-                    // Formato alternativo annidato
-                    analysisId = data.analysis.id;
-                  } else {
-                    // Nessun formato riconosciuto
-                    console.error('Response data structure:', data);
-                    throw new Error('Invalid response format: missing ID field');
-                  }
+                        if (!response.ok) {
+                          const errorData = await response.json()
+                          throw new Error(`Failed to create analysis: ${errorData.message || 'Unknown error'}`)
+                        }
+                        
+                        const data = await response.json()
+                        
+                        // Stampa la struttura della risposta per debug
+                        console.log('Analysis response structure:', 
+                          Object.keys(data), 
+                          data.analysis ? Object.keys(data.analysis) : 'No analysis field'
+                        );
+                        
+                        // Estrai l'ID nel modo corretto in base alla struttura della risposta
+                        let analysisId;
+                        
+                        if (data._id) {
+                          // Formato diretto
+                          analysisId = data._id;
+                        } else if (data.analysis && data.analysis._id) {
+                          // Formato annidato in analysis
+                          analysisId = data.analysis._id;
+                        } else if (data.id) {
+                          // Formato alternativo (senza underscore)
+                          analysisId = data.id;
+                        } else if (data.analysis && data.analysis.id) {
+                          // Formato alternativo annidato
+                          analysisId = data.analysis.id;
+                        } else {
+                          // Nessun formato riconosciuto
+                          console.error('Response data structure:', data);
+                          throw new Error('Invalid response format: missing ID field');
+                        }
 
-                  // Reindirizza solo dopo aver ricevuto l'ID valido
-                  toast.success("Analysis completed successfully!");
-                  router.push(`/analyses?id=${analysisId}`)
-                } catch (error: any) {
-                  console.error('Full error details:', error)
-                  toast.error(typeof error === 'object' && error?.message ? error.message : "Failed to create analysis")
-                } finally {
-                  setIsAnalyzing(false);
-                }
-              }}
-              className="rounded-xl flex items-center gap-2 bg-primary text-primary-foreground shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all"
-              disabled={selectedRows.length === 0 || isAnalyzing}
-            >
-              {isAnalyzing ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <BarChart2 className="h-4 w-4" />
-              )}
-              {isAnalyzing ? "Analyzing..." : "Analyze Reviews"}
-            </Button>
+                        // Reindirizza solo dopo aver ricevuto l'ID valido
+                        toast.success("Analysis completed successfully!");
+                        router.push(`/analyses?id=${analysisId}`)
+                      } catch (error: any) {
+                        console.error('Full error details:', error)
+                        toast.error(typeof error === 'object' && error?.message ? error.message : "Failed to create analysis")
+                      } finally {
+                        setIsAnalyzing(false);
+                      }
+                    }}
+                    className="rounded-xl flex items-center gap-2 bg-primary text-primary-foreground shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all"
+                    disabled={selectedRows.length === 0 || isAnalyzing}
+                  >
+                    {isAnalyzing ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <BarChart2 className="h-4 w-4" />
+                    )}
+                    {isAnalyzing ? "Analyzing..." : selectedRows.length > 1000 
+                      ? `Analyze Latest 1,000 Reviews` 
+                      : `Analyze Reviews`}
+                    {selectedRows.length > 1000 && (
+                      <span className="ml-1 inline-flex items-center rounded-full bg-amber-50 px-1.5 py-0.5 text-xs font-medium text-amber-800 ring-1 ring-inset ring-amber-600/20">
+                        1,000 limit
+                      </span>
+                    )}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="max-w-[300px] p-3 text-sm">
+                  {selectedRows.length > 1000 ? (
+                    <p>For optimal analysis, we'll process your 1,000 most recent reviews out of {selectedRows.length} selected. This ensures high-quality insights while maintaining performance.</p>
+                  ) : (
+                    <p>Generate insights by analyzing selected reviews.</p>
+                  )}
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
         </div>
       </div>
@@ -539,6 +569,9 @@ const AnalysisProgressDialog = ({
   progress: number, 
   selectedReviewsCount: number 
 }) => {
+  const actualReviewCount = Math.min(selectedReviewsCount, 1000);
+  const isLimited = selectedReviewsCount > 1000;
+  
   return (
     <Dialog open={isOpen} onOpenChange={() => {
       // Prevent closing during analysis
@@ -560,10 +593,23 @@ const AnalysisProgressDialog = ({
                 className="h-3 w-full [&>div]:bg-primary rounded-full mb-2"
               />
               <div className="flex justify-between text-sm text-gray-500">
-                <span>Processing {selectedReviewsCount} reviews...</span>
+                <span>Processing {actualReviewCount} reviews{isLimited ? ` (latest from ${selectedReviewsCount} selected)` : ''}...</span>
                 <span>{progress}%</span>
               </div>
             </div>
+            
+            {isLimited && (
+              <div className="bg-blue-50 border-l-4 border-blue-400 p-4 rounded-r-xl mb-6">
+                <div className="flex gap-3">
+                  <BrainCircuit className="w-5 h-5 text-blue-500 flex-shrink-0" />
+                  <div>
+                    <p className="text-blue-700">
+                      For optimal analysis quality, we're processing your <strong>1,000 most recent reviews</strong> out of {selectedReviewsCount} selected.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
             
             <div className="bg-amber-50 border-l-4 border-amber-400 p-6 rounded-r-xl mb-6">
               <div className="flex gap-3">
@@ -587,7 +633,7 @@ const AnalysisProgressDialog = ({
                   </div>
                   <div>
                     <p className="font-medium text-gray-700">Processing reviews</p>
-                    <p className="text-sm text-gray-500">Extracting key information from {selectedReviewsCount} reviews</p>
+                    <p className="text-sm text-gray-500">Extracting key information from {actualReviewCount} reviews</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
