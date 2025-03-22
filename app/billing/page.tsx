@@ -14,7 +14,8 @@ import {
   MinusCircle, 
   Rocket, 
   PencilRuler,
-  MessageSquare
+  MessageSquare,
+  Coins
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useUser } from "@/hooks/use-user";
@@ -29,10 +30,16 @@ type CardType = 'credits' | 'usage' | null;
 export default function BillingPage() {
   const router = useRouter();
   const { user } = useUser();
-  const { credits, freeScrapingRemaining, recentTransactions, isLoading } = useWallet();
+  const { credits, freeScrapingRemaining, freeScrapingUsed, recentTransactions, isLoading } = useWallet();
   const [isSliderOpen, setIsSliderOpen] = useState(false);
   const [isTransactionsExpanded, setIsTransactionsExpanded] = useState(false);
   const [activeCard, setActiveCard] = useState<CardType>(null);
+
+  // Calcola la percentuale di crediti gratuiti utilizzati
+  const totalFreeCredits = freeScrapingRemaining + freeScrapingUsed;
+  const freeCreditsPercentage = totalFreeCredits > 0 
+    ? Math.round((freeScrapingRemaining / totalFreeCredits) * 100) 
+    : 0;
 
   const displayedTransactions = isTransactionsExpanded 
     ? recentTransactions 
@@ -98,13 +105,31 @@ export default function BillingPage() {
                 </span>
               </div>
 
+              {/* Paid Credits Display */}
               <div className="flex items-center justify-between mb-6 p-4 bg-gray-50 rounded-xl">
-                <span className="text-gray-600">Free Reviews Remaining</span>
+                <span className="text-gray-600">Paid Credits</span>
                 <span className="text-primary font-medium flex items-center">
-                  <Download className="w-4 h-4 mr-2" />
-                  {isLoading ? "..." : freeScrapingRemaining}
+                  <Wallet className="w-4 h-4 mr-2" />
+                  {isLoading ? "..." : credits.toFixed(1)}
                 </span>
               </div>
+
+              {/* Free Credits Display with Progress Bar */}
+              {freeScrapingRemaining > 0 && (
+                <div className="mb-6 p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-100">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-gray-700 font-medium">Free Credits Remaining</span>
+                    <span className="text-blue-600 font-medium flex items-center">
+                      <Coins className="w-4 h-4 mr-2" />
+                      {isLoading ? "..." : freeScrapingRemaining} / {totalFreeCredits}
+                    </span>
+                  </div>
+                  <Progress value={freeCreditsPercentage} className="h-2 w-full overflow-hidden rounded-full bg-blue-100" />
+                  <p className="text-xs text-gray-500 mt-2">
+                    You have used {freeScrapingUsed} of your {totalFreeCredits} free credits
+                  </p>
+                </div>
+              )}
 
               <Button
                 onClick={() => setIsSliderOpen(true)}

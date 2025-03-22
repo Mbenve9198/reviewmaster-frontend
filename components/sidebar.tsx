@@ -1,6 +1,6 @@
 "use client"
 
-import { LogOut, Sparkles, MessageSquare, Star, Blocks, Building2, CreditCard, BarChart2, ScrollText, MessagesSquare, Bot, MessageCircle, Settings, Hotel, Share2, ChevronDown } from 'lucide-react'
+import { LogOut, Sparkles, MessageSquare, Star, Blocks, Building2, CreditCard, BarChart2, ScrollText, MessagesSquare, Bot, MessageCircle, Settings, Hotel, Share2, ChevronDown, Coins } from 'lucide-react'
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import Image from "next/image"
@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils"
 import { Progress } from "@/components/ui/progress"
 import { Button } from "@/components/ui/button"
 import { useUserStats } from "@/hooks/useUserStats"
+import { useWallet } from "@/hooks/useWallet"
 import { useState, useEffect } from "react"
 import { SidebarContainer, SidebarBody } from "@/components/ui/sidebar"
 import { motion } from "framer-motion"
@@ -107,6 +108,15 @@ export function Sidebar() {
     isLoading,
     refetch
   } = useUserStats()
+  const { freeScrapingRemaining, freeScrapingUsed } = useWallet();
+  
+  // Calcola il totale dei crediti gratuiti e la percentuale rimasta
+  const totalFreeCredits = freeScrapingRemaining + freeScrapingUsed;
+  const hasFreeCredits = freeScrapingRemaining > 0;
+  const freeCreditsPercentage = totalFreeCredits > 0 
+    ? Math.round((freeScrapingRemaining / totalFreeCredits) * 100) 
+    : 0;
+    
   const [expandedItems, setExpandedItems] = useState<string[]>([])
   
   useEffect(() => {
@@ -279,6 +289,7 @@ export function Sidebar() {
                 opacity: open ? 1 : 0
               }}
             >
+              {/* Paid Credits */}
               <div className="space-y-2">
                 <div className="flex justify-between text-sm font-medium">
                   <span className="text-gray-600">Available Credits</span>
@@ -297,6 +308,27 @@ export function Sidebar() {
                   max={100}
                   className="h-3 bg-primary/20"
                 />
+                
+                {/* Free Credits (visible only if there are free credits) */}
+                {hasFreeCredits && (
+                  <div className="mt-4 pt-4 border-t border-gray-100">
+                    <div className="flex justify-between text-sm font-medium mb-2">
+                      <span className="text-gray-600 flex items-center">
+                        <Coins className="w-3 h-3 mr-1 text-blue-500" />
+                        Free Credits
+                      </span>
+                      <span className="text-blue-600">
+                        {isLoading ? "..." : `${freeScrapingRemaining}/${totalFreeCredits}`}
+                      </span>
+                    </div>
+                    <Progress 
+                      value={freeCreditsPercentage}
+                      max={100}
+                      className="h-2 bg-blue-100"
+                    />
+                  </div>
+                )}
+                
                 <Button
                   variant="outline"
                   size="sm"
