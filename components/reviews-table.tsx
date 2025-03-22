@@ -678,6 +678,7 @@ export function ReviewsTable({
 
     setMessages(prev => [...prev, newUserMessage]);
     setInput('');
+    setIsGenerating(true);
     
     try {
       const response = await generateResponse(
@@ -696,8 +697,25 @@ export function ReviewsTable({
         sender: "ai" as MessageSender
       };
       setMessages(prev => [...prev, aiMessage]);
-    } catch (error) {
-      toast.error("Error generating response");
+    } catch (error: any) {
+      console.error('Generate response error:', error);
+      
+      // Gestione specifica per errore 429 (Too Many Requests)
+      if (error.message && error.message.includes('Too many similar requests')) {
+        toast.error("Wait a few seconds before requesting another modification");
+        
+        // Aggiunge un messaggio di sistema nella chat per informare l'utente
+        const systemMessage: ChatMessage = {
+          id: messages.length + 2,
+          content: "Please wait a few seconds before requesting another modification. The system prevents too frequent requests.",
+          sender: "ai"
+        };
+        setMessages(prev => [...prev, systemMessage]);
+      } else {
+        toast.error(error.message || "Error generating response");
+      }
+    } finally {
+      setIsGenerating(false);
     }
   };
 

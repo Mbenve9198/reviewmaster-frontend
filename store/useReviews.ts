@@ -139,13 +139,27 @@ const useReviews = create<ReviewsState>((set, get) => ({
       })
     })
 
+    const data = await response.json()
+    
     if (!response.ok) {
-      const error = await response.json()
-      throw new Error(error.message || 'Failed to generate response')
+      // Gestione più specifica per errore 429
+      if (response.status === 429) {
+        throw new Error(data.message || 'Too many similar requests. Please wait a moment before trying again.');
+      }
+      throw new Error(data.message || 'Failed to generate response')
     }
 
-    const data = await response.json()
-    return data.content
+    // Gestione più robusta della risposta
+    if (data.content) {
+      return data.content;
+    } else if (data.response) {
+      return data.response;
+    } else if (typeof data === 'string') {
+      return data;
+    } else {
+      console.warn('Response format not recognized:', data);
+      return 'Response generated but format not recognized';
+    }
   }
 }))
 
