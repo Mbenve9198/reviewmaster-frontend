@@ -101,107 +101,123 @@ export function EditCreditSettingsModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-[500px]">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Wallet className="h-5 w-5" />
-            Edit Credit Settings
-          </DialogTitle>
-          <DialogDescription>
-            Configure credit usage and auto-refill settings for your WhatsApp assistant
-          </DialogDescription>
-        </DialogHeader>
-        
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <div className="grid gap-5">
-              <FormField
-                control={form.control}
-                name="minimumThreshold"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Minimum Credit Threshold</FormLabel>
-                    <FormControl>
-                      <Input 
-                        type="number" 
-                        placeholder="50" 
-                        {...field} 
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      When credits fall below this threshold, auto-refill will be triggered (if enabled)
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={form.control}
-                name="topUpAmount"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Auto Top-up Amount</FormLabel>
-                    <FormControl>
-                      <Input 
-                        type="number" 
-                        placeholder="200" 
-                        {...field} 
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      Number of credits to add when auto-refill is triggered
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={form.control}
-                name="autoTopUp"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                    <div className="space-y-0.5">
-                      <FormLabel className="text-base">Enable Auto Top-up</FormLabel>
-                      <FormDescription>
-                        Automatically purchase credits when balance falls below threshold
-                      </FormDescription>
-                    </div>
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
+      <DialogContent className="max-w-[500px] p-0 bg-white rounded-2xl flex flex-col overflow-hidden">
+        <div className="px-6 py-5 border-b">
+          <DialogHeader>
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-blue-50 rounded-lg">
+                <Wallet className="h-5 w-5 text-blue-500" />
+              </div>
+              <DialogTitle className="text-lg font-semibold">
+                Impostazioni Crediti
+              </DialogTitle>
             </div>
-            
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={onClose}
-                disabled={isLoading}
-              >
-                Cancel
-              </Button>
+            <DialogDescription className="pt-2">
+              Configura l'utilizzo dei crediti e le impostazioni di ricarica automatica per il tuo assistente WhatsApp
+            </DialogDescription>
+          </DialogHeader>
+        </div>
+        
+        <div className="p-6 flex-1 overflow-y-auto">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <div className="grid gap-5">
+                <FormField
+                  control={form.control}
+                  name="minimumThreshold"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm font-medium text-gray-700">Soglia Minima Crediti</FormLabel>
+                      <FormControl>
+                        <Input 
+                          type="number" 
+                          placeholder="50" 
+                          className="rounded-xl h-11 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                          {...field} 
+                        />
+                      </FormControl>
+                      <FormDescription className="text-xs text-gray-500 mt-1.5">
+                        Quando i crediti scendono sotto questa soglia, verrà attivata la ricarica automatica (se abilitata)
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="topUpAmount"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm font-medium text-gray-700">Importo Ricarica Automatica</FormLabel>
+                      <FormControl>
+                        <Input 
+                          type="number" 
+                          placeholder="200" 
+                          className="rounded-xl h-11 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                          {...field} 
+                        />
+                      </FormControl>
+                      <FormDescription className="text-xs text-gray-500 mt-1.5">
+                        Numero di crediti da aggiungere quando viene attivata la ricarica automatica
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="autoTopUp"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-xl border border-gray-200 p-4 bg-gray-50">
+                      <div className="space-y-0.5">
+                        <FormLabel className="text-base font-medium text-gray-700">Abilita Ricarica Automatica</FormLabel>
+                        <FormDescription className="text-sm text-gray-500">
+                          Acquista automaticamente crediti quando il saldo scende sotto la soglia
+                        </FormDescription>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                          className="data-[state=checked]:bg-blue-600"
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </div>
               
-              <Button type="submit" disabled={isLoading}>
-                {isLoading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Saving...
-                  </>
-                ) : (
-                  'Save Changes'
-                )}
-              </Button>
-            </DialogFooter>
-          </form>
-        </Form>
+              <DialogFooter className="gap-3 pt-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={onClose}
+                  disabled={isLoading}
+                  className="rounded-xl border-gray-200 hover:bg-gray-50"
+                >
+                  Annulla
+                </Button>
+                
+                <Button 
+                  type="submit" 
+                  disabled={isLoading}
+                  className="rounded-xl bg-blue-600 hover:bg-blue-700"
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Salvataggio...
+                    </>
+                  ) : (
+                    'Salva Modifiche'
+                  )}
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </div>
       </DialogContent>
     </Dialog>
   )
