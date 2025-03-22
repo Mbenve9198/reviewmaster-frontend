@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { getCookie } from "@/lib/utils"
-import { Loader2, BarChart3, MessageSquare, Star, TrendingUp, AlertCircle } from "lucide-react"
+import { Loader2, BarChart3, MessageSquare, Star, TrendingUp, AlertCircle, DollarSign, Coins, PieChart } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { 
   Card, 
@@ -25,6 +25,10 @@ import {
   CartesianGrid,
   Tooltip,
   Legend,
+  PieChart as ReChartPieChart,
+  Pie,
+  Cell,
+  Sector
 } from "recharts"
 import { SentimentAnalysisModal } from "@/components/whatsapp-analytics/sentiment-analysis-modal"
 
@@ -46,6 +50,7 @@ interface AnalyticsData {
     assistant: number
     total: number
   }[]
+  creditCost?: number
 }
 
 export default function WhatsAppAnalyticsPage() {
@@ -56,6 +61,7 @@ export default function WhatsAppAnalyticsPage() {
   const [error, setError] = useState<string | null>(null)
   const [isSentimentModalOpen, setIsSentimentModalOpen] = useState(false)
   const [timeRange, setTimeRange] = useState("30")
+  const [activePieIndex, setActivePieIndex] = useState(0);
 
   useEffect(() => {
     const fetchHotels = async () => {
@@ -109,6 +115,17 @@ export default function WhatsAppAnalyticsPage() {
         if (!response.ok) throw new Error('Failed to fetch analytics')
         
         const data = await response.json()
+        
+        // Calculate credit cost based on message counts
+        // Each user message costs 0.5 credits, each AI message costs 0.5 credits
+        const messageCost = (data.userMessages + data.assistantMessages) * 0.5
+        
+        // Each review request costs 1.0 credit
+        const reviewCost = data.reviewsSent * 1.0
+        
+        // Set total credit cost
+        data.creditCost = messageCost + reviewCost
+        
         setAnalyticsData(data)
       } catch (error) {
         console.error('Error fetching analytics:', error)
@@ -141,6 +158,81 @@ export default function WhatsAppAnalyticsPage() {
     if (!total) return "0%"
     return `${Math.round((part / total) * 100)}%`
   }
+
+  // Format currency function
+  const formatCurrency = (amount: number): string => {
+    return new Intl.NumberFormat('en-US', { 
+      style: 'currency', 
+      currency: 'EUR',
+      maximumFractionDigits: 2
+    }).format(amount)
+  }
+
+  // Format percentage for pie chart
+  const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, index, name }: any) => {
+    const RADIAN = Math.PI / 180;
+    const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+    const x = cx + radius * Math.cos(-midAngle * RADIAN);
+    const y = cy + radius * Math.sin(-midAngle * RADIAN);
+
+    return (
+      <text 
+        x={x} 
+        y={y} 
+        fill="white" 
+        textAnchor={x > cx ? 'start' : 'end'} 
+        dominantBaseline="central"
+        className="text-xs font-semibold"
+      >
+        {name} {`${(percent * 100).toFixed(0)}%`}
+      </text>
+    );
+  };
+
+  const renderActiveShape = (props: any) => {
+    const RADIAN = Math.PI / 180;
+    const { cx, cy, midAngle, innerRadius, outerRadius, startAngle, endAngle, fill, payload, percent, value } = props;
+    const sin = Math.sin(-RADIAN * midAngle);
+    const cos = Math.cos(-RADIAN * midAngle);
+    const sx = cx + (outerRadius + 10) * cos;
+    const sy = cy + (outerRadius + 10) * sin;
+    const mx = cx + (outerRadius + 30) * cos;
+    const my = cy + (outerRadius + 30) * sin;
+    const ex = mx + (cos >= 0 ? 1 : -1) * 22;
+    const ey = my;
+    const textAnchor = cos >= 0 ? 'start' : 'end';
+
+    return (
+      <g>
+        <Sector
+          cx={cx}
+          cy={cy}
+          innerRadius={innerRadius}
+          outerRadius={outerRadius}
+          startAngle={startAngle}
+          endAngle={endAngle}
+          fill={fill}
+          className="drop-shadow-md"
+        />
+        <Sector
+          cx={cx}
+          cy={cy}
+          startAngle={startAngle}
+          endAngle={endAngle}
+          innerRadius={outerRadius + 6}
+          outerRadius={outerRadius + 10}
+          fill={fill}
+          className="drop-shadow-sm"
+        />
+        <path d={`M${sx},${sy}L${mx},${my}L${ex},${ey}`} stroke={fill} fill="none" />
+        <circle cx={ex} cy={ey} r={2} fill={fill} stroke="none" />
+        <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey} textAnchor={textAnchor} fill="#333" className="text-xs">{`${payload.name}`}</text>
+        <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey} dy={18} textAnchor={textAnchor} fill="#666" className="text-xs font-medium">
+          {`${value.toFixed(1)} credits (${(percent * 100).toFixed(0)}%)`}
+        </text>
+      </g>
+    );
+  };
 
   if (isLoading && !analyticsData) {
     return (
@@ -212,7 +304,7 @@ export default function WhatsAppAnalyticsPage() {
       ) : (
         <div className="mt-4 space-y-6">
           {/* KPI Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
             <Card className="bg-white/50 backdrop-blur-sm border border-gray-200/50 shadow-lg rounded-2xl">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium text-gray-500 flex items-center gap-2">
@@ -276,6 +368,49 @@ export default function WhatsAppAnalyticsPage() {
                     : '0'}
                 </div>
                 <p className="text-xs text-gray-500 mt-1">AI messages per user message</p>
+              </CardContent>
+            </Card>
+            
+            {/* New Credit Cost Counter Card */}
+            <Card className="bg-white/50 backdrop-blur-sm border border-gray-200/50 shadow-lg rounded-2xl overflow-hidden">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-blue-400/20 to-purple-500/20 rounded-bl-full" />
+              <CardHeader className="pb-2 relative">
+                <CardTitle className="text-sm font-medium text-gray-500 flex items-center gap-2">
+                  <Coins className="h-4 w-4 text-blue-600" />
+                  Credits Spent
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="relative">
+                <div className="flex items-baseline gap-1">
+                  <div className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                    {analyticsData.creditCost?.toFixed(1) || '0'}
+                  </div>
+                  <div className="text-sm text-gray-500">credits</div>
+                </div>
+                
+                <div className="flex flex-col gap-1 text-xs text-gray-500 mt-2">
+                  <div className="mt-2 bg-gray-100 rounded-full h-1.5 overflow-hidden">
+                    <div 
+                      className="h-full bg-gradient-to-r from-blue-400 to-purple-500"
+                      style={{ width: `${Math.min(100, (analyticsData.creditCost || 0) / 1000 * 100)}%` }}
+                    />
+                  </div>
+                  
+                  <div className="flex justify-between items-center mt-2">
+                    <div className="flex items-center">
+                      <MessageSquare className="h-3 w-3 text-gray-400 mr-1" />
+                      <span>{((analyticsData.userMessages + analyticsData.assistantMessages) * 0.5).toFixed(1)} cr</span>
+                    </div>
+                    <div className="flex items-center">
+                      <Star className="h-3 w-3 text-gray-400 mr-1" />
+                      <span>{(analyticsData.reviewsSent * 1.0).toFixed(1)} cr</span>
+                    </div>
+                  </div>
+                  
+                  <p className="mt-1 text-xs">
+                    Est. value: {formatCurrency((analyticsData.creditCost || 0) * 0.15)}
+                  </p>
+                </div>
               </CardContent>
             </Card>
           </div>
@@ -384,6 +519,122 @@ export default function WhatsAppAnalyticsPage() {
                       </defs>
                     </AreaChart>
                   </ResponsiveContainer>
+                </div>
+              </CardContent>
+            </Card>
+            
+            {/* New Credit Cost Distribution Chart */}
+            <Card className="bg-white/50 backdrop-blur-sm border border-gray-200/50 shadow-lg rounded-2xl">
+              <CardHeader className="pb-2">
+                <div className="flex justify-between items-center">
+                  <CardTitle className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                    <PieChart className="h-5 w-5 text-blue-500" />
+                    Credit Usage Breakdown
+                  </CardTitle>
+                </div>
+                <CardDescription className="text-xs text-gray-500">
+                  Distribution of credits spent by operation type
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="pt-4">
+                <div className="h-72">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <ReChartPieChart>
+                      <defs>
+                        <linearGradient id="colorInbound" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8}/>
+                          <stop offset="95%" stopColor="#8884d8" stopOpacity={0.4}/>
+                        </linearGradient>
+                        <linearGradient id="colorOutbound" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#82ca9d" stopOpacity={0.8}/>
+                          <stop offset="95%" stopColor="#82ca9d" stopOpacity={0.4}/>
+                        </linearGradient>
+                        <linearGradient id="colorReviews" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#ffc658" stopOpacity={0.8}/>
+                          <stop offset="95%" stopColor="#ffc658" stopOpacity={0.4}/>
+                        </linearGradient>
+                      </defs>
+                      
+                      <Pie
+                        activeIndex={activePieIndex}
+                        activeShape={renderActiveShape}
+                        data={[
+                          { name: 'Inbound Messages', value: analyticsData.userMessages * 0.5 },
+                          { name: 'Outbound Messages', value: analyticsData.assistantMessages * 0.5 },
+                          { name: 'Review Requests', value: analyticsData.reviewsSent * 1.0 },
+                        ]}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={70}
+                        outerRadius={90}
+                        dataKey="value"
+                        onMouseEnter={(_, index) => setActivePieIndex(index)}
+                      >
+                        <Cell fill="url(#colorInbound)" />
+                        <Cell fill="url(#colorOutbound)" />
+                        <Cell fill="url(#colorReviews)" />
+                      </Pie>
+                      <Tooltip
+                        formatter={(value: number) => [`${value.toFixed(1)} credits`, 'Credits Used']}
+                        contentStyle={{
+                          backgroundColor: 'white',
+                          borderRadius: '8px',
+                          border: '1px solid #e2e8f0',
+                          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                        }}
+                      />
+                    </ReChartPieChart>
+                  </ResponsiveContainer>
+                </div>
+                
+                <div className="mt-4 grid grid-cols-3 gap-4">
+                  <div className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-xs text-gray-500 flex items-center">
+                        <div className="w-2 h-2 rounded-full bg-purple-500 mr-2"></div>
+                        Inbound
+                      </span>
+                      <span className="text-xs font-medium">{(analyticsData.userMessages * 0.5).toFixed(1)} credits</span>
+                    </div>
+                    <div className="h-1 w-full bg-gray-100 rounded-full overflow-hidden">
+                      <div 
+                        className="h-full bg-purple-500"
+                        style={{ width: `${(analyticsData.userMessages * 0.5) / (analyticsData.creditCost || 1) * 100}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-xs text-gray-500 flex items-center">
+                        <div className="w-2 h-2 rounded-full bg-green-500 mr-2"></div>
+                        Outbound
+                      </span>
+                      <span className="text-xs font-medium">{(analyticsData.assistantMessages * 0.5).toFixed(1)} credits</span>
+                    </div>
+                    <div className="h-1 w-full bg-gray-100 rounded-full overflow-hidden">
+                      <div 
+                        className="h-full bg-green-500"
+                        style={{ width: `${(analyticsData.assistantMessages * 0.5) / (analyticsData.creditCost || 1) * 100}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-xs text-gray-500 flex items-center">
+                        <div className="w-2 h-2 rounded-full bg-yellow-500 mr-2"></div>
+                        Reviews
+                      </span>
+                      <span className="text-xs font-medium">{(analyticsData.reviewsSent * 1.0).toFixed(1)} credits</span>
+                    </div>
+                    <div className="h-1 w-full bg-gray-100 rounded-full overflow-hidden">
+                      <div 
+                        className="h-full bg-yellow-500"
+                        style={{ width: `${(analyticsData.reviewsSent * 1.0) / (analyticsData.creditCost || 1) * 100}%` }}
+                      ></div>
+                    </div>
+                  </div>
                 </div>
               </CardContent>
             </Card>
