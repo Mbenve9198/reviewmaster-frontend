@@ -145,7 +145,7 @@ const useReviews = create<ReviewsState>((set, get) => ({
     }
 
     const data = await response.json()
-    return data.response
+    return data.content
   }
 }))
 
