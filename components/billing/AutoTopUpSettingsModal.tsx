@@ -18,27 +18,25 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Switch } from '@/components/ui/switch'
 import { getCookie } from '@/lib/utils'
 import { toast } from 'sonner'
-import { Loader2, CreditCard, Wallet, DollarSign, Info } from 'lucide-react'
+import { Loader2, CreditCard, Wallet, DollarSign, Info, Zap } from 'lucide-react'
+import { useWallet } from '@/hooks/useWallet'
 
-const creditSettingsSchema = z.object({
+const autoTopUpSettingsSchema = z.object({
   minimumThreshold: z.coerce.number().min(10, 'Minimum threshold must be at least 10').max(1000, 'Minimum threshold must be at most 1000'),
   topUpAmount: z.coerce.number().min(50, 'Top-up amount must be at least 50').max(10000, 'Top-up amount must be at most 10000'),
   autoTopUp: z.boolean().default(false),
 })
 
-type CreditSettingsFormValues = z.infer<typeof creditSettingsSchema>
+type AutoTopUpSettingsFormValues = z.infer<typeof autoTopUpSettingsSchema>
 
-interface EditCreditSettingsModalProps {
+interface AutoTopUpSettingsModalProps {
   isOpen: boolean
   onClose: () => void
   onSuccess: () => Promise<void>
-  currentConfig: {
-    hotelId: string
-    creditSettings: {
-      minimumThreshold: number
-      topUpAmount: number
-      autoTopUp: boolean
-    }
+  currentSettings?: {
+    minimumThreshold?: number
+    topUpAmount?: number
+    autoTopUp?: boolean
   }
 }
 
@@ -54,22 +52,27 @@ const calculateTotalPrice = (credits: number) => {
   return credits * calculatePricePerCredit(credits);
 };
 
-export function EditCreditSettingsModal({ 
+export function AutoTopUpSettingsModal({ 
   isOpen, 
   onClose, 
   onSuccess, 
-  currentConfig 
-}: EditCreditSettingsModalProps) {
+  currentSettings = {
+    minimumThreshold: 50,
+    topUpAmount: 200,
+    autoTopUp: false
+  }
+}: AutoTopUpSettingsModalProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [topUpAmountEUR, setTopUpAmountEUR] = useState(0)
   const [thresholdReachedEUR, setThresholdReachedEUR] = useState(0)
+  const { refresh } = useWallet()
 
-  const form = useForm<CreditSettingsFormValues>({
-    resolver: zodResolver(creditSettingsSchema),
+  const form = useForm<AutoTopUpSettingsFormValues>({
+    resolver: zodResolver(autoTopUpSettingsSchema),
     defaultValues: {
-      minimumThreshold: currentConfig.creditSettings?.minimumThreshold || 50,
-      topUpAmount: currentConfig.creditSettings?.topUpAmount || 200,
-      autoTopUp: currentConfig.creditSettings?.autoTopUp || false,
+      minimumThreshold: currentSettings.minimumThreshold || 50,
+      topUpAmount: currentSettings.topUpAmount || 200,
+      autoTopUp: currentSettings.autoTopUp || false,
     },
   })
 
@@ -82,7 +85,7 @@ export function EditCreditSettingsModal({
     setThresholdReachedEUR(calculateTotalPrice(minimumThreshold));
   }, [form.watch('topUpAmount'), form.watch('minimumThreshold')]);
 
-  const onSubmit = async (data: CreditSettingsFormValues) => {
+  const onSubmit = async (data: AutoTopUpSettingsFormValues) => {
     try {
       setIsLoading(true)
       const token = getCookie('token')
@@ -92,31 +95,30 @@ export function EditCreditSettingsModal({
         return
       }
       
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/whatsapp-assistant/${currentConfig.hotelId}`, {
-        method: 'PATCH',
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/wallet/auto-top-up`, {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
-          creditSettings: {
-            minimumThreshold: data.minimumThreshold,
-            topUpAmount: data.topUpAmount,
-            autoTopUp: data.autoTopUp
-          }
+          minimumThreshold: data.minimumThreshold,
+          topUpAmount: data.topUpAmount,
+          autoTopUp: data.autoTopUp
         })
       })
       
       if (!response.ok) {
-        throw new Error('Failed to update credit settings')
+        throw new Error('Failed to update auto top-up settings')
       }
       
+      await refresh()
       await onSuccess()
-      toast.success('Credit settings updated successfully')
+      toast.success('Auto top-up settings updated successfully')
       onClose()
     } catch (error) {
-      console.error('Error updating credit settings:', error)
-      toast.error('Failed to update credit settings')
+      console.error('Error updating auto top-up settings:', error)
+      toast.error('Failed to update auto top-up settings')
     } finally {
       setIsLoading(false)
     }
@@ -129,14 +131,14 @@ export function EditCreditSettingsModal({
           <DialogHeader>
             <div className="flex items-center gap-3">
               <div className="p-2 bg-blue-50 rounded-lg">
-                <Wallet className="h-5 w-5 text-blue-500" />
+                <Zap className="h-5 w-5 text-blue-500" />
               </div>
               <DialogTitle className="text-lg font-semibold">
-                Credit Settings
+                Auto Top-up Settings
               </DialogTitle>
             </div>
             <DialogDescription className="pt-2">
-              Configure credits usage and automatic top-up settings for your WhatsApp assistant
+              Configure your auto top-up settings to automatically recharge your credits when they fall below a specified threshold
             </DialogDescription>
           </DialogHeader>
         </div>
@@ -280,4 +282,4 @@ export function EditCreditSettingsModal({
   )
 }
 
-export default EditCreditSettingsModal 
+export default AutoTopUpSettingsModal 

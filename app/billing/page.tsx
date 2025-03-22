@@ -17,13 +17,16 @@ import {
   MessageSquare,
   Coins,
   CreditCard,
-  ExternalLink
+  ExternalLink,
+  Zap,
+  Settings
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useUser } from "@/hooks/use-user";
 import { useWallet } from "@/hooks/useWallet";
 import { getCookie } from "@/lib/utils";
 import CreditPurchaseSlider from "@/components/billing/CreditPurchaseSlider";
+import AutoTopUpSettingsModal from "@/components/billing/AutoTopUpSettingsModal";
 import { HandWrittenTitle } from "@/components/ui/hand-writing-text";
 import { Tiles } from "@/components/ui/tiles";
 import Image from "next/image"
@@ -33,8 +36,9 @@ type CardType = 'credits' | 'usage' | null;
 export default function BillingPage() {
   const router = useRouter();
   const { user } = useUser();
-  const { credits, freeScrapingRemaining, freeScrapingUsed, recentTransactions, failedTransactions, isLoading } = useWallet();
+  const { credits, freeScrapingRemaining, freeScrapingUsed, recentTransactions, failedTransactions, autoTopUpSettings, isLoading, refresh } = useWallet();
   const [isSliderOpen, setIsSliderOpen] = useState(false);
+  const [isAutoTopUpModalOpen, setIsAutoTopUpModalOpen] = useState(false);
   const [isTransactionsExpanded, setIsTransactionsExpanded] = useState(false);
   const [activeCard, setActiveCard] = useState<CardType>(null);
   const [isStripeLoading, setIsStripeLoading] = useState(false);
@@ -58,6 +62,13 @@ export default function BillingPage() {
     { icon: MessageSquare, label: "WhatsApp Outbound", cost: "0.5" },
     { icon: Clock, label: "WhatsApp Scheduled", cost: "1" }
   ];
+
+  // Function to calculate price per credit based on amount
+  const calculatePricePerCredit = (credits: number) => {
+    if (credits >= 10000) return 0.10;
+    if (credits >= 500) return 0.15;
+    return 0.30;
+  };
 
   // Funzione per gestire il redirect al portale clienti di Stripe
   const handleStripePortalRedirect = async () => {
@@ -92,6 +103,10 @@ export default function BillingPage() {
     } finally {
       setIsStripeLoading(false);
     }
+  };
+
+  const handleAutoTopUpSuccess = async () => {
+    await refresh();
   };
 
   return (
@@ -170,6 +185,48 @@ export default function BillingPage() {
                 </div>
               )}
 
+              {/* Auto Top-up Status Card */}
+              <div className="mb-6 p-4 bg-gray-50 rounded-xl border border-gray-200">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <div className="p-2 bg-blue-100 rounded-lg mr-3">
+                      <Zap className="w-4 h-4 text-blue-600" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-gray-800">Auto Top-up</p>
+                      <p className="text-xs text-gray-500">
+                        {autoTopUpSettings?.autoTopUp 
+                          ? `Enabled - Add ${autoTopUpSettings.topUpAmount} credits when balance falls below ${autoTopUpSettings.minimumThreshold}` 
+                          : 'Disabled - Enable to automatically recharge your account'}
+                      </p>
+                    </div>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="rounded-lg border-gray-300 hover:bg-gray-100 px-3"
+                    onClick={() => setIsAutoTopUpModalOpen(true)}
+                  >
+                    <Settings className="h-4 w-4 mr-1" />
+                    {autoTopUpSettings?.autoTopUp ? 'Configure' : 'Enable'}
+                  </Button>
+                </div>
+                
+                {autoTopUpSettings?.autoTopUp && (
+                  <div className="mt-3 pt-3 border-t border-gray-200">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-600">Auto top-up amount:</span>
+                      <span className="font-medium flex items-center">
+                        {autoTopUpSettings.topUpAmount} credits 
+                        <span className="text-xs text-blue-600 ml-2">
+                          (€{(autoTopUpSettings.topUpAmount * calculatePricePerCredit(autoTopUpSettings.topUpAmount)).toFixed(2)})
+                        </span>
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
+
               <Button
                 onClick={() => setIsSliderOpen(true)}
                 className="w-full bg-primary hover:bg-primary/90 text-white font-bold text-xl py-6 rounded-xl transition-all duration-300 transform hover:scale-[1.02] flex items-center justify-center gap-2 shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] mb-4"
@@ -226,7 +283,14 @@ export default function BillingPage() {
                       </div>
                       <span className="ml-3">{item.label}</span>
                     </div>
-                    <span className="font-medium">{item.cost} credits</span>
+                    <div className="font-medium flex flex-col items-end">
+                      <span>{item.cost} credits</span>
+                      <span className="text-xs text-blue-600">
+                        {typeof item.cost === 'string' && !item.cost.includes('-') 
+                          ? `≈ €${(parseFloat(item.cost) * 0.30).toFixed(2)}` 
+                          : ''}
+                      </span>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -276,7 +340,11 @@ export default function BillingPage() {
                     <div className="ml-3">
                       <p className="font-medium text-gray-800">{transaction.description}</p>
                       <p className="text-sm text-gray-500">
-                        {new Date(transaction.createdAt).toLocaleDateString('it-IT')}
+                        {new Date(transaction.createdAt).toLocaleDateString('en-US', {
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric'
+                        })}
                       </p>
                     </div>
                   </div>
@@ -328,7 +396,11 @@ export default function BillingPage() {
                     <div className="ml-3">
                       <p className="font-medium text-gray-800">{transaction.description}</p>
                       <p className="text-sm text-gray-500">
-                        {new Date(transaction.createdAt).toLocaleDateString('it-IT')}
+                        {new Date(transaction.createdAt).toLocaleDateString('en-US', {
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric'
+                        })}
                       </p>
                     </div>
                   </div>
@@ -378,6 +450,13 @@ export default function BillingPage() {
           onClose={() => setIsSliderOpen(false)} 
         />
       )}
+
+      <AutoTopUpSettingsModal
+        isOpen={isAutoTopUpModalOpen}
+        onClose={() => setIsAutoTopUpModalOpen(false)}
+        onSuccess={handleAutoTopUpSuccess}
+        currentSettings={autoTopUpSettings}
+      />
     </div>
   );
 }
