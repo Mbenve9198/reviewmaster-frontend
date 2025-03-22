@@ -78,6 +78,16 @@ export function EditCreditSettingsModal({
     },
   })
   
+  useEffect(() => {
+    if (isOpen && currentConfig.creditSettings) {
+      form.reset({
+        minimumThreshold: currentConfig.creditSettings.minimumThreshold || 50,
+        topUpAmount: currentConfig.creditSettings.topUpAmount || 200,
+        autoTopUp: currentConfig.creditSettings.autoTopUp || false,
+      });
+    }
+  }, [isOpen, currentConfig.creditSettings, form]);
+  
   const topUpAmount = form.watch('topUpAmount')
   const pricePerCredit = calculatePricePerCredit(topUpAmount)
   const totalPrice = calculateTotalPrice(topUpAmount)

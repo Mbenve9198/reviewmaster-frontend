@@ -144,6 +144,7 @@ export default function WhatsAppAssistantPage() {
   };
 
   const handleSuccess = async () => {
+    // Carica la configurazione aggiornata dell'assistente
     if (selectedHotelId) {
       const token = getCookie('token');
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/whatsapp-assistant/${selectedHotelId}`, {
@@ -159,6 +160,7 @@ export default function WhatsAppAssistantPage() {
       }
     }
     
+    // Ricarica le impostazioni credito utente da server
     await fetchUserCreditSettings();
   };
 
