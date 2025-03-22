@@ -24,10 +24,4 @@ export interface WhatsAppConfig {
   triggerName: string;
   isActive: boolean;
   rules: WhatsAppRule[];
-  creditSettings?: {
-    minimumThreshold: number;
-    topUpAmount: number;
-    autoTopUp: boolean;
-    lastAutoTopUp?: string;
-  };
 } 

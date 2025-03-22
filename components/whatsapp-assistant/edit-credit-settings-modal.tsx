@@ -93,11 +93,8 @@ export function EditCreditSettingsModal({
         return
       }
       
-      // Per la pagina billing, usiamo l'endpoint wallet/user
-      // Per WhatsApp Assistant, usiamo l'endpoint whatsapp-assistant/{hotelId}
-      const endpoint = isUserAccount 
-        ? `${process.env.NEXT_PUBLIC_API_URL}/api/wallet/user` 
-        : `${process.env.NEXT_PUBLIC_API_URL}/api/whatsapp-assistant/${currentConfig.hotelId}`
+      // Utilizziamo esclusivamente l'endpoint wallet/user per tutte le modifiche alle impostazioni di credito
+      const endpoint = `${process.env.NEXT_PUBLIC_API_URL}/api/wallet/user`
       
       const response = await fetch(endpoint, {
         method: 'PATCH',
