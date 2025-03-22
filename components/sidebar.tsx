@@ -148,7 +148,7 @@ export function Sidebar() {
     setExpandedItems(prev => 
       prev.includes(label) 
         ? prev.filter(item => item !== label)
-        : [...prev, label]
+        : [label]
     )
   }
 
