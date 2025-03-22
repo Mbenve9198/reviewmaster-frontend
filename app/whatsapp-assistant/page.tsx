@@ -439,7 +439,7 @@ export default function WhatsAppAssistantPage() {
                     Breakfast Hours
                   </h4>
                   <p className="text-gray-600">
-                    {config.breakfast.startTime} - {config.breakfast.endTime}
+                    {typeof config.breakfast === 'string' ? config.breakfast : (config.breakfast?.startTime && config.breakfast?.endTime ? `${config.breakfast.startTime} - ${config.breakfast.endTime}` : 'Non specificato')}
                   </p>
                 </div>
 
@@ -450,7 +450,7 @@ export default function WhatsAppAssistantPage() {
                     Check-in Hours
                   </h4>
                   <p className="text-gray-600">
-                    {config.checkIn.startTime} - {config.checkIn.endTime}
+                    {typeof config.checkIn === 'string' ? config.checkIn : (config.checkIn?.startTime && config.checkIn?.endTime ? `${config.checkIn.startTime} - ${config.checkIn.endTime}` : 'Non specificato')}
                   </p>
                 </div>
               </div>

@@ -16,11 +16,11 @@ interface TimeSettingsModalProps {
   currentConfig: {
     hotelId: string
     timezone: string
-    breakfast: {
+    breakfast: string | {
       startTime: string
       endTime: string
     }
-    checkIn: {
+    checkIn: string | {
       startTime: string
       endTime: string
     }
@@ -72,10 +72,22 @@ const timeOptions = Array.from({ length: 24 * 4 }, (_, i) => {
 
 export function EditTimeSettingsModal({ isOpen, onClose, onSuccess, currentConfig }: TimeSettingsModalProps) {
   const [isLoading, setIsLoading] = useState(false)
+  
+  // Inizializziamo breakfast e checkIn come oggetti con startTime e endTime
+  const initialBreakfast = typeof currentConfig.breakfast === 'string' 
+    ? { startTime: "07:00", endTime: "10:00" } 
+    : { startTime: (currentConfig.breakfast as {startTime: string}).startTime, 
+        endTime: (currentConfig.breakfast as {endTime: string}).endTime }
+  
+  const initialCheckIn = typeof currentConfig.checkIn === 'string'
+    ? { startTime: "14:00", endTime: "22:00" }
+    : { startTime: (currentConfig.checkIn as {startTime: string}).startTime, 
+        endTime: (currentConfig.checkIn as {endTime: string}).endTime }
+  
   const [config, setConfig] = useState({
     timezone: currentConfig.timezone,
-    breakfast: { ...currentConfig.breakfast },
-    checkIn: { ...currentConfig.checkIn }
+    breakfast: initialBreakfast,
+    checkIn: initialCheckIn
   })
 
   const handleSave = async () => {
