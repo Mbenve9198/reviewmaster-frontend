@@ -629,8 +629,21 @@ export function ReviewsTable({
         throw new Error(data.message || 'Failed to generate response');
       }
       
-      if (data.content) {
-        setMessages([{ id: 1, content: data.content, sender: "ai" }]);
+      // Gestione più robusta della risposta
+      let responseContent = null;
+      if (data.response) {
+        responseContent = data.response;
+      } else if (data.content) {
+        responseContent = data.content;
+      } else if (typeof data === 'string') {
+        responseContent = data;
+      }
+      
+      if (responseContent) {
+        setMessages([{ id: 1, content: responseContent, sender: "ai" }]);
+      } else {
+        console.warn('Response format not recognized:', data);
+        toast.warning("Response received but format not recognized");
       }
       
       if (data.suggestions) {

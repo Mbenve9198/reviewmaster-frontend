@@ -386,13 +386,37 @@ const FiltersAndTable = ({
                   }
                   
                   const data = await response.json()
-                  if (!data._id) {
-                    throw new Error('Invalid response format');
+                  
+                  // Stampa la struttura della risposta per debug
+                  console.log('Analysis response structure:', 
+                    Object.keys(data), 
+                    data.analysis ? Object.keys(data.analysis) : 'No analysis field'
+                  );
+                  
+                  // Estrai l'ID nel modo corretto in base alla struttura della risposta
+                  let analysisId;
+                  
+                  if (data._id) {
+                    // Formato diretto
+                    analysisId = data._id;
+                  } else if (data.analysis && data.analysis._id) {
+                    // Formato annidato in analysis
+                    analysisId = data.analysis._id;
+                  } else if (data.id) {
+                    // Formato alternativo (senza underscore)
+                    analysisId = data.id;
+                  } else if (data.analysis && data.analysis.id) {
+                    // Formato alternativo annidato
+                    analysisId = data.analysis.id;
+                  } else {
+                    // Nessun formato riconosciuto
+                    console.error('Response data structure:', data);
+                    throw new Error('Invalid response format: missing ID field');
                   }
 
                   // Reindirizza solo dopo aver ricevuto l'ID valido
                   toast.success("Analysis completed successfully!");
-                  router.push(`/analyses?id=${data._id}`)
+                  router.push(`/analyses?id=${analysisId}`)
                 } catch (error: any) {
                   console.error('Full error details:', error)
                   toast.error(typeof error === 'object' && error?.message ? error.message : "Failed to create analysis")
