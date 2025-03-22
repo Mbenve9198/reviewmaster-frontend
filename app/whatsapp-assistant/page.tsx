@@ -76,6 +76,7 @@ export default function WhatsAppAssistantPage() {
     };
 
     fetchHotels();
+    fetchUserCreditSettings();
   }, []);
 
   // Fetch WhatsApp config when hotel is selected
@@ -136,12 +137,6 @@ export default function WhatsAppAssistantPage() {
       console.error('Error fetching user credit settings:', error)
     }
   }
-  
-  // Aggiungi la funzione fetchUserCreditSettings all'useEffect iniziale
-  useEffect(() => {
-    fetchHotels()
-    fetchUserCreditSettings()
-  }, [])
 
   const handleHotelChange = (hotelId: string) => {
     setSelectedHotelId(hotelId);
@@ -149,8 +144,22 @@ export default function WhatsAppAssistantPage() {
   };
 
   const handleSuccess = async () => {
-    await fetchConfig()
-    await fetchUserCreditSettings()
+    if (selectedHotelId) {
+      const token = getCookie('token');
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/whatsapp-assistant/${selectedHotelId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setConfig(data);
+        setRules(data.rules || []);
+      }
+    }
+    
+    await fetchUserCreditSettings();
   };
 
   const handleDownloadQR = () => {
