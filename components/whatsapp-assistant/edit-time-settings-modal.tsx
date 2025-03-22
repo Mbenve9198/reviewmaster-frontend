@@ -206,7 +206,7 @@ export function EditTimeSettingsModal({ isOpen, onClose, onSuccess, currentConfi
                         <SelectTrigger>
                           <SelectValue placeholder="Start time" />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="max-h-[280px] overflow-y-auto">
                           {timeOptions.map(time => (
                             <SelectItem key={time.value} value={time.value}>
                               {time.label}
@@ -226,7 +226,7 @@ export function EditTimeSettingsModal({ isOpen, onClose, onSuccess, currentConfi
                         <SelectTrigger>
                           <SelectValue placeholder="End time" />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="max-h-[280px] overflow-y-auto">
                           {timeOptions.map(time => (
                             <SelectItem key={time.value} value={time.value}>
                               {time.label}
@@ -255,7 +255,7 @@ export function EditTimeSettingsModal({ isOpen, onClose, onSuccess, currentConfi
                         <SelectTrigger>
                           <SelectValue placeholder="Start time" />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="max-h-[280px] overflow-y-auto">
                           {timeOptions.map(time => (
                             <SelectItem key={time.value} value={time.value}>
                               {time.label}
@@ -275,7 +275,7 @@ export function EditTimeSettingsModal({ isOpen, onClose, onSuccess, currentConfi
                         <SelectTrigger>
                           <SelectValue placeholder="End time" />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="max-h-[280px] overflow-y-auto">
                           {timeOptions.map(time => (
                             <SelectItem key={time.value} value={time.value}>
                               {time.label}
