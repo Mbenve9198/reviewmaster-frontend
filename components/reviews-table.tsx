@@ -629,8 +629,8 @@ export function ReviewsTable({
         throw new Error(data.message || 'Failed to generate response');
       }
       
-      if (data.response) {
-        setMessages([{ id: 1, content: data.response, sender: "ai" }]);
+      if (data.content) {
+        setMessages([{ id: 1, content: data.content, sender: "ai" }]);
       }
       
       if (data.suggestions) {

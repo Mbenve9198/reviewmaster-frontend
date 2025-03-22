@@ -99,6 +99,7 @@ const FiltersAndTable = ({
 }: FiltersAndTableProps) => {
   const router = useRouter()
   const [isSyncing, setIsSyncing] = useState(false)
+  const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [syncStatus, setSyncStatus] = useState<{
     status: 'idle' | 'syncing' | 'success' | 'error';
     message: string;
@@ -348,21 +349,24 @@ const FiltersAndTable = ({
                   return;
                 }
                 
+                if (!hotel || hotel === 'all') {
+                  toast.error("Please select a hotel first")
+                  return
+                }
+
+                // Imposta lo stato di analisi in corso
+                setIsAnalyzing(true);
+                
                 try {
                   const token = getCookie('token')
                   
-                  if (!hotel || hotel === 'all') {
-                    toast.error("Please select a hotel first")
-                    return
-                  }
-
                   const requestBody = {
                     hotelId: hotel,
                     reviews: selectedRows.map(review => review._id)
                   }
 
-                  const tempId = Date.now().toString()
-                  router.push(`/analyses?id=${tempId}&loading=true`)
+                  // Mostra un toast di caricamento invece di reindirizzare con un ID temporaneo
+                  const toastId = toast.loading("Analyzing reviews, please wait...");
 
                   const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/analytics/analyze`, {
                     method: 'POST',
@@ -372,6 +376,9 @@ const FiltersAndTable = ({
                     },
                     body: JSON.stringify(requestBody)
                   })
+
+                  // Rimuovi il toast di caricamento
+                  toast.dismiss(toastId);
 
                   if (!response.ok) {
                     const errorData = await response.json()
@@ -383,18 +390,25 @@ const FiltersAndTable = ({
                     throw new Error('Invalid response format');
                   }
 
-                  router.replace(`/analyses?id=${data._id}`)
+                  // Reindirizza solo dopo aver ricevuto l'ID valido
+                  toast.success("Analysis completed successfully!");
+                  router.push(`/analyses?id=${data._id}`)
                 } catch (error: any) {
                   console.error('Full error details:', error)
                   toast.error(typeof error === 'object' && error?.message ? error.message : "Failed to create analysis")
-                  router.push('/reviews')
+                } finally {
+                  setIsAnalyzing(false);
                 }
               }}
               className="rounded-xl flex items-center gap-2 bg-primary text-primary-foreground shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all"
-              disabled={selectedRows.length === 0}
+              disabled={selectedRows.length === 0 || isAnalyzing}
             >
-              <BarChart2 className="h-4 w-4" />
-              Analyze Reviews
+              {isAnalyzing ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <BarChart2 className="h-4 w-4" />
+              )}
+              {isAnalyzing ? "Analyzing..." : "Analyze Reviews"}
             </Button>
           </div>
         </div>
