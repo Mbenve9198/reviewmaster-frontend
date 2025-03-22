@@ -93,9 +93,10 @@ export function EditCreditSettingsModal({
         return
       }
       
-      // Determine which endpoint to use based on whether we're in WhatsApp Assistant or Billing
+      // Per la pagina billing, usiamo l'endpoint wallet/user
+      // Per WhatsApp Assistant, usiamo l'endpoint whatsapp-assistant/{hotelId}
       const endpoint = isUserAccount 
-        ? `${process.env.NEXT_PUBLIC_API_URL}/api/wallet/credit-settings` 
+        ? `${process.env.NEXT_PUBLIC_API_URL}/api/wallet/user` 
         : `${process.env.NEXT_PUBLIC_API_URL}/api/whatsapp-assistant/${currentConfig.hotelId}`
       
       const response = await fetch(endpoint, {
