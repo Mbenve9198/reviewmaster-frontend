@@ -15,7 +15,9 @@ import {
   Rocket, 
   PencilRuler,
   MessageSquare,
-  Coins
+  Coins,
+  CreditCard,
+  ExternalLink
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useUser } from "@/hooks/use-user";
@@ -34,6 +36,7 @@ export default function BillingPage() {
   const [isSliderOpen, setIsSliderOpen] = useState(false);
   const [isTransactionsExpanded, setIsTransactionsExpanded] = useState(false);
   const [activeCard, setActiveCard] = useState<CardType>(null);
+  const [isStripeLoading, setIsStripeLoading] = useState(false);
 
   // Calcola la percentuale di crediti gratuiti utilizzati
   const totalFreeCredits = freeScrapingRemaining + freeScrapingUsed;
@@ -54,6 +57,37 @@ export default function BillingPage() {
     { icon: MessageSquare, label: "WhatsApp Outbound", cost: "0.5" },
     { icon: Clock, label: "WhatsApp Scheduled", cost: "1" }
   ];
+
+  // Funzione per gestire il redirect al portale clienti di Stripe
+  const handleStripePortalRedirect = async () => {
+    setIsStripeLoading(true);
+    try {
+      // Ottiene l'ID cliente Stripe dall'API
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/wallet/stripe-customer`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (response.ok) {
+        const { stripeCustomerId } = await response.json();
+        if (stripeCustomerId) {
+          // Redirect al portale clienti Stripe con l'ID cliente come parametro
+          window.open(`https://billing.stripe.com/p/login/eVadS9dD67fH4De288?prefilled_email=${encodeURIComponent(user?.email || '')}`, '_blank');
+        } else {
+          alert("You don't have a payment method set up yet. Please make a purchase first.");
+        }
+      } else {
+        throw new Error('Failed to get Stripe customer ID');
+      }
+    } catch (error) {
+      console.error('Error redirecting to Stripe portal:', error);
+      alert('Could not access payment settings. Please try again later.');
+    } finally {
+      setIsStripeLoading(false);
+    }
+  };
 
   return (
     <div className="flex flex-col px-10 md:pl-[96px] py-12 min-h-screen">
@@ -133,10 +167,28 @@ export default function BillingPage() {
 
               <Button
                 onClick={() => setIsSliderOpen(true)}
-                className="w-full bg-primary hover:bg-primary/90 text-white font-bold text-xl py-6 rounded-xl transition-all duration-300 transform hover:scale-[1.02] flex items-center justify-center gap-2 shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px]"
+                className="w-full bg-primary hover:bg-primary/90 text-white font-bold text-xl py-6 rounded-xl transition-all duration-300 transform hover:scale-[1.02] flex items-center justify-center gap-2 shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] mb-4"
               >
                 Buy More Credits
                 <Sparkles className="w-5 h-5" />
+              </Button>
+              
+              {/* Stripe Customer Portal Button */}
+              <Button
+                onClick={handleStripePortalRedirect}
+                variant="outline"
+                className="w-full border-gray-300 hover:bg-gray-50 text-gray-700 font-medium py-3 rounded-xl transition-all duration-200 flex items-center justify-center gap-2"
+                disabled={isStripeLoading}
+              >
+                {isStripeLoading ? (
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-700"></div>
+                ) : (
+                  <>
+                    Manage Payment Methods
+                    <CreditCard className="w-4 h-4 ml-1" />
+                    <ExternalLink className="w-3 h-3" />
+                  </>
+                )}
               </Button>
             </div>
           </div>
