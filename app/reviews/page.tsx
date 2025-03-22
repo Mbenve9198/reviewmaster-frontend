@@ -339,7 +339,7 @@ const FiltersAndTable = ({
                     )}
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent side="bottom">
+                <TooltipContent side="bottom" className="bg-white border border-gray-200 shadow-md">
                   <p>Sync reviews from all connected platforms</p>
                 </TooltipContent>
               </Tooltip>
@@ -450,9 +450,7 @@ const FiltersAndTable = ({
                     ) : (
                       <BarChart2 className="h-4 w-4" />
                     )}
-                    {isAnalyzing ? "Analyzing..." : selectedRows.length > 1000 
-                      ? `Analyze Latest 1,000 Reviews` 
-                      : `Analyze Reviews`}
+                    {isAnalyzing ? "Analyzing..." : "Analyze Reviews"}
                     {selectedRows.length > 1000 && (
                       <span className="ml-1 inline-flex items-center rounded-full bg-amber-50 px-1.5 py-0.5 text-xs font-medium text-amber-800 ring-1 ring-inset ring-amber-600/20">
                         1,000 limit
@@ -460,7 +458,7 @@ const FiltersAndTable = ({
                     )}
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent side="bottom" className="max-w-[300px] p-3 text-sm">
+                <TooltipContent side="bottom" className="max-w-[300px] p-3 text-sm bg-white border border-gray-200 shadow-md">
                   {selectedRows.length > 1000 ? (
                     <p>For optimal analysis, we'll process your 1,000 most recent reviews out of {selectedRows.length} selected. This ensures high-quality insights while maintaining performance.</p>
                   ) : (
