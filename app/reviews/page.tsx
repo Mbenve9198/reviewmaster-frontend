@@ -81,6 +81,7 @@ interface FiltersAndTableProps {
   setIsAnalyticsDialogOpen: (value: boolean) => void;
   isAnalyzing: boolean;
   setIsAnalyzing: (value: boolean) => void;
+  setAnalysisProgress: (value: number) => void;
 }
 
 const FiltersAndTable = ({ 
@@ -101,7 +102,8 @@ const FiltersAndTable = ({
   selectedRows,
   setIsAnalyticsDialogOpen,
   isAnalyzing,
-  setIsAnalyzing
+  setIsAnalyzing,
+  setAnalysisProgress
 }: FiltersAndTableProps) => {
   const router = useRouter()
   const [isSyncing, setIsSyncing] = useState(false)
@@ -434,7 +436,12 @@ const FiltersAndTable = ({
 
                         // Reindirizza solo dopo aver ricevuto l'ID valido
                         toast.success("Analysis completed successfully!");
-                        router.push(`/analyses?id=${analysisId}`)
+                        // Set progress to 100% before redirecting
+                        setAnalysisProgress(100);
+                        // Add a small delay before redirecting to see the completed progress
+                        setTimeout(() => {
+                          router.push(`/analyses?id=${analysisId}`)
+                        }, 800);
                       } catch (error: any) {
                         console.error('Full error details:', error)
                         toast.error(typeof error === 'object' && error?.message ? error.message : "Failed to create analysis")
@@ -570,13 +577,61 @@ const AnalysisProgressDialog = ({
   const actualReviewCount = Math.min(selectedReviewsCount, 1000);
   const isLimited = selectedReviewsCount > 1000;
   
+  // Determina la fase corrente in base al progresso
+  const getCurrentPhase = () => {
+    if (progress < 25) return 1;
+    if (progress < 50) return 2;
+    if (progress < 75) return 3;
+    return 4;
+  };
+  
+  const currentPhase = getCurrentPhase();
+  
+  // Calcola il progresso all'interno della fase corrente (0-100)
+  const getPhaseProgress = () => {
+    if (currentPhase === 1) return (progress / 25) * 100;
+    if (currentPhase === 2) return ((progress - 25) / 25) * 100;
+    if (currentPhase === 3) return ((progress - 50) / 25) * 100;
+    return ((progress - 75) / 25) * 100;
+  };
+  
+  const phaseProgress = getPhaseProgress();
+
+  // Descrizioni delle fasi
+  const phases = [
+    {
+      id: 1,
+      title: "Base Analysis",
+      description: "Processing metadata and sentiment distribution",
+      detail: "Analyzing review ratings, calculating sentiment percentages, and identifying temporal trends"
+    },
+    {
+      id: 2,
+      title: "Strengths Analysis",
+      description: "Identifying key strengths from reviews",
+      detail: "Using hospitality industry knowledge to detect patterns and generate actionable marketing tips"
+    },
+    {
+      id: 3, 
+      title: "Issues Analysis",
+      description: "Discovering areas for improvement",
+      detail: "Prioritizing issues and creating comprehensive, industry-informed solutions"
+    },
+    {
+      id: 4,
+      title: "Quick Wins & Recommendations",
+      description: "Finalizing insights and suggestions",
+      detail: "Identifying immediate action items and generating follow-up questions"
+    }
+  ];
+  
   return (
     <Dialog open={isOpen} onOpenChange={() => {
       // Prevent closing during analysis
       toast.error("Please wait until the analysis process completes")
     }}>
       <DialogContent className="sm:min-w-[600px] md:min-w-[700px] max-w-[90vw] max-h-[90vh] overflow-y-auto p-0 bg-white">
-        <div className="p-8 flex flex-col items-center justify-center min-h-[450px]">
+        <div className="p-8 flex flex-col items-center justify-center min-h-[500px]">
           <div className="w-full max-w-xl">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold text-gray-800">Analyzing Reviews</h2>
@@ -585,15 +640,43 @@ const AnalysisProgressDialog = ({
               </div>
             </div>
             
+            {/* Phase indicator */}
             <div className="mb-6">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <BrainCircuit className="h-5 w-5 text-blue-600" />
+                  <span className="font-medium text-blue-800">
+                    Phase {currentPhase} of 4: {phases[currentPhase - 1].title}
+                  </span>
+                </div>
+                <span className="text-sm text-gray-500">
+                  Overall: {progress}%
+                </span>
+              </div>
+              
+              {/* Overall progress */}
               <Progress 
                 value={progress} 
-                className="h-3 w-full [&>div]:bg-primary rounded-full mb-2"
+                className="h-2 w-full [&>div]:bg-primary rounded-full mb-3"
               />
-              <div className="flex justify-between text-sm text-gray-500">
-                <span>Processing {actualReviewCount} reviews{isLimited ? ` (latest from ${selectedReviewsCount} selected)` : ''}...</span>
-                <span>{progress}%</span>
+              
+              {/* Current phase progress */}
+              <div className="flex items-center gap-3 mb-1">
+                <span className="text-xs font-medium text-blue-800 w-14">
+                  Current:
+                </span>
+                <Progress 
+                  value={phaseProgress} 
+                  className="h-1.5 w-full [&>div]:bg-blue-400 rounded-full"
+                />
+                <span className="text-xs text-gray-500 w-10">
+                  {Math.round(phaseProgress)}%
+                </span>
               </div>
+              
+              <p className="text-sm text-gray-600 mt-2">
+                {phases[currentPhase - 1].description}. {phases[currentPhase - 1].detail}.
+              </p>
             </div>
             
             {isLimited && (
@@ -615,52 +698,39 @@ const AnalysisProgressDialog = ({
                 <div>
                   <h3 className="text-lg font-semibold text-amber-800 mb-2">Please Don't Close This Window</h3>
                   <p className="text-amber-700">
-                    We're currently analyzing your selected reviews to generate valuable insights.
-                    This process typically takes between 2-3 minutes depending on the number and complexity of reviews.
+                    We're currently analyzing your selected reviews in multiple phases to generate comprehensive insights.
+                    This multi-phase process typically takes between 2-3 minutes depending on the number and complexity of reviews.
                   </p>
                 </div>
               </div>
             </div>
             
             <div className="bg-gray-50 rounded-xl p-6">
-              <h3 className="font-medium text-gray-800 mb-3">What's happening:</h3>
+              <h3 className="font-medium text-gray-800 mb-3">Analysis Phases:</h3>
               <div className="space-y-4">
-                <div className="flex items-start gap-3">
-                  <div className={`rounded-full w-6 h-6 flex items-center justify-center text-xs ${progress > 15 ? 'bg-green-500 text-white' : 'bg-gray-200'}`}>
-                    {progress > 15 ? '✓' : '1'}
+                {phases.map((phase) => (
+                  <div key={phase.id} className="flex items-start gap-3">
+                    <div className={`rounded-full w-6 h-6 flex items-center justify-center text-xs ${
+                      currentPhase > phase.id 
+                        ? 'bg-green-500 text-white' 
+                        : currentPhase === phase.id
+                        ? 'bg-blue-500 text-white'
+                        : 'bg-gray-200'
+                    }`}>
+                      {currentPhase > phase.id ? '✓' : phase.id}
+                    </div>
+                    <div>
+                      <p className={`font-medium ${
+                        currentPhase === phase.id 
+                          ? 'text-blue-700'
+                          : currentPhase > phase.id
+                          ? 'text-green-700'
+                          : 'text-gray-700'
+                      }`}>{phase.title}</p>
+                      <p className="text-sm text-gray-500">{phase.description}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="font-medium text-gray-700">Processing reviews</p>
-                    <p className="text-sm text-gray-500">Extracting key information from {actualReviewCount} reviews</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <div className={`rounded-full w-6 h-6 flex items-center justify-center text-xs ${progress > 40 ? 'bg-green-500 text-white' : 'bg-gray-200'}`}>
-                    {progress > 40 ? '✓' : '2'}
-                  </div>
-                  <div>
-                    <p className="font-medium text-gray-700">Identifying patterns</p>
-                    <p className="text-sm text-gray-500">Finding common themes and sentiments</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <div className={`rounded-full w-6 h-6 flex items-center justify-center text-xs ${progress > 70 ? 'bg-green-500 text-white' : 'bg-gray-200'}`}>
-                    {progress > 70 ? '✓' : '3'}
-                  </div>
-                  <div>
-                    <p className="font-medium text-gray-700">Generating insights</p>
-                    <p className="text-sm text-gray-500">Creating actionable recommendations</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <div className={`rounded-full w-6 h-6 flex items-center justify-center text-xs ${progress > 90 ? 'bg-green-500 text-white' : 'bg-gray-200'}`}>
-                    {progress > 90 ? '✓' : '4'}
-                  </div>
-                  <div>
-                    <p className="font-medium text-gray-700">Preparing report</p>
-                    <p className="text-sm text-gray-500">Organizing findings into comprehensive analysis</p>
-                  </div>
-                </div>
+                ))}
               </div>
             </div>
           </div>
@@ -780,17 +850,32 @@ export default function ReviewsPage() {
     
     if (isAnalyzing) {
       setIsAnalysisDialogOpen(true)
-      // Start with 0% and go to 95% over 2 minutes (simulating progress)
+      // Reset progress
       setAnalysisProgress(0)
+      
+      // Simulate different phases of analysis with varying speeds
       interval = setInterval(() => {
         setAnalysisProgress(prev => {
-          if (prev >= 95) {
-            clearInterval(interval);
-            return 95;
+          // Phase 1: 0-25% (Base Analysis - fastest)
+          if (prev < 25) {
+            return Math.min(25, prev + 1.2);
           }
-          return prev + 1;
+          // Phase 2: 25-50% (Strengths Analysis - medium speed)
+          else if (prev < 50) {
+            return Math.min(50, prev + 0.8);
+          }
+          // Phase 3: 50-75% (Issues Analysis - medium speed)
+          else if (prev < 75) {
+            return Math.min(75, prev + 0.8);
+          }
+          // Phase 4: 75-95% (Quick Wins & Recommendations - slowest)
+          else if (prev < 95) {
+            return Math.min(95, prev + 0.6);
+          }
+          // Stop at 95% (the remaining 5% happens when redirecting to results)
+          return 95;
         });
-      }, 1200); // Increment approximately every 1.2 seconds to reach ~95% in 2 minutes
+      }, 180); // Update approximately every 180ms
     } else {
       setAnalysisProgress(0)
       setIsAnalysisDialogOpen(false)
@@ -906,6 +991,7 @@ export default function ReviewsPage() {
             setIsAnalyticsDialogOpen={setIsAnalyticsDialogOpen}
             isAnalyzing={isAnalyzing}
             setIsAnalyzing={setIsAnalyzing}
+            setAnalysisProgress={setAnalysisProgress}
           />
         </div>
       </div>

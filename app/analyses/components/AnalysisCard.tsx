@@ -83,6 +83,7 @@ export default function AnalysisCard({ analysisId, onSourceClick }: AnalysisCard
   const [isLoading, setIsLoading] = useState(true)
   const [showSentimentTooltip, setShowSentimentTooltip] = useState(false)
   const [showStatsTooltip, setShowStatsTooltip] = useState(false)
+  const [showTrendsTooltip, setShowTrendsTooltip] = useState(false)
   const [expandedSummary, setExpandedSummary] = useState(false)
 
   useEffect(() => {
@@ -329,6 +330,70 @@ export default function AnalysisCard({ analysisId, onSourceClick }: AnalysisCard
                   {renderQuickStats()}
                 </motion.div>
               </div>
+
+              {/* Trends Card */}
+              <motion.div 
+                className="bg-gradient-to-br from-indigo-50 to-white p-4 mt-6 rounded-xl border border-indigo-200/50 shadow-sm hover:shadow-md transition-shadow duration-200"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <TrendingUp className="h-5 w-5 text-indigo-500" />
+                    <h3 className="font-medium text-indigo-900">Temporal Trends</h3>
+                  </div>
+                  <div 
+                    className="relative"
+                    onMouseEnter={() => setShowTrendsTooltip(true)}
+                    onMouseLeave={() => setShowTrendsTooltip(false)}
+                  >
+                    <Info className="h-4 w-4 text-indigo-500 cursor-help" />
+                    {showTrendsTooltip && (
+                      <div className="absolute right-0 top-6 w-64 p-3 bg-white shadow-lg rounded-lg border border-indigo-100 text-xs text-gray-700 z-20">
+                        <p className="font-medium text-indigo-800 mb-1">Trends Analysis</p>
+                        <p className="mb-2">This shows how key metrics have changed over time based on review data.</p>
+                        <p>Positive changes indicate improvements, while negative changes highlight areas that may need attention.</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                
+                {!analysis?.trends || analysis.trends.length === 0 ? (
+                  <div className="text-sm text-indigo-700 p-3 bg-white rounded-lg">
+                    No trend data available
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-3 gap-6">
+                    {analysis.trends.map((trend, index) => (
+                      <div key={index} className="bg-white/50 rounded-lg p-4 border border-indigo-100/50">
+                        <div className="flex justify-between items-center mb-3">
+                          <span className="text-sm font-medium text-indigo-800">{trend.metric}</span>
+                          <span 
+                            className={`flex items-center text-sm font-semibold ${
+                              trend.change.startsWith('+') 
+                                ? 'text-emerald-600' 
+                                : trend.change.startsWith('-') 
+                                ? 'text-rose-600' 
+                                : 'text-indigo-600'
+                            }`}
+                          >
+                            {trend.change.startsWith('+') ? (
+                              <TrendingUp className="h-4 w-4 mr-1" />
+                            ) : trend.change.startsWith('-') ? (
+                              <TrendingDown className="h-4 w-4 mr-1" />
+                            ) : null}
+                            {trend.change}
+                          </span>
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          Over {trend.period}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </motion.div>
 
               {/* Strengths Section */}
               <section className="space-y-4">
