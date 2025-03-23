@@ -3,9 +3,11 @@
 import { useState, useEffect } from "react"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { getCookie } from "@/lib/utils"
-import { Loader2, TrendingUp, TrendingDown, Star, AlertTriangle, Zap, BarChart, Link, Info } from "lucide-react"
+import { Loader2, TrendingUp, TrendingDown, Star, AlertTriangle, Zap, BarChart, Link, Info, Calendar, ArrowRight } from "lucide-react"
 import { Progress } from "@/components/ui/progress"
 import { motion, AnimatePresence } from "framer-motion"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
 interface Strength {
   _id: string
@@ -331,66 +333,159 @@ export default function AnalysisCard({ analysisId, onSourceClick }: AnalysisCard
                 </motion.div>
               </div>
 
-              {/* Trends Card */}
+              {/* Trends Card - Enhanced version */}
               <motion.div 
-                className="bg-gradient-to-br from-indigo-50 to-white p-4 mt-6 rounded-xl border border-indigo-200/50 shadow-sm hover:shadow-md transition-shadow duration-200"
+                className="bg-gradient-to-br from-indigo-50 to-white p-6 mt-6 rounded-xl border border-indigo-200/50 shadow-sm hover:shadow-md transition-shadow duration-200"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
               >
-                <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-2">
                     <TrendingUp className="h-5 w-5 text-indigo-500" />
                     <h3 className="font-medium text-indigo-900">Temporal Trends</h3>
                   </div>
-                  <div 
-                    className="relative"
-                    onMouseEnter={() => setShowTrendsTooltip(true)}
-                    onMouseLeave={() => setShowTrendsTooltip(false)}
-                  >
-                    <Info className="h-4 w-4 text-indigo-500 cursor-help" />
-                    {showTrendsTooltip && (
-                      <div className="absolute right-0 top-6 w-64 p-3 bg-white shadow-lg rounded-lg border border-indigo-100 text-xs text-gray-700 z-20">
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button className="focus:outline-none">
+                          <Info className="h-4 w-4 text-indigo-500" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent side="left" className="w-64 p-3 bg-white shadow-lg rounded-lg border border-indigo-100 text-xs text-gray-700">
                         <p className="font-medium text-indigo-800 mb-1">Trends Analysis</p>
                         <p className="mb-2">This shows how key metrics have changed over time based on review data.</p>
                         <p>Positive changes indicate improvements, while negative changes highlight areas that may need attention.</p>
-                      </div>
-                    )}
-                  </div>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 </div>
                 
                 {!analysis?.trends || analysis.trends.length === 0 ? (
-                  <div className="text-sm text-indigo-700 p-3 bg-white rounded-lg">
-                    No trend data available
+                  <div className="text-sm text-indigo-700 p-4 bg-white rounded-lg border border-indigo-100/50 flex items-center justify-center h-40">
+                    <div className="text-center">
+                      <BarChart className="h-10 w-10 text-indigo-300 mx-auto mb-2" />
+                      <p>No trend data available for this analysis</p>
+                    </div>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-3 gap-6">
-                    {analysis.trends.map((trend, index) => (
-                      <div key={index} className="bg-white/50 rounded-lg p-4 border border-indigo-100/50">
-                        <div className="flex justify-between items-center mb-3">
-                          <span className="text-sm font-medium text-indigo-800">{trend.metric}</span>
-                          <span 
-                            className={`flex items-center text-sm font-semibold ${
-                              trend.change.startsWith('+') 
-                                ? 'text-emerald-600' 
-                                : trend.change.startsWith('-') 
-                                ? 'text-rose-600' 
-                                : 'text-indigo-600'
-                            }`}
-                          >
-                            {trend.change.startsWith('+') ? (
-                              <TrendingUp className="h-4 w-4 mr-1" />
-                            ) : trend.change.startsWith('-') ? (
-                              <TrendingDown className="h-4 w-4 mr-1" />
-                            ) : null}
-                            {trend.change}
-                          </span>
+                  <div>
+                    <Tabs defaultValue="grid" className="w-full mb-4">
+                      <TabsList className="w-fit mb-3 bg-indigo-100/50">
+                        <TabsTrigger value="grid" className="text-xs data-[state=active]:bg-indigo-500 data-[state=active]:text-white">Grid View</TabsTrigger>
+                        <TabsTrigger value="list" className="text-xs data-[state=active]:bg-indigo-500 data-[state=active]:text-white">List View</TabsTrigger>
+                      </TabsList>
+                      
+                      <TabsContent value="grid">
+                        <div className="grid grid-cols-3 gap-6">
+                          {analysis.trends.map((trend, index) => (
+                            <motion.div 
+                              key={index}
+                              initial={{ opacity: 0, scale: 0.95 }}
+                              animate={{ opacity: 1, scale: 1 }}
+                              transition={{ delay: index * 0.05 }}
+                              className="bg-white rounded-lg p-5 border border-indigo-100/50 hover:shadow-md transition-all duration-200 relative overflow-hidden group"
+                            >
+                              {/* Background sparkline indicator - decorative only */}
+                              <div className="absolute bottom-0 left-0 right-0 h-12 opacity-10 group-hover:opacity-20 transition-opacity">
+                                <svg viewBox="0 0 100 20" className="w-full h-full">
+                                  <path
+                                    d={`M0,10 Q20,${trend.change.startsWith('+') ? '5' : '15'} 40,${trend.change.startsWith('+') ? '2' : '18'} T80,${trend.change.startsWith('+') ? '1' : '19'} T100,${trend.change.startsWith('+') ? '0' : '20'}`}
+                                    fill="none"
+                                    stroke={trend.change.startsWith('+') ? '#10b981' : '#ef4444'}
+                                    strokeWidth="2"
+                                  />
+                                </svg>
+                              </div>
+                              
+                              <span className="text-sm font-medium text-indigo-900 block mb-1">{trend.metric}</span>
+                              
+                              <div className="flex justify-between items-center mb-3">
+                                <div className="flex items-center gap-1.5">
+                                  <Calendar className="h-3.5 w-3.5 text-indigo-400" />
+                                  <span className="text-xs text-indigo-500">{trend.period}</span>
+                                </div>
+                              </div>
+                              
+                              <div 
+                                className={`flex items-center justify-between p-3 rounded-lg ${
+                                  trend.change.startsWith('+') 
+                                    ? 'bg-emerald-50 text-emerald-600' 
+                                    : trend.change.startsWith('-') 
+                                    ? 'bg-rose-50 text-rose-600' 
+                                    : 'bg-indigo-50 text-indigo-600'
+                                }`}
+                              >
+                                <span className="text-sm font-semibold">
+                                  {trend.change}
+                                </span>
+                                {trend.change.startsWith('+') ? (
+                                  <TrendingUp className="h-5 w-5" />
+                                ) : trend.change.startsWith('-') ? (
+                                  <TrendingDown className="h-5 w-5" />
+                                ) : (
+                                  <ArrowRight className="h-5 w-5" />
+                                )}
+                              </div>
+                            </motion.div>
+                          ))}
                         </div>
-                        <div className="text-xs text-gray-500">
-                          Over {trend.period}
+                      </TabsContent>
+                      
+                      <TabsContent value="list">
+                        <div className="bg-white rounded-lg border border-indigo-100/50 overflow-hidden">
+                          <div className="grid grid-cols-12 gap-2 p-3 bg-indigo-50/50 border-b border-indigo-100/50 text-xs font-medium text-indigo-900">
+                            <div className="col-span-5">Metric</div>
+                            <div className="col-span-3">Period</div>
+                            <div className="col-span-4">Change</div>
+                          </div>
+                          {analysis.trends.map((trend, index) => (
+                            <div 
+                              key={index} 
+                              className="grid grid-cols-12 gap-2 p-4 text-sm border-b last:border-0 border-indigo-50 hover:bg-indigo-50/20 transition-colors"
+                            >
+                              <div className="col-span-5 font-medium text-indigo-900">{trend.metric}</div>
+                              <div className="col-span-3 text-indigo-600">{trend.period}</div>
+                              <div className="col-span-4">
+                                <span 
+                                  className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium ${
+                                    trend.change.startsWith('+') 
+                                      ? 'bg-emerald-100 text-emerald-700' 
+                                      : trend.change.startsWith('-') 
+                                      ? 'bg-rose-100 text-rose-700' 
+                                      : 'bg-indigo-100 text-indigo-700'
+                                  }`}
+                                >
+                                  {trend.change.startsWith('+') ? (
+                                    <TrendingUp className="h-3 w-3" />
+                                  ) : trend.change.startsWith('-') ? (
+                                    <TrendingDown className="h-3 w-3" />
+                                  ) : (
+                                    <ArrowRight className="h-3 w-3" />
+                                  )}
+                                  {trend.change}
+                                </span>
+                              </div>
+                            </div>
+                          ))}
                         </div>
+                      </TabsContent>
+                    </Tabs>
+                    
+                    <div className="flex justify-between items-center text-xs text-indigo-600 mt-3">
+                      <div className="flex items-center gap-1">
+                        <span className="h-2 w-2 rounded-full bg-emerald-500"></span>
+                        <span>Positive trend</span>
                       </div>
-                    ))}
+                      <div className="flex items-center gap-1">
+                        <span className="h-2 w-2 rounded-full bg-rose-500"></span>
+                        <span>Negative trend</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <span className="h-2 w-2 rounded-full bg-indigo-500"></span>
+                        <span>Neutral trend</span>
+                      </div>
+                    </div>
                   </div>
                 )}
               </motion.div>

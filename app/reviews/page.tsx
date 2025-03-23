@@ -586,16 +586,6 @@ const AnalysisProgressDialog = ({
   };
   
   const currentPhase = getCurrentPhase();
-  
-  // Calcola il progresso all'interno della fase corrente (0-100)
-  const getPhaseProgress = () => {
-    if (currentPhase === 1) return (progress / 25) * 100;
-    if (currentPhase === 2) return ((progress - 25) / 25) * 100;
-    if (currentPhase === 3) return ((progress - 50) / 25) * 100;
-    return ((progress - 75) / 25) * 100;
-  };
-  
-  const phaseProgress = getPhaseProgress();
 
   // Descrizioni delle fasi
   const phases = [
@@ -636,53 +626,35 @@ const AnalysisProgressDialog = ({
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold text-gray-800">Analyzing Reviews</h2>
               <div className="bg-blue-100 text-blue-800 py-1 px-3 rounded-full text-sm font-medium flex items-center">
-                <Clock className="w-4 h-4 mr-1" /> 2-3 minutes
+                <Clock className="w-4 h-4 mr-1" /> 5-6 minutes
               </div>
             </div>
             
             {/* Phase indicator */}
             <div className="mb-6">
               <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-2">
-                  <BrainCircuit className="h-5 w-5 text-blue-600" />
-                  <span className="font-medium text-blue-800">
-                    Phase {currentPhase} of 4: {phases[currentPhase - 1].title}
-                  </span>
-                </div>
-                <span className="text-sm text-gray-500">
-                  Overall: {progress}%
+                <span className="font-medium text-blue-800">
+                  Phase {currentPhase} of 4: {phases[currentPhase - 1].title}
+                </span>
+                <span className="text-sm font-medium text-gray-700">
+                  {Math.round(progress)}%
                 </span>
               </div>
               
               {/* Overall progress */}
               <Progress 
                 value={progress} 
-                className="h-2 w-full [&>div]:bg-primary rounded-full mb-3"
+                className="h-3 w-full [&>div]:bg-primary rounded-full mb-3"
               />
               
-              {/* Current phase progress */}
-              <div className="flex items-center gap-3 mb-1">
-                <span className="text-xs font-medium text-blue-800 w-14">
-                  Current:
-                </span>
-                <Progress 
-                  value={phaseProgress} 
-                  className="h-1.5 w-full [&>div]:bg-blue-400 rounded-full"
-                />
-                <span className="text-xs text-gray-500 w-10">
-                  {Math.round(phaseProgress)}%
-                </span>
-              </div>
-              
               <p className="text-sm text-gray-600 mt-2">
-                {phases[currentPhase - 1].description}. {phases[currentPhase - 1].detail}.
+                {phases[currentPhase - 1].description}
               </p>
             </div>
             
             {isLimited && (
               <div className="bg-blue-50 border-l-4 border-blue-400 p-4 rounded-r-xl mb-6">
                 <div className="flex gap-3">
-                  <BrainCircuit className="w-5 h-5 text-blue-500 flex-shrink-0" />
                   <div>
                     <p className="text-blue-700">
                       For optimal analysis quality, we're processing your <strong>1,000 most recent reviews</strong> out of {selectedReviewsCount} selected.
@@ -699,7 +671,7 @@ const AnalysisProgressDialog = ({
                   <h3 className="text-lg font-semibold text-amber-800 mb-2">Please Don't Close This Window</h3>
                   <p className="text-amber-700">
                     We're currently analyzing your selected reviews in multiple phases to generate comprehensive insights.
-                    This multi-phase process typically takes between 2-3 minutes depending on the number and complexity of reviews.
+                    This process includes necessary pauses between phases and will take about 5-6 minutes for a full analysis of 1,000 reviews.
                   </p>
                 </div>
               </div>
@@ -847,35 +819,63 @@ export default function ReviewsPage() {
   // Add progress animation effect
   useEffect(() => {
     let interval: NodeJS.Timeout;
+    let pauseTimeout: NodeJS.Timeout;
+    let isPaused = false;
     
     if (isAnalyzing) {
       setIsAnalysisDialogOpen(true)
       // Reset progress
       setAnalysisProgress(0)
       
-      // Simulate different phases of analysis with varying speeds
+      // Simulate progress with pauses between phases to better match backend
       interval = setInterval(() => {
+        if (isPaused) return;
+        
         setAnalysisProgress(prev => {
-          // Phase 1: 0-25% (Base Analysis - fastest)
+          // If we reached specific pause points (end of each phase)
+          if ((prev >= 24.8 && prev < 25) || 
+              (prev >= 49.8 && prev < 50) || 
+              (prev >= 74.8 && prev < 75)) {
+            
+            // Trigger pause
+            isPaused = true;
+            const pauseDuration = prev < 25 ? 70000 : // 70 seconds after phase 1
+                                 prev < 50 ? 90000 : // 90 seconds after phase 2 
+                                 70000;             // 70 seconds after phase 3
+            
+            // Show exact phase boundary
+            const exactProgress = prev < 25 ? 25 : prev < 50 ? 50 : 75;
+            setAnalysisProgress(exactProgress);
+            
+            // Resume after pause
+            pauseTimeout = setTimeout(() => {
+              isPaused = false;
+            }, pauseDuration);
+            
+            return exactProgress;
+          }
+          
+          // Regular progress speed - much slower to match the backend timing
+          // Phase 1: 0-25% (Base Analysis)
           if (prev < 25) {
-            return Math.min(25, prev + 1.2);
+            return Math.min(25, prev + 0.3);
           }
-          // Phase 2: 25-50% (Strengths Analysis - medium speed)
+          // Phase 2: 25-50% (Strengths Analysis)
           else if (prev < 50) {
-            return Math.min(50, prev + 0.8);
+            return Math.min(50, prev + 0.2);
           }
-          // Phase 3: 50-75% (Issues Analysis - medium speed)
+          // Phase 3: 50-75% (Issues Analysis)
           else if (prev < 75) {
-            return Math.min(75, prev + 0.8);
+            return Math.min(75, prev + 0.2);
           }
-          // Phase 4: 75-95% (Quick Wins & Recommendations - slowest)
+          // Phase 4: 75-95% (Quick Wins & Recommendations)
           else if (prev < 95) {
-            return Math.min(95, prev + 0.6);
+            return Math.min(95, prev + 0.15);
           }
           // Stop at 95% (the remaining 5% happens when redirecting to results)
           return 95;
         });
-      }, 180); // Update approximately every 180ms
+      }, 300); // Update approximately every 300ms (slower updates)
     } else {
       setAnalysisProgress(0)
       setIsAnalysisDialogOpen(false)
@@ -883,6 +883,7 @@ export default function ReviewsPage() {
     
     return () => {
       if (interval) clearInterval(interval);
+      if (pauseTimeout) clearTimeout(pauseTimeout);
     };
   }, [isAnalyzing]);
 
