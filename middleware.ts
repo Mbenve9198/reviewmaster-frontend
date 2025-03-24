@@ -7,7 +7,12 @@ export function middleware(request: NextRequest) {
   const isRegisterPage = request.nextUrl.pathname === '/signup'
   const isVerifyEmailPage = request.nextUrl.pathname === '/verify-email'
   const isResetPasswordPage = request.nextUrl.pathname.startsWith('/reset-password')
-  const isPublicPage = isLoginPage || isRegisterPage || isVerifyEmailPage || isResetPasswordPage
+  const isLegalDocument = [
+    '/cookie-policy.html',
+    '/privacy-policy.html',
+    '/terms-of-service.html'
+  ].includes(request.nextUrl.pathname)
+  const isPublicPage = isLoginPage || isRegisterPage || isVerifyEmailPage || isResetPasswordPage || isLegalDocument
   const isHomePage = request.nextUrl.pathname === '/'
 
   // Se l'utente non è autenticato e sta cercando di accedere a una pagina protetta
@@ -16,7 +21,7 @@ export function middleware(request: NextRequest) {
   }
 
   // Se l'utente è autenticato e sta cercando di accedere a login/register
-  if (token && isPublicPage && !isVerifyEmailPage && !isResetPasswordPage) {
+  if (token && isPublicPage && !isVerifyEmailPage && !isResetPasswordPage && !isLegalDocument) {
     return NextResponse.redirect(new URL('/reviews', request.url))
   }
 
