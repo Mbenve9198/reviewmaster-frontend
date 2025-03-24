@@ -10,10 +10,22 @@ export function Footer() {
           </div>
           <div className="flex items-center space-x-6">
             <Link 
-              href="/privacy" 
+              href="/privacy-policy.html" 
               className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
             >
               Privacy Policy
+            </Link>
+            <Link 
+              href="/terms-of-service.html" 
+              className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
+            >
+              Terms of Service
+            </Link>
+            <Link 
+              href="/cookie-policy.html" 
+              className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
+            >
+              Cookie Policy
             </Link>
             <a 
               href="mailto:marco@midachat.com" 
