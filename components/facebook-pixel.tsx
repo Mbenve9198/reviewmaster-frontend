@@ -95,7 +95,8 @@ export default function FacebookPixel() {
         
         // Aggiungi fbclid a tutti i link verso il sito principale
         setTimeout(() => {
-          const links = document.querySelectorAll(`a[href*="${mainDomain}"]`);
+          // Corretto: Specifichiamo il tipo corretto HTMLAnchorElement
+          const links = document.querySelectorAll(`a[href*="${mainDomain}"]`) as NodeListOf<HTMLAnchorElement>;
           links.forEach(link => {
             try {
               const url = new URL(link.href);
