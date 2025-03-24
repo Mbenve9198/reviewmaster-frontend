@@ -7,6 +7,7 @@ declare global {
   interface Window {
     fbq: any
     _fbq: any
+    _fbPixelInitialized: boolean
   }
 }
 
@@ -14,9 +15,12 @@ export default function FacebookPixel() {
   const PIXEL_ID = "1332101527823280"
 
   useEffect(() => {
-    // Verifica se l'utente ha accettato i cookie di marketing
+    if (window._fbPixelInitialized) {
+      return
+    }
+
     const cookieConsent = localStorage.getItem("cookie-consent")
-    let marketingAccepted = true // Default a true se non c'è ancora una scelta
+    let marketingAccepted = true
 
     if (cookieConsent) {
       try {
@@ -27,9 +31,7 @@ export default function FacebookPixel() {
       }
     }
 
-    // Inizializza Facebook Pixel solo se i cookie di marketing sono accettati
     if (marketingAccepted) {
-      // Inizializza il pixel
       if (!window.fbq) {
         window.fbq = () => {
           // @ts-ignore
@@ -43,19 +45,18 @@ export default function FacebookPixel() {
       window.fbq.version = "2.0"
       window.fbq.queue = []
 
-      // Traccia la visualizzazione della pagina
       window.fbq("init", PIXEL_ID)
       window.fbq("track", "PageView")
+      
+      window._fbPixelInitialized = true
     }
 
-    // Funzione per gestire il cambio di preferenze dei cookie
     const handleCookiePreferencesChange = () => {
       const updatedConsent = localStorage.getItem("cookie-consent")
       if (updatedConsent) {
         try {
           const preferences = JSON.parse(updatedConsent)
           if (preferences.marketing && !window.fbq.loaded) {
-            // Se l'utente ha appena accettato i cookie di marketing, carica il pixel
             const script = document.createElement("script")
             script.src = "https://connect.facebook.net/en_US/fbevents.js"
             script.async = true
@@ -64,6 +65,8 @@ export default function FacebookPixel() {
             script.onload = () => {
               window.fbq("init", PIXEL_ID)
               window.fbq("track", "PageView")
+              
+              window._fbPixelInitialized = true
             }
           }
         } catch (e) {
@@ -72,7 +75,6 @@ export default function FacebookPixel() {
       }
     }
 
-    // Ascolta i cambiamenti nelle preferenze dei cookie
     window.addEventListener("cookiePreferencesChanged", handleCookiePreferencesChange)
 
     return () => {
@@ -82,7 +84,6 @@ export default function FacebookPixel() {
 
   return (
     <>
-      {/* Script del Facebook Pixel - caricato in modo condizionale */}
       <Script
         id="facebook-pixel"
         strategy="afterInteractive"
@@ -102,7 +103,6 @@ export default function FacebookPixel() {
         }}
       />
 
-      {/* Fallback per browser con JavaScript disabilitato */}
       <noscript>
         <img
           height="1"
