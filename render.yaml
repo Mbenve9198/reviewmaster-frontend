@@ -1,12 +1,12 @@
 services:
   - type: web
-    name: reviewmaster-frontend
+    name: replai-frontend
     env: node
     buildCommand: npm install && npm run build
     startCommand: npm start
     envVars:
       - key: NEXT_PUBLIC_API_URL
-        value: https://reviewmaster-api.onrender.com
+        value: https://replai-api.onrender.com
       - key: NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
         sync: false
       - key: STRIPE_SECRET_KEY

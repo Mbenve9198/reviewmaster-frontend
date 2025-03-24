@@ -6,6 +6,7 @@ import { Elements } from '@stripe/react-stripe-js'
 import { loadStripe } from '@stripe/stripe-js'
 import { Particles } from "@/components/ui/particles"
 import { WhatsAppSupport } from "@/components/ui/whatsapp-support"
+import FacebookPixel from "@/components/facebook-pixel"
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
 
@@ -21,6 +22,8 @@ export function ClientLayout({
 
   return (
     <Elements stripe={stripePromise}>
+      {/* Facebook Pixel per il tracciamento */}
+      <FacebookPixel />
       <div className="flex h-full">
         {shouldShowSidebar && <Sidebar />}
         <main className={`flex-1 overflow-auto ${isAuthPage ? 'relative' : ''}`}>

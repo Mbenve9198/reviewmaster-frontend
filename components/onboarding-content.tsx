@@ -15,13 +15,13 @@ export function OnboardingContent() {
         <div className="relative">
           <Image
             src="/placeholder.svg"
-            alt="ReviewMaster Mascot"
+            alt="Replai Mascot"
             width={180}
             height={180}
             className="mx-auto"
           />
         </div>
-        <h1 className="text-4xl font-bold text-[#58CC02]">Welcome to ReviewMaster!</h1>
+        <h1 className="text-4xl font-bold text-[#58CC02]">Welcome to Replai!</h1>
         <p className="text-xl text-gray-600">Start your journey to better review management</p>
       </div>
 
