@@ -207,6 +207,14 @@ export default function SignUpPage() {
                   type="submit"
                   disabled={isLoading}
                   className="w-full text-xl py-6 rounded-xl bg-primary text-primary-foreground shadow-[0_4px_0_0_#2563eb] hover:shadow-[0_2px_0_0_#2563eb] hover:translate-y-[2px] transition-all flex items-center justify-center"
+                  onClick={() => {
+                    if (typeof window !== 'undefined' && window.fbq) {
+                      window.fbq('track', 'CompleteRegistration', {
+                        origin: 'SignupPage'
+                      });
+                      console.log('[Facebook Pixel] Tracked: CompleteRegistration');
+                    }
+                  }}
                 >
                   {isLoading ? (
                     <motion.div
