@@ -124,16 +124,20 @@ export default function BillingAddressForm({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5 px-1">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             control={form.control}
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Full Name*</FormLabel>
+                <FormLabel className="text-gray-700">Full Name*</FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder="Full Name" />
+                  <Input 
+                    {...field} 
+                    placeholder="Full Name" 
+                    className="rounded-xl h-11 focus:border-primary" 
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -145,9 +149,13 @@ export default function BillingAddressForm({
             name="company"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Company</FormLabel>
+                <FormLabel className="text-gray-700">Company</FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder="Company name (optional)" />
+                  <Input 
+                    {...field} 
+                    placeholder="Company name (optional)" 
+                    className="rounded-xl h-11 focus:border-primary" 
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -161,9 +169,13 @@ export default function BillingAddressForm({
             name="vatId"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>VAT Number</FormLabel>
+                <FormLabel className="text-gray-700">VAT Number</FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder="VAT number (optional)" />
+                  <Input 
+                    {...field} 
+                    placeholder="VAT number (optional)" 
+                    className="rounded-xl h-11 focus:border-primary" 
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -175,9 +187,13 @@ export default function BillingAddressForm({
             name="taxId"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Tax ID</FormLabel>
+                <FormLabel className="text-gray-700">Tax ID</FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder="Tax ID (optional)" />
+                  <Input 
+                    {...field} 
+                    placeholder="Tax ID (optional)" 
+                    className="rounded-xl h-11 focus:border-primary" 
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -185,17 +201,21 @@ export default function BillingAddressForm({
           />
         </div>
 
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold">Address</h3>
+        <div className="space-y-4 pt-2">
+          <h3 className="text-lg font-semibold text-gray-800">Address</h3>
           
           <FormField
             control={form.control}
             name="address.line1"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Address Line 1*</FormLabel>
+                <FormLabel className="text-gray-700">Address Line 1*</FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder="Street address" />
+                  <Input 
+                    {...field} 
+                    placeholder="Street address" 
+                    className="rounded-xl h-11 focus:border-primary" 
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -207,9 +227,13 @@ export default function BillingAddressForm({
             name="address.line2"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Address Line 2</FormLabel>
+                <FormLabel className="text-gray-700">Address Line 2</FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder="Apartment, suite, etc. (optional)" />
+                  <Input 
+                    {...field} 
+                    placeholder="Apartment, suite, etc. (optional)" 
+                    className="rounded-xl h-11 focus:border-primary" 
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -222,9 +246,13 @@ export default function BillingAddressForm({
               name="address.city"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>City*</FormLabel>
+                  <FormLabel className="text-gray-700">City*</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="City" />
+                    <Input 
+                      {...field} 
+                      placeholder="City" 
+                      className="rounded-xl h-11 focus:border-primary" 
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -236,9 +264,13 @@ export default function BillingAddressForm({
               name="address.state"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>State/Province</FormLabel>
+                  <FormLabel className="text-gray-700">State/Province</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="State or province (optional)" />
+                    <Input 
+                      {...field} 
+                      placeholder="State or province (optional)" 
+                      className="rounded-xl h-11 focus:border-primary" 
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -252,9 +284,13 @@ export default function BillingAddressForm({
               name="address.postalCode"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Postal Code*</FormLabel>
+                  <FormLabel className="text-gray-700">Postal Code*</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="Postal Code" />
+                    <Input 
+                      {...field} 
+                      placeholder="Postal Code" 
+                      className="rounded-xl h-11 focus:border-primary" 
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -266,14 +302,14 @@ export default function BillingAddressForm({
               name="address.country"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Country*</FormLabel>
+                  <FormLabel className="text-gray-700">Country*</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
-                      <SelectTrigger>
+                      <SelectTrigger className="rounded-xl h-11">
                         <SelectValue placeholder="Select a country" />
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent>
+                    <SelectContent className="rounded-xl">
                       {countries.map((country) => (
                         <SelectItem key={country.value} value={country.value}>
                           {country.label}
@@ -293,9 +329,13 @@ export default function BillingAddressForm({
           name="phone"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Phone</FormLabel>
+              <FormLabel className="text-gray-700">Phone</FormLabel>
               <FormControl>
-                <Input {...field} placeholder="Phone number (optional)" />
+                <Input 
+                  {...field} 
+                  placeholder="Phone number (optional)" 
+                  className="rounded-xl h-11 focus:border-primary" 
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -306,15 +346,16 @@ export default function BillingAddressForm({
           control={form.control}
           name="isDefault"
           render={({ field }) => (
-            <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+            <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-xl border p-4 bg-gray-50">
               <FormControl>
                 <Checkbox
                   checked={field.value}
                   onCheckedChange={field.onChange}
+                  className="mt-1"
                 />
               </FormControl>
               <div className="space-y-1 leading-none">
-                <FormLabel>Set as default billing address</FormLabel>
+                <FormLabel className="text-gray-700">Set as default billing address</FormLabel>
                 <p className="text-sm text-gray-500">
                   This address will be used for all future invoices
                 </p>
@@ -330,6 +371,7 @@ export default function BillingAddressForm({
               onClick={onCancel} 
               variant="outline"
               disabled={isSubmitting}
+              className="rounded-xl h-11"
             >
               Cancel
             </Button>
@@ -338,7 +380,7 @@ export default function BillingAddressForm({
           <Button 
             type="submit" 
             disabled={isSubmitting}
-            className="bg-primary hover:bg-primary/90"
+            className="bg-primary hover:bg-primary/90 rounded-xl h-11"
           >
             {isSubmitting ? (
               <>

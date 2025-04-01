@@ -192,7 +192,7 @@ const CreditPurchaseSlider = ({ open, onClose, billingAddress }: CreditPurchaseS
             onClick={() => setIsBillingAddressModalOpen(true)}
             variant="outline"
             size="sm"
-            className="w-full border-yellow-200 bg-white hover:bg-yellow-50"
+            className="w-full rounded-xl border-yellow-200 bg-white hover:bg-yellow-50"
           >
             Configure Address
           </Button>
@@ -211,7 +211,7 @@ const CreditPurchaseSlider = ({ open, onClose, billingAddress }: CreditPurchaseS
             onClick={() => setIsBillingAddressModalOpen(true)}
             variant="ghost"
             size="sm"
-            className="h-8 px-2 text-blue-600"
+            className="h-8 px-2 text-blue-600 rounded-lg"
           >
             <Edit className="w-4 h-4 mr-1" />
             Edit
