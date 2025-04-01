@@ -67,7 +67,39 @@ const CreditPurchaseSlider = ({ open, onClose, billingAddress }: CreditPurchaseS
   const [isStripeLoading, setIsStripeLoading] = useState(true)
   const [isBillingAddressModalOpen, setIsBillingAddressModalOpen] = useState(false)
   const [currentBillingAddress, setCurrentBillingAddress] = useState<BillingAddress | null>(billingAddress || null)
+  const [isLoadingAddress, setIsLoadingAddress] = useState(false)
   const { refresh } = useWallet()
+
+  useEffect(() => {
+    if (open) {
+      const fetchBillingAddress = async () => {
+        try {
+          setIsLoadingAddress(true)
+          const token = getCookie('token')
+          if (!token) return
+          
+          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/wallet/billing-address`, {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          })
+          
+          if (response.ok) {
+            const data = await response.json()
+            if (data.billingAddress) {
+              setCurrentBillingAddress(data.billingAddress)
+            }
+          }
+        } catch (error) {
+          console.error('Error fetching billing address:', error)
+        } finally {
+          setIsLoadingAddress(false)
+        }
+      }
+      
+      fetchBillingAddress()
+    }
+  }, [open])
 
   useEffect(() => {
     if (billingAddress) {
@@ -178,6 +210,15 @@ const CreditPurchaseSlider = ({ open, onClose, billingAddress }: CreditPurchaseS
   const possibleActivities = calculatePossibleActivities(credits)
 
   const renderBillingAddress = () => {
+    if (isLoadingAddress) {
+      return (
+        <div className="p-4 bg-gray-50 border border-gray-200 rounded-xl mb-4 flex items-center justify-center">
+          <Loader2 className="w-5 h-5 animate-spin text-primary mr-2" />
+          <span>Loading billing address...</span>
+        </div>
+      )
+    }
+    
     if (!currentBillingAddress) {
       return (
         <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-xl mb-4">
