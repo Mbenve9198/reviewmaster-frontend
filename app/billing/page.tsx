@@ -21,7 +21,8 @@ import {
   Settings,
   Receipt,
   Building2,
-  MapPin
+  MapPin,
+  Edit
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useUser } from "@/hooks/use-user";
@@ -386,9 +387,9 @@ export default function BillingPage() {
                       variant="outline" 
                       size="sm" 
                       onClick={() => setIsBillingAddressModalOpen(true)}
-                      className="flex items-center gap-1"
+                      className="flex items-center gap-1 rounded-xl hover:bg-gray-50 transition-all font-medium"
                     >
-                      <Settings className="w-4 h-4" />
+                      <Edit className="w-4 h-4 mr-1" />
                       Edit
                     </Button>
                   </div>
@@ -431,7 +432,7 @@ export default function BillingPage() {
                   </p>
                   <Button 
                     onClick={() => setIsBillingAddressModalOpen(true)}
-                    className="bg-primary hover:bg-primary/90"
+                    className="bg-primary hover:bg-primary/90 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 font-medium"
                   >
                     Add Address
                   </Button>

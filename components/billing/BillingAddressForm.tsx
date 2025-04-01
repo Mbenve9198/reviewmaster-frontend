@@ -371,7 +371,7 @@ export default function BillingAddressForm({
               onClick={onCancel} 
               variant="outline"
               disabled={isSubmitting}
-              className="rounded-xl h-11"
+              className="rounded-xl h-11 px-6 font-medium border-gray-300 hover:bg-gray-50 transition-all duration-200"
             >
               Cancel
             </Button>
@@ -380,7 +380,7 @@ export default function BillingAddressForm({
           <Button 
             type="submit" 
             disabled={isSubmitting}
-            className="bg-primary hover:bg-primary/90 rounded-xl h-11"
+            className="bg-primary hover:bg-primary/90 rounded-xl h-11 px-6 font-medium shadow-sm hover:shadow transition-all duration-200"
           >
             {isSubmitting ? (
               <>

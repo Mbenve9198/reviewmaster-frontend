@@ -118,9 +118,9 @@ export function BillingAddressModal({
                     variant="outline" 
                     size="sm" 
                     onClick={() => setIsEditing(true)}
-                    className="flex items-center gap-1 rounded-lg hover:bg-gray-100"
+                    className="flex items-center gap-1 rounded-xl hover:bg-gray-50 transition-all duration-200 font-medium border-gray-200"
                   >
-                    <Edit className="w-4 h-4" />
+                    <Edit className="w-4 h-4 mr-1" />
                     Edit
                   </Button>
                 </div>
@@ -166,7 +166,7 @@ export function BillingAddressModal({
               <div className="flex justify-end mt-6">
                 <Button 
                   onClick={onClose}
-                  className="bg-primary hover:bg-primary/90 rounded-xl"
+                  className="bg-primary hover:bg-primary/90 rounded-xl h-10 px-5 font-medium transition-all duration-200 shadow-sm hover:shadow"
                 >
                   Close
                 </Button>
@@ -180,7 +180,7 @@ export function BillingAddressModal({
               </p>
               <Button 
                 onClick={() => setIsEditing(true)}
-                className="bg-primary hover:bg-primary/90 rounded-xl"
+                className="bg-primary hover:bg-primary/90 rounded-xl h-10 px-6 font-medium transition-all duration-200 shadow-sm hover:shadow"
               >
                 Add Address
               </Button>
