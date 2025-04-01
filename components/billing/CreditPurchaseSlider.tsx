@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/sheet"
 import { Button } from "@/components/ui/button"
 import { Slider } from "@/components/ui/slider"
-import { Loader2, CreditCard, Sparkles } from 'lucide-react'
+import { Loader2, CreditCard, Sparkles, Receipt, MapPin, Building2, Edit } from 'lucide-react'
 import { Elements } from '@stripe/react-stripe-js'
 import { loadStripe } from '@stripe/stripe-js'
 import { getCookie } from '@/lib/utils'
@@ -16,10 +16,12 @@ import { toast } from 'sonner'
 import PaymentForm from './PaymentForm'
 import { useWallet } from '@/hooks/useWallet'
 import { motion, AnimatePresence } from 'framer-motion'
+import { BillingAddressModal, BillingAddress } from './BillingAddressModal'
 
 interface CreditPurchaseSliderProps {
-  open: boolean
-  onClose: () => void
+  open: boolean;
+  onClose: () => void;
+  billingAddress?: BillingAddress | null;
 }
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
@@ -58,12 +60,20 @@ const calculatePossibleActivities = (credits: number) => {
   }
 }
 
-const CreditPurchaseSlider = ({ open, onClose }: CreditPurchaseSliderProps) => {
+const CreditPurchaseSlider = ({ open, onClose, billingAddress }: CreditPurchaseSliderProps) => {
   const [credits, setCredits] = useState<number>(1000)
   const [isLoading, setIsLoading] = useState(false)
   const [clientSecret, setClientSecret] = useState<string>("")
   const [isStripeLoading, setIsStripeLoading] = useState(true)
+  const [isBillingAddressModalOpen, setIsBillingAddressModalOpen] = useState(false)
+  const [currentBillingAddress, setCurrentBillingAddress] = useState<BillingAddress | null>(billingAddress || null)
   const { refresh } = useWallet()
+
+  useEffect(() => {
+    if (billingAddress) {
+      setCurrentBillingAddress(billingAddress)
+    }
+  }, [billingAddress])
 
   const handleSuccess = async () => {
     await refresh()
@@ -88,13 +98,41 @@ const CreditPurchaseSlider = ({ open, onClose }: CreditPurchaseSliderProps) => {
         throw new Error('No authentication token found')
       }
 
+      if (!currentBillingAddress) {
+        setIsBillingAddressModalOpen(true)
+        setIsLoading(false)
+        return
+      }
+
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/wallet/payment-intent`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({ credits })
+        body: JSON.stringify({ 
+          credits,
+          billingDetails: {
+            name: currentBillingAddress.name,
+            email: '',
+            phone: currentBillingAddress.phone,
+            address: {
+              line1: currentBillingAddress.address.line1,
+              line2: currentBillingAddress.address.line2 || '',
+              city: currentBillingAddress.address.city,
+              state: currentBillingAddress.address.state || '',
+              postal_code: currentBillingAddress.address.postalCode,
+              country: currentBillingAddress.address.country,
+            },
+            tax_ids: [
+              ...(currentBillingAddress.vatId ? [{ type: 'eu_vat', value: currentBillingAddress.vatId }] : []),
+              ...(currentBillingAddress.taxId ? [{ type: 'it_pin', value: currentBillingAddress.taxId }] : []),
+            ]
+          },
+          business_details: currentBillingAddress.company 
+            ? { name: currentBillingAddress.company } 
+            : undefined
+        })
       })
       
       if (!response.ok) {
@@ -126,6 +164,11 @@ const CreditPurchaseSlider = ({ open, onClose }: CreditPurchaseSliderProps) => {
     }
   }
 
+  const handleAddressUpdate = (address: BillingAddress) => {
+    setCurrentBillingAddress(address)
+    setIsBillingAddressModalOpen(false)
+  }
+
   const creditOptions = [
     { credits: 50, label: "Starter" },
     { credits: 500, label: "Manager" },
@@ -133,6 +176,67 @@ const CreditPurchaseSlider = ({ open, onClose }: CreditPurchaseSliderProps) => {
   ]
 
   const possibleActivities = calculatePossibleActivities(credits)
+
+  const renderBillingAddress = () => {
+    if (!currentBillingAddress) {
+      return (
+        <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-xl mb-4">
+          <div className="flex items-center text-yellow-600 mb-2">
+            <MapPin className="w-5 h-5 mr-2" />
+            <span className="font-medium">No billing address configured</span>
+          </div>
+          <p className="text-sm text-gray-600 mb-3">
+            You need to configure a billing address to proceed with the purchase.
+          </p>
+          <Button 
+            onClick={() => setIsBillingAddressModalOpen(true)}
+            variant="outline"
+            size="sm"
+            className="w-full border-yellow-200 bg-white hover:bg-yellow-50"
+          >
+            Configure Address
+          </Button>
+        </div>
+      )
+    }
+
+    return (
+      <div className="p-4 bg-blue-50 border border-blue-100 rounded-xl mb-4">
+        <div className="flex justify-between items-center mb-2">
+          <div className="flex items-center text-blue-600">
+            <Receipt className="w-5 h-5 mr-2" />
+            <span className="font-medium">Billing Address</span>
+          </div>
+          <Button 
+            onClick={() => setIsBillingAddressModalOpen(true)}
+            variant="ghost"
+            size="sm"
+            className="h-8 px-2 text-blue-600"
+          >
+            <Edit className="w-4 h-4 mr-1" />
+            Edit
+          </Button>
+        </div>
+        
+        <div className="space-y-1 text-sm">
+          <p className="font-medium">{currentBillingAddress.name}</p>
+          {currentBillingAddress.company && (
+            <p className="flex items-center text-gray-600">
+              <Building2 className="w-3 h-3 mr-1" />
+              {currentBillingAddress.company}
+            </p>
+          )}
+          <p>{currentBillingAddress.address.line1}</p>
+          {currentBillingAddress.address.line2 && <p>{currentBillingAddress.address.line2}</p>}
+          <p>
+            {currentBillingAddress.address.postalCode} {currentBillingAddress.address.city}
+            {currentBillingAddress.address.state && `, ${currentBillingAddress.address.state}`}
+          </p>
+          <p>{currentBillingAddress.address.country}</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <Sheet open={open} onOpenChange={onClose}>
@@ -303,6 +407,8 @@ const CreditPurchaseSlider = ({ open, onClose }: CreditPurchaseSliderProps) => {
                   )}
                 </div>
 
+                {renderBillingAddress()}
+
                 {!clientSecret ? (
                   <Button 
                     onClick={handlePaymentClick}
@@ -359,6 +465,13 @@ const CreditPurchaseSlider = ({ open, onClose }: CreditPurchaseSliderProps) => {
           </div>
         )}
       </SheetContent>
+
+      <BillingAddressModal
+        isOpen={isBillingAddressModalOpen}
+        onClose={() => setIsBillingAddressModalOpen(false)}
+        billingAddress={currentBillingAddress}
+        onAddressUpdate={handleAddressUpdate}
+      />
     </Sheet>
   )
 }

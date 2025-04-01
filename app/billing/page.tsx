@@ -18,7 +18,10 @@ import {
   Coins,
   CreditCard,
   ExternalLink,
-  Settings
+  Settings,
+  Receipt,
+  Building2,
+  MapPin
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useUser } from "@/hooks/use-user";
@@ -29,8 +32,9 @@ import { EditCreditSettingsModal } from "@/components/whatsapp-assistant/edit-cr
 import { HandWrittenTitle } from "@/components/ui/hand-writing-text";
 import { Tiles } from "@/components/ui/tiles";
 import Image from "next/image"
+import { BillingAddressModal, BillingAddress } from "@/components/billing/BillingAddressModal";
 
-type CardType = 'credits' | 'usage' | null;
+type CardType = 'credits' | 'usage' | 'billing' | null;
 
 export default function BillingPage() {
   const router = useRouter();
@@ -41,6 +45,8 @@ export default function BillingPage() {
   const [activeCard, setActiveCard] = useState<CardType>(null);
   const [isStripeLoading, setIsStripeLoading] = useState(false);
   const [isCreditSettingsModalOpen, setIsCreditSettingsModalOpen] = useState(false);
+  const [isBillingAddressModalOpen, setIsBillingAddressModalOpen] = useState(false);
+  const [billingAddress, setBillingAddress] = useState<BillingAddress | null>(null);
   const [creditSettings, setCreditSettings] = useState({
     minimumThreshold: 50,
     topUpAmount: 200,
@@ -125,6 +131,38 @@ export default function BillingPage() {
     fetchCreditSettings();
   };
 
+  // Fetch billing address
+  useEffect(() => {
+    const fetchBillingAddress = async () => {
+      try {
+        const token = getCookie('token');
+        if (!token) return;
+        
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/wallet/billing-address`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          if (data.billingAddress) {
+            setBillingAddress(data.billingAddress);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching billing address:', error);
+      }
+    };
+    
+    fetchBillingAddress();
+  }, []);
+
+  const handleAddressUpdate = (address: BillingAddress) => {
+    setBillingAddress(address);
+    setIsBillingAddressModalOpen(false);
+  };
+
   const creditUsageItems = [
     { icon: Download, label: "Download Review", cost: "0.1" },
     { icon: Rocket, label: "Generate Response", cost: "2" },
@@ -194,7 +232,7 @@ export default function BillingPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
           {/* Credits Card */}
           <div 
             className="group relative overflow-hidden bg-white rounded-3xl p-8 border border-gray-200 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
@@ -311,6 +349,92 @@ export default function BillingPage() {
                       </p>
                     </div>
                   </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Billing Address Card */}
+          <div 
+            className="group relative overflow-hidden bg-white rounded-3xl p-8 border border-gray-200 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+            onMouseEnter={() => setActiveCard('billing')}
+            onMouseLeave={() => setActiveCard(null)}
+          >
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary/10 to-primary/5 rounded-bl-full transform transition-transform duration-300 group-hover:scale-110" />
+            
+            <div className="relative">
+              <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                <div className="p-3 bg-primary/10 rounded-xl mr-4">
+                  <Receipt className="w-8 h-8 text-primary" />
+                </div>
+                Billing Address
+              </h2>
+
+              {billingAddress ? (
+                <div className="space-y-4">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h3 className="text-lg font-semibold">{billingAddress.name}</h3>
+                      {billingAddress.company && (
+                        <div className="flex items-center text-gray-600 mt-1">
+                          <Building2 className="w-4 h-4 mr-2" />
+                          <span>{billingAddress.company}</span>
+                        </div>
+                      )}
+                    </div>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => setIsBillingAddressModalOpen(true)}
+                      className="flex items-center gap-1"
+                    >
+                      <Settings className="w-4 h-4" />
+                      Edit
+                    </Button>
+                  </div>
+                  
+                  {(billingAddress.vatId || billingAddress.taxId) && (
+                    <div className="space-y-1 border-t pt-2">
+                      {billingAddress.vatId && (
+                        <p className="text-sm">
+                          <span className="font-semibold">VAT Number:</span> {billingAddress.vatId}
+                        </p>
+                      )}
+                      {billingAddress.taxId && (
+                        <p className="text-sm">
+                          <span className="font-semibold">Tax ID:</span> {billingAddress.taxId}
+                        </p>
+                      )}
+                    </div>
+                  )}
+                  
+                  <div className="space-y-2 mt-4 border-t pt-3">
+                    <div className="flex items-start">
+                      <MapPin className="w-5 h-5 text-primary mt-0.5 mr-2" />
+                      <div>
+                        <p>{billingAddress.address.line1}</p>
+                        {billingAddress.address.line2 && <p>{billingAddress.address.line2}</p>}
+                        <p>
+                          {billingAddress.address.postalCode} {billingAddress.address.city}
+                          {billingAddress.address.state && `, ${billingAddress.address.state}`}
+                        </p>
+                        <p>{billingAddress.address.country}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center py-8">
+                  <MapPin className="w-16 h-16 text-primary/30 mb-4" />
+                  <p className="text-lg text-gray-500 text-center mb-6">
+                    No billing address configured
+                  </p>
+                  <Button 
+                    onClick={() => setIsBillingAddressModalOpen(true)}
+                    className="bg-primary hover:bg-primary/90"
+                  >
+                    Add Address
+                  </Button>
                 </div>
               )}
             </div>
@@ -494,6 +618,7 @@ export default function BillingPage() {
         <CreditPurchaseSlider 
           open={isSliderOpen} 
           onClose={() => setIsSliderOpen(false)} 
+          billingAddress={billingAddress}
         />
       )}
       
@@ -506,6 +631,13 @@ export default function BillingPage() {
           creditSettings: creditSettings
         }}
         isUserAccount={true}
+      />
+      
+      <BillingAddressModal
+        isOpen={isBillingAddressModalOpen}
+        onClose={() => setIsBillingAddressModalOpen(false)}
+        billingAddress={billingAddress}
+        onAddressUpdate={handleAddressUpdate}
       />
     </div>
   );
