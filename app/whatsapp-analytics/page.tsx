@@ -665,25 +665,25 @@ export default function WhatsAppAnalyticsPage() {
                   <div className="flex justify-between items-center">
                     <CardTitle className="text-lg font-semibold text-gray-800 flex items-center gap-2">
                       <Star className="h-5 w-5 text-yellow-500" />
-                      Analisi delle Recensioni
+                      Review Analysis
                     </CardTitle>
                   </div>
                   <CardDescription className="text-xs text-gray-500">
-                    Statistiche dettagliate sui clic delle richieste di recensione
+                    Detailed statistics on review request clicks
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="pt-4">
                   {/* Distribuzione temporale dei clic */}
                   <div className="mb-6 pb-6 border-b border-gray-100">
-                    <h3 className="text-sm font-medium text-gray-600 mb-3">Tempi di risposta alle recensioni</h3>
+                    <h3 className="text-sm font-medium text-gray-600 mb-3">Review response times</h3>
                     <div className="grid grid-cols-3 gap-4">
                       <div className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
                         <div className="flex items-center justify-between mb-1">
                           <span className="text-xs text-gray-500 flex items-center">
                             <div className="w-2 h-2 rounded-full bg-green-500 mr-2"></div>
-                            Meno di 1 ora
+                            Less than 1 hour
                           </span>
-                          <span className="text-xs font-medium">{analyticsData.reviewClicks.timings.lessThanHour} clic</span>
+                          <span className="text-xs font-medium">{analyticsData.reviewClicks.timings.lessThanHour} clicks</span>
                         </div>
                         <div className="h-1 w-full bg-gray-100 rounded-full overflow-hidden">
                           <div 
@@ -697,9 +697,9 @@ export default function WhatsAppAnalyticsPage() {
                         <div className="flex items-center justify-between mb-1">
                           <span className="text-xs text-gray-500 flex items-center">
                             <div className="w-2 h-2 rounded-full bg-blue-500 mr-2"></div>
-                            Stesso giorno
+                            Same day
                           </span>
-                          <span className="text-xs font-medium">{analyticsData.reviewClicks.timings.sameDay} clic</span>
+                          <span className="text-xs font-medium">{analyticsData.reviewClicks.timings.sameDay} clicks</span>
                         </div>
                         <div className="h-1 w-full bg-gray-100 rounded-full overflow-hidden">
                           <div 
@@ -713,9 +713,9 @@ export default function WhatsAppAnalyticsPage() {
                         <div className="flex items-center justify-between mb-1">
                           <span className="text-xs text-gray-500 flex items-center">
                             <div className="w-2 h-2 rounded-full bg-purple-500 mr-2"></div>
-                            Giorni successivi
+                            Later days
                           </span>
-                          <span className="text-xs font-medium">{analyticsData.reviewClicks.timings.laterDays} clic</span>
+                          <span className="text-xs font-medium">{analyticsData.reviewClicks.timings.laterDays} clicks</span>
                         </div>
                         <div className="h-1 w-full bg-gray-100 rounded-full overflow-hidden">
                           <div 
@@ -729,7 +729,7 @@ export default function WhatsAppAnalyticsPage() {
                   
                   {/* Grafico dei clic nel tempo */}
                   <div className="h-60 mb-6 pb-6 border-b border-gray-100">
-                    <h3 className="text-sm font-medium text-gray-600 mb-3">Andamento clic su recensioni</h3>
+                    <h3 className="text-sm font-medium text-gray-600 mb-3">Review clicks over time</h3>
                     <ResponsiveContainer width="100%" height="100%">
                       <AreaChart
                         data={analyticsData.reviewClicks.byDate
@@ -758,7 +758,7 @@ export default function WhatsAppAnalyticsPage() {
                         <Legend wrapperStyle={{ fontSize: '12px' }} />
                         <Area
                           type="monotone"
-                          name="Clic su Recensioni"
+                          name="Review Clicks"
                           dataKey="clicks"
                           stroke="#ffc658"
                           fill="url(#colorClicks)"
@@ -777,16 +777,16 @@ export default function WhatsAppAnalyticsPage() {
                   {/* Tabella dei dettagli dei clic */}
                   {analyticsData.reviewClicks.details.length > 0 && (
                     <div>
-                      <h3 className="text-sm font-medium text-gray-600 mb-3">Dettaglio clic su recensioni</h3>
+                      <h3 className="text-sm font-medium text-gray-600 mb-3">Review click details</h3>
                       <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
                         <div className="overflow-x-auto">
                           <table className="min-w-full divide-y divide-gray-200">
                             <thead className="bg-gray-50">
                               <tr>
-                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ospite</th>
-                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data clic</th>
-                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tempo impiegato</th>
-                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Conteggio clic</th>
+                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Guest</th>
+                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Click Date</th>
+                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time Taken</th>
+                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Click Count</th>
                               </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
@@ -794,19 +794,19 @@ export default function WhatsAppAnalyticsPage() {
                                 <tr key={idx} className="hover:bg-gray-50">
                                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{click.profileName}</td>
                                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {format(parseISO(click.clickedAt), 'dd MMM yyyy HH:mm', { locale: it })}
+                                    {format(parseISO(click.clickedAt), 'dd MMM yyyy HH:mm', { locale: enUS })}
                                   </td>
                                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                     {click.timeTaken !== null
                                       ? click.timeTaken < 1
-                                        ? 'Meno di 1 ora'
+                                        ? 'Less than 1 hour'
                                         : click.timeTaken < 24
-                                        ? `${click.timeTaken} ore`
-                                        : `${Math.round(click.timeTaken / 24)} giorni`
+                                        ? `${click.timeTaken} hours`
+                                        : `${Math.round(click.timeTaken / 24)} days`
                                       : 'N/A'}
                                   </td>
                                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {click.clickCount} {click.clickCount === 1 ? 'volta' : 'volte'}
+                                    {click.clickCount} {click.clickCount === 1 ? 'time' : 'times'}
                                   </td>
                                 </tr>
                               ))}
@@ -814,7 +814,7 @@ export default function WhatsAppAnalyticsPage() {
                           </table>
                           {analyticsData.reviewClicks.details.length > 5 && (
                             <div className="px-6 py-3 bg-gray-50 text-xs text-gray-500 text-center">
-                              Mostrati i primi 5 di {analyticsData.reviewClicks.details.length} risultati totali
+                              Showing first 5 of {analyticsData.reviewClicks.details.length} total results
                             </div>
                           )}
                         </div>
