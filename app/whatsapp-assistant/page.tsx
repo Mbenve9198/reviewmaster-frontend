@@ -12,6 +12,7 @@ import { EditTimeSettingsModal } from "@/components/whatsapp-assistant/edit-time
 import { EditReviewSettingsModal } from "@/components/whatsapp-assistant/edit-review-settings-modal"
 import { EditIdentitySettingsModal } from "@/components/whatsapp-assistant/edit-identity-settings-modal"
 import { EditCreditSettingsModal } from "@/components/whatsapp-assistant/edit-credit-settings-modal"
+import { EditMessageLimitsModal } from "@/components/whatsapp-assistant/edit-message-limits-modal"
 import { QRCodeSVG } from 'qrcode.react'
 import { WhatsAppRuleModal } from "@/components/whatsapp-assistant/whatsapp-rule-modal"
 import { Switch } from "@/components/ui/switch"
@@ -35,6 +36,7 @@ export default function WhatsAppAssistantPage() {
   const [isReviewSettingsModalOpen, setIsReviewSettingsModalOpen] = useState(false)
   const [isIdentitySettingsModalOpen, setIsIdentitySettingsModalOpen] = useState(false)
   const [isCreditSettingsModalOpen, setIsCreditSettingsModalOpen] = useState(false)
+  const [isMessageLimitsModalOpen, setIsMessageLimitsModalOpen] = useState(false)
   const [isRulesModalOpen, setIsRulesModalOpen] = useState(false)
   const [selectedRule, setSelectedRule] = useState<WhatsAppRule | null>(null)
   const [rules, setRules] = useState<WhatsAppRule[]>([])
@@ -350,6 +352,198 @@ export default function WhatsAppAssistantPage() {
     }
   };
 
+  const renderSettings = () => {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+        {/* Time Settings Card */}
+        <div className="bg-white rounded-xl shadow-sm p-5 border relative overflow-hidden">
+          <div className="mb-4 flex items-center space-x-2">
+            <Clock className="h-6 w-6 text-primary" />
+            <h3 className="text-lg font-semibold">Time Settings</h3>
+          </div>
+          
+          <div className="space-y-3 text-sm">
+            <div>
+              <span className="text-gray-500">Timezone:</span>
+              <div className="font-medium">{config?.timezone}</div>
+            </div>
+            <div>
+              <span className="text-gray-500">Breakfast:</span>
+              <div className="font-medium">
+                {config?.breakfast && typeof config.breakfast !== 'string' 
+                  ? `${config.breakfast.startTime} - ${config.breakfast.endTime}`
+                  : 'Not set'}
+              </div>
+            </div>
+            <div>
+              <span className="text-gray-500">Check-in:</span>
+              <div className="font-medium">
+                {config?.checkIn && typeof config.checkIn !== 'string'
+                  ? `${config.checkIn.startTime} - ${config.checkIn.endTime}`
+                  : 'Not set'}
+              </div>
+            </div>
+          </div>
+          
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="absolute top-3 right-3"
+            onClick={() => setIsTimeSettingsModalOpen(true)}
+          >
+            <Edit className="h-4 w-4" />
+          </Button>
+        </div>
+        
+        {/* Review Settings Card */}
+        <div className="bg-white rounded-xl shadow-sm p-5 border relative overflow-hidden">
+          <div className="mb-4 flex items-center space-x-2">
+            <svg className="h-6 w-6 text-primary" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z" />
+            </svg>
+            <h3 className="text-lg font-semibold">Review Settings</h3>
+          </div>
+          
+          <div className="space-y-3 text-sm">
+            <div>
+              <span className="text-gray-500">Review link:</span>
+              <div className="font-medium truncate">
+                {config?.reviewLink && config.reviewLink !== 'pending'
+                  ? config.reviewLink
+                  : 'Not set'}
+              </div>
+            </div>
+            <div>
+              <span className="text-gray-500">Request delay:</span>
+              <div className="font-medium">
+                {config?.reviewRequestDelay
+                  ? `${config.reviewRequestDelay} hours after checkout`
+                  : 'Not set'}
+              </div>
+            </div>
+          </div>
+          
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="absolute top-3 right-3"
+            onClick={() => setIsReviewSettingsModalOpen(true)}
+          >
+            <Edit className="h-4 w-4" />
+          </Button>
+        </div>
+        
+        {/* Identity Settings Card */}
+        <div className="bg-white rounded-xl shadow-sm p-5 border relative overflow-hidden">
+          <div className="mb-4 flex items-center space-x-2">
+            <svg className="h-6 w-6 text-primary" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10s10 -4.48 10 -10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3 -3 3s-3 -1.34 -3 -3s1.34 -3 3 -3zm0 14.2c-2.5 0 -4.71 -1.28 -6 -3.22c.03 -1.99 4 -3.08 6 -3.08c1.99 0 5.97 1.09 6 3.08c-1.29 1.94 -3.5 3.22 -6 3.22z" />
+            </svg>
+            <h3 className="text-lg font-semibold">Identity Settings</h3>
+          </div>
+          
+          <div className="space-y-3 text-sm">
+            <div>
+              <span className="text-gray-500">Trigger name:</span>
+              <div className="font-medium">
+                {config?.triggerName && config.triggerName !== `hotel_${selectedHotelId}_pending`
+                  ? config.triggerName
+                  : 'Not set'}
+              </div>
+            </div>
+            <div>
+              <span className="text-gray-500">Status:</span>
+              <div className={`font-medium ${config?.isActive ? 'text-green-600' : 'text-red-600'}`}>
+                {config?.isActive ? 'Active' : 'Inactive'}
+              </div>
+            </div>
+          </div>
+          
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="absolute top-3 right-3"
+            onClick={() => setIsIdentitySettingsModalOpen(true)}
+          >
+            <Edit className="h-4 w-4" />
+          </Button>
+        </div>
+        
+        {/* Credit Settings Card */}
+        <div className="bg-white rounded-xl shadow-sm p-5 border relative overflow-hidden">
+          <div className="mb-4 flex items-center space-x-2">
+            <Wallet className="h-6 w-6 text-primary" />
+            <h3 className="text-lg font-semibold">Credit Settings</h3>
+          </div>
+          
+          <div className="space-y-3 text-sm">
+            <div>
+              <span className="text-gray-500">Auto top-up:</span>
+              <div className="font-medium">
+                {userCreditSettings.autoTopUp ? 'Enabled' : 'Disabled'}
+              </div>
+            </div>
+            <div>
+              <span className="text-gray-500">Minimum threshold:</span>
+              <div className="font-medium">{userCreditSettings.minimumThreshold} credits</div>
+            </div>
+            <div>
+              <span className="text-gray-500">Top-up amount:</span>
+              <div className="font-medium">{userCreditSettings.topUpAmount} credits</div>
+            </div>
+          </div>
+          
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="absolute top-3 right-3"
+            onClick={() => setIsCreditSettingsModalOpen(true)}
+          >
+            <Edit className="h-4 w-4" />
+          </Button>
+        </div>
+        
+        {/* NEW: Message Limits Card */}
+        <div className="bg-white rounded-xl shadow-sm p-5 border relative overflow-hidden">
+          <div className="mb-4 flex items-center space-x-2">
+            <MessageSquare className="h-6 w-6 text-primary" />
+            <h3 className="text-lg font-semibold">Message Limits</h3>
+          </div>
+          
+          <div className="space-y-3 text-sm">
+            <div>
+              <span className="text-gray-500">Status:</span>
+              <div className={`font-medium ${config?.messageLimits?.enabled ? 'text-green-600' : 'text-red-600'}`}>
+                {config?.messageLimits?.enabled ? 'Enabled' : 'Disabled'}
+              </div>
+            </div>
+            <div>
+              <span className="text-gray-500">Inbound limit:</span>
+              <div className="font-medium">
+                {config?.messageLimits?.inboundPerDay || 5} messages per day
+              </div>
+            </div>
+            <div>
+              <span className="text-gray-500">Outbound limit:</span>
+              <div className="font-medium">
+                {config?.messageLimits?.outboundPerDay || 5} messages per day
+              </div>
+            </div>
+          </div>
+          
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="absolute top-3 right-3"
+            onClick={() => setIsMessageLimitsModalOpen(true)}
+          >
+            <Edit className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -503,95 +697,7 @@ export default function WhatsAppAssistantPage() {
 
           {/* Configuration Sections */}
           <div className="p-6 space-y-8">
-            {/* Time Settings */}
-            <div className="space-y-6">
-              <div className="flex items-center justify-between">
-                <h3 className="text-xl font-semibold text-gray-800">Time Settings</h3>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="rounded-xl border-gray-200 hover:bg-gray-50 hover:text-gray-900 transition-colors gap-2"
-                  onClick={() => setIsTimeSettingsModalOpen(true)}
-                >
-                  <Edit className="h-4 w-4" />
-                  Edit
-                </Button>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Breakfast Times */}
-                <div className="bg-gray-50 p-4 rounded-xl space-y-2">
-                  <h4 className="font-medium text-gray-700 flex items-center gap-2">
-                    <Clock className="h-4 w-4 text-blue-500" />
-                    Breakfast Hours
-                  </h4>
-                  <p className="text-gray-600">
-                    {typeof config.breakfast === 'string' ? config.breakfast : (config.breakfast?.startTime && config.breakfast?.endTime ? `${config.breakfast.startTime} - ${config.breakfast.endTime}` : 'Non specificato')}
-                  </p>
-                </div>
-
-                {/* Check-in Times */}
-                <div className="bg-gray-50 p-4 rounded-xl space-y-2">
-                  <h4 className="font-medium text-gray-700 flex items-center gap-2">
-                    <Clock className="h-4 w-4 text-blue-500" />
-                    Check-in Hours
-                  </h4>
-                  <p className="text-gray-600">
-                    {typeof config.checkIn === 'string' ? config.checkIn : (config.checkIn?.startTime && config.checkIn?.endTime ? `${config.checkIn.startTime} - ${config.checkIn.endTime}` : 'Non specificato')}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Review Settings */}
-            <div className="space-y-6">
-              <div className="flex items-center justify-between">
-                <h3 className="text-xl font-semibold text-gray-800">Review Settings</h3>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="rounded-xl border-gray-200 hover:bg-gray-50 hover:text-gray-900 transition-colors gap-2"
-                  onClick={() => setIsReviewSettingsModalOpen(true)}
-                >
-                  <Edit className="h-4 w-4" />
-                  Edit
-                </Button>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-gray-50 p-4 rounded-xl space-y-2">
-                  <h4 className="font-medium text-gray-700">Review Link</h4>
-                  <p className="text-gray-600 break-all">{config.reviewLink}</p>
-                </div>
-                <div className="bg-gray-50 p-4 rounded-xl space-y-2">
-                  <h4 className="font-medium text-gray-700">Request Delay</h4>
-                  <p className="text-gray-600">
-                    {config.reviewRequestDelay} {config.reviewRequestDelay === 1 ? 'day' : 'days'} after first interaction
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Assistant Identity */}
-            <div className="space-y-6">
-              <div className="flex items-center justify-between">
-                <h3 className="text-xl font-semibold text-gray-800">Assistant Identity</h3>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="rounded-xl border-gray-200 hover:bg-gray-50 hover:text-gray-900 transition-colors gap-2"
-                  onClick={() => setIsIdentitySettingsModalOpen(true)}
-                >
-                  <Edit className="h-4 w-4" />
-                  Edit
-                </Button>
-              </div>
-              
-              <div className="bg-gray-50 p-4 rounded-xl space-y-2">
-                <h4 className="font-medium text-gray-700">Trigger Name</h4>
-                <p className="text-gray-600">{config.triggerName}</p>
-              </div>
-            </div>
+            {renderSettings()}
 
             {/* Rules Section */}
             <div className="space-y-6">
@@ -668,65 +774,6 @@ export default function WhatsAppAssistantPage() {
                     ))}
                   </div>
                 )}
-              </div>
-            </div>
-
-            {/* Credit Settings */}
-            <div className="bg-white rounded-3xl border border-gray-200 overflow-hidden">
-              <div className="px-8 py-6 border-b border-gray-200">
-                <h2 className="text-xl font-semibold">Credit Settings</h2>
-              </div>
-              <div className="p-8">
-                <div className="space-y-6">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-xl font-semibold text-gray-800">Credit Settings</h3>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="rounded-xl border-gray-200 hover:bg-gray-50 hover:text-gray-900 transition-colors gap-2"
-                      onClick={() => setIsCreditSettingsModalOpen(true)}
-                    >
-                      <Edit className="h-4 w-4" />
-                      Edit
-                    </Button>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {/* Minimum Threshold */}
-                    <div className="bg-gray-50 p-4 rounded-xl space-y-2">
-                      <h4 className="font-medium text-gray-700 flex items-center gap-2">
-                        <Wallet className="h-4 w-4 text-blue-500" />
-                        Minimum Threshold
-                      </h4>
-                      <p className="text-gray-600">
-                        {userCreditSettings.minimumThreshold} credits
-                      </p>
-                    </div>
-
-                    {/* Top-up Amount */}
-                    <div className="bg-gray-50 p-4 rounded-xl space-y-2">
-                      <h4 className="font-medium text-gray-700 flex items-center gap-2">
-                        <Sparkles className="h-4 w-4 text-blue-500" />
-                        Auto Top-up Amount
-                      </h4>
-                      <p className="text-gray-600">
-                        {userCreditSettings.topUpAmount} credits
-                      </p>
-                    </div>
-
-                    {/* Auto Top-up Status */}
-                    <div className="bg-gray-50 p-4 rounded-xl space-y-2">
-                      <h4 className="font-medium text-gray-700 flex items-center gap-2">
-                        <Zap className="h-4 w-4 text-blue-500" />
-                        Auto Top-up
-                      </h4>
-                      <p className="text-gray-600 flex items-center gap-2">
-                        <span className={`h-2 w-2 rounded-full ${userCreditSettings.autoTopUp ? 'bg-green-500' : 'bg-red-500'}`}></span>
-                        {userCreditSettings.autoTopUp ? 'Enabled' : 'Disabled'}
-                      </p>
-                    </div>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
@@ -841,6 +888,16 @@ export default function WhatsAppAssistantPage() {
           creditSettings: userCreditSettings
         }}
         onSuccess={handleSuccess}
+      />
+
+      <EditMessageLimitsModal
+        isOpen={isMessageLimitsModalOpen}
+        onClose={() => setIsMessageLimitsModalOpen(false)}
+        onSuccess={handleSuccess}
+        currentConfig={{
+          hotelId: selectedHotelId,
+          messageLimits: config.messageLimits
+        }}
       />
 
       <WhatsAppRuleModal
