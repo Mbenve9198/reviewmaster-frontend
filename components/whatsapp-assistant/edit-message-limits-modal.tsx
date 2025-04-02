@@ -29,8 +29,8 @@ export function EditMessageLimitsModal({ isOpen, onClose, onSuccess, currentConf
   
   // Set default values if messageLimits is not defined
   const initialLimits = currentConfig.messageLimits || {
-    inboundPerDay: 5,
-    outboundPerDay: 5,
+    inboundPerDay: 10,
+    outboundPerDay: 10,
     enabled: true
   }
   
@@ -131,7 +131,7 @@ export function EditMessageLimitsModal({ isOpen, onClose, onSuccess, currentConf
                     `}</style>
                     <Slider
                       className="custom-slider"
-                      defaultValue={[config.inboundPerDay]}
+                      value={[config.inboundPerDay]}
                       min={5}
                       max={50}
                       step={1}
