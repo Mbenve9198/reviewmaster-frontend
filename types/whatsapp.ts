@@ -25,4 +25,9 @@ export interface WhatsAppConfig {
   triggerName: string;
   isActive: boolean;
   rules: WhatsAppRule[];
+  messageLimits?: {
+    inboundPerDay: number;
+    outboundPerDay: number;
+    enabled: boolean;
+  };
 } 
