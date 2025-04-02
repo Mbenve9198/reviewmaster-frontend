@@ -51,6 +51,25 @@ interface AnalyticsData {
     total: number
   }[]
   creditCost?: number
+  reviewClicks?: {
+    details: {
+      phoneNumber: string
+      profileName: string
+      clickedAt: string
+      sentAt: string
+      clickCount: number
+      timeTaken: number | null
+    }[]
+    timings: {
+      lessThanHour: number
+      sameDay: number
+      laterDays: number
+    }
+    byDate: {
+      date: string
+      clicks: number
+    }[]
+  }
 }
 
 export default function WhatsAppAnalyticsPage() {
@@ -638,6 +657,173 @@ export default function WhatsAppAnalyticsPage() {
                 </div>
               </CardContent>
             </Card>
+            
+            {/* Recensioni Card - Migliorato con dati sui clic */}
+            {analyticsData.reviewClicks && (
+              <Card className="bg-white/50 backdrop-blur-sm border border-gray-200/50 shadow-lg rounded-2xl">
+                <CardHeader className="pb-2">
+                  <div className="flex justify-between items-center">
+                    <CardTitle className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                      <Star className="h-5 w-5 text-yellow-500" />
+                      Analisi delle Recensioni
+                    </CardTitle>
+                  </div>
+                  <CardDescription className="text-xs text-gray-500">
+                    Statistiche dettagliate sui clic delle richieste di recensione
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="pt-4">
+                  {/* Distribuzione temporale dei clic */}
+                  <div className="mb-6 pb-6 border-b border-gray-100">
+                    <h3 className="text-sm font-medium text-gray-600 mb-3">Tempi di risposta alle recensioni</h3>
+                    <div className="grid grid-cols-3 gap-4">
+                      <div className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-xs text-gray-500 flex items-center">
+                            <div className="w-2 h-2 rounded-full bg-green-500 mr-2"></div>
+                            Meno di 1 ora
+                          </span>
+                          <span className="text-xs font-medium">{analyticsData.reviewClicks.timings.lessThanHour} clic</span>
+                        </div>
+                        <div className="h-1 w-full bg-gray-100 rounded-full overflow-hidden">
+                          <div 
+                            className="h-full bg-green-500"
+                            style={{ width: `${analyticsData.reviewClicks.timings.lessThanHour / (analyticsData.reviewsClicked || 1) * 100}%` }}
+                          ></div>
+                        </div>
+                      </div>
+                      
+                      <div className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-xs text-gray-500 flex items-center">
+                            <div className="w-2 h-2 rounded-full bg-blue-500 mr-2"></div>
+                            Stesso giorno
+                          </span>
+                          <span className="text-xs font-medium">{analyticsData.reviewClicks.timings.sameDay} clic</span>
+                        </div>
+                        <div className="h-1 w-full bg-gray-100 rounded-full overflow-hidden">
+                          <div 
+                            className="h-full bg-blue-500"
+                            style={{ width: `${analyticsData.reviewClicks.timings.sameDay / (analyticsData.reviewsClicked || 1) * 100}%` }}
+                          ></div>
+                        </div>
+                      </div>
+                      
+                      <div className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-xs text-gray-500 flex items-center">
+                            <div className="w-2 h-2 rounded-full bg-purple-500 mr-2"></div>
+                            Giorni successivi
+                          </span>
+                          <span className="text-xs font-medium">{analyticsData.reviewClicks.timings.laterDays} clic</span>
+                        </div>
+                        <div className="h-1 w-full bg-gray-100 rounded-full overflow-hidden">
+                          <div 
+                            className="h-full bg-purple-500"
+                            style={{ width: `${analyticsData.reviewClicks.timings.laterDays / (analyticsData.reviewsClicked || 1) * 100}%` }}
+                          ></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Grafico dei clic nel tempo */}
+                  <div className="h-60 mb-6 pb-6 border-b border-gray-100">
+                    <h3 className="text-sm font-medium text-gray-600 mb-3">Andamento clic su recensioni</h3>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart
+                        data={analyticsData.reviewClicks.byDate
+                          .filter(item => {
+                            const itemDate = parseISO(item.date);
+                            const cutoffDate = subDays(new Date(), parseInt(timeRange));
+                            return itemDate >= cutoffDate;
+                          })
+                          .map(item => ({
+                            ...item,
+                            date: format(parseISO(item.date), 'dd/MM')
+                          }))}
+                        margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.2} />
+                        <XAxis dataKey="date" tick={{ fontSize: 12 }} />
+                        <YAxis tick={{ fontSize: 12 }} />
+                        <Tooltip
+                          contentStyle={{
+                            backgroundColor: 'white',
+                            borderRadius: '8px',
+                            border: '1px solid #e2e8f0',
+                            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                          }}
+                        />
+                        <Legend wrapperStyle={{ fontSize: '12px' }} />
+                        <Area
+                          type="monotone"
+                          name="Clic su Recensioni"
+                          dataKey="clicks"
+                          stroke="#ffc658"
+                          fill="url(#colorClicks)"
+                          strokeWidth={2}
+                        />
+                        <defs>
+                          <linearGradient id="colorClicks" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#ffc658" stopOpacity={0.8} />
+                            <stop offset="95%" stopColor="#ffc658" stopOpacity={0.1} />
+                          </linearGradient>
+                        </defs>
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </div>
+                  
+                  {/* Tabella dei dettagli dei clic */}
+                  {analyticsData.reviewClicks.details.length > 0 && (
+                    <div>
+                      <h3 className="text-sm font-medium text-gray-600 mb-3">Dettaglio clic su recensioni</h3>
+                      <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+                        <div className="overflow-x-auto">
+                          <table className="min-w-full divide-y divide-gray-200">
+                            <thead className="bg-gray-50">
+                              <tr>
+                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ospite</th>
+                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data clic</th>
+                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tempo impiegato</th>
+                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Conteggio clic</th>
+                              </tr>
+                            </thead>
+                            <tbody className="bg-white divide-y divide-gray-200">
+                              {analyticsData.reviewClicks.details.slice(0, 5).map((click, idx) => (
+                                <tr key={idx} className="hover:bg-gray-50">
+                                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{click.profileName}</td>
+                                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {format(parseISO(click.clickedAt), 'dd MMM yyyy HH:mm', { locale: it })}
+                                  </td>
+                                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {click.timeTaken !== null
+                                      ? click.timeTaken < 1
+                                        ? 'Meno di 1 ora'
+                                        : click.timeTaken < 24
+                                        ? `${click.timeTaken} ore`
+                                        : `${Math.round(click.timeTaken / 24)} giorni`
+                                      : 'N/A'}
+                                  </td>
+                                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {click.clickCount} {click.clickCount === 1 ? 'volta' : 'volte'}
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                          {analyticsData.reviewClicks.details.length > 5 && (
+                            <div className="px-6 py-3 bg-gray-50 text-xs text-gray-500 text-center">
+                              Mostrati i primi 5 di {analyticsData.reviewClicks.details.length} risultati totali
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
           </div>
         </div>
       )}
