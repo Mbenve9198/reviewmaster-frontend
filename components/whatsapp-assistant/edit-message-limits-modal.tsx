@@ -40,6 +40,15 @@ export function EditMessageLimitsModal({ isOpen, onClose, onSuccess, currentConf
     enabled: initialLimits.enabled
   })
 
+  // Funzione per aggiornare entrambi i valori contemporaneamente
+  const handleLimitChange = (value: number) => {
+    setConfig(prev => ({
+      ...prev,
+      inboundPerDay: value,
+      outboundPerDay: value
+    }))
+  }
+
   const handleSave = async () => {
     try {
       setIsLoading(true)
@@ -106,20 +115,27 @@ export function EditMessageLimitsModal({ isOpen, onClose, onSuccess, currentConf
                 </Alert>
 
                 <div className={config.enabled ? "" : "opacity-50 pointer-events-none"}>
-                  {/* Inbound messages slider */}
+                  {/* Common Slider for both inbound and outbound messages */}
                   <div className="space-y-4 mb-6">
                     <div className="flex justify-between items-center">
                       <label className="block text-sm font-medium text-gray-700">
-                        Inbound Messages (from guests)
+                        Daily Message Limit
                       </label>
                       <span className="text-lg font-bold text-primary">{config.inboundPerDay}</span>
                     </div>
+                    <style jsx global>{`
+                      .custom-slider .MuiSlider-thumb {
+                        background-color: white !important;
+                        border: 2px solid var(--primary) !important;
+                      }
+                    `}</style>
                     <Slider
+                      className="custom-slider"
                       defaultValue={[config.inboundPerDay]}
                       min={5}
                       max={50}
                       step={1}
-                      onValueChange={(value) => setConfig(prev => ({ ...prev, inboundPerDay: value[0] }))}
+                      onValueChange={(value) => handleLimitChange(value[0])}
                     />
                     <div className="flex justify-between text-xs text-gray-500">
                       <span>Min: 5</span>
@@ -127,24 +143,15 @@ export function EditMessageLimitsModal({ isOpen, onClose, onSuccess, currentConf
                     </div>
                   </div>
 
-                  {/* Outbound messages slider */}
-                  <div className="space-y-4 mb-6">
-                    <div className="flex justify-between items-center">
-                      <label className="block text-sm font-medium text-gray-700">
-                        Outbound Messages (to guests)
-                      </label>
-                      <span className="text-lg font-bold text-primary">{config.outboundPerDay}</span>
+                  {/* Inbound and outbound info */}
+                  <div className="bg-gray-50 p-4 rounded-lg space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">Inbound Messages:</span>
+                      <span className="text-sm font-bold">{config.inboundPerDay}</span>
                     </div>
-                    <Slider
-                      defaultValue={[config.outboundPerDay]}
-                      min={5}
-                      max={50}
-                      step={1}
-                      onValueChange={(value) => setConfig(prev => ({ ...prev, outboundPerDay: value[0] }))}
-                    />
-                    <div className="flex justify-between text-xs text-gray-500">
-                      <span>Min: 5</span>
-                      <span>Max: 50</span>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">Outbound Messages:</span>
+                      <span className="text-sm font-bold">{config.outboundPerDay}</span>
                     </div>
                   </div>
                 </div>
