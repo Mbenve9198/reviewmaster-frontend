@@ -183,7 +183,7 @@ export default function HomePage() {
         throw new Error(data.message || `HTTP error! status: ${response.status}`);
       }
       
-      setMessages([{ id: 1, content: data.response, sender: "ai" }]);
+      setMessages([{ id: 1, content: data.content, sender: "ai" }]);
 
     } catch (error: any) {
       setError(error?.message || "An error occurred");
@@ -238,7 +238,7 @@ export default function HomePage() {
 
       const aiMessage: ChatMessage = { 
         id: messages.length + 2, 
-        content: data.response, 
+        content: data.content, 
         sender: "ai"
       };
       setMessages(prev => [...prev, aiMessage]);
