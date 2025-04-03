@@ -224,8 +224,9 @@ export default function HomePage() {
             style: responseStyle,
             length: responseLength
           },
-          previousMessages: [...messages, newUserMessage],
-          isNewManualReview: false // Imposta esplicitamente a false per le chat successive
+          userMessage: input,
+          previousMessages: [...messages],
+          isNewManualReview: false
         }),
         credentials: 'include'
       });
